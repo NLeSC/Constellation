@@ -1,0 +1,90 @@
+<project name="Constellation" default="build" basedir=".">
+
+	<property name="version" value="0.7.0" />
+	<property name="jar" value="constellation-${version}.jar" />
+	<property name="zip" value="constellation-${version}.zip" />
+	<property name="src-zip" value="constellation-${version}-src.zip" />
+
+	<property name="srcdir" value="./src" />
+	<property name="builddir" value="./build" />
+	<property name="distdir" value="./lib" />
+	<property name="javadoc" value="javadoc/constellation" />
+
+	<path id="default.classpath">
+		<fileset dir="external">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="lib">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<!-- Compile constellation -->
+	<target name="compile">
+		<mkdir dir="${distdir}" />
+		<mkdir dir="${builddir}" />
+
+		<javac destdir="${builddir}" srcdir="${srcdir}" source="1.7" target="1.7" debug="true" 
+                                        includeantruntime="false" includes="**/*.java" classpathref="default.classpath" />
+
+		<jar jarfile="${distdir}/${jar}" basedir="${builddir}" includes="**">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+			</manifest>
+		</jar>
+	</target>
+
+        <target name="copy-external">
+	        <mkdir dir="lib" />
+        	<!-- Copy external libraries to lib directory -->
+	        <copy todir="lib">
+		        <fileset dir="external" excludes="log4jME*.jar" />
+		</copy>
+	</target>
+
+	<target name="javadoc" description="Create javadocs">
+		<!-- Create the javadoc -->
+		<mkdir dir="${javadoc}" />
+		<javadoc destdir="${javadoc}" access="public" sourcepath="src" windowtitle="Constellation Documentation" packagenames="ibis.constellation" overview="src/overview.html" doctitle="Constellation Documentation" bottom="The Ibis project" classpathref="default.classpath">
+			<link href="http://java.sun.com/j2se/1.5.0/docs/api/" />
+		</javadoc>
+
+	</target>
+
+	<target name="build" depends="clean,compile,copy-external">
+	</target>
+
+	<target name="bin.zip" depends="build">
+		<delete failonerror="false" file="${zip}" />
+
+		<zip destfile="${zip}">
+			<zipfileset dir="." prefix="cohort-${version}" includes="external/**,jars/**,*.properties,*.example,notices/**,README.txt,INSTALL.txt,LICENSE.txt,javadoc/**" />
+			<zipfileset dir="." prefix="cohort-${version}" filemode="755" includes="bin/**" />
+		</zip>
+	</target>
+
+	<target name="src.zip" depends="build">
+		<delete failonerror="false" file="${src-zip}" />
+
+		<zip destfile="${src-zip}">
+			<zipfileset dir="." prefix="constellation-${version}" includes="src/**,external/**,jars/**,*.properties,*.example,notices/**,README.txt,INSTALL.txt,LICENSE.txt,javadoc/**,build.xml" />
+			<zipfileset dir="." prefix="constellation-${version}" filemode="755" includes="bin/**" />
+		</zip>
+	</target>
+
+
+	<!-- remove all generated code -->
+	<target name="clean" description="Removes the ${distdir} directory">
+		<delete failonerror="false" dir="${builddir}" />
+		<delete failonerror="false" dir="${distdir}" />
+		<delete failonerror="false" dir="${javadoc}" />
+	</target>
+
+	<target name="distclean" depends="clean">
+		<delete failonerror="false" dir="./build-eclipse" />
+		<delete failonerror="false" file="${zip}" />
+		<delete failonerror="false" file="${src-zip}" />
+	</target>
+
+
+</project>
