@@ -11,6 +11,9 @@ public abstract class ActivityContext implements Serializable {
      * unit+)
      */
 
+    /* Generated */
+    private static final long serialVersionUID = 3149128711424555747L;
+
     protected ActivityContext() {
         // empty
     }

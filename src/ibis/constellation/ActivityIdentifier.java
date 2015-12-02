@@ -2,8 +2,16 @@ package ibis.constellation;
 
 import java.io.Serializable;
 
+/**
+ * ActivityIdentifier uniquely identifies an Activity instance.
+ * 
+ * @version 1.0
+ * @since 1.0
+ *
+ */
 public class ActivityIdentifier implements Serializable {
 
+    /* Generated */
     private static final long serialVersionUID = 4785081436543353644L;
 
     // public static final long UNKNOWN = Long.MAX_VALUE;
