@@ -1,0 +1,6 @@
+In no particular order:
+- cleanup API
+- documentation
+- incorporate YARN
+- fault-tolerance: make jobs restartable
+- make jobs serializable, writable to file
