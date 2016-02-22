@@ -3,13 +3,13 @@ package ibis.constellation.impl;
 import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.WorkerContext;
+import ibis.constellation.ExecutorContext;
 
 public class StealRequest extends Message {
 
     private static final long serialVersionUID = 2655647847327367590L;
 
-    public final WorkerContext context;
+    public final ExecutorContext context;
     public final StealStrategy localStrategy;
     public final StealStrategy constellationStrategy;
     public final StealStrategy remoteStrategy;
@@ -21,7 +21,7 @@ public class StealRequest extends Message {
     private transient boolean isLocal;
 
     public StealRequest(final ConstellationIdentifier source,
-            final WorkerContext context, final StealStrategy localStrategy,
+            final ExecutorContext context, final StealStrategy localStrategy,
             final StealStrategy constellationStrategy,
             final StealStrategy remoteStrategy, final StealPool pool,
             final int size) {

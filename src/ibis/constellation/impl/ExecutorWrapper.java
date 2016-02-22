@@ -13,7 +13,7 @@ import ibis.constellation.Executor;
 import ibis.constellation.Stats;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.WorkerContext;
+import ibis.constellation.ExecutorContext;
 import ibis.constellation.extra.CircularBuffer;
 import ibis.constellation.extra.Debug;
 import ibis.constellation.extra.SmartSortedWorkQueue;
@@ -39,7 +39,7 @@ public class ExecutorWrapper implements Constellation {
 
     private final Executor executor;
 
-    private final WorkerContext myContext;
+    private final ExecutorContext myContext;
 
     private final StealStrategy localStealStrategy;
     private final StealStrategy constellationStealStrategy;
@@ -308,7 +308,7 @@ public class ExecutorWrapper implements Constellation {
         return false;
     }
 
-    protected ActivityRecord[] steal(WorkerContext context, StealStrategy s,
+    protected ActivityRecord[] steal(ExecutorContext context, StealStrategy s,
             boolean allowRestricted, int count,
             ConstellationIdentifier source) {
 
@@ -341,7 +341,7 @@ public class ExecutorWrapper implements Constellation {
         return result;
     }
 
-    private ActivityRecord doSteal(WorkerContext context, StealStrategy s,
+    private ActivityRecord doSteal(ExecutorContext context, StealStrategy s,
             boolean allowRestricted) {
 
         if (Debug.DEBUG_STEAL) {
@@ -496,7 +496,7 @@ public class ExecutorWrapper implements Constellation {
     }
 
     @Override
-    public WorkerContext getContext() {
+    public ExecutorContext getContext() {
         return myContext;
     }
 

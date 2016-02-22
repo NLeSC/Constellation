@@ -1,18 +1,24 @@
 package ibis.constellation.context;
 
-import ibis.constellation.WorkerContext;
+import ibis.constellation.ExecutorContext;
 
-public class UnitWorkerContext extends WorkerContext {
+/**
+ * A <code>UnitExecutorContext</code> represents a single context, associated
+ * with an executor, and determines a specific type of activity that can be
+ * executed by the executor.
+ */
+public class UnitExecutorContext extends ExecutorContext {
 
     private static final long serialVersionUID = 6134114690113562356L;
 
-    public static final UnitWorkerContext DEFAULT = new UnitWorkerContext(
+    /** A default unit executor context. */
+    public static final UnitExecutorContext DEFAULT = new UnitExecutorContext(
             "DEFAULT");
 
     public final String name;
     protected final int hashCode;
 
-    public UnitWorkerContext(String name) {
+    public UnitExecutorContext(String name) {
 
         super();
 
@@ -34,7 +40,8 @@ public class UnitWorkerContext extends WorkerContext {
         return hashCode;
     }
 
+    @Override
     public String toString() {
-        return "UnitWorkerContext(" + name + ")";
+        return "UnitExecutorContext(" + name + ")";
     }
 }

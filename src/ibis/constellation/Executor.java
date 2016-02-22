@@ -1,6 +1,6 @@
 package ibis.constellation;
 
-import ibis.constellation.context.UnitWorkerContext;
+import ibis.constellation.context.UnitExecutorContext;
 import ibis.constellation.impl.ExecutorWrapper;
 
 import java.io.Serializable;
@@ -10,7 +10,7 @@ public abstract class Executor implements Serializable {
     private static final long serialVersionUID = 6808516395963593310L;
 
     // NOTE: These are final for now...
-    protected final WorkerContext context;
+    protected final ExecutorContext context;
 
     protected final StealStrategy localStealStrategy;
     protected final StealStrategy constellationStealStrategy;
@@ -22,7 +22,7 @@ public abstract class Executor implements Serializable {
     private ExecutorWrapper owner = null;
 
     protected Executor(StealPool myPool, StealPool stealsFrom,
-            WorkerContext context, StealStrategy localStealStrategy,
+            ExecutorContext context, StealStrategy localStealStrategy,
             StealStrategy constellationStealStrategy,
             StealStrategy remoteStealStrategy) {
 
@@ -39,7 +39,7 @@ public abstract class Executor implements Serializable {
         }
 
         if (context == null) {
-            this.context = UnitWorkerContext.DEFAULT;
+            this.context = UnitExecutorContext.DEFAULT;
         } else {
             this.context = context;
         }
@@ -64,7 +64,7 @@ public abstract class Executor implements Serializable {
     }
 
     protected Executor() {
-        this(StealPool.WORLD, StealPool.WORLD, UnitWorkerContext.DEFAULT,
+        this(StealPool.WORLD, StealPool.WORLD, UnitExecutorContext.DEFAULT,
                 StealStrategy.ANY, StealStrategy.ANY, StealStrategy.ANY);
     }
 
@@ -100,7 +100,7 @@ public abstract class Executor implements Serializable {
         owner.send(e);
     }
 
-    public WorkerContext getContext() {
+    public ExecutorContext getContext() {
         return context;
     }
 

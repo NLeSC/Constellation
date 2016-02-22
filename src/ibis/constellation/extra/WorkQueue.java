@@ -3,7 +3,7 @@ package ibis.constellation.extra;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Event;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.WorkerContext;
+import ibis.constellation.ExecutorContext;
 import ibis.constellation.impl.ActivityRecord;
 
 public abstract class WorkQueue {
@@ -18,7 +18,7 @@ public abstract class WorkQueue {
 
     public abstract ActivityRecord dequeue(boolean head);
 
-    public abstract ActivityRecord steal(WorkerContext c, StealStrategy s);
+    public abstract ActivityRecord steal(ExecutorContext c, StealStrategy s);
 
     public abstract int size();
 
@@ -55,7 +55,7 @@ public abstract class WorkQueue {
         return tmp;
     }
 
-    public ActivityRecord[] steal(WorkerContext c, StealStrategy s, int count) {
+    public ActivityRecord[] steal(ExecutorContext c, StealStrategy s, int count) {
 
         ActivityRecord[] tmp = new ActivityRecord[count];
 
@@ -70,7 +70,7 @@ public abstract class WorkQueue {
         return tmp;
     }
 
-    public int steal(WorkerContext c, StealStrategy s, ActivityRecord[] dst,
+    public int steal(ExecutorContext c, StealStrategy s, ActivityRecord[] dst,
             int off, int len) {
 
         for (int i = off; i < off + len; i++) {

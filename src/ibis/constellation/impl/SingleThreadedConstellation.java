@@ -11,7 +11,7 @@ import ibis.constellation.Executor;
 import ibis.constellation.Stats;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.WorkerContext;
+import ibis.constellation.ExecutorContext;
 import ibis.constellation.extra.ActivityLocationLookup;
 import ibis.constellation.extra.CircularBuffer;
 import ibis.constellation.extra.Debug;
@@ -301,7 +301,7 @@ public class SingleThreadedConstellation extends Thread {
         return stealPool;
     }
 
-    WorkerContext getContext() {
+    ExecutorContext getContext() {
         return wrapper.getContext();
     }
 
@@ -414,7 +414,7 @@ public class SingleThreadedConstellation extends Thread {
         return result;
     }
 
-    ActivityRecord[] attemptSteal(WorkerContext context, StealStrategy s,
+    ActivityRecord[] attemptSteal(ExecutorContext context, StealStrategy s,
             StealPool pool, ConstellationIdentifier src, int size,
             boolean local) {
 
@@ -429,7 +429,7 @@ public class SingleThreadedConstellation extends Thread {
         return trim(result, count);
     }
 
-    synchronized int attemptSteal(ActivityRecord[] tmp, WorkerContext context,
+    synchronized int attemptSteal(ActivityRecord[] tmp, ExecutorContext context,
             StealStrategy s, StealPool pool, ConstellationIdentifier src,
             int size, boolean local) {
 

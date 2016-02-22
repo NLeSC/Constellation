@@ -18,7 +18,7 @@ public interface Constellation {
 
     public ConstellationIdentifier identifier();
 
-    public WorkerContext getContext();
+    public ExecutorContext getContext();
 
     public Stats getStats();
 }

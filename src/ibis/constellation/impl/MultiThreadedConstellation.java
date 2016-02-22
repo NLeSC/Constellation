@@ -7,9 +7,9 @@ import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.Event;
 import ibis.constellation.Stats;
 import ibis.constellation.StealPool;
-import ibis.constellation.WorkerContext;
-import ibis.constellation.context.OrWorkerContext;
-import ibis.constellation.context.UnitWorkerContext;
+import ibis.constellation.ExecutorContext;
+import ibis.constellation.context.OrExecutorContext;
+import ibis.constellation.context.UnitExecutorContext;
 import ibis.constellation.extra.ConstellationIdentifierFactory;
 import ibis.constellation.extra.Debug;
 import ibis.constellation.extra.SimpleConstellationIdentifierFactory;
@@ -47,7 +47,7 @@ public class MultiThreadedConstellation {
 
     private boolean active = false;
 
-    private WorkerContext myContext;
+    private ExecutorContext myContext;
 
     private final ConstellationIdentifierFactory cidFactory;
 
@@ -76,7 +76,7 @@ public class MultiThreadedConstellation {
         }
 
         incomingWorkers = new ArrayList<SingleThreadedConstellation>();
-        myContext = UnitWorkerContext.DEFAULT;
+        myContext = UnitExecutorContext.DEFAULT;
 
         String tmp = p.getProperty("ibis.constellation.stealsize.local");
 
@@ -278,7 +278,7 @@ public class MultiThreadedConstellation {
             int stealSize) {
         // a steal request from below
 
-        final WorkerContext context = c.getContext();
+        final ExecutorContext context = c.getContext();
         final StealPool pool = c.stealsFrom();
 
         if (Debug.DEBUG_STEAL && logger.isInfoEnabled()) {
@@ -348,23 +348,23 @@ public class MultiThreadedConstellation {
         incomingWorkers.add(cohort);
     }
 
-    synchronized WorkerContext getContext() {
+    synchronized ExecutorContext getContext() {
         return myContext;
     }
 
     // FIXME: does NOT merge steal strategies!
-    private WorkerContext mergeContext() {
+    private ExecutorContext mergeContext() {
 
         // We should now combine all contexts of our workers into one
-        HashMap<String, UnitWorkerContext> map = new HashMap<String, UnitWorkerContext>();
+        HashMap<String, UnitExecutorContext> map = new HashMap<String, UnitExecutorContext>();
 
         for (int i = 0; i < workerCount; i++) {
 
-            WorkerContext tmp = workers[i].getContext();
+            ExecutorContext tmp = workers[i].getContext();
 
             if (tmp.isUnit()) {
 
-                UnitWorkerContext u = (UnitWorkerContext) tmp;
+                UnitExecutorContext u = (UnitExecutorContext) tmp;
 
                 String name = u.name;
 
@@ -372,10 +372,10 @@ public class MultiThreadedConstellation {
                     map.put(name, u);
                 }
             } else if (tmp.isOr()) {
-                OrWorkerContext o = (OrWorkerContext) tmp;
+                OrExecutorContext o = (OrExecutorContext) tmp;
 
                 for (int j = 0; j < o.size(); j++) {
-                    UnitWorkerContext u = o.get(j);
+                    UnitExecutorContext u = o.get(j);
 
                     if (u != null) {
                         String name = u.name;
@@ -390,13 +390,13 @@ public class MultiThreadedConstellation {
 
         if (map.size() == 0) {
             // should not happen ?
-            return UnitWorkerContext.DEFAULT;
+            return UnitExecutorContext.DEFAULT;
         } else if (map.size() == 1) {
             return map.values().iterator().next();
         } else {
-            UnitWorkerContext[] contexts = map.values()
-                    .toArray(new UnitWorkerContext[map.size()]);
-            return new OrWorkerContext(contexts, false);
+            UnitExecutorContext[] contexts = map.values()
+                    .toArray(new UnitExecutorContext[map.size()]);
+            return new OrExecutorContext(contexts, false);
         }
     }
 

@@ -4,11 +4,11 @@ import ibis.constellation.ActivityContext;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Event;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.WorkerContext;
+import ibis.constellation.ExecutorContext;
 import ibis.constellation.context.OrActivityContext;
-import ibis.constellation.context.OrWorkerContext;
+import ibis.constellation.context.OrExecutorContext;
 import ibis.constellation.context.UnitActivityContext;
-import ibis.constellation.context.UnitWorkerContext;
+import ibis.constellation.context.UnitExecutorContext;
 import ibis.constellation.impl.ActivityRecord;
 
 import java.util.HashMap;
@@ -86,7 +86,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
         return a;
     }
 
-    private ActivityRecord getUnit(UnitWorkerContext c, StealStrategy s) {
+    private ActivityRecord getUnit(UnitExecutorContext c, StealStrategy s) {
 
         SortedList tmp = unit.get(c.name);
 
@@ -193,7 +193,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
         return a;
     }
 
-    private ActivityRecord getOr(UnitWorkerContext c, StealStrategy s) {
+    private ActivityRecord getOr(UnitExecutorContext c, StealStrategy s) {
 
         SortedList tmp = or.get(c.name);
 
@@ -331,11 +331,11 @@ public class SmartSortedWorkQueue extends WorkQueue {
     }
 
     @Override
-    public ActivityRecord steal(WorkerContext c, StealStrategy s) {
+    public ActivityRecord steal(ExecutorContext c, StealStrategy s) {
 
         if (c.isUnit()) {
 
-            UnitWorkerContext tmp = (UnitWorkerContext) c;
+            UnitExecutorContext tmp = (UnitExecutorContext) c;
 
             ActivityRecord a = getUnit(tmp, s);
 
@@ -348,11 +348,11 @@ public class SmartSortedWorkQueue extends WorkQueue {
 
         if (c.isOr()) {
 
-            OrWorkerContext o = (OrWorkerContext) c;
+            OrExecutorContext o = (OrExecutorContext) c;
 
             for (int i = 0; i < o.size(); i++) {
 
-                UnitWorkerContext ctx = o.get(i);
+                UnitExecutorContext ctx = o.get(i);
 
                 ActivityRecord a = getUnit(ctx, s);
 

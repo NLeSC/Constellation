@@ -3,7 +3,7 @@ package ibis.constellation.impl;
 import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ObjectData;
 import ibis.constellation.StealPool;
-import ibis.constellation.WorkerContext;
+import ibis.constellation.ExecutorContext;
 import ibis.ipl.ReadMessage;
 import ibis.ipl.WriteMessage;
 
@@ -15,12 +15,12 @@ public class StealReply extends Message implements ObjectData {
     private static final long serialVersionUID = 2655647847327367590L;
 
     private final StealPool pool;
-    private final WorkerContext context;
+    private final ExecutorContext context;
     private final ActivityRecord[] work;
 
     public StealReply(final ConstellationIdentifier source,
             final ConstellationIdentifier target, final StealPool pool,
-            final WorkerContext context, final ActivityRecord work) {
+            final ExecutorContext context, final ActivityRecord work) {
 
         super(source, target);
 
@@ -35,7 +35,7 @@ public class StealReply extends Message implements ObjectData {
 
     public StealReply(final ConstellationIdentifier source,
             final ConstellationIdentifier target, final StealPool pool,
-            final WorkerContext context, final ActivityRecord[] work) {
+            final ExecutorContext context, final ActivityRecord[] work) {
         super(source, target);
 
         this.pool = pool;
@@ -51,7 +51,7 @@ public class StealReply extends Message implements ObjectData {
         return pool;
     }
 
-    public WorkerContext getContext() {
+    public ExecutorContext getContext() {
         return context;
     }
 

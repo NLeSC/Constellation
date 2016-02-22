@@ -1,6 +1,6 @@
 package ibis.constellation;
 
-import ibis.constellation.context.UnitWorkerContext;
+import ibis.constellation.context.UnitExecutorContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,44 +11,44 @@ public class SimpleExecutor extends Executor {
             .getLogger(SimpleExecutor.class);
     private static final long serialVersionUID = -2498570099898761363L;
 
-    public SimpleExecutor(StealPool pool, StealPool stealFrom, WorkerContext c,
+    public SimpleExecutor(StealPool pool, StealPool stealFrom, ExecutorContext c,
             StealStrategy local, StealStrategy constellation,
             StealStrategy remote) {
         super(pool, stealFrom, c, local, constellation, remote);
     }
 
     public SimpleExecutor(StealPool pool, StealPool stealFrom,
-            WorkerContext c) {
+            ExecutorContext c) {
         super(pool, stealFrom, c, StealStrategy.ANY, StealStrategy.ANY,
                 StealStrategy.ANY);
     }
 
-    public SimpleExecutor(StealPool pool, StealPool stealFrom, WorkerContext c,
+    public SimpleExecutor(StealPool pool, StealPool stealFrom, ExecutorContext c,
             StealStrategy st) {
         super(pool, stealFrom, c, st, st, st);
     }
 
     public SimpleExecutor() {
-        super(StealPool.WORLD, StealPool.WORLD, UnitWorkerContext.DEFAULT,
+        super(StealPool.WORLD, StealPool.WORLD, UnitExecutorContext.DEFAULT,
                 StealStrategy.ANY, StealStrategy.ANY, StealStrategy.ANY);
     }
 
-    public SimpleExecutor(WorkerContext wc) {
+    public SimpleExecutor(ExecutorContext wc) {
         super(StealPool.WORLD, StealPool.WORLD, wc, StealStrategy.ANY,
                 StealStrategy.ANY, StealStrategy.ANY);
     }
 
-    public SimpleExecutor(WorkerContext wc, StealStrategy s) {
+    public SimpleExecutor(ExecutorContext wc, StealStrategy s) {
         super(StealPool.WORLD, StealPool.WORLD, wc, s, s, s);
     }
 
-    public SimpleExecutor(WorkerContext wc, StealStrategy local,
+    public SimpleExecutor(ExecutorContext wc, StealStrategy local,
             StealStrategy constellation, StealStrategy remote) {
         super(StealPool.WORLD, StealPool.WORLD, wc, local, constellation,
                 remote);
     }
 
-    public SimpleExecutor(WorkerContext wc, StealStrategy local,
+    public SimpleExecutor(ExecutorContext wc, StealStrategy local,
             StealStrategy remote) {
         super(StealPool.WORLD, StealPool.WORLD, wc, local, remote, remote);
     }

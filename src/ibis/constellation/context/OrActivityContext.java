@@ -1,8 +1,11 @@
 package ibis.constellation.context;
 
+import java.util.Arrays;
+import java.util.Comparator;
+
 import ibis.constellation.ActivityContext;
+import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.WorkerContext;
 
 public class OrActivityContext extends ActivityContext {
 
@@ -12,6 +15,48 @@ public class OrActivityContext extends ActivityContext {
 
     protected final int hashCode;
     protected final boolean ordered;
+
+    protected static class UnitActivityContextSorter
+            implements Comparator<UnitActivityContext> {
+
+        public int compare(UnitActivityContext u1, UnitActivityContext u2) {
+
+            if (u1.hashCode == u2.hashCode) {
+
+                if (u1.rank == u2.rank) {
+                    return 0;
+                } else if (u1.rank < u2.rank) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+
+            } else if (u1.hashCode < u2.hashCode) {
+                return -1;
+            } else {
+                return 1;
+            }
+        }
+    }
+
+    private static UnitActivityContext[] sort(UnitActivityContext[] in) {
+        Arrays.sort(in, new UnitActivityContextSorter());
+        return in;
+    }
+
+    private static int generateHash(UnitActivityContext[] in) {
+
+        // NOTE: result depends on order of elements in array!
+        // NOTE: does not take rank into account
+
+        int hashCode = 1;
+
+        for (int i = 0; i < in.length; i++) {
+            hashCode = 31 * hashCode + (in[i] == null ? 0 : in[i].hashCode);
+        }
+
+        return hashCode;
+    }
 
     public OrActivityContext(UnitActivityContext[] unit, boolean ordered) {
         super();
@@ -30,10 +75,10 @@ public class OrActivityContext extends ActivityContext {
             // We therefore sort it to get a uniform order, regardless of the
             // user defined
             // order.
-            UnitActivityContext.sort(unitContexts);
+            sort(unitContexts);
         }
 
-        hashCode = 31 * UnitActivityContext.generateHash(unitContexts);
+        hashCode = 31 * generateHash(unitContexts);
     }
 
     public OrActivityContext(UnitActivityContext[] unit) {
@@ -115,6 +160,7 @@ public class OrActivityContext extends ActivityContext {
         return true;
     }
 
+    @Override
     public String toString() {
 
         StringBuilder b = new StringBuilder();
@@ -134,7 +180,7 @@ public class OrActivityContext extends ActivityContext {
         return b.toString();
     }
 
-    private boolean satisfiedBy(UnitWorkerContext offer, StealStrategy s) {
+    private boolean satisfiedBy(UnitExecutorContext offer, StealStrategy s) {
 
         for (int i = 0; i < unitContexts.length; i++) {
 
@@ -148,9 +194,9 @@ public class OrActivityContext extends ActivityContext {
         return false;
     }
 
-    private boolean satisfiedBy(OrWorkerContext offer, StealStrategy s) {
+    private boolean satisfiedBy(OrExecutorContext offer, StealStrategy s) {
 
-        UnitWorkerContext[] tmp = offer.getContexts();
+        UnitExecutorContext[] tmp = offer.getContexts();
 
         for (int i = 0; i < tmp.length; i++) {
 
@@ -163,18 +209,18 @@ public class OrActivityContext extends ActivityContext {
     }
 
     @Override
-    public boolean satisfiedBy(WorkerContext offer, StealStrategy s) {
+    public boolean satisfiedBy(ExecutorContext offer, StealStrategy s) {
 
         if (offer == null) {
             return false;
         }
 
         if (offer.isUnit()) {
-            return satisfiedBy((UnitWorkerContext) offer, s);
+            return satisfiedBy((UnitExecutorContext) offer, s);
         }
 
         if (offer.isOr()) {
-            return satisfiedBy((OrWorkerContext) offer, s);
+            return satisfiedBy((OrExecutorContext) offer, s);
         }
 
         return false;

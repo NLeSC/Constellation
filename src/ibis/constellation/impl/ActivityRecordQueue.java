@@ -3,9 +3,9 @@ package ibis.constellation.impl;
 /*
  import ibis.constellation.ActivityContext;
  import ibis.constellation.ActivityIdentifier;
- import ibis.constellation.WorkerContext;
+ import ibis.constellation.ExecutorContext;
  import ibis.constellation.context.OrActivityContext;
- import ibis.constellation.context.OrWorkerContext;
+ import ibis.constellation.context.OrExecutorContext;
 
  import java.util.HashMap;
  import java.util.Iterator;
@@ -69,9 +69,9 @@ public class ActivityRecordQueue {
      * map.get(id); }
      * 
      * 
-     * private ActivityIdentifier selectForSteal(WorkerContext [] wc) {
+     * private ActivityIdentifier selectForSteal(ExecutorContext [] wc) {
      * 
-     * for (WorkerContext w : wc) {
+     * for (ExecutorContext w : wc) {
      * 
      * HashMap<ActivityIdentifier, ActivityRecord> m = contextMap.get(w);
      * 
@@ -81,17 +81,17 @@ public class ActivityRecordQueue {
      * 
      * return null; }
      * 
-     * public synchronized ActivityRecord steal(WorkerContext c) {
+     * public synchronized ActivityRecord steal(ExecutorContext c) {
      * 
      * ActivityIdentifier id = null;
      * 
      * if (c.isOr()) {
      * 
-     * OrWorkerContext s = (OrWorkerContext) c;
+     * OrExecutorContext s = (OrExecutorContext) c;
      * 
      * if (c.size() > 0) { id = selectForSteal(s.getContexts()); }
      * 
-     * } else { id = selectForSteal(new WorkerContext[] { c }); }
+     * } else { id = selectForSteal(new ExecutorContext[] { c }); }
      * 
      * if (id == null) { // No suitable ActivityRecord found! return null; }
      * 

@@ -8,9 +8,9 @@ import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.Event;
 import ibis.constellation.Stats;
 import ibis.constellation.StealPool;
-import ibis.constellation.WorkerContext;
-import ibis.constellation.context.OrWorkerContext;
-import ibis.constellation.context.UnitWorkerContext;
+import ibis.constellation.ExecutorContext;
+import ibis.constellation.context.OrExecutorContext;
+import ibis.constellation.context.UnitExecutorContext;
 import ibis.constellation.extra.ConstellationIdentifierFactory;
 import ibis.constellation.extra.Debug;
 
@@ -53,7 +53,7 @@ public class DistributedConstellation {
 
     private final DeliveryThread delivery;
 
-    private WorkerContext myContext;
+    private ExecutorContext myContext;
 
     private long stealReplyDeadLine;
 
@@ -81,7 +81,7 @@ public class DistributedConstellation {
                     + deadlines.entrySet().toString();
         }
 
-        boolean setPending(UnitWorkerContext c, boolean value) {
+        boolean setPending(UnitExecutorContext c, boolean value) {
 
             if (!value) {
                 // Reset the pending value for this context. We don't care if
@@ -178,7 +178,7 @@ public class DistributedConstellation {
         }
 
         @Override
-        public WorkerContext getContext() {
+        public ExecutorContext getContext() {
             return handleGetContext();
         }
 
@@ -245,7 +245,7 @@ public class DistributedConstellation {
             throw new Exception("Unknown stealing strategy: " + stealName);
         }
 
-        myContext = UnitWorkerContext.DEFAULT;
+        myContext = UnitExecutorContext.DEFAULT;
 
         delivery = new DeliveryThread(this);
         delivery.start();
@@ -308,7 +308,7 @@ public class DistributedConstellation {
         pool.cleanup();
     }
 
-    private synchronized WorkerContext handleGetContext() {
+    private synchronized ExecutorContext handleGetContext() {
         return myContext;
     }
 
@@ -342,7 +342,7 @@ public class DistributedConstellation {
     }
 
     private synchronized boolean setPendingSteal(StealPool pool,
-            WorkerContext context, boolean value) {
+            ExecutorContext context, boolean value) {
 
         // Per (singular) StealPool we check for each of the contexts if a steal
         // request is pending. If one of the context is not pending yet, we
@@ -371,16 +371,16 @@ public class DistributedConstellation {
 
         if (context.isOr()) {
 
-            OrWorkerContext ow = (OrWorkerContext) context;
+            OrExecutorContext ow = (OrExecutorContext) context;
 
             for (int i = 0; i < ow.size(); i++) {
-                UnitWorkerContext uw = ow.get(i);
+                UnitExecutorContext uw = ow.get(i);
                 boolean r = tmp.setPending(uw, value);
                 result = result && r;
             }
 
         } else {
-            result = tmp.setPending((UnitWorkerContext) context, value);
+            result = tmp.setPending((UnitExecutorContext) context, value);
         }
 
         return result;
