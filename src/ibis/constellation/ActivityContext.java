@@ -10,6 +10,9 @@ import java.io.Serializable;
  */
 public abstract class ActivityContext implements Serializable {
 
+    /* Generated */
+    private static final long serialVersionUID = 3149128711424555747L;
+
     protected ActivityContext() {
         // empty
     }
