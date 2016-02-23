@@ -6,7 +6,11 @@ public final class ConstellationIdentifier implements Serializable {
 
     private static final long serialVersionUID = -8236873210293335756L;
 
-    public final long id;
+    private final long id;
+
+    public long getId() {
+        return id;
+    }
 
     public ConstellationIdentifier(final long id) {
         this.id = id;
@@ -36,6 +40,7 @@ public final class ConstellationIdentifier implements Serializable {
         return (id == other.id);
     }
 
+    @Override
     public String toString() {
         return "CID: " + Integer.toHexString((int) (id >> 32) & 0xffffffff)
                 + ":" + Integer.toHexString((int) (id & 0xffffffff));

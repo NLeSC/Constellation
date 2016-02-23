@@ -20,6 +20,6 @@ public class DistributedConstellationIdentifierFactory
     }
 
     public boolean isLocal(ConstellationIdentifier cid) {
-        return ((cid.id >> 32) & 0xffffffff) == rank;
+        return ((cid.getId() >> 32) & 0xffffffff) == rank;
     }
 }

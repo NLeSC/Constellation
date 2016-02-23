@@ -19,12 +19,15 @@ public class OrExecutorContext extends ExecutorContext {
     /**
      * Constructs an executor context that consists of more than one unit
      * executor context.
-     * 
+     *
      * @param contexts
      *            the unit executor contexts
      * @param ordered
      *            whether the order within the unit executor contexts is
      *            significant.
+     * @exception IllegalArgumentException
+     *                is thrown when the length of the list of unit-contexts is
+     *                smaller than 2.
      */
     public OrExecutorContext(UnitExecutorContext[] contexts, boolean ordered) {
         super();
@@ -45,7 +48,7 @@ public class OrExecutorContext extends ExecutorContext {
 
     /**
      * Returns the number of unit-contexts of which this context exists.
-     * 
+     *
      * @return the number of unit-contexts.
      */
     public int size() {
@@ -55,7 +58,7 @@ public class OrExecutorContext extends ExecutorContext {
     /**
      * Returns the unit-context corresponding to the specified index, or
      * <code>null</code> if it does not exist.
-     * 
+     *
      * @param index
      *            the index
      * @return the corresponding unit-context.
@@ -71,7 +74,7 @@ public class OrExecutorContext extends ExecutorContext {
 
     /**
      * Returns the unit-contexts of which this executor context consists.
-     * 
+     *
      * @return the unit-contexts.
      */
     public UnitExecutorContext[] getContexts() {
@@ -81,7 +84,7 @@ public class OrExecutorContext extends ExecutorContext {
     /**
      * Returns whether the order of the unit-contexts within this context is
      * significant.
-     * 
+     *
      * @return whether the order of the unit-contexts is significant.
      */
     public boolean isOrdered() {

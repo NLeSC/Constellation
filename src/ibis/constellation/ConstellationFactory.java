@@ -1,29 +1,81 @@
 package ibis.constellation;
 
+import java.util.Properties;
+
 import ibis.constellation.impl.DistributedConstellation;
 import ibis.constellation.impl.MultiThreadedConstellation;
 import ibis.constellation.impl.SingleThreadedConstellation;
 
-import java.util.Properties;
-
+/**
+ * The <code>ConstellationFactory</code> provides several static methods to
+ * create a {@link Constellation} instance.
+ */
 public class ConstellationFactory {
 
+    /**
+     * Creates a constellation instance, using the specified executor and the
+     * system properties.
+     *
+     * @param p
+     *            the properties
+     * @param e
+     *            the executor
+     * @return the constellation instance
+     * @throws Exception
+     *             TODO
+     */
     public static Constellation createConstellation(Executor e)
             throws Exception {
         return createConstellation(System.getProperties(), e);
     }
 
+    /**
+     * Creates a constellation instance, using the specified executor and
+     * properties.
+     *
+     * @param e
+     *            the executor
+     * @return the constellation instance
+     * @throws Exception
+     *             TODO
+     */
     public static Constellation createConstellation(Properties p, Executor e)
             throws Exception {
         return createConstellation(p, new Executor[] { e });
     }
 
+    /**
+     * Creates a constellation instance, using the specified executors and the
+     * system properties.
+     *
+     * @param e
+     *            the executors
+     * @return the constellation instance
+     * @throws IllegalArgumentException
+     *             thrown when no executors are supplied
+     * @throws Exception
+     *             TODO
+     */
     public static Constellation createConstellation(Executor... e)
             throws Exception {
 
         return createConstellation(System.getProperties(), e);
     }
 
+    /**
+     * Creates a constellation instance, using the specified executors and
+     * properties.
+     *
+     * @param p
+     *            the properties
+     * @param e
+     *            the executors
+     * @return the constellation instance
+     * @throws IllegalArgumentException
+     *             thrown when no executors are supplied
+     * @throws Exception
+     *             TODO
+     */
     public static Constellation createConstellation(Properties p, Executor... e)
             throws Exception {
 

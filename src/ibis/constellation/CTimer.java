@@ -1,8 +1,5 @@
 package ibis.constellation;
 
-import ibis.constellation.extra.TimeSyncInfo;
-import ibis.util.Timer;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -10,6 +7,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.google.common.base.Function;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+
+import ibis.constellation.extra.TimeSyncInfo;
+import ibis.util.Timer;
 
 public class CTimer implements java.io.Serializable {
 
@@ -19,10 +19,10 @@ public class CTimer implements java.io.Serializable {
     private ArrayList<TimerEvent> events;
 
     private final String hostId;
-    private String standardDevice;
-    private String standardThread;
-    private String standardAction;
-    private int standardQueue;
+    private final String standardDevice;
+    private final String standardThread;
+    private final String standardAction;
+    private final int standardQueue;
 
     // not sure
     public static int getNextQueue() {
@@ -47,11 +47,7 @@ public class CTimer implements java.io.Serializable {
     }
 
     public CTimer(String constellation) {
-        events = new ArrayList<TimerEvent>();
-        this.hostId = constellation;
-        this.standardThread = null;
-        this.standardAction = null;
-        this.standardQueue = getNextQueue();
+        this(constellation, null, null, null);
     }
 
     public CTimer(String constellation, String standardDevice,
@@ -285,7 +281,7 @@ public class CTimer implements java.io.Serializable {
 
     /**
      * Filters all events that are not within the 'overall' frame.
-     * 
+     *
      * We filter 10% before the overallStartTime and 10% after to make up for
      * imprecisions in synchronizing between nodes.
      */

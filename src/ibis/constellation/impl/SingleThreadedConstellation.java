@@ -1,23 +1,5 @@
 package ibis.constellation.impl;
 
-import ibis.constellation.Activity;
-import ibis.constellation.ActivityContext;
-import ibis.constellation.ActivityIdentifier;
-import ibis.constellation.ActivityIdentifierFactory;
-import ibis.constellation.CTimer;
-import ibis.constellation.ConstellationIdentifier;
-import ibis.constellation.Event;
-import ibis.constellation.Executor;
-import ibis.constellation.Stats;
-import ibis.constellation.StealPool;
-import ibis.constellation.StealStrategy;
-import ibis.constellation.ExecutorContext;
-import ibis.constellation.extra.ActivityLocationLookup;
-import ibis.constellation.extra.CircularBuffer;
-import ibis.constellation.extra.Debug;
-import ibis.constellation.extra.SmartSortedWorkQueue;
-import ibis.constellation.extra.WorkQueue;
-
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
@@ -27,6 +9,23 @@ import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ibis.constellation.Activity;
+import ibis.constellation.ActivityContext;
+import ibis.constellation.ActivityIdentifier;
+import ibis.constellation.CTimer;
+import ibis.constellation.ConstellationIdentifier;
+import ibis.constellation.Event;
+import ibis.constellation.Executor;
+import ibis.constellation.ExecutorContext;
+import ibis.constellation.Stats;
+import ibis.constellation.StealPool;
+import ibis.constellation.StealStrategy;
+import ibis.constellation.extra.ActivityLocationLookup;
+import ibis.constellation.extra.CircularBuffer;
+import ibis.constellation.extra.Debug;
+import ibis.constellation.extra.SmartSortedWorkQueue;
+import ibis.constellation.extra.WorkQueue;
 
 public class SingleThreadedConstellation extends Thread {
 
@@ -172,7 +171,7 @@ public class SingleThreadedConstellation extends Thread {
         String outfile = p.getProperty("ibis.constellation.outputfile");
 
         if (outfile != null) {
-            String filename = outfile + "." + identifier.id;
+            String filename = outfile + "." + identifier.getId();
 
             try {
                 out = new PrintStream(new BufferedOutputStream(
@@ -205,10 +204,10 @@ public class SingleThreadedConstellation extends Thread {
 
         /*
          * String tmp = p.getProperty("ibis.constellation.sleep");
-         * 
+         *
          * if (tmp != null && tmp.length() > 0) { sleepTime =
          * Integer.parseInt(tmp); } else { sleepTime = 1000; }
-         * 
+         *
          * logger.warn("SingleThreaded: sleepTime set to " + sleepTime + " ms."
          * );
          */
@@ -245,13 +244,13 @@ public class SingleThreadedConstellation extends Thread {
         if (PROFILE) {/*
                        * profileTime = System.currentTimeMillis();
                        * profileDeadline = profileTime + profileDelta;
-                       * 
+                       *
                        * management = ManagementFactory.getThreadMXBean();
-                       * 
+                       *
                        * if (management.isThreadCpuTimeSupported() &&
                        * !management.isThreadCpuTimeEnabled()) {
                        * management.setThreadCpuTimeEnabled(true); }
-                       * 
+                       *
                        * if (management.isThreadContentionMonitoringSupported()
                        * && !management.isThreadContentionMonitoringEnabled()) {
                        * management.setThreadContentionMonitoringEnabled(true);
@@ -451,7 +450,7 @@ public class SingleThreadedConstellation extends Thread {
         int offset = wrongContext.steal(context, s, tmp, 0, size);
         if (logger.isDebugEnabled() && !local) {
             logger.debug("Stole " + offset + " jobs from wrongContext of "
-                    + identifier.id + ", size = " + wrongContext.size());
+                    + identifier.getId() + ", size = " + wrongContext.size());
         }
 
         if (local) {
@@ -695,7 +694,7 @@ public class SingleThreadedConstellation extends Thread {
         if (parent == null) {
             synchronized (this) {
                 ActivityIdentifierFactory tmp = new ActivityIdentifierFactory(
-                        cid.id, startID, startID + blockSize);
+                        cid.getId(), startID, startID + blockSize);
                 startID += blockSize;
                 return tmp;
             }
@@ -871,10 +870,10 @@ public class SingleThreadedConstellation extends Thread {
     /*
      * private void processCancellations() { if
      * (processing.pendingCancelations.size() > 0) {
-     * 
+     *
      * for (int i = 0; i < processing.pendingCancelations.size(); i++) {
      * wrapper.cancel(processing.pendingCancelations.get(i)); }
-     * 
+     *
      * processing.pendingCancelations.clear(); } }
      */
     void reclaim(ActivityRecord[] a) {
@@ -1204,27 +1203,27 @@ public class SingleThreadedConstellation extends Thread {
     private void printProfileInfo(long t) {
         /*
          * long tempTime = t - profileTime;
-         * 
+         *
          * long tempComputation = sequential.getComputationTime();
-         * 
+         *
          * long tempSubmit = sequential.getActivitiesSubmitted(); long
          * tempInvoke = sequential.getActivitiesInvoked(); long tempMessageI =
          * sequential.getMessagesInternal(); long tempMessageE =
          * sequential.getMessagesExternal(); long tempSteals =
          * sequential.getSteals();
-         * 
+         *
          * long tempCPU = management.getCurrentThreadCpuTime(); long tempUser =
          * management.getCurrentThreadUserTime();
-         * 
+         *
          * ThreadInfo info = management.getThreadInfo(Thread.currentThread()
          * .getId());
-         * 
+         *
          * long tempBlockedC = info.getBlockedCount(); long tempBlockedT =
          * info.getBlockedTime();
-         * 
+         *
          * long tempWaitC = info.getWaitedCount(); long tempWaitT =
          * info.getWaitedTime();
-         * 
+         *
          * StringBuilder tmp = new StringBuilder("#### ");
          * tmp.append(identifier).append(" T "); tmp.append(t).append(" dT ");
          * tmp.append(tempTime).append(" compT "); tmp.append(tempComputation -
@@ -1240,9 +1239,9 @@ public class SingleThreadedConstellation extends Thread {
          * profileSteals).append(" messI# "); tmp.append(tempMessageI -
          * profileMessageI).append(" messE# "); tmp.append(tempMessageE -
          * profileMessageE).append(" ");
-         * 
+         *
          * synchronized (System.err) { System.err.println(tmp.toString()); }
-         * 
+         *
          * profileTime = t; profileComputation = tempComputation; profileCPU =
          * tempCPU; profileUser = tempUser; profileBlockedC = tempBlockedC;
          * profileBlockedT = tempBlockedT; profileWaitC = tempWaitC;
@@ -1309,21 +1308,21 @@ public class SingleThreadedConstellation extends Thread {
             /*
              * cpuTime = management.getCurrentThreadCpuTime(); userTime =
              * management.getCurrentThreadUserTime();
-             * 
+             *
              * cpuPerc = (cpuTime / 10000.0) / totalTime; userPerc = (userTime /
              * 10000.0) / totalTime;
-             * 
+             *
              * cpuTime = cpuTime / 1000000L; userTime = userTime / 1000000L;
-             * 
+             *
              * ThreadInfo info = management.getThreadInfo(Thread.currentThread()
              * .getId());
-             * 
+             *
              * blocked = info.getBlockedCount(); blockedTime =
              * info.getBlockedTime();
-             * 
+             *
              * waited = info.getWaitedCount(); waitedTime =
              * info.getWaitedTime();
-             * 
+             *
              * blockedPerc = (100.0 * blockedTime) / totalTime; waitedPerc =
              * (100.0 * waitedTime) / totalTime;
              */

@@ -3,53 +3,59 @@ package ibis.constellation;
 import java.io.Serializable;
 
 /**
- * ActivityIdentifier uniquely identifies an Activity instance.
- * 
+ * An <code>ActivityIdentifier</code> uniquely identifies an {@link Activity}
+ * instance.
+ *
  * @version 1.0
  * @since 1.0
- *
  */
 public class ActivityIdentifier implements Serializable {
 
     /* Generated */
     private static final long serialVersionUID = 4785081436543353644L;
 
-    // public static final long UNKNOWN = Long.MAX_VALUE;
-
-    // The globally unique UUID for this activity is "EID:AID"
+    // The globally unique UUID for this activity is "CID:AID"
     // "CID" is the id of the Constellation on which this Activity was created,
     // "AID" is the sequence number of this activity on that executor.
-    public final long CID;
-    public final long AID;
-    public final boolean expectsEvents;
+    private final long CID;
+    private final long AID;
+    private final boolean expectsEvents;
 
-    // The last known location for the activity. If the location is not known,
-    // 'UNKNOWN' is used.
-
-    // private long lastKnownEID;
-
-    public ActivityIdentifier(long high, long low, boolean expectsEvents) {
-        this.CID = high;
-        this.AID = low;
+    /**
+     * Constructs an activity identifier, using the specified constellation id
+     * and sequence number on that constellation instance.
+     *
+     * TODO: should not be visible to the user. Make this an abstract class or
+     * interface???
+     *
+     * @param cid
+     *            the constellation id
+     * @param aid
+     *            the sequence number
+     * @param expectsEvents
+     *            whether this activity expects events
+     */
+    public ActivityIdentifier(long cid, long aid, boolean expectsEvents) {
+        this.CID = cid;
+        this.AID = aid;
         this.expectsEvents = expectsEvents;
     }
 
-    /*
-     * public ConstellationIdentifier getLastKnownLocation() { if (lastKnownEID
-     * == UNKNOWN) { return null; }
-     * 
-     * return new ConstellationIdentifier(lastKnownEID); }
-     * 
-     * public void setLastKnownLocation(ConstellationIdentifier cid) {
-     * lastKnownEID = cid.id; }
-     * 
-     * public void clearLastKnownLocation() { lastKnownEID = UNKNOWN; }
+    /**
+     * Returns <code>true</code> if this activity expects events,
+     * <code>false</code> otherwise.
+     *
+     * @return whether this activity expects events.
      */
-
     public boolean expectsEvents() {
         return expectsEvents;
     }
 
+    /**
+     * Returns the constellation identifier that created this activity.
+     *
+     * @return the constellation identifier.
+     */
     public ConstellationIdentifier getOrigin() {
         return new ConstellationIdentifier(CID);
     }
@@ -79,6 +85,7 @@ public class ActivityIdentifier implements Serializable {
         return (CID == other.CID && AID == other.AID);
     }
 
+    @Override
     public String toString() {
         return "AID: " + Integer.toHexString((int) (CID >> 32) & 0xffffffff)
                 + ":" + Integer.toHexString((int) (CID & 0xffffffff)) + ":"

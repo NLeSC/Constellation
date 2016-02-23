@@ -1,9 +1,9 @@
 package ibis.constellation;
 
-import ibis.constellation.context.UnitExecutorContext;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ibis.constellation.context.UnitExecutorContext;
 
 public class SimpleExecutor extends Executor {
 
@@ -11,8 +11,8 @@ public class SimpleExecutor extends Executor {
             .getLogger(SimpleExecutor.class);
     private static final long serialVersionUID = -2498570099898761363L;
 
-    public SimpleExecutor(StealPool pool, StealPool stealFrom, ExecutorContext c,
-            StealStrategy local, StealStrategy constellation,
+    public SimpleExecutor(StealPool pool, StealPool stealFrom,
+            ExecutorContext c, StealStrategy local, StealStrategy constellation,
             StealStrategy remote) {
         super(pool, stealFrom, c, local, constellation, remote);
     }
@@ -23,8 +23,8 @@ public class SimpleExecutor extends Executor {
                 StealStrategy.ANY);
     }
 
-    public SimpleExecutor(StealPool pool, StealPool stealFrom, ExecutorContext c,
-            StealStrategy st) {
+    public SimpleExecutor(StealPool pool, StealPool stealFrom,
+            ExecutorContext c, StealStrategy st) {
         super(pool, stealFrom, c, st, st, st);
     }
 
@@ -60,12 +60,13 @@ public class SimpleExecutor extends Executor {
             StringBuilder sb = new StringBuilder(
                     "\nStarting Executor: " + identifier() + "\n");
 
-            sb.append("        context: " + context + "\n");
-            sb.append("           pool: " + myPool + "\n");
-            sb.append("    steals from: " + stealsFrom + "\n");
-            sb.append("          local: " + localStealStrategy + "\n");
-            sb.append("  constellation: " + constellationStealStrategy + "\n");
-            sb.append("         remote: " + remoteStealStrategy + "\n");
+            sb.append("        context: " + getContext() + "\n");
+            sb.append("           pool: " + belongsTo() + "\n");
+            sb.append("    steals from: " + stealsFrom() + "\n");
+            sb.append("          local: " + getLocalStealStrategy() + "\n");
+            sb.append("  constellation: " + getConstellationStealStrategy()
+                    + "\n");
+            sb.append("         remote: " + getRemoteStealStrategy() + "\n");
             sb.append("--------------------------");
 
             logger.info(sb.toString());

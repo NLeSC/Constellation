@@ -1,19 +1,5 @@
 package ibis.constellation.impl;
 
-import ibis.constellation.Activity;
-import ibis.constellation.ActivityIdentifier;
-import ibis.constellation.ActivityIdentifierFactory;
-import ibis.constellation.ConstellationIdentifier;
-import ibis.constellation.Event;
-import ibis.constellation.Stats;
-import ibis.constellation.StealPool;
-import ibis.constellation.ExecutorContext;
-import ibis.constellation.context.OrExecutorContext;
-import ibis.constellation.context.UnitExecutorContext;
-import ibis.constellation.extra.ConstellationIdentifierFactory;
-import ibis.constellation.extra.Debug;
-import ibis.constellation.extra.SimpleConstellationIdentifierFactory;
-
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +8,19 @@ import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ibis.constellation.Activity;
+import ibis.constellation.ActivityIdentifier;
+import ibis.constellation.ConstellationIdentifier;
+import ibis.constellation.Event;
+import ibis.constellation.ExecutorContext;
+import ibis.constellation.Stats;
+import ibis.constellation.StealPool;
+import ibis.constellation.context.OrExecutorContext;
+import ibis.constellation.context.UnitExecutorContext;
+import ibis.constellation.extra.ConstellationIdentifierFactory;
+import ibis.constellation.extra.Debug;
+import ibis.constellation.extra.SimpleConstellationIdentifierFactory;
 
 public class MultiThreadedConstellation {
 
@@ -135,15 +134,15 @@ public class MultiThreadedConstellation {
 
     /*
      * private int selectTargetWorker(ConstellationIdentifier exclude) {
-     * 
+     *
      * if (workerCount == 1) { return -1; }
-     * 
+     *
      * int rnd = selectRandomWorker();
-     * 
+     *
      * ConstellationIdentifier cid = workers[rnd].identifier();
-     * 
+     *
      * if (cid.equals(exclude)) { return ((rnd+1)%workerCount); }
-     * 
+     *
      * return rnd; }
      */
     private int selectRandomWorker() {
@@ -158,8 +157,8 @@ public class MultiThreadedConstellation {
     synchronized ActivityIdentifierFactory getActivityIdentifierFactory(
             ConstellationIdentifier cid) {
 
-        ActivityIdentifierFactory tmp = new ActivityIdentifierFactory(cid.id,
-                startID, startID + blockSize);
+        ActivityIdentifierFactory tmp = new ActivityIdentifierFactory(
+                cid.getId(), startID, startID + blockSize);
 
         startID += blockSize;
         return tmp;
@@ -167,26 +166,26 @@ public class MultiThreadedConstellation {
 
     /*
      * FIXME REMOVE!!
-     * 
+     *
      * public ActivityIdentifier submit(Activity a) {
-     * 
+     *
      * if (Debug.DEBUG_SUBMIT) { logger.info(
      * "LOCAL SUBMIT activity with context " + a.getContext()); }
-     * 
+     *
      * ActivityIdentifier id = createActivityID(a.expectsEvents());
      * a.initialize(id);
-     * 
+     *
      * // Add externally submitted activities to the lookup table.
      * exportedActivities.add(id, identifier);
-     * 
+     *
      * if (a.isRestrictedToLocal()) { restrictedQueue.enqueue(new
      * ActivityRecord(a)); } else { queue.enqueue(new ActivityRecord(a)); }
-     * 
+     *
      * if (Debug.DEBUG_SUBMIT) { logger.info("created " + id + " at " +
      * System.currentTimeMillis()); }
-     * 
+     *
      * System.out.println("LOCAL ENQ: " + id + " " + a.getContext());
-     * 
+     *
      * return id; }
      */
 
@@ -235,7 +234,7 @@ public class MultiThreadedConstellation {
             // So try again.
             /*
              * cid = deliverLocally(cid, m);
-             * 
+             *
              * if (cid != null) { logger.error("INTERNAL ERROR: activity " +
              * m.event.target +
              * " seems to have been relocated several times! (event dropped)");
@@ -479,32 +478,32 @@ public class MultiThreadedConstellation {
     }
 
     /*
-     * 
+     *
      * ActivityIdentifier deliverSubmit(Activity a) {
-     * 
-     * 
+     *
+     *
      * if (PUSHDOWN_SUBMITS) {
-     * 
+     *
      * if (Debug.DEBUG_SUBMIT) { logger.info(
      * "M PUSHDOWN SUBMIT activity with context " + a.getContext()); }
-     * 
+     *
      * // We do a simple round-robin distribution of the jobs here. if
      * (nextSubmit >= workers.length) { nextSubmit = 0; }
-     * 
+     *
      * if (Debug.DEBUG_SUBMIT) { logger.info("FORWARD SUBMIT to child " +
      * workers[nextSubmit].identifier()); }
-     * 
+     *
      * return workers[nextSubmit++].deliverSubmit(a); }
-     * 
+     *
      * if (Debug.DEBUG_SUBMIT) { logger.info(
      * "M LOCAL SUBMIT activity with context " + a.getContext()); }
-     * 
+     *
      * ActivityIdentifier id = createActivityID(a.expectsEvents());
      * a.initialize(id);
-     * 
+     *
      * if (Debug.DEBUG_SUBMIT) { logger.info("created " + id + " at " +
      * System.currentTimeMillis() + " from DIST"); }
-     * 
+     *
      * return id; }
      */
 

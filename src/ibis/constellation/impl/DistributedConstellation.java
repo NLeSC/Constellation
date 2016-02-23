@@ -1,25 +1,25 @@
 package ibis.constellation.impl;
 
-import ibis.constellation.Activity;
-import ibis.constellation.ActivityIdentifier;
-import ibis.constellation.Concluder;
-import ibis.constellation.Constellation;
-import ibis.constellation.ConstellationIdentifier;
-import ibis.constellation.Event;
-import ibis.constellation.Stats;
-import ibis.constellation.StealPool;
-import ibis.constellation.ExecutorContext;
-import ibis.constellation.context.OrExecutorContext;
-import ibis.constellation.context.UnitExecutorContext;
-import ibis.constellation.extra.ConstellationIdentifierFactory;
-import ibis.constellation.extra.Debug;
-
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ibis.constellation.Activity;
+import ibis.constellation.ActivityIdentifier;
+import ibis.constellation.Concluder;
+import ibis.constellation.Constellation;
+import ibis.constellation.ConstellationIdentifier;
+import ibis.constellation.Event;
+import ibis.constellation.ExecutorContext;
+import ibis.constellation.Stats;
+import ibis.constellation.StealPool;
+import ibis.constellation.context.OrExecutorContext;
+import ibis.constellation.context.UnitExecutorContext;
+import ibis.constellation.extra.ConstellationIdentifierFactory;
+import ibis.constellation.extra.Debug;
 
 public class DistributedConstellation {
 
@@ -129,7 +129,7 @@ public class DistributedConstellation {
         @Override
         public void send(Event e) {
 
-            if (!e.target.expectsEvents) {
+            if (!e.target.expectsEvents()) {
                 throw new IllegalArgumentException("Target activity " + e.target
                         + "  does not expect an event!");
             }
@@ -175,11 +175,6 @@ public class DistributedConstellation {
         @Override
         public ConstellationIdentifier identifier() {
             return identifier;
-        }
-
-        @Override
-        public ExecutorContext getContext() {
-            return handleGetContext();
         }
 
         @Override
@@ -253,7 +248,7 @@ public class DistributedConstellation {
         start = System.currentTimeMillis();
 
         if (logger.isInfoEnabled()) {
-            logger.info("DistributeConstellation : " + identifier.id);
+            logger.info("DistributeConstellation : " + identifier.getId());
             logger.info("               throttle : " + REMOTE_STEAL_THROTTLE);
             logger.info("         throttle delay : " + REMOTE_STEAL_TIMEOUT);
             logger.info("               pushdown : " + PUSHDOWN_SUBMITS);
@@ -308,10 +303,6 @@ public class DistributedConstellation {
         pool.cleanup();
     }
 
-    private synchronized ExecutorContext handleGetContext() {
-        return myContext;
-    }
-
     private void printStatistics() {
 
         synchronized (System.out) {
@@ -331,7 +322,7 @@ public class DistributedConstellation {
             if (PROFILE) {
                 /*
                  * System.out.println("GC beans     : " + gcbeans.size());
-                 * 
+                 *
                  * for (GarbageCollectorMXBean gc : gcbeans) {
                  * System.out.println(" GC bean : " + gc.getName());
                  * System.out.println("   count : " + gc.getCollectionCount());

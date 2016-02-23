@@ -7,6 +7,11 @@ import ibis.constellation.ActivityContext;
 import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealStrategy;
 
+/**
+ * An <code>OrActivityContext</code> represents an activity context that
+ * consists of several (more than 1) unit activity contexts. This may represent
+ * the fact that an activity may be executed by more than one type of executor.
+ */
 public class OrActivityContext extends ActivityContext {
 
     private static final long serialVersionUID = -1202476921345669674L;
@@ -16,7 +21,7 @@ public class OrActivityContext extends ActivityContext {
     protected final int hashCode;
     protected final boolean ordered;
 
-    protected static class UnitActivityContextSorter
+    private static class UnitActivityContextSorter
             implements Comparator<UnitActivityContext> {
 
         public int compare(UnitActivityContext u1, UnitActivityContext u2) {
@@ -58,6 +63,17 @@ public class OrActivityContext extends ActivityContext {
         return hashCode;
     }
 
+    /**
+     * Constructs an activity context consisting of a list of unit-contexts.
+     *
+     * @param unit
+     *            the list of unit-contexts.
+     * @param ordered
+     *            whether the order of the unit-contexts is significant
+     * @exception IllegalArgumentException
+     *                is thrown when the length of the list of unit-contexts is
+     *                smaller than 2.
+     */
     public OrActivityContext(UnitActivityContext[] unit, boolean ordered) {
         super();
 
@@ -71,44 +87,75 @@ public class OrActivityContext extends ActivityContext {
 
         if (!ordered) {
             // When the OrContext is unordered, the order of the elements is
-            // unimportant.
-            // We therefore sort it to get a uniform order, regardless of the
-            // user defined
-            // order.
+            // unimportant. We therefore sort it to get a uniform order,
+            // regardless of the user defined order.
             sort(unitContexts);
         }
 
         hashCode = 31 * generateHash(unitContexts);
     }
 
+    /**
+     * Constructs an activity context consisting of a list of unit-contexts. The
+     * order in the list is not significant.
+     *
+     * @param unit
+     *            the list of unit-contexts.
+     * @exception IllegalArgumentException
+     *                is thrown when the length of the list of unit-contexts is
+     *                smaller than 2.
+     */
     public OrActivityContext(UnitActivityContext[] unit) {
         this(unit, false);
     }
 
+    /**
+     * Returns the number of unit-contexts of which this context exists.
+     *
+     * @return the number of unit-contexts.
+     */
     public int size() {
         return unitContexts.length;
     }
 
+    /**
+     * Returns the unit-context corresponding to the specified index, or
+     * <code>null</code> if it does not exist.
+     *
+     * @param index
+     *            the index
+     * @return the corresponding unit-context.
+     */
     public UnitActivityContext get(int index) {
+        if (index < 0 || index >= unitContexts.length) {
+            return null;
+        }
         return unitContexts[index];
     }
 
+    /**
+     * Determines whether the provided unit-context is a member of this activity
+     * context, and returns <code>true</code> if it is, <code>false</code>
+     * otherwise.
+     *
+     * @param u
+     *            the unit-context
+     * @return whether the unit-context is a member of this activity context.
+     */
     public boolean contains(UnitActivityContext u) {
-
-        // TODO: use the fact that the unitContexts are sorted!!!!
         for (int i = 0; i < unitContexts.length; i++) {
             if (u.equals(unitContexts[i])) {
                 return true;
             }
         }
-
         return false;
     }
 
-    public int countUnitContexts() {
-        return unitContexts.length;
-    }
-
+    /**
+     * Returns the unit-contexts of which this activity context consists.
+     *
+     * @return the unit-contexts.
+     */
     public UnitActivityContext[] getContexts() {
         return unitContexts.clone();
     }

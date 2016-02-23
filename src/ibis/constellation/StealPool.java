@@ -4,11 +4,30 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
 
+/**
+ * A <code>StealPool</code> is one of the mechanisms to determine the activities
+ * that are to be executed by an {@link Executor}. Each executor has two steal
+ * pools associated with it: the one it belongs to and the one it can steal
+ * from. In addition, an executor can only execute activities whose
+ * {@link ActivityContext} matches with the {@link ExecutorContext} of this
+ * executor.
+ */
 public class StealPool implements Serializable {
 
     private static final long serialVersionUID = 2379118089625564822L;
 
+    /**
+     * An executor that belongs to the <code>WORLD</code> steal pool generates
+     * activities that can in principle be stolen by any other executor. An
+     * executor that can steal from this steal pool can steal from any pool.
+     */
     public static StealPool WORLD = new StealPool("WORLD", true, false);
+
+    /**
+     * An executor that belongs to the <code>NONE</code> steal pool generates
+     * activities that cannot be stolen. An executor that can steal from this
+     * steal pool can in fact not steal at all.
+     */
     public static StealPool NONE = new StealPool("NONE", false, true);
 
     private final String tag;
@@ -109,18 +128,6 @@ public class StealPool implements Serializable {
 
         return tag;
     }
-
-    /*
-     * @Override public int hashCode() { final int prime = 31; int result = 1;
-     * result = prime * result + ((tag == null) ? 0 : tag.hashCode()); return
-     * result; }
-     * 
-     * @Override public boolean equals(Object obj) { if (this == obj) return
-     * true; if (obj == null) return false; if (getClass() != obj.getClass())
-     * return false; StealPool other = (StealPool) obj; if (tag == null) { if
-     * (other.tag != null) return false; } else if (!tag.equals(other.tag))
-     * return false; return true; }
-     */
 
     public static StealPool merge(StealPool... pools) {
 

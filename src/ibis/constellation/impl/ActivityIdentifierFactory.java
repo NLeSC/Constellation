@@ -1,4 +1,6 @@
-package ibis.constellation;
+package ibis.constellation.impl;
+
+import ibis.constellation.ActivityIdentifier;
 
 public class ActivityIdentifierFactory {
 

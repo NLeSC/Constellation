@@ -442,7 +442,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     }
 
     public boolean isLocal(ConstellationIdentifier id) {
-        return (rank << 32 ^ id.id) == 0;
+        return (rank << 32 ^ id.getId()) == 0;
     }
 
     private SendPort getSendPort(IbisIdentifier id) {
@@ -637,7 +637,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
      */
 
     private IbisIdentifier translate(ConstellationIdentifier cid) {
-        int rank = (int) ((cid.id >> 32) & 0xffffffff);
+        int rank = (int) ((cid.getId() >> 32) & 0xffffffff);
         return lookupRank(rank);
     }
 
@@ -811,7 +811,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     }
 
     private void registerRank(ConstellationIdentifier cid, IbisIdentifier id) {
-        int rank = (int) ((cid.id >> 32) & 0xffffffff);
+        int rank = (int) ((cid.getId() >> 32) & 0xffffffff);
         registerRank(rank, id);
     }
 

@@ -88,7 +88,7 @@ public class TimerEvent implements java.io.Serializable {
         end = 0;
     }
 
-    public boolean isEmptyEvent() {
+    boolean isEmptyEvent() {
         return queued == 0 && submitted == 0 && start == 0 && end == 0;
     }
 
