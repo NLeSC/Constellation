@@ -1,14 +1,13 @@
 package ibis.constellation.impl;
 
-import ibis.constellation.ConstellationIdentifier;
-import ibis.constellation.ObjectData;
-import ibis.constellation.StealPool;
-import ibis.constellation.ExecutorContext;
-import ibis.ipl.ReadMessage;
-import ibis.ipl.WriteMessage;
-
 import java.io.IOException;
 import java.util.Arrays;
+
+import ibis.constellation.ExecutorContext;
+import ibis.constellation.ObjectData;
+import ibis.constellation.StealPool;
+import ibis.ipl.ReadMessage;
+import ibis.ipl.WriteMessage;
 
 public class StealReply extends Message implements ObjectData {
 

@@ -1,10 +1,17 @@
 package ibis.constellation;
 
-import ibis.constellation.context.UnitActivityContext;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ibis.constellation.context.UnitActivityContext;
+
+/**
+ * A <code>SingleEventCollector</code> is an {@link Activity} that just waits
+ * for a single event, and saves it. It provides a method
+ * {@link #waitForEvent()}, to be used by other activities, to collect the event
+ * and block until it arrives, after which the <code>SingleEventCollector</code>
+ * will finish.
+ */
 public class SingleEventCollector extends Activity {
 
     public static final Logger logger = LoggerFactory
@@ -13,19 +20,26 @@ public class SingleEventCollector extends Activity {
     private static final long serialVersionUID = -538414301465754654L;
 
     private Event event;
-    private final boolean verbose;
 
-    public SingleEventCollector(ActivityContext c, boolean verbose) {
-        super(c, true, true);
-        this.verbose = verbose;
-    }
-
+    /**
+     * Constructs a <code>SingleEventCollector</code> with the specified
+     * activity context. Note: this is an activity that will receive events (see
+     * {@link Activity#Activity(ActivityContext, boolean)}).
+     *
+     * @param c
+     *            the activity context of this event collector
+     */
     public SingleEventCollector(ActivityContext c) {
-        this(c, false);
+        super(c, true, true);
     }
 
+    /**
+     * Constructs a <code>SingleEventCollector</code> with the default activity
+     * context. Note: this is an activity that will receive events (see
+     * {@link Activity#Activity(ActivityContext, boolean)}).
+     */
     public SingleEventCollector() {
-        this(UnitActivityContext.DEFAULT, false);
+        this(UnitActivityContext.DEFAULT);
     }
 
     @Override
@@ -36,8 +50,8 @@ public class SingleEventCollector extends Activity {
     @Override
     public synchronized void process(Event e) throws Exception {
 
-        if (verbose) {
-            logger.info("SINGLE EVENT COLLECTOR ( " + identifier()
+        if (logger.isDebugEnabled()) {
+            logger.debug("SINGLE EVENT COLLECTOR ( " + identifier()
                     + ") GOT RESULT!");
         }
 
@@ -61,6 +75,12 @@ public class SingleEventCollector extends Activity {
         return "SingleEventCollector(" + identifier() + ")";
     }
 
+    /**
+     * This method blocks waiting for this object to receive an event. As soon
+     * as it is available, it returns the event.
+     *
+     * @return the received event.
+     */
     public synchronized Event waitForEvent() {
         while (event == null) {
             try {

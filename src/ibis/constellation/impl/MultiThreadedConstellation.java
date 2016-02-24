@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
-import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.Event;
 import ibis.constellation.ExecutorContext;
 import ibis.constellation.Stats;
@@ -113,8 +112,8 @@ public class MultiThreadedConstellation {
 
         // Since we don't known where the target activity is located, we simply
         // send the message to it's parent constellation (which may be local).
-        handleEventMessage(
-                new EventMessage(identifier, e.target.getOrigin(), e));
+        handleEventMessage(new EventMessage(identifier,
+                (ConstellationIdentifier) e.target.getOrigin(), e));
     }
 
     void performCancel(ActivityIdentifier aid) {
@@ -157,37 +156,12 @@ public class MultiThreadedConstellation {
     synchronized ActivityIdentifierFactory getActivityIdentifierFactory(
             ConstellationIdentifier cid) {
 
-        ActivityIdentifierFactory tmp = new ActivityIdentifierFactory(
-                cid.getId(), startID, startID + blockSize);
+        ActivityIdentifierFactory tmp = new ActivityIdentifierFactory(cid,
+                startID, startID + blockSize);
 
         startID += blockSize;
         return tmp;
     }
-
-    /*
-     * FIXME REMOVE!!
-     *
-     * public ActivityIdentifier submit(Activity a) {
-     *
-     * if (Debug.DEBUG_SUBMIT) { logger.info(
-     * "LOCAL SUBMIT activity with context " + a.getContext()); }
-     *
-     * ActivityIdentifier id = createActivityID(a.expectsEvents());
-     * a.initialize(id);
-     *
-     * // Add externally submitted activities to the lookup table.
-     * exportedActivities.add(id, identifier);
-     *
-     * if (a.isRestrictedToLocal()) { restrictedQueue.enqueue(new
-     * ActivityRecord(a)); } else { queue.enqueue(new ActivityRecord(a)); }
-     *
-     * if (Debug.DEBUG_SUBMIT) { logger.info("created " + id + " at " +
-     * System.currentTimeMillis()); }
-     *
-     * System.out.println("LOCAL ENQ: " + id + " " + a.getContext());
-     *
-     * return id; }
-     */
 
     private ConstellationIdentifier deliverLocally(ConstellationIdentifier cid,
             EventMessage m) {

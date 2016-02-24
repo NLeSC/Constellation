@@ -12,11 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ibis.constellation.CTimer;
-import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ObjectData;
-import ibis.constellation.Stats;
 import ibis.constellation.StealPool;
 import ibis.constellation.extra.Debug;
+import ibis.constellation.extra.StatsImpl;
 import ibis.constellation.extra.TimeSyncInfo;
 import ibis.ipl.Ibis;
 import ibis.ipl.IbisCapabilities;
@@ -225,7 +224,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     private boolean gotRelease;
     private boolean gotAnswer;
     private boolean gotPong;
-    private Stats stats;
+    private StatsImpl stats;
 
     private int gotStats;
     private final boolean limitSenders;
@@ -314,13 +313,13 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             ibis.registry().waitUntilPoolClosed();
         }
 
-        stats = new Stats(getId());
+        stats = new StatsImpl(getId());
 
         communicationTimer = stats.getTimer("java", "data receiver",
                 "receive data");
     }
 
-    Stats getStats() {
+    StatsImpl getStats() {
         return stats;
     }
 
@@ -568,7 +567,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     }
 
     public void handleStats() {
-        Stats stats = owner.getStats();
+        StatsImpl stats = owner.getStats();
         if (isMaster) {
             stats.setSyncInfo(syncInfo);
             if (logger.isInfoEnabled()) {
@@ -934,7 +933,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
         switch (opcode) {
         case OPCODE_STATISTICS:
-            owner.getStats().add((Stats) data);
+            owner.getStats().add((StatsImpl) data);
             synchronized (this) {
                 gotStats++;
                 notifyAll();

@@ -14,7 +14,6 @@ import ibis.constellation.Activity;
 import ibis.constellation.ActivityContext;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.CTimer;
-import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.Event;
 import ibis.constellation.Executor;
 import ibis.constellation.ExecutorContext;
@@ -414,12 +413,12 @@ public class SingleThreadedConstellation extends Thread {
     }
 
     ActivityRecord[] attemptSteal(ExecutorContext context, StealStrategy s,
-            StealPool pool, ConstellationIdentifier src, int size,
+            StealPool pool, ConstellationIdentifier source, int size,
             boolean local) {
 
         ActivityRecord[] result = new ActivityRecord[size];
 
-        int count = attemptSteal(result, context, s, pool, src, size, local);
+        int count = attemptSteal(result, context, s, pool, source, size, local);
 
         if (count == 0) {
             return null;
@@ -694,7 +693,7 @@ public class SingleThreadedConstellation extends Thread {
         if (parent == null) {
             synchronized (this) {
                 ActivityIdentifierFactory tmp = new ActivityIdentifierFactory(
-                        cid.getId(), startID, startID + blockSize);
+                        cid, startID, startID + blockSize);
                 startID += blockSize;
                 return tmp;
             }
@@ -740,7 +739,7 @@ public class SingleThreadedConstellation extends Thread {
 
             if (cid == null) {
                 // If not, we simply send the event to the parent
-                cid = e.target.getOrigin();
+                cid = (ConstellationIdentifier) e.target.getOrigin();
             }
         }
 

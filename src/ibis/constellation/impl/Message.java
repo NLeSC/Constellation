@@ -1,8 +1,5 @@
 package ibis.constellation.impl;
 
-import ibis.constellation.ActivityIdentifier;
-import ibis.constellation.ConstellationIdentifier;
-
 import java.io.Serializable;
 
 public abstract class Message implements Serializable {
@@ -23,8 +20,8 @@ public abstract class Message implements Serializable {
         this.source = source;
     }
 
-    public synchronized void setTarget(ConstellationIdentifier target) {
-        this.target = target;
+    public synchronized void setTarget(ConstellationIdentifier cid) {
+        this.target = cid;
     }
 
     public synchronized boolean isTargetSet() {

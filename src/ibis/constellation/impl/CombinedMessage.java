@@ -1,7 +1,5 @@
 package ibis.constellation.impl;
 
-import ibis.constellation.ConstellationIdentifier;
-
 public class CombinedMessage extends Message {
 
     private static final long serialVersionUID = 6623230001381566142L;

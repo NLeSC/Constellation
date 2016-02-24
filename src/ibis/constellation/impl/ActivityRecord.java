@@ -1,5 +1,11 @@
 package ibis.constellation.impl;
 
+import java.io.IOException;
+import java.io.Serializable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityContext;
 import ibis.constellation.ActivityIdentifier;
@@ -8,12 +14,6 @@ import ibis.constellation.ObjectData;
 import ibis.constellation.extra.CircularBuffer;
 import ibis.ipl.ReadMessage;
 import ibis.ipl.WriteMessage;
-
-import java.io.IOException;
-import java.io.Serializable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ActivityRecord implements Serializable, ObjectData {
 

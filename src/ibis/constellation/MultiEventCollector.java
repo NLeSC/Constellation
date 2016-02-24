@@ -1,10 +1,17 @@
 package ibis.constellation;
 
-import ibis.constellation.context.UnitActivityContext;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ibis.constellation.context.UnitActivityContext;
+
+/**
+ * A <code>MultiEventCollector</code> is an {@link Activity} that just waits for
+ * a specific number of events, and collects them. It provides a method
+ * {@link #waitForEvents()}, to be used by other activities, to collect the
+ * events and block until the specified number of events is reached, after which
+ * the <code>MultiEventCollector</code> will finish.
+ */
 public class MultiEventCollector extends Activity {
 
     public static final Logger logger = LoggerFactory
@@ -15,11 +22,29 @@ public class MultiEventCollector extends Activity {
     private final Event[] events;
     private int count;
 
+    /**
+     * Constructs a <code>MultiEventCollector</code> with the specified activity
+     * context and event count. Note: this is an activity that will receive
+     * events (see {@link Activity#Activity(ActivityContext, boolean)}).
+     *
+     * @param c
+     *            the activity context of this event collector
+     * @param events
+     *            the number of events to be collected
+     */
     public MultiEventCollector(ActivityContext c, int events) {
         super(c, true, true);
         this.events = new Event[events];
     }
 
+    /**
+     * Constructs a <code>MultiEventCollector</code> with the default activity
+     * context and specified event count. Note: this is an activity that will
+     * receive events (see {@link Activity#Activity(ActivityContext, boolean)}).
+     *
+     * @param events
+     *            the number of events to be collected
+     */
     public MultiEventCollector(int events) {
         this(UnitActivityContext.DEFAULT, events);
     }
@@ -32,8 +57,8 @@ public class MultiEventCollector extends Activity {
     @Override
     public synchronized void process(Event e) throws Exception {
 
-        if (logger.isInfoEnabled()) {
-            logger.info("MultiEventCollector: received event " + count + " of "
+        if (logger.isDebugEnabled()) {
+            logger.debug("MultiEventCollector: received event " + count + " of "
                     + events.length);
         }
 
@@ -63,6 +88,13 @@ public class MultiEventCollector extends Activity {
                 + ")";
     }
 
+    /**
+     * This method blocks waiting for the specified number of events. As soon as
+     * they are available, it creates an array containing these events, and
+     * returns the array.
+     *
+     * @return an array containing the received events.
+     */
     public synchronized Event[] waitForEvents() {
         while (count != events.length) {
             try {

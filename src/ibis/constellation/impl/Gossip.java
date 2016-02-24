@@ -1,6 +1,5 @@
 package ibis.constellation.impl;
 
-import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ExecutorContext;
 
 import java.io.Serializable;

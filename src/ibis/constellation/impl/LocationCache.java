@@ -1,8 +1,5 @@
 package ibis.constellation.impl;
 
-import ibis.constellation.ActivityIdentifier;
-import ibis.constellation.ConstellationIdentifier;
-
 import java.util.HashMap;
 
 import org.slf4j.Logger;

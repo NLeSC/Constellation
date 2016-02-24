@@ -12,7 +12,6 @@ import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.CTimer;
 import ibis.constellation.Concluder;
 import ibis.constellation.Constellation;
-import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.Event;
 import ibis.constellation.Executor;
 import ibis.constellation.ExecutorContext;
@@ -44,7 +43,7 @@ public class ExecutorWrapper implements Constellation {
     private final StealStrategy constellationStealStrategy;
     private final StealStrategy remoteStealStrategy;
 
-    private HashMap<ActivityIdentifier, ActivityRecord> lookup = new HashMap<ActivityIdentifier, ActivityRecord>();
+    private HashMap<ibis.constellation.ActivityIdentifier, ActivityRecord> lookup = new HashMap<ibis.constellation.ActivityIdentifier, ActivityRecord>();
 
     private final WorkQueue restricted;
     private final WorkQueue fresh;
@@ -107,9 +106,10 @@ public class ExecutorWrapper implements Constellation {
     }
 
     @Override
-    public void cancel(ActivityIdentifier id) {
+    public void cancel(
+            ibis.constellation.ActivityIdentifier activityIdentifier) {
 
-        ActivityRecord ar = lookup.remove(id);
+        ActivityRecord ar = lookup.remove(activityIdentifier);
 
         if (ar == null) {
             return;

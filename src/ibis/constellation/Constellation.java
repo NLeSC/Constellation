@@ -100,7 +100,7 @@ public interface Constellation {
     /**
      * Return statistics on the Constellation instance.
      *
-     * @return a Stats with statistics on the Constellation instance.
+     * @return a StatsImpl with statistics on the Constellation instance.
      */
     public Stats getStats();
 }

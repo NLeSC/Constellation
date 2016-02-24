@@ -1,12 +1,11 @@
 package ibis.constellation.impl;
 
-import ibis.constellation.ConstellationIdentifier;
+import java.io.IOException;
+
 import ibis.constellation.Event;
 import ibis.constellation.ObjectData;
 import ibis.ipl.ReadMessage;
 import ibis.ipl.WriteMessage;
-
-import java.io.IOException;
 
 public class EventMessage extends Message implements ObjectData {
 
@@ -15,8 +14,9 @@ public class EventMessage extends Message implements ObjectData {
     public final Event event;
 
     public EventMessage(final ConstellationIdentifier source,
-            final ConstellationIdentifier target, final Event e) {
-        super(source, target);
+            final ConstellationIdentifier constellationIdentifier,
+            final Event e) {
+        super(source, constellationIdentifier);
         this.event = e;
     }
 

@@ -234,10 +234,9 @@ public abstract class Activity implements Serializable {
     /**
      * This method, to be implemented by the activity, should perform the
      * initial processing when the activity is first activated. In the end, it
-     * usually calls {@link #suspend()} or {@link #finish()}, depending on what
-     * the activity is to do next: for instance {@link suspend()} when it
-     * created other activities it wants to wait for, and {@link finish()} when
-     * it is done.
+     * should call {@link #suspend()} or {@link #finish()}, depending on what
+     * the activity is to do next: {@link suspend()} when it expects events it
+     * wants to wait for, and {@link finish()} when it is done.
      *
      * @throws Exception
      *             TODO: describe what happens if initialize() causes an
@@ -247,10 +246,10 @@ public abstract class Activity implements Serializable {
 
     /**
      * This method, to be implemented by the activity, is called when the
-     * activity should handle the specified event. In the end, it usually calls
+     * activity should handle the specified event. In the end, it should call
      * {@link #suspend()} or {@link #finish()}, depending on what the activity
-     * is to do next: for instance {@link suspend()} when it expects other
-     * events, and {@link finish()} when it is done.
+     * is to do next: {@link suspend()} when it expects other events, and
+     * {@link finish()} when it is done.
      *
      * @param e
      *            the event.
@@ -271,7 +270,7 @@ public abstract class Activity implements Serializable {
 
     /**
      * TODO never called???
-     * 
+     *
      * @throws Exception
      */
     public abstract void cancel() throws Exception;

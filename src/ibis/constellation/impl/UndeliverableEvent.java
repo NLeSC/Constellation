@@ -1,6 +1,5 @@
 package ibis.constellation.impl;
 
-import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.Event;
 
 public class UndeliverableEvent extends Message {

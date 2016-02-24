@@ -1,20 +1,20 @@
 package ibis.constellation.extra;
 
+import java.util.HashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ibis.constellation.ActivityContext;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Event;
-import ibis.constellation.StealStrategy;
 import ibis.constellation.ExecutorContext;
+import ibis.constellation.StealStrategy;
 import ibis.constellation.context.OrActivityContext;
 import ibis.constellation.context.OrExecutorContext;
 import ibis.constellation.context.UnitActivityContext;
 import ibis.constellation.context.UnitExecutorContext;
 import ibis.constellation.impl.ActivityRecord;
-
-import java.util.HashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SmartSortedWorkQueue extends WorkQueue {
 

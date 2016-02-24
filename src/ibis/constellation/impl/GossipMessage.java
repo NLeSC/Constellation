@@ -1,7 +1,5 @@
 package ibis.constellation.impl;
 
-import ibis.constellation.ConstellationIdentifier;
-
 public class GossipMessage extends Message {
 
     private static final long serialVersionUID = -2735555540658194683L;

@@ -1,9 +1,9 @@
 package ibis.constellation.extra;
 
-import ibis.constellation.ActivityIdentifier;
-import ibis.constellation.ConstellationIdentifier;
-
 import java.util.concurrent.ConcurrentHashMap;
+
+import ibis.constellation.ActivityIdentifier;
+import ibis.constellation.impl.ConstellationIdentifier;
 
 public class ActivityLocationLookup {
 

@@ -1,6 +1,6 @@
 package ibis.constellation.extra;
 
-import ibis.constellation.ConstellationIdentifier;
+import ibis.constellation.impl.ConstellationIdentifier;
 
 public class SimpleConstellationIdentifierFactory
         implements ConstellationIdentifierFactory {

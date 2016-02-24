@@ -2,8 +2,8 @@ package ibis.constellation.extra;
 
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Event;
-import ibis.constellation.StealStrategy;
 import ibis.constellation.ExecutorContext;
+import ibis.constellation.StealStrategy;
 import ibis.constellation.impl.ActivityRecord;
 
 public class SynchronizedWorkQueue extends WorkQueue {
@@ -31,7 +31,8 @@ public class SynchronizedWorkQueue extends WorkQueue {
     }
 
     @Override
-    public synchronized ActivityRecord steal(ExecutorContext c, StealStrategy s) {
+    public synchronized ActivityRecord steal(ExecutorContext c,
+            StealStrategy s) {
         return queue.steal(c, s);
     }
 
@@ -46,8 +47,8 @@ public class SynchronizedWorkQueue extends WorkQueue {
     }
 
     @Override
-    public synchronized ActivityRecord[] steal(ExecutorContext c, StealStrategy s,
-            int count) {
+    public synchronized ActivityRecord[] steal(ExecutorContext c,
+            StealStrategy s, int count) {
         return queue.steal(c, s, count);
     }
 

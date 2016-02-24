@@ -1,16 +1,14 @@
 package ibis.constellation.impl;
 
-import ibis.constellation.ActivityIdentifier;
-
 public class ActivityIdentifierFactory {
 
-    private final long high;
+    private final ConstellationIdentifier cid;
     private final long end;
     private long current;
 
-    public ActivityIdentifierFactory(final long high, final long start,
-            final long end) {
-        this.high = high;
+    public ActivityIdentifierFactory(final ConstellationIdentifier cid,
+            final long start, final long end) {
+        this.cid = cid;
         this.current = start;
         this.end = end;
     }
@@ -22,6 +20,6 @@ public class ActivityIdentifierFactory {
             throw new Exception("Out of identifiers!");
         }
 
-        return new ActivityIdentifier(high, current++, events);
+        return new ActivityIdentifier(cid, current++, events);
     }
 }

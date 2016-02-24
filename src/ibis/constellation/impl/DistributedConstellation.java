@@ -11,15 +11,14 @@ import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Concluder;
 import ibis.constellation.Constellation;
-import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.Event;
 import ibis.constellation.ExecutorContext;
-import ibis.constellation.Stats;
 import ibis.constellation.StealPool;
 import ibis.constellation.context.OrExecutorContext;
 import ibis.constellation.context.UnitExecutorContext;
 import ibis.constellation.extra.ConstellationIdentifierFactory;
 import ibis.constellation.extra.Debug;
+import ibis.constellation.extra.StatsImpl;
 
 public class DistributedConstellation {
 
@@ -115,7 +114,7 @@ public class DistributedConstellation {
 
     private final HashMap<String, PendingSteal> stealThrottle = new HashMap<String, PendingSteal>();
 
-    private final Stats stats;
+    private final StatsImpl stats;
 
     private class Facade implements Constellation {
 
@@ -178,7 +177,7 @@ public class DistributedConstellation {
         }
 
         @Override
-        public Stats getStats() {
+        public StatsImpl getStats() {
             return stats;
         }
     }
@@ -641,7 +640,7 @@ public class DistributedConstellation {
         }
     }
 
-    public Stats getStats() {
+    public StatsImpl getStats() {
         return stats;
     }
 

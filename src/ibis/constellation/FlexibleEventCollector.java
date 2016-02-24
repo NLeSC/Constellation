@@ -1,35 +1,51 @@
 package ibis.constellation;
 
-import ibis.constellation.context.UnitActivityContext;
-
 import java.util.ArrayList;
 
+import ibis.constellation.context.UnitActivityContext;
+
+/**
+ * A <code>FlexibleEventCollector</code> is an {@link Activity} that just waits
+ * for events, indefinitely, and collects them. It provides a method
+ * {@link #waitForEvents()}, to be used by other activities, to collect the
+ * events collected so far.
+ */
 public class FlexibleEventCollector extends Activity {
 
     private static final long serialVersionUID = -538414301465754654L;
 
     private final ArrayList<Event> events = new ArrayList<Event>();
     private boolean waiting = false;
-    private int count;
 
+    /**
+     * Constructs a <code>FlexibleEventCollector</code> with the specified
+     * activity context. Note: this is an activity that will receive events (see
+     * {@link Activity#Activity(ActivityContext, boolean)}).
+     *
+     * @param c
+     *            the activity context
+     */
     public FlexibleEventCollector(ActivityContext c) {
         super(c, true);
     }
 
+    /**
+     * Constructs a <code>FlexibleEventCollector</code> with the default
+     * activity context.
+     */
     public FlexibleEventCollector() {
         super(UnitActivityContext.DEFAULT, true);
     }
 
     @Override
-    public void initialize() throws Exception {
+    public void initialize() {
         suspend();
     }
 
     @Override
-    public synchronized void process(Event e) throws Exception {
+    public synchronized void process(Event e) {
 
         events.add(e);
-        count++;
 
         if (waiting) {
             notifyAll();
@@ -38,18 +54,28 @@ public class FlexibleEventCollector extends Activity {
         suspend();
     }
 
-    public void cleanup() throws Exception {
+    @Override
+    public void cleanup() {
         // empty
     }
 
-    public void cancel() throws Exception {
+    @Override
+    public void cancel() {
         // empty
     }
 
+    @Override
     public String toString() {
         return "FlexibleEventCollector(" + identifier() + ")";
     }
 
+    /**
+     * This method blocks waiting for events. As soon as one or more are
+     * available, it creates an array containing these events, clears the event
+     * list of this collector, and returns the array.
+     * 
+     * @return an array containing the received events.
+     */
     public synchronized Event[] waitForEvents() {
 
         while (events.size() == 0) {
@@ -58,7 +84,7 @@ public class FlexibleEventCollector extends Activity {
 
             try {
                 wait();
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 // ignore
             }
 

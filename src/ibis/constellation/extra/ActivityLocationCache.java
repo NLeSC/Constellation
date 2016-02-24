@@ -1,7 +1,7 @@
 package ibis.constellation.extra;
 
-import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.ConstellationIdentifier;
+import ibis.constellation.impl.ActivityIdentifier;
 
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;

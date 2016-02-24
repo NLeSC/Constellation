@@ -2,8 +2,8 @@ package ibis.constellation.extra;
 
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Event;
-import ibis.constellation.StealStrategy;
 import ibis.constellation.ExecutorContext;
+import ibis.constellation.StealStrategy;
 import ibis.constellation.impl.ActivityRecord;
 
 public abstract class WorkQueue {
@@ -55,7 +55,8 @@ public abstract class WorkQueue {
         return tmp;
     }
 
-    public ActivityRecord[] steal(ExecutorContext c, StealStrategy s, int count) {
+    public ActivityRecord[] steal(ExecutorContext c, StealStrategy s,
+            int count) {
 
         ActivityRecord[] tmp = new ActivityRecord[count];
 
