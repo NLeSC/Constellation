@@ -37,10 +37,10 @@ public class StatsImpl extends ibis.constellation.Stats
      * conclusion phase process all statistics. The statistics from all other
      * nodes have already been added to this.
      */
-    public void printStats() {
-        System.out.print("\n-------------------------------");
-        System.out.print(" STATISTICS ");
-        System.out.println("-------------------------------");
+    public void printStats(PrintStream stream) {
+        stream.print("\n-------------------------------");
+        stream.print(" STATISTICS ");
+        stream.println("-------------------------------");
 
         normalize(syncInfo);
 
@@ -48,9 +48,9 @@ public class StatsImpl extends ibis.constellation.Stats
         timer.filterOverall();
         // System.out.println(timer.extensiveOutput());
 
-        printActions(timer);
+        printActions(stream, timer);
 
-        printDataTransfers();
+        printDataTransfers(stream);
 
         printPlotData();
     }
@@ -59,22 +59,22 @@ public class StatsImpl extends ibis.constellation.Stats
         timers.add(timer);
     }
 
-    private void printActions(CTimer timer) {
+    private void printActions(PrintStream stream, CTimer timer) {
         List<CTimer> actionTimers = timer.groupByAction();
 
         for (CTimer t : actionTimers) {
-            print(t.getAction(), t);
+            print(stream, t.getAction(), t);
         }
     }
 
-    private void printDataTransfers() {
+    private void printDataTransfers(PrintStream stream) {
         CTimer timer = getTotalMCTimer();
         timer.onlyDataTransfers();
 
         List<CTimer> actionTimers = timer.groupByAction();
 
         for (CTimer t : actionTimers) {
-            System.out.println(t.dataTransferOutput());
+            stream.println(t.dataTransferOutput());
         }
     }
 
@@ -127,9 +127,9 @@ public class StatsImpl extends ibis.constellation.Stats
         write(temp, "gantt-thread.data", true);
     }
 
-    void print(String kind, CTimer t) {
-        System.out.printf("%-53s %3d %s %s\n", kind, t.nrTimes(),
-                t.averageTime(), t.totalTime());
+    void print(PrintStream stream, String kind, CTimer t) {
+        stream.printf("%-53s %3d %s %s\n", kind, t.nrTimes(), t.averageTime(),
+                t.totalTime());
     }
 
     @Override

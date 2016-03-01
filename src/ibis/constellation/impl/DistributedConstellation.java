@@ -295,7 +295,7 @@ public class DistributedConstellation {
             if (logger.isInfoEnabled()) {
                 logger.info("Printing statistics");
             }
-            stats.printStats();
+            stats.printStats(System.out);
 
             printStatistics();
         }
