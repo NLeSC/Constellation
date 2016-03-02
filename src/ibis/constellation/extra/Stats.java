@@ -7,8 +7,7 @@ import java.util.List;
 
 import ibis.constellation.CTimer;
 
-public class StatsImpl extends ibis.constellation.Stats
-        implements java.io.Serializable {
+public class Stats implements java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -19,7 +18,7 @@ public class StatsImpl extends ibis.constellation.Stats
     private transient TimeSyncInfo syncInfo;
 
     // This is the public interface to the rest of the framework.
-    public StatsImpl(String hostId) {
+    public Stats(String hostId) {
         this.hostId = hostId;
         timers = new ArrayList<CTimer>();
     }
@@ -28,7 +27,7 @@ public class StatsImpl extends ibis.constellation.Stats
         this.syncInfo = syncInfo;
     }
 
-    public synchronized void add(StatsImpl s) {
+    public synchronized void add(Stats s) {
         this.timers.addAll(s.timers);
     }
 
@@ -132,14 +131,12 @@ public class StatsImpl extends ibis.constellation.Stats
                 t.totalTime());
     }
 
-    @Override
     public CTimer getTimer() {
         CTimer timer = new CTimer(hostId);
         addTimer(timer);
         return timer;
     }
 
-    @Override
     public CTimer getTimer(String standardDevice, String standardThread,
             String standardAction) {
         CTimer timer = new CTimer(hostId, standardDevice, standardThread,

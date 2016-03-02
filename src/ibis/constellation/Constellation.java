@@ -16,7 +16,10 @@ public interface Constellation {
      * returned that can be used to refer to this submitted Activity at a later
      * moment in time.
      *
-     * TODO: can this fail? Describe exceptions
+     * TODO: can this fail? Describe exceptions TODO: remove? Problem is that an
+     * implementation cannot decide which executor is suitable, because although
+     * the contexts may match, the steal pool of the executor may be wrong for
+     * activities instantiated by this activity.
      *
      * @param job
      *            the Activity to submit
@@ -41,6 +44,7 @@ public interface Constellation {
      * TODO: figure out and describe semantics of this.
      *
      * @param activity
+     *            activity to be cancelled
      */
     public void cancel(ActivityIdentifier activity);
 
@@ -63,18 +67,23 @@ public interface Constellation {
     /**
      * Terminate Constellation.
      *
-     * TODO: What does a Concluder do ?
+     * When terminating all sub-constellations will be terminated. Termination
+     * may block until all other running constellation implementations in a Pool
+     * have also decided to terminate. When this is the case, the
+     * {@link Concluder#conclude()} method is called, allowing the application
+     * to run some finalization code of its own.
      *
      * @param concluder
+     *            object with a {@link Concluder#conclude()} method
      */
     public void done(Concluder concluder);
 
     /**
      * Terminate Constellation.
      *
-     * When terminating all sub-constellation will be terminated. Termination
-     * may also block until all other running constellation implementations in a
-     * Pool have also decided to terminate.
+     * When terminating all sub-constellations will be terminated. Termination
+     * may block until all other running constellation implementations in a Pool
+     * have also decided to terminate.
      */
     public void done();
 
@@ -89,18 +98,17 @@ public interface Constellation {
     /**
      * Returns a unique identifier for this Constellation instance.
      *
-     * This ConstellationIdentifier can be used to uniquely refer to a running
-     * Constellation instance. It is also used as part of an ActivityIdentifer.
+     * This {@link ConstellationIdentifier} can be used to uniquely refer to a
+     * running Constellation instance. It is also used as part of an
+     * ActivityIdentifer.
      *
      * @return a ConstellationIdentifier that uniquely identifies this
      *         Constellation instance.
      */
     public ConstellationIdentifier identifier();
 
-    /**
-     * Return statistics on the Constellation instance.
-     *
-     * @return a StatsImpl with statistics on the Constellation instance.
-     */
-    public Stats getStats();
+    public CTimer getTimer(String standardDevice, String standardThread,
+            String standardAction);
+
+    public CTimer getTimer();
 }

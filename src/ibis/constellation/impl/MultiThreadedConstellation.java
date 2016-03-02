@@ -13,13 +13,13 @@ import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Event;
 import ibis.constellation.ExecutorContext;
-import ibis.constellation.Stats;
 import ibis.constellation.StealPool;
 import ibis.constellation.context.OrExecutorContext;
 import ibis.constellation.context.UnitExecutorContext;
 import ibis.constellation.extra.ConstellationIdentifierFactory;
 import ibis.constellation.extra.Debug;
 import ibis.constellation.extra.SimpleConstellationIdentifierFactory;
+import ibis.constellation.extra.Stats;
 
 public class MultiThreadedConstellation {
 

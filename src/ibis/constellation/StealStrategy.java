@@ -5,10 +5,10 @@ import java.io.Serializable;
 /**
  * A <code>StealStrategy</code> describes a strategy, to be used by an executor,
  * for stealing activities. Activities can be sorted by their
- * {@link context.UnitActivityContext#rank rank}, and an executor can have, for
- * instance, a preference for "big" jobs or "small" jobs, or jobs with a rank
- * within a particular range. The strategies are described by particular
- * opcodes, some of which have additional attributes.
+ * {@link ibis.constellation.context.UnitActivityContext#rank rank}, and an
+ * executor can have, for instance, a preference for "big" jobs or "small" jobs,
+ * or jobs with a rank within a particular range. The strategies are described
+ * by particular opcodes, some of which have additional attributes.
  */
 public class StealStrategy implements Serializable {
 
@@ -52,7 +52,7 @@ public class StealStrategy implements Serializable {
 
     /**
      * Constructs a steal strategy object with the specified opcode.
-     * 
+     *
      * @param opcode
      *            the opcode
      * @exception IllegalArgumentException
@@ -80,7 +80,7 @@ public class StealStrategy implements Serializable {
 
     /**
      * Constructs a steal strategy object with the specified opcode and value.
-     * 
+     *
      * @param opcode
      *            the opcode
      * @param value
@@ -110,7 +110,7 @@ public class StealStrategy implements Serializable {
 
     /**
      * Constructs a steal strategy object with the specified opcode and range.
-     * 
+     *
      * @param opcode
      *            the opcode
      * @param start

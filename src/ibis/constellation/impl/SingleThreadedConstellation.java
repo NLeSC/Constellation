@@ -17,13 +17,13 @@ import ibis.constellation.CTimer;
 import ibis.constellation.Event;
 import ibis.constellation.Executor;
 import ibis.constellation.ExecutorContext;
-import ibis.constellation.Stats;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.extra.ActivityLocationLookup;
 import ibis.constellation.extra.CircularBuffer;
 import ibis.constellation.extra.Debug;
 import ibis.constellation.extra.SmartSortedWorkQueue;
+import ibis.constellation.extra.Stats;
 import ibis.constellation.extra.WorkQueue;
 
 public class SingleThreadedConstellation extends Thread {
@@ -1395,8 +1395,9 @@ public class SingleThreadedConstellation extends Thread {
         out.flush();
     }
 
-    public Stats getStats() {
-        return stats;
+    public CTimer getTimer(String standardDevice, String standardThread,
+            String standardAction) {
+        return stats.getTimer(standardDevice, standardThread, standardAction);
     }
 
 }

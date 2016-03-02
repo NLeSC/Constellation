@@ -230,7 +230,9 @@ public abstract class Executor implements Serializable {
      * TODO: this should not be visible in the API
      *
      * @param owner
+     *            TODO
      * @throws Exception
+     *             TODO
      */
     public synchronized void connect(ExecutorWrapper owner) throws Exception {
 

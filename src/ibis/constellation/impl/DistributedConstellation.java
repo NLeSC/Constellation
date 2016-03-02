@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
+import ibis.constellation.CTimer;
 import ibis.constellation.Concluder;
 import ibis.constellation.Constellation;
 import ibis.constellation.Event;
@@ -18,7 +19,7 @@ import ibis.constellation.context.OrExecutorContext;
 import ibis.constellation.context.UnitExecutorContext;
 import ibis.constellation.extra.ConstellationIdentifierFactory;
 import ibis.constellation.extra.Debug;
-import ibis.constellation.extra.StatsImpl;
+import ibis.constellation.extra.Stats;
 
 public class DistributedConstellation {
 
@@ -114,7 +115,7 @@ public class DistributedConstellation {
 
     private final HashMap<String, PendingSteal> stealThrottle = new HashMap<String, PendingSteal>();
 
-    private final StatsImpl stats;
+    private final Stats stats;
 
     private class Facade implements Constellation {
 
@@ -177,8 +178,15 @@ public class DistributedConstellation {
         }
 
         @Override
-        public StatsImpl getStats() {
-            return stats;
+        public CTimer getTimer(String standardDevice, String standardThread,
+                String standardAction) {
+            return stats.getTimer(standardDevice, standardThread,
+                    standardAction);
+        }
+
+        @Override
+        public CTimer getTimer() {
+            return stats.getTimer();
         }
     }
 
@@ -640,7 +648,7 @@ public class DistributedConstellation {
         }
     }
 
-    public StatsImpl getStats() {
+    public Stats getStats() {
         return stats;
     }
 

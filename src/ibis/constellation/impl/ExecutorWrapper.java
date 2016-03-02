@@ -15,7 +15,6 @@ import ibis.constellation.Constellation;
 import ibis.constellation.Event;
 import ibis.constellation.Executor;
 import ibis.constellation.ExecutorContext;
-import ibis.constellation.Stats;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.extra.CircularBuffer;
@@ -98,9 +97,9 @@ public class ExecutorWrapper implements Constellation {
         localStealStrategy = executor.getLocalStealStrategy();
         constellationStealStrategy = executor.getConstellationStealStrategy();
         remoteStealStrategy = executor.getRemoteStealStrategy();
-        messagesTimer = parent.getStats().getTimer("java",
-                parent.identifier().toString(), "message sending");
-        computationTimer = parent.getStats().getTimer("java",
+        messagesTimer = parent.getTimer("java", parent.identifier().toString(),
+                "message sending");
+        computationTimer = parent.getTimer("java",
                 parent.identifier().toString(), "computation");
 
     }
@@ -542,7 +541,14 @@ public class ExecutorWrapper implements Constellation {
     }
 
     @Override
-    public Stats getStats() {
+    public CTimer getTimer(String standardDevice, String standardThread,
+            String standardAction) {
+        logger.error("not implemented: getStats()");
+        throw new Error("Not implemented: getStats()");
+    }
+
+    @Override
+    public CTimer getTimer() {
         logger.error("not implemented: getStats()");
         throw new Error("Not implemented: getStats()");
     }

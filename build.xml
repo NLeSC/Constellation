@@ -8,7 +8,7 @@
 	<property name="srcdir" value="./src" />
 	<property name="builddir" value="./build" />
 	<property name="distdir" value="./lib" />
-	<property name="javadoc" value="javadoc/constellation" />
+	<property name="javadoc" value="javadoc" />
 
 	<path id="default.classpath">
 		<fileset dir="external">
@@ -45,8 +45,8 @@
 	<target name="javadoc" description="Create javadocs">
 		<!-- Create the javadoc -->
 		<mkdir dir="${javadoc}" />
-		<javadoc destdir="${javadoc}" access="public" sourcepath="src" windowtitle="Constellation Documentation" packagenames="ibis.constellation" overview="src/overview.html" doctitle="Constellation Documentation" bottom="The Ibis project" classpathref="default.classpath">
-			<link href="http://java.sun.com/j2se/1.5.0/docs/api/" />
+		<javadoc destdir="${javadoc}" access="public" sourcepath="src" windowtitle="Constellation Documentation" packagenames="ibis.constellation" doctitle="Constellation Documentation" bottom="The Ibis project" classpathref="default.classpath">
+		    <link href="http://docs.oracle.com/javase/6/docs/api/"/>
 		</javadoc>
 
 	</target>

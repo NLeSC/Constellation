@@ -16,8 +16,6 @@ public class ConstellationFactory {
      * Creates a constellation instance, using the specified executor and the
      * system properties.
      *
-     * @param p
-     *            the properties
      * @param e
      *            the executor
      * @return the constellation instance
@@ -33,6 +31,8 @@ public class ConstellationFactory {
      * Creates a constellation instance, using the specified executor and
      * properties.
      *
+     * @param p
+     *            the properties to use
      * @param e
      *            the executor
      * @return the constellation instance
