@@ -107,8 +107,7 @@ public interface Constellation {
      */
     public ConstellationIdentifier identifier();
 
-    public CTimer getTimer(String standardDevice, String standardThread,
-            String standardAction);
+    public CTimer getTimer(String device, String thread, String action);
 
     public CTimer getTimer();
 }

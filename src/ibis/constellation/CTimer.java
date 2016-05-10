@@ -153,9 +153,9 @@ public class CTimer implements java.io.Serializable {
     private ArrayList<TimerEvent> events;
 
     private final String hostId;
-    private final String standardDevice;
-    private final String standardThread;
-    private final String standardAction;
+    private final String device;
+    private final String thread;
+    private final String action;
     private final int standardQueue;
 
     // not sure
@@ -168,11 +168,11 @@ public class CTimer implements java.io.Serializable {
     }
 
     public String getAction() {
-        if (standardAction == null) {
+        if (action == null) {
             TimerEvent event = events.get(0);
             return event.getAction();
         } else {
-            return standardAction;
+            return action;
         }
     }
 
@@ -188,9 +188,9 @@ public class CTimer implements java.io.Serializable {
             String standardThread, String standardAction) {
         this.events = new ArrayList<TimerEvent>();
         this.hostId = constellation;
-        this.standardDevice = standardDevice;
-        this.standardThread = standardThread;
-        this.standardAction = standardAction;
+        this.device = standardDevice;
+        this.thread = standardThread;
+        this.action = standardAction;
         this.standardQueue = getNextQueue();
     }
 
@@ -214,8 +214,8 @@ public class CTimer implements java.io.Serializable {
 
     public int start() {
         int eventNo;
-        TimerEvent event = new TimerEvent(getNode(), standardDevice,
-                standardThread, standardQueue, standardAction, 0, 0, 0, 0);
+        TimerEvent event = new TimerEvent(getNode(), device, thread,
+                standardQueue, action, 0, 0, 0, 0);
         synchronized (this) {
             eventNo = events.size();
             events.add(event);
@@ -417,7 +417,7 @@ public class CTimer implements java.io.Serializable {
      * Filters all events that are not within the 'overall' frame.
      *
      * We filter 10% before the overallStartTime and 10% after to make up for
-     * imprecisions in synchronizing between nodes.
+     * imprecision in synchronizing between nodes.
      */
     public void filterOverall() {
         TimerEvent overallEvent = getOverallEvent();

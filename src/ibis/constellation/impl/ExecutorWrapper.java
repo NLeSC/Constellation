@@ -423,8 +423,8 @@ public class ExecutorWrapper implements Constellation {
         ActivityRecord tmp = dequeue();
 
         // NOTE: the queue is guaranteed to only contain activities that we can
-        // run. Whenever new activities are added or the the context of
-        // this cohort changes we filter out all activities that do not
+        // run. Whenever new activities are added or the context of
+        // this constellation changes we filter out all activities that do not
         // match.
 
         if (tmp != null) {
