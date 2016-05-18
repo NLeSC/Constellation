@@ -2,7 +2,6 @@ package ibis.constellation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Multimap;
@@ -20,7 +19,6 @@ public class CTimer implements java.io.Serializable {
         String node;
         String device;
         String thread;
-        int queueIndex;
         String action;
 
         long queued;
@@ -31,13 +29,12 @@ public class CTimer implements java.io.Serializable {
         long nrBytes;
 
         public TimerEvent(String node, String device, String thread,
-                int queueIndex, String action, long queued, long submitted,
-                long start, long end) {
+                String action, long queued, long submitted, long start,
+                long end) {
 
             this.node = node;
             this.device = device;
             this.thread = thread;
-            this.queueIndex = queueIndex;
             this.action = action;
             this.queued = queued;
             this.submitted = submitted;
@@ -52,10 +49,6 @@ public class CTimer implements java.io.Serializable {
 
         public String getDevice() {
             return device;
-        }
-
-        public int getQueue() {
-            return queueIndex;
         }
 
         public String getAction() {
@@ -137,18 +130,17 @@ public class CTimer implements java.io.Serializable {
         @Override
         public String toString() {
             return String.format(
-                    "%-8s  |  %-10s  |  %-22s  |  queue: %-2d  |  "
+                    "%-8s  |  %-10s  |  %-22s  | "
                             + "%-14s  |  queued: %-6s  |  submitted: %-6s  |  "
                             + "start: %-6s  |  end: %-6s\n",
-                    node, device, thread, queueIndex, action,
-                    Timer.format(queued / 1000.0),
+                    node, device, thread, // queueIndex,
+                    action, Timer.format(queued / 1000.0),
                     Timer.format(submitted / 1000.0),
                     Timer.format(start / 1000.0), Timer.format(end / 1000.0));
         }
     }
 
     private static final long serialVersionUID = 1L;
-    private static final AtomicInteger nrQueues = new AtomicInteger();
 
     private ArrayList<TimerEvent> events;
 
@@ -156,16 +148,6 @@ public class CTimer implements java.io.Serializable {
     private final String device;
     private final String thread;
     private final String action;
-    private final int standardQueue;
-
-    // not sure
-    private static int getNextQueue() {
-        return nrQueues.getAndIncrement();
-    }
-
-    private int getQueue() {
-        return standardQueue;
-    }
 
     public String getAction() {
         if (action == null) {
@@ -191,7 +173,6 @@ public class CTimer implements java.io.Serializable {
         this.device = standardDevice;
         this.thread = standardThread;
         this.action = standardAction;
-        this.standardQueue = getNextQueue();
     }
 
     public void equalize(TimeSyncInfo timeSyncInfo) {
@@ -214,8 +195,8 @@ public class CTimer implements java.io.Serializable {
 
     public int start() {
         int eventNo;
-        TimerEvent event = new TimerEvent(getNode(), device, thread,
-                standardQueue, action, 0, 0, 0, 0);
+        TimerEvent event = new TimerEvent(getNode(), device, thread, action, 0,
+                0, 0, 0);
         synchronized (this) {
             eventNo = events.size();
             events.add(event);
@@ -370,10 +351,10 @@ public class CTimer implements java.io.Serializable {
     }
 
     public void append(StringBuffer sb, String node, String device,
-            String thread, int queue, long start, long end, String action,
+            String thread, long start, long end, String action,
             boolean perThread) {
         sb.append(String.format("%s %s %s\t%f\t%f\t%s\n", node, device,
-                perThread ? thread : "queue" + queue, start / 1e6, end / 1e6,
+                perThread ? thread : "nothread", start / 1e6, end / 1e6,
                 action));
     }
 
@@ -433,8 +414,7 @@ public class CTimer implements java.io.Serializable {
         normalize(startFilter);
 
         ArrayList<TimerEvent> filtered = new ArrayList<TimerEvent>();
-        // System.out.println("Filter: end = " +
-        // Timer.format(endFilter/1000.0));
+
         for (TimerEvent event : events) {
             if (event.getStart() >= 0 && event.getEnd() < endFilter) {
                 filtered.add(event);
@@ -460,17 +440,10 @@ public class CTimer implements java.io.Serializable {
     public String gnuPlotData(boolean perThread) {
         StringBuffer sb = new StringBuffer();
         for (TimerEvent event : events) {
-            /*
-             * append(sb, event.getNode(), event.getQueue(), event.getQueued(),
-             * event.getQueued() + 3000, "queuing for " + event.getAction());
-             * append(sb, event.getNode(), event.getQueue(),
-             * event.getSubmitted(), event.getSubmitted() + 3000,
-             * "submitting for " + event.getAction());
-             */
             if (event.getEnd() > 0) {
                 append(sb, event.getNode(), event.getDevice(),
-                        event.getThread(), event.getQueue(), event.getStart(),
-                        event.getEnd(), event.getAction(), perThread);
+                        event.getThread(), event.getStart(), event.getEnd(),
+                        event.getAction(), perThread);
             }
         }
         return sb.toString();
@@ -478,8 +451,7 @@ public class CTimer implements java.io.Serializable {
 
     public void add(String nickName, String thread, String action, long l,
             long m, long n, long o) {
-        add(new TimerEvent(getNode(), nickName, thread, getQueue(), action, l,
-                m, n, o));
+        add(new TimerEvent(getNode(), nickName, thread, action, l, m, n, o));
 
     }
 }

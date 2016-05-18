@@ -1,6 +1,5 @@
 package ibis.constellation.impl;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
@@ -131,26 +130,9 @@ public class MultiThreadedConstellation {
         return null;
     }
 
-    /*
-     * private int selectTargetWorker(ConstellationIdentifier exclude) {
-     *
-     * if (workerCount == 1) { return -1; }
-     *
-     * int rnd = selectRandomWorker();
-     *
-     * ConstellationIdentifier cid = workers[rnd].identifier();
-     *
-     * if (cid.equals(exclude)) { return ((rnd+1)%workerCount); }
-     *
-     * return rnd; }
-     */
     private int selectRandomWorker() {
         // This return a random number between 0 .. workerCount-1
         return random.nextInt(workerCount);
-    }
-
-    PrintStream getOutput() {
-        return System.out;
     }
 
     synchronized ActivityIdentifierFactory getActivityIdentifierFactory(
@@ -181,10 +163,6 @@ public class MultiThreadedConstellation {
         // One of our children wishes to send a message to 'm.target',
         // which may be local or remote.
 
-        // System.out.println("MT: routing event to " + m.event.target + " at "
-        // + m.target + " (" + cidFactory.isLocal(m.target) + ") from " +
-        // m.source);
-
         if (cidFactory.isLocal(m.target)) {
 
             ConstellationIdentifier cid = deliverLocally(m.target, m);
@@ -197,23 +175,10 @@ public class MultiThreadedConstellation {
                     return;
                 }
 
-                // System.out.println("Rerouting event from " + m.target +
-                // " to " + cid);
-
                 // The activity has been relocated or stolen, so try again
                 m.setTarget(cid);
                 handleEventMessage(m);
             }
-
-            // So try again.
-            /*
-             * cid = deliverLocally(cid, m);
-             *
-             * if (cid != null) { logger.error("INTERNAL ERROR: activity " +
-             * m.event.target +
-             * " seems to have been relocated several times! (event dropped)");
-             * } }
-             */
         } else {
 
             if (parent == null) {
@@ -221,9 +186,6 @@ public class MultiThreadedConstellation {
                         + " cannot be found (event dropped)");
                 return;
             }
-
-            // System.out.println("Remote send of event to activity " +
-            // m.event.target + " at " + m.target);
 
             parent.handleApplicationMessage(m, true);
         }
@@ -305,20 +267,20 @@ public class MultiThreadedConstellation {
         return null;
     }
 
-    ConstellationIdentifierFactory getCohortIdentifierFactory(
+    ConstellationIdentifierFactory getConstellationIdentifierFactory(
             ConstellationIdentifier cid) {
         return parent.getConstellationIdentifierFactory(cid);
     }
 
-    synchronized void register(SingleThreadedConstellation cohort)
+    synchronized void register(SingleThreadedConstellation constellation)
             throws Exception {
 
         if (active) {
-            throw new Exception("Cannot register new BottomCohort while "
-                    + "TopCohort is active!");
+            throw new Exception("Cannot register new BottomConstellation while "
+                    + "TopConstellation is active!");
         }
 
-        incomingWorkers.add(cohort);
+        incomingWorkers.add(constellation);
     }
 
     synchronized ExecutorContext getContext() {
@@ -389,35 +351,29 @@ public class MultiThreadedConstellation {
             workerCount = incomingWorkers.size();
             workers = incomingWorkers
                     .toArray(new SingleThreadedConstellation[workerCount]);
+            // No workers may be added after this point
+            incomingWorkers = null;
 
-            StealPool[] tmp = new StealPool[workerCount];
+            StealPool[] workerStealsFrom = new StealPool[workerCount];
+            StealPool[] workerBelongsTo = new StealPool[workerCount];
 
             poolMatrix = new boolean[workerCount][workerCount];
 
             for (int i = 0; i < workerCount; i++) {
                 workers[i].setRank(i);
-                tmp[i] = workers[i].belongsTo();
+                workerBelongsTo[i] = workers[i].belongsTo();
+                workerStealsFrom[i] = workers[i].stealsFrom();
             }
 
             for (int i = 0; i < workerCount; i++) {
                 for (int j = 0; j < workerCount; j++) {
-                    // poolMatrix[i][j] = tmp[i].overlap(tmp[j]);
-                    // Timo: I think you meant this:
-                    poolMatrix[i][j] = workers[i].stealsFrom().overlap(tmp[j]);
+                    poolMatrix[i][j] = workerStealsFrom[i]
+                            .overlap(workerBelongsTo[j]);
                 }
             }
 
-            belongsTo = StealPool.merge(tmp);
-
-            for (int i = 0; i < workerCount; i++) {
-                tmp[i] = workers[i].stealsFrom();
-            }
-
-            stealsFrom = StealPool.merge(tmp);
-
-            // No workers may be added after this point
-            incomingWorkers = null;
-
+            belongsTo = StealPool.merge(workerBelongsTo);
+            stealsFrom = StealPool.merge(workerStealsFrom);
             myContext = mergeContext();
         }
 
@@ -450,36 +406,6 @@ public class MultiThreadedConstellation {
             }
         }
     }
-
-    /*
-     *
-     * ActivityIdentifier deliverSubmit(Activity a) {
-     *
-     *
-     * if (PUSHDOWN_SUBMITS) {
-     *
-     * if (Debug.DEBUG_SUBMIT) { logger.info(
-     * "M PUSHDOWN SUBMIT activity with context " + a.getContext()); }
-     *
-     * // We do a simple round-robin distribution of the jobs here. if
-     * (nextSubmit >= workers.length) { nextSubmit = 0; }
-     *
-     * if (Debug.DEBUG_SUBMIT) { logger.info("FORWARD SUBMIT to child " +
-     * workers[nextSubmit].identifier()); }
-     *
-     * return workers[nextSubmit++].deliverSubmit(a); }
-     *
-     * if (Debug.DEBUG_SUBMIT) { logger.info(
-     * "M LOCAL SUBMIT activity with context " + a.getContext()); }
-     *
-     * ActivityIdentifier id = createActivityID(a.expectsEvents());
-     * a.initialize(id);
-     *
-     * if (Debug.DEBUG_SUBMIT) { logger.info("created " + id + " at " +
-     * System.currentTimeMillis() + " from DIST"); }
-     *
-     * return id; }
-     */
 
     void deliverStealRequest(StealRequest sr) {
         // steal request delivered by our parent.
@@ -596,10 +522,6 @@ public class MultiThreadedConstellation {
                 return;
             }
 
-            // System.out.println("Forwarding message to new location
-            // (relocated): "
-            // + cid);
-
             // NOTE: this should always return null!
             cid = st.deliverEventMessage(am);
 
@@ -610,9 +532,6 @@ public class MultiThreadedConstellation {
             }
         } else {
             // it has been exported
-            // System.out.println("Forwarding message to new location
-            // (exported): "
-            // + cid);
             parent.handleApplicationMessage(am, true);
         }
     }

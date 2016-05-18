@@ -58,8 +58,8 @@
 		<delete failonerror="false" file="${zip}" />
 
 		<zip destfile="${zip}">
-			<zipfileset dir="." prefix="cohort-${version}" includes="external/**,jars/**,*.properties,*.example,notices/**,README.txt,INSTALL.txt,LICENSE.txt,javadoc/**" />
-			<zipfileset dir="." prefix="cohort-${version}" filemode="755" includes="bin/**" />
+			<zipfileset dir="." prefix="constellation-${version}" includes="external/**,jars/**,*.properties,*.example,notices/**,README.txt,INSTALL.txt,LICENSE.txt,javadoc/**" />
+			<zipfileset dir="." prefix="constellation-${version}" filemode="755" includes="bin/**" />
 		</zip>
 	</target>
 

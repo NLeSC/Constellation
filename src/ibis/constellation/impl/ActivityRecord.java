@@ -29,7 +29,7 @@ public class ActivityRecord implements Serializable, ObjectData {
     static final int ERROR = Integer.MAX_VALUE;
 
     public final Activity activity;
-    private CircularBuffer queue;
+    private CircularBuffer<Event> queue;
     private int state = INITIALIZING;
 
     private boolean stolen = false;
@@ -49,7 +49,7 @@ public class ActivityRecord implements Serializable, ObjectData {
         }
 
         if (queue == null) {
-            queue = new CircularBuffer(4);
+            queue = new CircularBuffer<Event>(4);
         }
 
         queue.insertLast(e);
@@ -61,7 +61,7 @@ public class ActivityRecord implements Serializable, ObjectData {
             return null;
         }
 
-        return (Event) queue.removeFirst();
+        return queue.removeFirst();
     }
 
     int pendingEvents() {

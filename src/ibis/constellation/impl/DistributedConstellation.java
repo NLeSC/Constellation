@@ -20,6 +20,7 @@ import ibis.constellation.context.UnitExecutorContext;
 import ibis.constellation.extra.ConstellationIdentifierFactory;
 import ibis.constellation.extra.Debug;
 import ibis.constellation.extra.Stats;
+import ibis.constellation.impl.pool.Pool;
 
 public class DistributedConstellation {
 
@@ -141,9 +142,6 @@ public class DistributedConstellation {
         @Override
         public void cancel(ActivityIdentifier aid) {
             // ignored!
-
-            // performCancel(aid);
-            // send(new CancelEvent(aid));
         }
 
         @Override
@@ -187,6 +185,11 @@ public class DistributedConstellation {
         @Override
         public CTimer getTimer() {
             return stats.getTimer();
+        }
+
+        @Override
+        public CTimer getOverallTimer() {
+            return stats.getTimer("java", "main", "overall");
         }
     }
 
@@ -304,39 +307,8 @@ public class DistributedConstellation {
                 logger.info("Printing statistics");
             }
             stats.printStats(System.out);
-
-            printStatistics();
         }
         pool.cleanup();
-    }
-
-    private void printStatistics() {
-
-        synchronized (System.out) {
-
-            /*
-             * System.out.println("Messages send     : " + messagesSend);
-             * System.out.println("           Events : " + eventsSend);
-             * System.out.println("           Steals : " + stealsSend);
-             * System.out.println("             Work : " + workSend);
-             * System.out.println("          No work : " + no_workSend);
-             * System.out.println("Messages received : " + messagesReceived);
-             * System.out.println("           Events : " + eventsReceived);
-             * System.out.println("           Steals : " + stealsReceived);
-             * System.out.println("             Work : " + workReceived);
-             * System.out.println("          No work : " + no_workReceived);
-             */
-            if (PROFILE) {
-                /*
-                 * System.out.println("GC beans     : " + gcbeans.size());
-                 *
-                 * for (GarbageCollectorMXBean gc : gcbeans) {
-                 * System.out.println(" GC bean : " + gc.getName());
-                 * System.out.println("   count : " + gc.getCollectionCount());
-                 * System.out.println("   time  : " + gc.getCollectionTime()); }
-                 */
-            }
-        }
     }
 
     private synchronized boolean setPendingSteal(StealPool pool,
@@ -408,7 +380,7 @@ public class DistributedConstellation {
         logger.error("INTERNAL ERROR: cancel not implemented!");
     }
 
-    void deliverRemoteStealRequest(StealRequest sr) {
+    public void deliverRemoteStealRequest(StealRequest sr) {
         // Steal request from network
         //
         // This method is called from an finished upcall. Therefore it
@@ -422,7 +394,7 @@ public class DistributedConstellation {
         subConstellation.deliverStealRequest(sr);
     }
 
-    void deliverRemoteStealReply(StealReply sr) {
+    public void deliverRemoteStealReply(StealReply sr) {
         // StealReply from network.
         //
         // This method is called from an unfinished upcall. It may NOT
@@ -442,7 +414,7 @@ public class DistributedConstellation {
         subConstellation.deliverStealReply(sr);
     }
 
-    void deliverRemoteEvent(EventMessage re) {
+    public void deliverRemoteEvent(EventMessage re) {
         // Event from network.
         //
         // This method is called from an finished upcall. Therefore it
@@ -454,7 +426,7 @@ public class DistributedConstellation {
         // steal request from below
         // FIXME: ADD POOL AND CONTEXT AWARE THROTTLING!!!!
 
-        // A steal request coming in from the subcohort below.
+        // A steal request coming in from the subconstellation below.
 
         if (stealing == STEAL_NONE) {
             if (logger.isDebugEnabled()) {
@@ -608,8 +580,6 @@ public class DistributedConstellation {
             for (int i = 0; i < set.length; i++) {
 
                 // TODO: Why do we care if the stealpool is world ?
-                // if (!set[i].isWorld()) {
-
                 if (!set[i].isNone()) {
                     pool.registerWithPool(set[i].getTag());
                 }

@@ -1,12 +1,12 @@
-package ibis.constellation.impl;
-
-import ibis.ipl.IbisIdentifier;
+package ibis.constellation.impl.pool;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class PoolInfo implements Serializable {
+import ibis.ipl.IbisIdentifier;
+
+class PoolInfo implements Serializable {
 
     final String tag;
 

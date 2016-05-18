@@ -16,7 +16,7 @@ public class UnitExecutorContext extends ExecutorContext {
             "DEFAULT");
 
     public final String name;
-    protected final int hashCode;
+    private final int hashCode;
 
     public UnitExecutorContext(String name) {
 
@@ -38,6 +38,14 @@ public class UnitExecutorContext extends ExecutorContext {
     @Override
     public int hashCode() {
         return hashCode;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof UnitExecutorContext)) {
+            return false;
+        }
+        return ((UnitExecutorContext) o).name.equals(name);
     }
 
     @Override

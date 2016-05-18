@@ -1,10 +1,10 @@
-package ibis.constellation.impl;
-
-import ibis.ipl.IbisIdentifier;
+package ibis.constellation.impl.pool;
 
 import java.io.Serializable;
 
-public class PoolUpdateRequest implements Serializable {
+import ibis.ipl.IbisIdentifier;
+
+class PoolUpdateRequest implements Serializable {
     private static final long serialVersionUID = -4258898100133094472L;
 
     public IbisIdentifier source;

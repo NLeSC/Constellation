@@ -191,6 +191,10 @@ public abstract class Executor implements Serializable {
      *         constellation
      */
     public ActivityIdentifier submit(Activity job) {
+        if (owner == null) {
+            throw new Error(
+                    "submit() called but this executor is not embedded in a constellation instance yet");
+        }
         return owner.submit(job);
     }
 
@@ -201,6 +205,10 @@ public abstract class Executor implements Serializable {
      * @return the constellation identifier
      */
     public ConstellationIdentifier identifier() {
+        if (owner == null) {
+            throw new Error(
+                    "identifier() called but this executor is not embedded in a constellation instance yet");
+        }
         return owner.identifier();
     }
 
@@ -214,6 +222,10 @@ public abstract class Executor implements Serializable {
      *            the event to send
      */
     public void send(Event e) {
+        if (owner == null) {
+            throw new Error(
+                    "send() called but this executor is not embedded in a constellation instance yet");
+        }
         owner.send(e);
     }
 

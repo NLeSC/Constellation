@@ -9,7 +9,7 @@ public class DistributedConstellationIdentifierFactory
     private final long mask;
     private int count;
 
-    DistributedConstellationIdentifierFactory(long rank) {
+    public DistributedConstellationIdentifierFactory(long rank) {
         this.rank = rank;
         this.mask = rank << 32;
     }

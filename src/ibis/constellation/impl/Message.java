@@ -7,7 +7,6 @@ public abstract class Message implements Serializable {
     public final ConstellationIdentifier source;
     public ConstellationIdentifier target;
 
-    private transient long timeout = -1;
     private transient boolean stale = false;
 
     protected Message(final ConstellationIdentifier source,
@@ -24,18 +23,6 @@ public abstract class Message implements Serializable {
         this.target = cid;
     }
 
-    public synchronized boolean isTargetSet() {
-        return (target != null);
-    }
-
-    public synchronized void setTimeout(long timeout) {
-        this.timeout = timeout;
-    }
-
-    public synchronized long getTimeout() {
-        return timeout;
-    }
-
     public synchronized boolean getStale() {
         return stale;
     }
@@ -46,15 +33,22 @@ public abstract class Message implements Serializable {
         return old;
     }
 
-    public boolean requiresLookup() {
-        return false;
-    }
-
-    public boolean requiresRandomSelection() {
-        return false;
-    }
-
     public ActivityIdentifier targetActivity() {
         return null;
+    }
+
+    @Override
+    public String toString() {
+        String s = "source: ";
+        if (source != null) {
+            s += source.toString();
+        } else
+            s += " none";
+        s += "; target: ";
+        if (target != null) {
+            s += target.toString();
+        } else
+            s += " none";
+        return s;
     }
 }

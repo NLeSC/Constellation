@@ -110,4 +110,6 @@ public interface Constellation {
     public CTimer getTimer(String device, String thread, String action);
 
     public CTimer getTimer();
+
+    public CTimer getOverallTimer();
 }

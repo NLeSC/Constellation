@@ -47,8 +47,10 @@ public class ExecutorWrapper implements Constellation {
     private final WorkQueue restricted;
     private final WorkQueue fresh;
 
-    private CircularBuffer runnable = new CircularBuffer(1);
-    private CircularBuffer relocated = new CircularBuffer(1);
+    private CircularBuffer<ActivityRecord> runnable = new CircularBuffer<ActivityRecord>(
+            1);
+    private CircularBuffer<ActivityRecord> relocated = new CircularBuffer<ActivityRecord>(
+            1);
 
     private ActivityIdentifierFactory generator;
 
@@ -140,14 +142,14 @@ public class ExecutorWrapper implements Constellation {
         int size = runnable.size();
 
         if (size > 0) {
-            return (ActivityRecord) runnable.removeFirst();
+            return runnable.removeFirst();
         }
 
         // Next see if we have any relocated activities.
         size = relocated.size();
 
         if (size > 0) {
-            return (ActivityRecord) relocated.removeFirst();
+            return relocated.removeFirst();
         }
 
         // Next see if there are any activities that cannot
@@ -543,13 +545,19 @@ public class ExecutorWrapper implements Constellation {
     @Override
     public CTimer getTimer(String standardDevice, String standardThread,
             String standardAction) {
-        logger.error("not implemented: getStats()");
-        throw new Error("Not implemented: getStats()");
+        logger.error("not implemented: getTimer()");
+        throw new Error("Not implemented: getTimer()");
     }
 
     @Override
     public CTimer getTimer() {
-        logger.error("not implemented: getStats()");
-        throw new Error("Not implemented: getStats()");
+        logger.error("not implemented: getTimer()");
+        throw new Error("Not implemented: getTimer()");
+    }
+
+    @Override
+    public CTimer getOverallTimer() {
+        logger.error("not implemented: getOverallTimer()");
+        throw new Error("Not implemented: getOverallTimer()");
     }
 }

@@ -36,11 +36,6 @@ public class StealRequest extends Message {
         isLocal = true;
     }
 
-    @Override
-    public boolean requiresRandomSelection() {
-        return true;
-    }
-
     public void setRemote() {
         isLocal = false;
     }

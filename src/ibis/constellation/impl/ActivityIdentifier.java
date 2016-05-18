@@ -93,12 +93,6 @@ public class ActivityIdentifier extends ibis.constellation.ActivityIdentifier
         return "AID: "
                 + Integer.toHexString((int) (CID.getId() >> 32) & 0xffffffff)
                 + ":" + Integer.toHexString((int) (CID.getId() & 0xffffffff))
-                + ":"
-                + Long.toHexString(AID); /*
-                                          * + " (" + Integer.toHexString((int)(
-                                          * lastKnownEID >> 32) & 0xffffffff) +
-                                          * " " + Integer.toHexString((int)(
-                                          * lastKnownEID & 0xffffffff)) + ")";
-                                          */
+                + ":" + Long.toHexString(AID);
     }
 }

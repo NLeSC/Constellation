@@ -1,15 +1,15 @@
-package ibis.constellation.impl;
-
-import ibis.ipl.IbisIdentifier;
+package ibis.constellation.impl.pool;
 
 import java.io.Serializable;
 
-public class RankInfo implements Serializable {
+import ibis.ipl.IbisIdentifier;
+
+class RankInfo implements Serializable {
 
     private static final long serialVersionUID = 7620973089142583450L;
 
-    public int rank;
-    public IbisIdentifier id;
+    public final int rank;
+    public final IbisIdentifier id;
 
     public RankInfo(int rank, IbisIdentifier id) {
         this.rank = rank;

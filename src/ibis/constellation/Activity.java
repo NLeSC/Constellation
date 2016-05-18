@@ -141,6 +141,9 @@ public abstract class Activity implements Serializable {
     /**
      * Sends an event using the executor of the current activity.
      *
+     * TODO: what if the destination cannot be found? The send() is probably
+     * asynchronous.
+     *
      * @param e
      *            the event to be sent
      */

@@ -1,9 +1,5 @@
 package ibis.constellation.extra;
 
-import ibis.constellation.ObjectData;
-import ibis.ipl.ReadMessage;
-import ibis.ipl.WriteMessage;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -11,7 +7,11 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CircularBuffer implements Serializable, ObjectData {
+import ibis.constellation.ObjectData;
+import ibis.ipl.ReadMessage;
+import ibis.ipl.WriteMessage;
+
+public class CircularBuffer<T> implements Serializable, ObjectData {
 
     private static final long serialVersionUID = 5853279675709435595L;
 
@@ -37,7 +37,7 @@ public class CircularBuffer implements Serializable, ObjectData {
         return size;
     }
 
-    public void insertFirst(Object item) {
+    public void insertFirst(T item) {
 
         if (item == null) {
             log.error("InsertFirst null!!", new Throwable());
@@ -57,7 +57,7 @@ public class CircularBuffer implements Serializable, ObjectData {
         size++;
     }
 
-    public void insertLast(Object item) {
+    public void insertLast(T item) {
 
         if (item == null) {
             log.error("insertLast null!!", new Throwable());
@@ -86,22 +86,24 @@ public class CircularBuffer implements Serializable, ObjectData {
         next = old.length;
     }
 
-    public Object get(int index) {
+    @SuppressWarnings("unchecked")
+    public T get(int index) {
 
         if (index >= size) {
             return null;
         }
 
-        return array[(first + index) % array.length];
+        return (T) array[(first + index) % array.length];
     }
 
-    public Object removeFirst() {
+    public T removeFirst() {
 
         if (size == 0) {
             return null;
         }
 
-        Object result = array[first];
+        @SuppressWarnings("unchecked")
+        T result = (T) array[first];
         array[first] = null;
         first++;
         size--;
@@ -113,7 +115,7 @@ public class CircularBuffer implements Serializable, ObjectData {
         return result;
     }
 
-    public Object removeLast() {
+    public T removeLast() {
 
         if (size == 0) {
             return null;
@@ -125,7 +127,8 @@ public class CircularBuffer implements Serializable, ObjectData {
             next--;
         }
 
-        Object result = array[next];
+        @SuppressWarnings("unchecked")
+        T result = (T) array[next];
         array[next] = null;
         size--;
 
@@ -172,7 +175,7 @@ public class CircularBuffer implements Serializable, ObjectData {
         return true;
     }
 
-    public boolean remove(Object o) {
+    public boolean remove(T o) {
 
         if (size == 0) {
             return false;
@@ -220,16 +223,16 @@ public class CircularBuffer implements Serializable, ObjectData {
         return "CircularBuffer(" + size + ")";
 
         /*
-         * 
+         *
          * StringBuilder sb = new StringBuilder("CircuralBuffer(" + size +
          * ") - [");
-         * 
+         *
          * for (int i=0;i<size-1;i++) { sb.append(get(i)); sb.append(", "); }
-         * 
+         *
          * if (size > 0) { sb.append(get(size-1)); }
-         * 
+         *
          * sb.append("]");
-         * 
+         *
          * return sb.toString();
          */
     }

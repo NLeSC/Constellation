@@ -64,7 +64,8 @@ public class SingleThreadedConstellation extends Thread {
     private final WorkQueue restrictedWrongContext;
 
     // Work that is relocated. Only our local executor may run it.
-    private final CircularBuffer relocated = new CircularBuffer(1);
+    private final CircularBuffer<ActivityRecord> relocated = new CircularBuffer<ActivityRecord>(
+            1);
 
     // Hashmap allowing quick lookup of the activities in our 4 queues.
     private HashMap<ActivityIdentifier, ActivityRecord> lookup = new HashMap<ActivityIdentifier, ActivityRecord>();
@@ -85,9 +86,6 @@ public class SingleThreadedConstellation extends Thread {
     private static class PendingRequests {
 
         final ArrayList<EventMessage> deliveredApplicationMessages = new ArrayList<EventMessage>();
-
-        // final ArrayList<ActivityIdentifier> pendingCancelations =
-        // new ArrayList<ActivityIdentifier>();
 
         final HashMap<ConstellationIdentifier, StealRequest> stealRequests = new HashMap<ConstellationIdentifier, StealRequest>();
 
@@ -111,24 +109,10 @@ public class SingleThreadedConstellation extends Thread {
 
     private boolean done = false;
 
-    // private boolean idle = false;
-
     private final Stats stats;
     private final CTimer stealTimer;
     private final CTimer eventTimer;
     private final CTimer activeTimer;
-
-    // NOTE: these are use for performance debugging...
-    /*
-     * private long profileDelta = 5000; private long profileTime = 0; private
-     * long profileDeadline; private long profileComputation = 0; private long
-     * profileCPU = 0; private long profileUser = 0; private long
-     * profileBlockedC = 0; private long profileBlockedT = 0; private long
-     * profileWaitC = 0; private long profileWaitT = 0; private long
-     * profileSubmit = 0; private long profileInvoke = 0; private long
-     * profileMessageI = 0; private long profileMessageE = 0; private long
-     * profileSteals = 0;
-     */
 
     private final boolean ignoreEmptyStealReplies;
 
@@ -148,7 +132,7 @@ public class SingleThreadedConstellation extends Thread {
         this.parent = parent;
 
         if (parent != null) {
-            identifier = parent.getCohortIdentifierFactory(null)
+            identifier = parent.getConstellationIdentifierFactory(null)
                     .generateConstellationIdentifier();
             aidFactory = parent.getActivityIdentifierFactory(identifier);
         } else {
@@ -201,16 +185,6 @@ public class SingleThreadedConstellation extends Thread {
                     + " ms.");
         }
 
-        /*
-         * String tmp = p.getProperty("ibis.constellation.sleep");
-         *
-         * if (tmp != null && tmp.length() > 0) { sleepTime =
-         * Integer.parseInt(tmp); } else { sleepTime = 1000; }
-         *
-         * logger.warn("SingleThreaded: sleepTime set to " + sleepTime + " ms."
-         * );
-         */
-
         tmp = p.getProperty("ibis.constellation.stealsize");
 
         if (tmp == null) {
@@ -238,23 +212,6 @@ public class SingleThreadedConstellation extends Thread {
         if (logger.isInfoEnabled()) {
             logger.info("SingleThreaded: ignore empty steal replies set to "
                     + ignoreEmptyStealReplies);
-        }
-
-        if (PROFILE) {/*
-                       * profileTime = System.currentTimeMillis();
-                       * profileDeadline = profileTime + profileDelta;
-                       *
-                       * management = ManagementFactory.getThreadMXBean();
-                       *
-                       * if (management.isThreadCpuTimeSupported() &&
-                       * !management.isThreadCpuTimeEnabled()) {
-                       * management.setThreadCpuTimeEnabled(true); }
-                       *
-                       * if (management.isThreadContentionMonitoringSupported()
-                       * && !management.isThreadContentionMonitoringEnabled()) {
-                       * management.setThreadContentionMonitoringEnabled(true);
-                       * }
-                       */
         }
 
         if (parent != null) {
@@ -341,20 +298,12 @@ public class SingleThreadedConstellation extends Thread {
                 lookup.put(a.identifier(), ar);
 
                 if (a.isRestrictedToLocal()) {
-
-                    // System.out.println("ST: " + identifier + " sumbit " + id
-                    // + " to restricted.");
-
                     if (logger.isDebugEnabled()) {
                         logger.debug("Submit job to restricted, length was "
                                 + restricted.size());
                     }
                     restricted.enqueue(ar);
                 } else {
-
-                    // System.out.println("ST: " + identifier + " sumbit " + id
-                    // + " to fresh.");
-
                     if (logger.isDebugEnabled()) {
                         logger.debug("Submit job to fresh, length was "
                                 + fresh.size());
@@ -401,10 +350,6 @@ public class SingleThreadedConstellation extends Thread {
         havePendingRequests = true;
         notifyAll();
     }
-
-    // ActivityIdentifier deliverSubmit(Activity a) {
-    // return submit(a);
-    // }
 
     private ActivityRecord[] trim(ActivityRecord[] a, int count) {
         ActivityRecord[] result = new ActivityRecord[count];
@@ -492,9 +437,6 @@ public class SingleThreadedConstellation extends Thread {
             tmp = trim(tmp, offset);
         }
 
-        // System.out.println("ST: " + identifier + " returning " + offset +
-        // " stolen jobs to " + src);
-
         // Next, remove activities from lookup, and mark and register them as
         // relocated or stolen/exported
         registerLeavingActivities(tmp, offset, src, local);
@@ -531,9 +473,6 @@ public class SingleThreadedConstellation extends Thread {
 
     private synchronized boolean pushWorkToExecutor(StealStrategy s) {
 
-        // System.out.println("ST: " + identifier +
-        // " Pushing work to executor");
-
         // Push all relocated activities to our executor.
         if (relocated.size() > 0) {
             if (logger.isDebugEnabled()) {
@@ -541,13 +480,11 @@ public class SingleThreadedConstellation extends Thread {
                         + " jobs");
             }
             while (relocated.size() > 0) {
-                ActivityRecord ar = (ActivityRecord) relocated.removeFirst();
+                ActivityRecord ar = relocated.removeFirst();
                 lookup.remove(ar.identifier());
                 wrapper.addPrivateActivity(ar);
             }
 
-            // System.out.println("ST: " + identifier +
-            // " Pushed from relocated");
             return true;
         }
 
@@ -557,8 +494,6 @@ public class SingleThreadedConstellation extends Thread {
             if (ar != null) {
                 lookup.remove(ar.identifier());
                 wrapper.addPrivateActivity(ar);
-                // System.out.println("ST: " + identifier +
-                // " Pushed from restricted");
                 return true;
             }
         }
@@ -569,8 +504,6 @@ public class SingleThreadedConstellation extends Thread {
             if (ar != null) {
                 lookup.remove(ar.identifier());
                 wrapper.addPrivateActivity(ar);
-                // System.out.println("ST: " + identifier +
-                // " Pushed from stolen");
                 return true;
             }
         }
@@ -581,15 +514,10 @@ public class SingleThreadedConstellation extends Thread {
             if (ar != null) {
                 lookup.remove(ar.identifier());
                 wrapper.addPrivateActivity(ar);
-                // System.out.println("ST: " + identifier +
-                // " Pushed from fresh");
                 return true;
             }
         }
 
-        // System.out.println("ST: " + identifier + " Failed to push any work "
-        // + relocated.size() + " " + restricted.size() + " " + stolen.size() +
-        // " " + fresh.size() + " " + lookup.size());
         return false;
     }
 
@@ -652,16 +580,12 @@ public class SingleThreadedConstellation extends Thread {
 
         // The target activity may be in one of my local queues
 
-        // System.out.println("ST: " + identifier + " Delivering message from "
-        // + m.source + " to " + m.event.target);
-
         Event e = m.event;
 
         ActivityRecord tmp = lookup.get(e.target);
 
         if (tmp != null) {
             tmp.enqueue(e);
-            // System.out.println("ST: " + identifier + " success");
             return null;
         }
 
@@ -669,7 +593,6 @@ public class SingleThreadedConstellation extends Thread {
         ConstellationIdentifier cid = relocatedActivities.lookup(e.target);
 
         if (cid != null) {
-            // System.out.println("ST: " + identifier + " relocated to " + cid);
             return cid;
         }
 
@@ -677,12 +600,10 @@ public class SingleThreadedConstellation extends Thread {
         cid = exportedActivities.lookup(e.target);
 
         if (cid != null) {
-            // System.out.println("ST: " + identifier + " exported to " + cid);
             return cid;
         }
 
         // If not, is should be in the queue of my executor
-        // System.out.println("ST: " + identifier + " posted");
         postEventMessage(m);
         return null;
     }
@@ -703,13 +624,10 @@ public class SingleThreadedConstellation extends Thread {
     }
 
     boolean isMaster() {
-
-        if (parent == null) {
-            return true;
-        }
-
+        return parent == null;
         // FIXME: this is not correct ??
-        return false;
+        // Why?? Maybe if there is no DistributedConstellation??
+        // Currently not possible, I think.
     }
 
     void handleEvent(Event e) {
@@ -756,7 +674,6 @@ public class SingleThreadedConstellation extends Thread {
     private synchronized final void signal() {
         havePendingRequests = true;
         notifyAll();
-        // thread.interrupt();
     }
 
     private void postStealRequest(StealRequest s) {
@@ -778,10 +695,8 @@ public class SingleThreadedConstellation extends Thread {
                 }
             }
 
-            // System.out.println("Steal request queued: " + s.source);
             incoming.stealRequests.put(s.source, s);
         }
-        // havePendingRequests = true;
         signal();
     }
 
@@ -789,7 +704,6 @@ public class SingleThreadedConstellation extends Thread {
         synchronized (incoming) {
             incoming.deliveredApplicationMessages.add(m);
         }
-        // havePendingRequests = true;
         signal();
     }
 
@@ -854,8 +768,6 @@ public class SingleThreadedConstellation extends Thread {
                         logger.info("Failed to deliver message from " + m.source
                                 + " / " + m.event.source + " to " + m.target
                                 + " / " + m.event.target + " (resending)");
-                        // logger.info("message contents: " +
-                        // m.event.toString());
                     }
 
                     handleEvent(m.event);
@@ -866,15 +778,6 @@ public class SingleThreadedConstellation extends Thread {
         }
     }
 
-    /*
-     * private void processCancellations() { if
-     * (processing.pendingCancelations.size() > 0) {
-     *
-     * for (int i = 0; i < processing.pendingCancelations.size(); i++) {
-     * wrapper.cancel(processing.pendingCancelations.get(i)); }
-     *
-     * processing.pendingCancelations.clear(); } }
-     */
     void reclaim(ActivityRecord[] a) {
 
         if (a == null) {
@@ -893,7 +796,7 @@ public class SingleThreadedConstellation extends Thread {
                     // We should unset the relocation flag if an activity is
                     // returned.
                     ar.setRelocated(false);
-                    relocated.remove(ar.identifier());
+                    relocated.remove(ar);
                 } else if (ar.isStolen()) {
 
                     // Sanity check -- should never fire! FIXME --remove!
@@ -992,7 +895,6 @@ public class SingleThreadedConstellation extends Thread {
         swapEventQueues();
 
         processRemoteMessages();
-        // processCancellations();
         processStealRequests();
     }
 
@@ -1011,8 +913,6 @@ public class SingleThreadedConstellation extends Thread {
                     Thread.sleep(pauseTime);
 
                     tmp = System.currentTimeMillis() - tmp;
-
-                    // System.out.println("Sleep took " + tmp);
                 } catch (Exception e) {
                     // ignored
                 }
@@ -1199,60 +1099,7 @@ public class SingleThreadedConstellation extends Thread {
         printStatistics(time);
     }
 
-    private void printProfileInfo(long t) {
-        /*
-         * long tempTime = t - profileTime;
-         *
-         * long tempComputation = sequential.getComputationTime();
-         *
-         * long tempSubmit = sequential.getActivitiesSubmitted(); long
-         * tempInvoke = sequential.getActivitiesInvoked(); long tempMessageI =
-         * sequential.getMessagesInternal(); long tempMessageE =
-         * sequential.getMessagesExternal(); long tempSteals =
-         * sequential.getSteals();
-         *
-         * long tempCPU = management.getCurrentThreadCpuTime(); long tempUser =
-         * management.getCurrentThreadUserTime();
-         *
-         * ThreadInfo info = management.getThreadInfo(Thread.currentThread()
-         * .getId());
-         *
-         * long tempBlockedC = info.getBlockedCount(); long tempBlockedT =
-         * info.getBlockedTime();
-         *
-         * long tempWaitC = info.getWaitedCount(); long tempWaitT =
-         * info.getWaitedTime();
-         *
-         * StringBuilder tmp = new StringBuilder("#### ");
-         * tmp.append(identifier).append(" T "); tmp.append(t).append(" dT ");
-         * tmp.append(tempTime).append(" compT "); tmp.append(tempComputation -
-         * profileComputation).append(" cpuT "); tmp.append(tempCPU -
-         * profileCPU).append(" userT "); tmp.append(tempUser -
-         * profileUser).append(" b# "); tmp.append(tempBlockedC -
-         * profileBlockedC).append(" bT "); tmp.append(tempBlockedT -
-         * profileBlockedT).append(" w# "); tmp.append(tempWaitC -
-         * profileWaitC).append(" wT "); tmp.append(tempWaitT -
-         * profileWaitT).append(" submit# "); tmp.append(tempSubmit -
-         * profileSubmit).append(" invoke# "); tmp.append(tempInvoke -
-         * profileInvoke).append(" steal# "); tmp.append(tempSteals -
-         * profileSteals).append(" messI# "); tmp.append(tempMessageI -
-         * profileMessageI).append(" messE# "); tmp.append(tempMessageE -
-         * profileMessageE).append(" ");
-         *
-         * synchronized (System.err) { System.err.println(tmp.toString()); }
-         *
-         * profileTime = t; profileComputation = tempComputation; profileCPU =
-         * tempCPU; profileUser = tempUser; profileBlockedC = tempBlockedC;
-         * profileBlockedT = tempBlockedT; profileWaitC = tempWaitC;
-         * profileWaitT = tempWaitT; profileSubmit = tempSubmit; profileInvoke =
-         * tempInvoke; profileMessageI = tempMessageI; profileMessageE =
-         * tempMessageE; profileSteals = tempSteals;
-         */
-    }
-
     public void printStatistics(long totalTime) {
-
-        printProfileInfo(System.currentTimeMillis());
 
         long cpuTime = 0;
         long userTime = 0;
@@ -1300,32 +1147,6 @@ public class SingleThreadedConstellation extends Thread {
         final double comp = (100.0 * computationTime) / totalTime;
         final double fact = ((double) activitiesInvoked)
                 / (activitiesSubmitted + activitiesAdded);
-
-        if (PROFILE) {
-
-            // Get the cpu/user time (in nanos)
-            /*
-             * cpuTime = management.getCurrentThreadCpuTime(); userTime =
-             * management.getCurrentThreadUserTime();
-             *
-             * cpuPerc = (cpuTime / 10000.0) / totalTime; userPerc = (userTime /
-             * 10000.0) / totalTime;
-             *
-             * cpuTime = cpuTime / 1000000L; userTime = userTime / 1000000L;
-             *
-             * ThreadInfo info = management.getThreadInfo(Thread.currentThread()
-             * .getId());
-             *
-             * blocked = info.getBlockedCount(); blockedTime =
-             * info.getBlockedTime();
-             *
-             * waited = info.getWaitedCount(); waitedTime =
-             * info.getWaitedTime();
-             *
-             * blockedPerc = (100.0 * blockedTime) / totalTime; waitedPerc =
-             * (100.0 * waitedTime) / totalTime;
-             */
-        }
 
         synchronized (out) {
 
