@@ -31,16 +31,12 @@ public class DistributedConstellation {
     private static final int STEAL_MASTER = 2;
     private static final int STEAL_NONE = 3;
 
-    private static final boolean PROFILE = true;
-
     private static boolean REMOTE_STEAL_THROTTLE = true;
 
-    // FIXME setting this to low at startup causes load imbalance!
+    // FIXME setting this too low at startup causes load imbalance!
     // machines keep hammering the master for work, and (after a while)
     // get a flood of replies.
     private static long REMOTE_STEAL_TIMEOUT = 1000;
-
-    private static boolean PUSHDOWN_SUBMITS = false;
 
     private boolean active;
 
@@ -57,8 +53,6 @@ public class DistributedConstellation {
     private ExecutorContext myContext;
 
     private long stealReplyDeadLine;
-
-    // private boolean pendingSteal = false;
 
     private final int stealing;
 
@@ -138,11 +132,11 @@ public class DistributedConstellation {
             // An external application wishes to send an event to 'e.target'.
             performSend(e);
         }
-
-        @Override
-        public void cancel(ActivityIdentifier aid) {
-            // ignored!
-        }
+        //
+        // @Override
+        // public void cancel(ActivityIdentifier aid) {
+        // // ignored!
+        // }
 
         @Override
         public boolean activate() {
@@ -225,18 +219,6 @@ public class DistributedConstellation {
             }
         }
 
-        tmp = p.getProperty("ibis.constellation.submit.pushdown");
-
-        if (tmp != null) {
-
-            try {
-                PUSHDOWN_SUBMITS = Boolean.parseBoolean(tmp);
-            } catch (Exception e) {
-                System.err.println("Failed to parse "
-                        + "ibis.constellation.submits.pushdown: " + tmp);
-            }
-        }
-
         String stealName = p.getProperty("ibis.constellation.stealing", "pool");
 
         if (stealName.equalsIgnoreCase("mw")) {
@@ -246,7 +228,7 @@ public class DistributedConstellation {
         } else if (stealName.equalsIgnoreCase("pool")) {
             stealing = STEAL_POOL;
         } else {
-            System.err.println("Unknown stealing strategy: " + stealName);
+            logger.error("Unknown stealing strategy: " + stealName);
             throw new Exception("Unknown stealing strategy: " + stealName);
         }
 
@@ -261,7 +243,6 @@ public class DistributedConstellation {
             logger.info("DistributeConstellation : " + identifier.getId());
             logger.info("               throttle : " + REMOTE_STEAL_THROTTLE);
             logger.info("         throttle delay : " + REMOTE_STEAL_TIMEOUT);
-            logger.info("               pushdown : " + PUSHDOWN_SUBMITS);
             logger.info("               stealing : " + stealName);
             logger.info("                  start : " + start);
             logger.info("Starting DistributedConstellation " + identifier
@@ -424,7 +405,7 @@ public class DistributedConstellation {
 
     void handleStealRequest(StealRequest sr) {
         // steal request from below
-        // FIXME: ADD POOL AND CONTEXT AWARE THROTTLING!!!!
+        // TODO: ADD POOL AND CONTEXT AWARE THROTTLING!!!!
 
         // A steal request coming in from the subconstellation below.
 

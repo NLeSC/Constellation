@@ -123,15 +123,6 @@ public abstract class Executor implements Serializable {
     }
 
     /**
-     * TODO nobody seems to call this.
-     *
-     * @return TODO: what does the return value mean?
-     */
-    protected boolean processActivity() {
-        return false;
-    }
-
-    /**
      * Indicates to the executor that it can start running activities. This is
      * usually repetitively called from the {@link #run()} method, which can
      * return when processActivities() returns <code>true</code>. TODO:

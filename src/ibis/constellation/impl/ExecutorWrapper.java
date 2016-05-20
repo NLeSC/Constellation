@@ -106,8 +106,7 @@ public class ExecutorWrapper implements Constellation {
 
     }
 
-    @Override
-    public void cancel(
+    private void cancel(
             ibis.constellation.ActivityIdentifier activityIdentifier) {
 
         ActivityRecord ar = lookup.remove(activityIdentifier);
@@ -333,8 +332,6 @@ public class ExecutorWrapper implements Constellation {
                 }
             }
         }
-
-        // logger.warn("STEAL(" + count + ") only produced ALL results");
 
         stolenJobs += count;
         stealSuccess++;

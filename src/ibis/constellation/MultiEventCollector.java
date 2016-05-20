@@ -78,11 +78,6 @@ public class MultiEventCollector extends Activity {
     }
 
     @Override
-    public void cancel() throws Exception {
-        // empty
-    }
-
-    @Override
     public String toString() {
         return "MultiEventCollector(" + identifier() + ", " + events.length
                 + ")";

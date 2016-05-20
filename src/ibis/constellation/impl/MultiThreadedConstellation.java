@@ -9,10 +9,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ibis.constellation.Activity;
+import ibis.constellation.ActivityContext;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Event;
 import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealPool;
+import ibis.constellation.StealStrategy;
 import ibis.constellation.context.OrExecutorContext;
 import ibis.constellation.context.UnitExecutorContext;
 import ibis.constellation.extra.ConstellationIdentifierFactory;
@@ -100,11 +102,21 @@ public class MultiThreadedConstellation {
 
     synchronized ActivityIdentifier performSubmit(Activity a) {
 
-        // Round robin submit (for testing)
-        int index = next++;
-        next = next % workerCount;
-        return workers[index].performSubmit(a);
-        // return workers[selectRandomWorker()].performSubmit(a);
+        ActivityContext c = a.getContext();
+        for (int i = 0; i < workerCount; i++) {
+            // Round robin submit (for testing)
+            int index = next++;
+            next = next % workerCount;
+            SingleThreadedConstellation e = workers[index];
+            if (c.satisfiedBy(e.getContext(), StealStrategy.ANY)) {
+                return e.performSubmit(a);
+            }
+            if (e.belongsTo().containsWorld()) {
+                return e.performSubmit(a);
+            }
+        }
+        throw new Error("submit: no suitable executor found");
+        // TODO: Or submit anyway to next worker?
     }
 
     void performSend(Event e) {
@@ -287,7 +299,6 @@ public class MultiThreadedConstellation {
         return myContext;
     }
 
-    // FIXME: does NOT merge steal strategies!
     private ExecutorContext mergeContext() {
 
         // We should now combine all contexts of our workers into one

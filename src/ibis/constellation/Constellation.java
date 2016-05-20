@@ -16,10 +16,9 @@ public interface Constellation {
      * returned that can be used to refer to this submitted Activity at a later
      * moment in time.
      *
-     * TODO: can this fail? Describe exceptions TODO: remove? Problem is that an
-     * implementation cannot decide which executor is suitable, because although
-     * the contexts may match, the steal pool of the executor may be wrong for
-     * activities instantiated by this activity.
+     * It is up to the user to make sure that this constellation instance has a
+     * suitable executor, or, if the contexts don't match, an executor that can
+     * be stolen from.
      *
      * @param job
      *            the Activity to submit
@@ -31,22 +30,20 @@ public interface Constellation {
     /**
      * Send an event.
      *
-     * TODO: can this fail? Describe exceptions
-     *
      * @param e
      *            the Event to send.
      */
     public void send(Event e);
 
-    /**
-     * Cancel an Activity.
-     *
-     * TODO: figure out and describe semantics of this.
-     *
-     * @param activity
-     *            activity to be cancelled
-     */
-    public void cancel(ActivityIdentifier activity);
+    // /**
+    // * Cancel an Activity.
+    // *
+    // * Todo: figure out and describe semantics of this.
+    // *
+    // * @param activity
+    // * activity to be cancelled
+    // */
+    // public void cancel(ActivityIdentifier activity);
 
     /**
      * Activate this Constellation implementation.

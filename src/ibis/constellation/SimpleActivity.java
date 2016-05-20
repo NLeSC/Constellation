@@ -61,11 +61,6 @@ public abstract class SimpleActivity extends Activity {
     }
 
     @Override
-    public final void cancel() throws Exception {
-        // not used
-    }
-
-    @Override
     public final void cleanup() throws Exception {
         // not used
     }

@@ -627,7 +627,7 @@ public class SingleThreadedConstellation extends Thread {
         return parent == null;
         // FIXME: this is not correct ??
         // Why?? Maybe if there is no DistributedConstellation??
-        // Currently not possible, I think.
+        // Currently not possible, I think. --Ceriel
     }
 
     void handleEvent(Event e) {
@@ -798,12 +798,6 @@ public class SingleThreadedConstellation extends Thread {
                     ar.setRelocated(false);
                     relocated.remove(ar);
                 } else if (ar.isStolen()) {
-
-                    // Sanity check -- should never fire! FIXME --remove!
-                    if (!ar.identifier().getOrigin().equals(identifier)) {
-                        logger.error("INTERNAL ERROR: resetting stolen");
-                    }
-
                     // We should unset the stolen flag if an activity is
                     // returned.
                     ar.setStolen(false);

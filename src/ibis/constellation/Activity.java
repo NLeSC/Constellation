@@ -271,13 +271,13 @@ public abstract class Activity implements Serializable {
      */
     public abstract void cleanup() throws Exception;
 
-    /**
-     * TODO never called???
-     *
-     * @throws Exception
-     *             TODO
-     */
-    public abstract void cancel() throws Exception;
+    // /**
+    // * Todo never called???
+    // *
+    // * @throws Exception
+    // * Todo
+    // */
+    // public abstract void cancel() throws Exception;
 
     @Override
     public String toString() {

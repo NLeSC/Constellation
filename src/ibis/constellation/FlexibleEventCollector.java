@@ -60,11 +60,6 @@ public class FlexibleEventCollector extends Activity {
     }
 
     @Override
-    public void cancel() {
-        // empty
-    }
-
-    @Override
     public String toString() {
         return "FlexibleEventCollector(" + identifier() + ")";
     }
@@ -73,7 +68,7 @@ public class FlexibleEventCollector extends Activity {
      * This method blocks waiting for events. As soon as one or more are
      * available, it creates an array containing these events, clears the event
      * list of this collector, and returns the array.
-     * 
+     *
      * @return an array containing the received events.
      */
     public synchronized Event[] waitForEvents() {
