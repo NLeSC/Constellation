@@ -38,13 +38,13 @@ public interface Constellation {
     public void cancel(ActivityIdentifier activity);
 
     /**
-     * Activate this Constellation implementation.  
+     * Activate this Constellation instance.  
      * 
-     * Constellation implementations start out in in inactive state when they are created. This allows the application to
+     * Constellation instances start out in in inactive state when they are created. This allows the application to
      * configure Constellation (for example, my setting up the desired combination of distributed and local constellation 
-     * implementations.
+     * instances).
      * 
-     * Upon activation, the Constellation implementation will activate all sub-constellations, and activate its own executors, 
+     * Upon activation, the Constellation instances will activate all sub-constellations, and activate its own executors, 
      * steal pools, event queues, etc. 
      * 
      * @return if the Constellation was activated.
@@ -64,7 +64,7 @@ public interface Constellation {
      * Terminate Constellation. 
      *
      * When terminating all sub-constellation will be terminated. Termination may also block until all other running consellation
-     * implementations in a Pool have also decided to terminate.   
+     * instances in a Pool have also decided to terminate.   
      */
     public void done();
 
@@ -86,8 +86,9 @@ public interface Constellation {
     public ConstellationIdentifier identifier();
 
     /**
+     * Retrieve a WorkerContext that describes what Activities this Constellation instance wants to Execute. 
      * 
-     * @return
+     * @return a WorkerContext that describes what Activities this Constellation instance wants to Execute.
      */    
     public WorkerContext getContext();
 
