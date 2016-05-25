@@ -48,12 +48,12 @@ public interface Constellation {
     /**
      * Activate this Constellation implementation.
      *
-     * Constellation implementations start out in in inactive state when they
+     * Constellation instances start out in in inactive state when they
      * are created. This allows the application to configure Constellation (for
      * example, by setting up the desired combination of distributed and local
-     * constellation implementations.
+     * constellation instances).
      *
-     * Upon activation, the Constellation implementation will activate all
+     * Upon activation, the Constellation instance will activate all
      * sub-constellations, and activate its own executors, steal pools, event
      * queues, etc.
      *
@@ -79,7 +79,7 @@ public interface Constellation {
      * Terminate Constellation.
      *
      * When terminating all sub-constellations will be terminated. Termination
-     * may block until all other running constellation implementations in a Pool
+     * may also block until all other running constellation instances in a Pool
      * have also decided to terminate.
      */
     public void done();

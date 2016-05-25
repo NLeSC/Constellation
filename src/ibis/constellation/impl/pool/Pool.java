@@ -246,11 +246,19 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         String tmp = properties.getProperty("ibis.constellation.master",
                 "auto");
 
+        System.err.println("XXXX ibis.constellation.master is set to " + tmp);
+        
         if (tmp.equalsIgnoreCase("auto") || tmp.equalsIgnoreCase("true")) {
             // Elect a server
             master = ibis.registry().elect("Constellation Master");
+            
+            System.err.println("XXXX I've been running for master ");
+            
         } else if (tmp.equalsIgnoreCase("false")) {
             master = ibis.registry().getElectionResult("Constellation Master");
+
+            System.err.println("XXXX I've retrieved the master");
+
         } else {
             master = null;
         }
@@ -279,6 +287,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
         isMaster = local.equals(master);
 
+        System.err.println("XXXX I'm master ? " + isMaster);
+        
         rp = ibis.createReceivePort(portType, "constellation", this);
         rp.enableConnections();
 
@@ -553,7 +563,30 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
     public void cleanup() {
         updater.done();
+
+        // Try to cleanly disconnect all send and receive ports....         
         try {
+            rp.disableConnections();
+            rp.disableMessageUpcalls();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        for (SendPort sp : sendports.values()) { 
+            try {
+                sp.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        try {
+            rp.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+            
+        try {             
             ibis.end();
         } catch (IOException e) {
             e.printStackTrace();
