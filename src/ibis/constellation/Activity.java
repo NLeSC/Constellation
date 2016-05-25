@@ -241,11 +241,11 @@ public abstract class Activity implements Serializable {
      * the activity is to do next: {@link #suspend()} when it expects events it
      * wants to wait for, and {@link #finish()} when it is done.
      *
-     * @throws Exception
-     *             TODO: describe what happens if initialize() causes an
-     *             exception.
+     * Note that this method does not throw checked exceptions. It can, however,
+     * throw runtime exceptions or errors, and constellation should deal with
+     * that.
      */
-    public abstract void initialize() throws Exception;
+    public abstract void initialize();
 
     /**
      * This method, to be implemented by the activity, is called when the
@@ -254,30 +254,31 @@ public abstract class Activity implements Serializable {
      * is to do next: {@link #suspend()} when it expects other events, and
      * {@link #finish()} when it is done.
      *
+     * Note that this method does not throw checked exceptions. It can, however,
+     * throw runtime exceptions or errors, and constellation should deal with
+     * that.
+     * 
      * @param e
      *            the event.
-     * @throws Exception
-     *             TODO: describe what happens if process() causes an exception.
+     *
      */
-    public abstract void process(Event e) throws Exception;
+    public abstract void process(Event e);
 
     /**
      * This method, to be implemented by the activity, is called when the
      * activity is actually finished. It allows the activity, for instance, to
      * send events to its parent activity, and to otherwise cleanup.
      *
-     * @throws Exception
-     *             TODO, describe what happens if cleanup() causes an exception.
+     * Note that this method does not throw checked exceptions. It can, however,
+     * throw runtime exceptions or errors, and constellation should deal with
+     * that.
      */
-    public abstract void cleanup() throws Exception;
+    public abstract void cleanup();
 
     // /**
     // * Todo never called???
-    // *
-    // * @throws Exception
-    // * Todo
     // */
-    // public abstract void cancel() throws Exception;
+    // public abstract void cancel();
 
     @Override
     public String toString() {

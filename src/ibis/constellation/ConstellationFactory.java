@@ -19,11 +19,15 @@ public class ConstellationFactory {
      * @param e
      *            the executor
      * @return the constellation instance
-     * @throws Exception
-     *             TODO
+     * @throws IllegalArgumentException
+     *             thrown when no executors are supplied, or in case of
+     *             incorrect property values.
+     * @throws ConstellationCreationException
+     *             thrown when the constellation instance could not be created
+     *             for some reason.
      */
     public static Constellation createConstellation(Executor e)
-            throws Exception {
+            throws ConstellationCreationException {
         return createConstellation(System.getProperties(), e);
     }
 
@@ -36,11 +40,15 @@ public class ConstellationFactory {
      * @param e
      *            the executor
      * @return the constellation instance
-     * @throws Exception
-     *             TODO
+     * @throws IllegalArgumentException
+     *             thrown when no executors are supplied, or in case of
+     *             incorrect property values.
+     * @throws ConstellationCreationException
+     *             thrown when the constellation instance could not be created
+     *             for some reason.
      */
     public static Constellation createConstellation(Properties p, Executor e)
-            throws Exception {
+            throws ConstellationCreationException {
         return createConstellation(p, new Executor[] { e });
     }
 
@@ -52,12 +60,14 @@ public class ConstellationFactory {
      *            the executors
      * @return the constellation instance
      * @throws IllegalArgumentException
-     *             thrown when no executors are supplied
-     * @throws Exception
-     *             TODO
+     *             thrown when no executors are supplied, or in case of
+     *             incorrect property values.
+     * @throws ConstellationCreationException
+     *             thrown when the constellation instance could not be created
+     *             for some reason.
      */
     public static Constellation createConstellation(Executor... e)
-            throws Exception {
+            throws ConstellationCreationException {
 
         return createConstellation(System.getProperties(), e);
     }
@@ -72,12 +82,14 @@ public class ConstellationFactory {
      *            the executors
      * @return the constellation instance
      * @throws IllegalArgumentException
-     *             thrown when no executors are supplied
-     * @throws Exception
-     *             TODO
+     *             thrown when no executors are supplied, or in case of
+     *             incorrect property values.
+     * @throws ConstellationCreationException
+     *             thrown when the constellation instance could not be created
+     *             for some reason.
      */
     public static Constellation createConstellation(Properties p, Executor... e)
-            throws Exception {
+            throws ConstellationCreationException {
 
         if (e == null || e.length == 0) {
             throw new IllegalArgumentException("Need at least one executor!");

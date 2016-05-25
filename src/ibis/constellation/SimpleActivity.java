@@ -55,18 +55,18 @@ public abstract class SimpleActivity extends Activity {
      * {@link #simpleActivity()} and then {@link Activity#finish()}.
      */
     @Override
-    public void initialize() throws Exception {
+    public void initialize() {
         simpleActivity();
         finish();
     }
 
     @Override
-    public final void cleanup() throws Exception {
+    public final void cleanup() {
         // not used
     }
 
     @Override
-    public final void process(Event e) throws Exception {
+    public final void process(Event e) {
         // not used
     }
 
@@ -74,10 +74,8 @@ public abstract class SimpleActivity extends Activity {
      * This method, to be implemented by the activity, is called once, after
      * which the activity will {@link #finish()}.
      *
-     * @throws Exception
-     *             TODO
      */
-    public abstract void simpleActivity() throws Exception;
+    public abstract void simpleActivity();
 
     /**
      * Returns the activity identifier of the parent (as set by

@@ -234,13 +234,11 @@ public abstract class Executor implements Serializable {
      *
      * @param owner
      *            TODO
-     * @throws Exception
-     *             TODO
      */
-    public synchronized void connect(ExecutorWrapper owner) throws Exception {
+    public synchronized void connect(ExecutorWrapper owner) {
 
         if (this.owner != null) {
-            throw new Exception("Executor already connected!");
+            throw new Error("Executor already connected!");
         }
 
         this.owner = owner;

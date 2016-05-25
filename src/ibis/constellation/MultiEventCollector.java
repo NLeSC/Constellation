@@ -50,12 +50,12 @@ public class MultiEventCollector extends Activity {
     }
 
     @Override
-    public void initialize() throws Exception {
+    public void initialize() {
         suspend();
     }
 
     @Override
-    public synchronized void process(Event e) throws Exception {
+    public synchronized void process(Event e) {
 
         if (logger.isDebugEnabled()) {
             logger.debug("MultiEventCollector: received event " + count + " of "
@@ -73,7 +73,7 @@ public class MultiEventCollector extends Activity {
     }
 
     @Override
-    public void cleanup() throws Exception {
+    public void cleanup() {
         // empty
     }
 

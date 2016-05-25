@@ -89,8 +89,9 @@ public class SingleThreadedConstellation extends Thread {
 
         final HashMap<ConstellationIdentifier, StealRequest> stealRequests = new HashMap<ConstellationIdentifier, StealRequest>();
 
-        public String print() {
-            return "QUEUES: " + +deliveredApplicationMessages.size() + " "
+        @Override
+        public String toString() {
+            return "QUEUES: " + deliveredApplicationMessages.size() + " "
                     + stealRequests.size();
         }
     }
@@ -118,13 +119,12 @@ public class SingleThreadedConstellation extends Thread {
 
     private volatile boolean havePendingRequests = false;
 
-    SingleThreadedConstellation(Executor executor, Properties p)
-            throws Exception {
+    SingleThreadedConstellation(Executor executor, Properties p) {
         this(null, executor, p);
     }
 
     public SingleThreadedConstellation(MultiThreadedConstellation parent,
-            Executor executor, Properties p) throws Exception {
+            Executor executor, Properties p) {
 
         super();
 
@@ -736,8 +736,8 @@ public class SingleThreadedConstellation extends Thread {
     private void swapEventQueues() {
 
         if (Debug.DEBUG_SUBMIT && logger.isInfoEnabled()) {
-            logger.info("Processing events while idle!\n" + incoming.print()
-                    + "\n" + processing.print());
+            logger.info("Processing events while idle!\n" + incoming.toString()
+                    + "\n" + processing.toString());
         }
 
         synchronized (incoming) {

@@ -43,12 +43,12 @@ public class SingleEventCollector extends Activity {
     }
 
     @Override
-    public void initialize() throws Exception {
+    public void initialize() {
         suspend();
     }
 
     @Override
-    public synchronized void process(Event e) throws Exception {
+    public synchronized void process(Event e) {
 
         if (logger.isDebugEnabled()) {
             logger.debug("SINGLE EVENT COLLECTOR ( " + identifier()
@@ -61,7 +61,7 @@ public class SingleEventCollector extends Activity {
     }
 
     @Override
-    public void cleanup() throws Exception {
+    public void cleanup() {
         // empty
     }
 

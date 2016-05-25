@@ -12,6 +12,7 @@ import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.CTimer;
 import ibis.constellation.Concluder;
 import ibis.constellation.Constellation;
+import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.Event;
 import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealPool;
@@ -21,6 +22,7 @@ import ibis.constellation.extra.ConstellationIdentifierFactory;
 import ibis.constellation.extra.Debug;
 import ibis.constellation.extra.Stats;
 import ibis.constellation.impl.pool.Pool;
+import ibis.constellation.impl.pool.PoolCreationFailedException;
 
 public class DistributedConstellation {
 
@@ -187,23 +189,35 @@ public class DistributedConstellation {
         }
     }
 
-    public DistributedConstellation(Properties p) throws Exception {
+    public DistributedConstellation(Properties p)
+            throws ConstellationCreationException {
 
-        // Init communication here...
-        pool = new Pool(this, p);
+        String stealName = p.getProperty("ibis.constellation.stealing", "pool");
 
-        cidFactory = pool.getCIDFactory();
-        identifier = cidFactory.generateConstellationIdentifier();
+        if (stealName.equalsIgnoreCase("mw")) {
+            stealing = STEAL_MASTER;
+        } else if (stealName.equalsIgnoreCase("none")) {
+            stealing = STEAL_NONE;
+        } else if (stealName.equalsIgnoreCase("pool")) {
+            stealing = STEAL_POOL;
+        } else {
+            logger.error("Unknown stealing strategy: " + stealName);
+            throw new IllegalArgumentException(
+                    "Unknown stealing strategy: " + stealName);
+        }
 
-        String tmp = p.getProperty("ibis.constellation.remotesteal.throttle");
+        String tmp = p.getProperty("ibis.constellation.remotesteal.throttle",
+                "false");
 
         if (tmp != null) {
-
-            try {
-                REMOTE_STEAL_THROTTLE = Boolean.parseBoolean(tmp);
-            } catch (Exception e) {
-                logger.error("Failed to parse "
-                        + "ibis.constellation.remotesteal.throttle: " + tmp);
+            if (tmp.equalsIgnoreCase("true")) {
+                REMOTE_STEAL_THROTTLE = true;
+            } else if (tmp.equalsIgnoreCase("false")) {
+                REMOTE_STEAL_THROTTLE = false;
+            } else {
+                throw new IllegalArgumentException(
+                        "unrecognized value for \"ibis.constellation.remotesteal.throttle\": "
+                                + tmp);
             }
         }
 
@@ -216,40 +230,44 @@ public class DistributedConstellation {
             } catch (Exception e) {
                 logger.error("Failed to parse "
                         + "ibis.constellation.remotesteal.timeout: " + tmp);
+                throw new IllegalArgumentException(
+                        "unrecognized value for \"ibis.constellation.remotesteal.timeout\": "
+                                + tmp);
             }
         }
 
-        String stealName = p.getProperty("ibis.constellation.stealing", "pool");
+        // Init communication here...
+        try {
+            pool = new Pool(this, p);
 
-        if (stealName.equalsIgnoreCase("mw")) {
-            stealing = STEAL_MASTER;
-        } else if (stealName.equalsIgnoreCase("none")) {
-            stealing = STEAL_NONE;
-        } else if (stealName.equalsIgnoreCase("pool")) {
-            stealing = STEAL_POOL;
-        } else {
-            logger.error("Unknown stealing strategy: " + stealName);
-            throw new Exception("Unknown stealing strategy: " + stealName);
+            cidFactory = pool.getCIDFactory();
+            identifier = cidFactory.generateConstellationIdentifier();
+
+            myContext = UnitExecutorContext.DEFAULT;
+
+            delivery = new DeliveryThread(this);
+            delivery.start();
+
+            start = System.currentTimeMillis();
+
+            if (logger.isInfoEnabled()) {
+                logger.info("DistributeConstellation : " + identifier.getId());
+                logger.info(
+                        "               throttle : " + REMOTE_STEAL_THROTTLE);
+                logger.info(
+                        "         throttle delay : " + REMOTE_STEAL_TIMEOUT);
+                logger.info("               stealing : " + stealName);
+                logger.info("                  start : " + start);
+                logger.info("Starting DistributedConstellation " + identifier
+                        + " / " + myContext);
+            }
+
+            stats = pool.getStats();
+        } catch (PoolCreationFailedException e) {
+            throw new ConstellationCreationException(
+                    "could not create DistributedConstellation", e);
         }
 
-        myContext = UnitExecutorContext.DEFAULT;
-
-        delivery = new DeliveryThread(this);
-        delivery.start();
-
-        start = System.currentTimeMillis();
-
-        if (logger.isInfoEnabled()) {
-            logger.info("DistributeConstellation : " + identifier.getId());
-            logger.info("               throttle : " + REMOTE_STEAL_THROTTLE);
-            logger.info("         throttle delay : " + REMOTE_STEAL_TIMEOUT);
-            logger.info("               stealing : " + stealName);
-            logger.info("                  start : " + start);
-            logger.info("Starting DistributedConstellation " + identifier
-                    + " / " + myContext);
-        }
-
-        stats = pool.getStats();
     }
 
     private boolean performActivate() {
@@ -532,10 +550,10 @@ public class DistributedConstellation {
         return cidFactory;
     }
 
-    synchronized void register(MultiThreadedConstellation c) throws Exception {
+    synchronized void register(MultiThreadedConstellation c) {
 
         if (active || subConstellation != null) {
-            throw new Exception("Cannot register BottomConstellation");
+            throw new Error("Cannot register BottomConstellation");
         }
 
         subConstellation = c;

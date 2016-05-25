@@ -75,7 +75,7 @@ public class ExecutorWrapper implements Constellation {
     private ActivityRecord current;
 
     ExecutorWrapper(SingleThreadedConstellation parent, Executor executor,
-            Properties p, ConstellationIdentifier identifier) throws Exception {
+            Properties p, ConstellationIdentifier identifier) {
         this.parent = parent;
         this.identifier = identifier;
         this.generator = parent.getActivityIdentifierFactory(identifier);

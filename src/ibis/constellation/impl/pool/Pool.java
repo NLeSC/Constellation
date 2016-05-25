@@ -88,7 +88,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
     private final DistributedConstellationIdentifierFactory cidFactory;
 
-    private final Ibis ibis;
+    private Ibis ibis;
     private final IbisIdentifier local;
     private final IbisIdentifier master;
 
@@ -226,98 +226,100 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     private int gotStats;
 
     public Pool(final DistributedConstellation owner, final Properties p)
-            throws Exception {
+            throws PoolCreationFailedException {
 
         TypedProperties properties = new TypedProperties(p);
         this.owner = owner;
         closedPool = properties.getBooleanProperty("ibis.constellation.closed",
                 false);
 
-        ibis = IbisFactory.createIbis(
-                closedPool ? closedIbisCapabilities : openIbisCapabilities, p,
-                true, closedPool ? null : this, portType);
+        try {
+            ibis = IbisFactory.createIbis(
+                    closedPool ? closedIbisCapabilities : openIbisCapabilities,
+                    p, true, closedPool ? null : this, portType);
 
-        local = ibis.identifier();
+            local = ibis.identifier();
 
-        if (!closedPool) {
-            ibis.registry().enableEvents();
-        }
-
-        String tmp = properties.getProperty("ibis.constellation.master",
-                "auto");
-
-        System.err.println("XXXX ibis.constellation.master is set to " + tmp);
-        
-        if (tmp.equalsIgnoreCase("auto") || tmp.equalsIgnoreCase("true")) {
-            // Elect a server
-            master = ibis.registry().elect("Constellation Master");
-            
-            System.err.println("XXXX I've been running for master ");
-            
-        } else if (tmp.equalsIgnoreCase("false")) {
-            master = ibis.registry().getElectionResult("Constellation Master");
-
-            System.err.println("XXXX I've retrieved the master");
-
-        } else {
-            master = null;
-        }
-
-        if (master == null) {
-            throw new Exception("Failed to find master!");
-        }
-
-        // We determine our rank here. This rank should only be used for
-        // debugging purposes!
-        tmp = System.getProperty("ibis.constellation.rank");
-
-        if (tmp != null) {
-            try {
-                rank = Long.parseLong(tmp);
-            } catch (Exception e) {
-                logger.error("Failed to parse rank: " + tmp);
-                rank = -1;
+            if (!closedPool) {
+                ibis.registry().enableEvents();
             }
+
+            String tmp = properties.getProperty("ibis.constellation.master",
+                    "auto");
+
+            if (tmp.equalsIgnoreCase("auto") || tmp.equalsIgnoreCase("true")) {
+                // Elect a server
+                master = ibis.registry().elect("Constellation Master");
+            } else if (tmp.equalsIgnoreCase("false")) {
+                master = ibis.registry()
+                        .getElectionResult("Constellation Master");
+            } else {
+                master = null;
+            }
+
+            if (master == null) {
+                throw new PoolCreationFailedException("Failed to find master!");
+            }
+
+            // We determine our rank here. This rank should only be used for
+            // debugging purposes!
+            tmp = System.getProperty("ibis.constellation.rank");
+
+            if (tmp != null) {
+                try {
+                    rank = Long.parseLong(tmp);
+                } catch (Exception e) {
+                    logger.error("Failed to parse rank: " + tmp);
+                    rank = -1;
+                }
+            }
+
+            if (rank == -1) {
+                rank = ibis.registry().getSequenceNumber(
+                        "constellation-pool-" + master.toString());
+            }
+
+            isMaster = local.equals(master);
+
+            rp = ibis.createReceivePort(portType, "constellation", this);
+            rp.enableConnections();
+
+            // MOVED: to activate
+            // rp.enableMessageUpcalls();
+
+            cidFactory = new DistributedConstellationIdentifierFactory(rank);
+
+            locationCache.put((int) rank, local);
+
+            // Register my rank at the master
+            if (!isMaster) {
+                doForward(master, OPCODE_RANK_REGISTER_REQUEST,
+                        new RankInfo((int) rank, local));
+                syncInfo = null;
+            } else {
+                syncInfo = new TimeSyncInfo(master.name());
+            }
+
+            // Start the updater thread...
+            updater.start();
+            if (closedPool) {
+                ibis.registry().waitUntilPoolClosed();
+            }
+
+            stats = new Stats(getId());
+
+            communicationTimer = stats.getTimer("java", "data receiver",
+                    "receive data");
+        } catch (Throwable e) {
+            if (ibis != null) {
+                try {
+                    ibis.end();
+                } catch (Throwable e1) {
+                    // ignored
+                }
+            }
+            throw new PoolCreationFailedException("Pool creation failed", e);
         }
-
-        if (rank == -1) {
-            rank = ibis.registry().getSequenceNumber(
-                    "constellation-pool-" + master.toString());
-        }
-
-        isMaster = local.equals(master);
-
-        System.err.println("XXXX I'm master ? " + isMaster);
-        
-        rp = ibis.createReceivePort(portType, "constellation", this);
-        rp.enableConnections();
-
-        // MOVED: to activate
-        // rp.enableMessageUpcalls();
-
-        cidFactory = new DistributedConstellationIdentifierFactory(rank);
-
-        locationCache.put((int) rank, local);
-
-        // Register my rank at the master
-        if (!isMaster) {
-            doForward(master, OPCODE_RANK_REGISTER_REQUEST,
-                    new RankInfo((int) rank, local));
-            syncInfo = null;
-        } else {
-            syncInfo = new TimeSyncInfo(master.name());
-        }
-
-        // Start the updater thread...
-        updater.start();
-        if (closedPool) {
-            ibis.registry().waitUntilPoolClosed();
-        }
-
-        stats = new Stats(getId());
-
-        communicationTimer = stats.getTimer("java", "data receiver",
-                "receive data");
     }
 
     public Stats getStats() {
@@ -564,7 +566,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     public void cleanup() {
         updater.done();
 
-        // Try to cleanly disconnect all send and receive ports....         
+        // Try to cleanly disconnect all send and receive ports....
         try {
             rp.disableConnections();
             rp.disableMessageUpcalls();
@@ -572,21 +574,21 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             e.printStackTrace();
         }
 
-        for (SendPort sp : sendports.values()) { 
+        for (SendPort sp : sendports.values()) {
             try {
                 sp.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        
+
         try {
             rp.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-            
-        try {             
+
+        try {
             ibis.end();
         } catch (IOException e) {
             e.printStackTrace();

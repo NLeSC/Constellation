@@ -57,12 +57,12 @@ public class MultiThreadedConstellation {
 
     private final Stats stats;
 
-    public MultiThreadedConstellation(Properties p) throws Exception {
+    public MultiThreadedConstellation(Properties p) {
         this(null, p);
     }
 
     public MultiThreadedConstellation(DistributedConstellation parent,
-            Properties p) throws Exception {
+            Properties p) {
 
         this.parent = parent;
 
@@ -284,11 +284,10 @@ public class MultiThreadedConstellation {
         return parent.getConstellationIdentifierFactory(cid);
     }
 
-    synchronized void register(SingleThreadedConstellation constellation)
-            throws Exception {
+    synchronized void register(SingleThreadedConstellation constellation) {
 
         if (active) {
-            throw new Exception("Cannot register new BottomConstellation while "
+            throw new Error("Cannot register new BottomConstellation while "
                     + "TopConstellation is active!");
         }
 
