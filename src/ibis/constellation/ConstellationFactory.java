@@ -16,6 +16,12 @@ public class ConstellationFactory {
      * Creates a constellation instance, using the specified executor and the
      * system properties.
      *
+     * If the system property <code>ibis.constellation.distributed</code> is not
+     * set, or set to "true", a distributed constellation instance is created.
+     * If it is set to "false", a singlethreaded constellation is created.
+     * Otherwise, it is apparently set to an unrecognized value, so an
+     * IllegalArgumentException exception is thrown.
+     *
      * @param e
      *            the executor
      * @return the constellation instance
@@ -34,6 +40,12 @@ public class ConstellationFactory {
     /**
      * Creates a constellation instance, using the specified executor and
      * properties.
+     *
+     * If the property <code>ibis.constellation.distributed</code> is not set,
+     * or set to "true", a distributed constellation instance is created. If it
+     * is set to "false", a singlethreaded constellation is created. Otherwise,
+     * it is apparently set to an unrecognized value, so an
+     * IllegalArgumentException exception is thrown.
      *
      * @param p
      *            the properties to use
@@ -56,6 +68,13 @@ public class ConstellationFactory {
      * Creates a constellation instance, using the specified executors and the
      * system properties.
      *
+     * If the system property <code>ibis.constellation.distributed</code> is not
+     * set, or set to "true", a distributed constellation instance is created.
+     * If it is set to "false", depending on the number of executors, either a
+     * multithreaded constellation or a singlethreaded constellation is created.
+     * Otherwise, it is apparently set to an unrecognized value, so an
+     * IllegalArgumentException exception is thrown.
+     *
      * @param e
      *            the executors
      * @return the constellation instance
@@ -76,6 +95,13 @@ public class ConstellationFactory {
      * Creates a constellation instance, using the specified executors and
      * properties.
      *
+     * If the property <code>ibis.constellation.distributed</code> is not set,
+     * or set to "true", a distributed constellation instance is created. If it
+     * is set to "false", depending on the number of executors, either a
+     * multithreaded constellation or a singlethreaded constellation is created.
+     * Otherwise, it is apparently set to an unrecognized value, so an
+     * IllegalArgumentException exception is thrown.
+     *
      * @param p
      *            the properties
      * @param e
@@ -95,16 +121,34 @@ public class ConstellationFactory {
             throw new IllegalArgumentException("Need at least one executor!");
         }
 
-        // FIXME: We now create the whole stack by default. Should ask
-        // properties what is needed!
-        DistributedConstellation d = new DistributedConstellation(p);
-        MultiThreadedConstellation m = new MultiThreadedConstellation(d, p);
+        String tmp = p.getProperty("ibis.constellation.distributed", "true");
 
-        for (int i = 0; i < e.length; i++) {
-            new SingleThreadedConstellation(m, e[i], p);
+        boolean needsDistributed;
+
+        if (tmp.equalsIgnoreCase("true")) {
+            needsDistributed = true;
+        } else if (tmp.equalsIgnoreCase("false")) {
+            needsDistributed = false;
+        } else {
+            throw new IllegalArgumentException(
+                    "unrecognized value for \"ibis.constellation.distributed\": "
+                            + tmp);
         }
 
-        return d.getConstellation();
+        DistributedConstellation d = needsDistributed
+                ? new DistributedConstellation(p) : null;
+
+        MultiThreadedConstellation m = (needsDistributed || e.length > 1)
+                ? new MultiThreadedConstellation(d, p) : null;
+
+        SingleThreadedConstellation s = null;
+
+        for (int i = 0; i < e.length; i++) {
+            s = new SingleThreadedConstellation(m, e[i], p);
+        }
+
+        return d != null ? d.getConstellation()
+                : m != null ? m.getConstellation() : s.getConstellation();
     }
 
 }

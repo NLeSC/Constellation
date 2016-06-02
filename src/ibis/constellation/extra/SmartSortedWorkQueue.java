@@ -54,11 +54,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
             return null;
         }
 
-        // FIXME: SANITY CHECK -- should not happen ?
-        if (tmp.size() == 0) {
-            log.error("(getUnit1): unit.get returned null unexpectedly!");
-            return null;
-        }
+        assert tmp.size() > 0;
 
         ActivityRecord a;
 
@@ -68,12 +64,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
             a = tmp.removeTail();
         }
 
-        // FIXME: SANITY CHECK -- should not happen ?
-        if (a == null) {
-            log.error(
-                    "(getUnit1): removeHead/Tail returned null unexpectedly!");
-            return null;
-        }
+        assert a != null;
 
         if (tmp.size() == 0) {
             unit.remove(name);
@@ -94,11 +85,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
             return null;
         }
 
-        // FIXME: SANITY CHECK -- should not happen ?
-        if (tmp.size() == 0) {
-            log.error("(getUnit2): unit.get returned null unexpectedly!");
-            return null;
-        }
+        assert tmp.size() > 0;
 
         ActivityRecord a = null;
 
@@ -118,12 +105,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
             break;
         }
 
-        // FIXME: SANITY CHECK -- should not happen ?
-        if (a == null) {
-            log.error(
-                    "(getUnit2): removeHead/Tail/Range returned null unexpectedly!");
-            return null;
-        }
+        assert a != null;
 
         if (tmp.size() == 0) {
             unit.remove(c.name);
@@ -144,11 +126,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
             return null;
         }
 
-        // FIXME: SANITY CHECK -- should not happen ?
-        if (tmp.size() == 0) {
-            log.error("(getOr1): or.get returned null unexpectedly!");
-            return null;
-        }
+        assert tmp.size() > 0;
 
         ActivityRecord a = null;
 
@@ -162,11 +140,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
             or.remove(name);
         }
 
-        // FIXME: SANITY CHECK -- should not happen ?
-        if (a == null) {
-            log.error("(getOr1): removeHead/Tail returned null unexpectedly!");
-            return null;
-        }
+        assert a != null;
 
         // Remove entry for this ActivityRecord from all lists....
         UnitActivityContext[] all = ((OrActivityContext) a.activity
@@ -224,11 +198,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
             break;
         }
 
-        // FIXME: SANITY CHECK -- should not happen ?
-        if (a == null) {
-            log.error("(getOr2): removeHead/Tail returned null unexpectedly!");
-            return null;
-        }
+        assert a != null;
 
         if (tmp.size() == 0) {
             or.remove(c.name);

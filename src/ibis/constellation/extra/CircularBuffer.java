@@ -2,7 +2,6 @@ package ibis.constellation.extra;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -196,25 +195,6 @@ public class CircularBuffer<T> implements Serializable, ObjectData {
         }
 
         return removed;
-    }
-
-    public void clear() {
-
-        if (size > 0) {
-            // Note; may be inefficient with large, relatively empty arrays!
-            Arrays.fill(array, null);
-        }
-
-        // while (size > 0) {
-        // array[first++] = null;
-        // size--;
-        //
-        // if (first >= array.length) {
-        // first = 0;
-        // }
-        // }
-
-        first = next = size = 0;
     }
 
     @Override

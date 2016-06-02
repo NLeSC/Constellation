@@ -48,8 +48,8 @@ public interface Constellation {
     /**
      * Activate this Constellation implementation.
      *
-     * Constellation instances start out in in inactive state when they
-     * are created. This allows the application to configure Constellation (for
+     * Constellation instances start out in in inactive state when they are
+     * created. This allows the application to configure Constellation (for
      * example, by setting up the desired combination of distributed and local
      * constellation instances).
      *
@@ -95,14 +95,12 @@ public interface Constellation {
     /**
      * Returns a unique identifier for this Constellation instance.
      *
-     * This {@link ConstellationIdentifier} can be used to uniquely refer to a
-     * running Constellation instance. It is also used as part of an
-     * ActivityIdentifer.
+     * This identifier can be used to uniquely refer to a running Constellation
+     * instance.
      *
-     * @return a ConstellationIdentifier that uniquely identifies this
-     *         Constellation instance.
+     * @return a string that uniquely identifies this Constellation instance.
      */
-    public ConstellationIdentifier identifier();
+    public String identifier();
 
     public CTimer getTimer(String device, String thread, String action);
 

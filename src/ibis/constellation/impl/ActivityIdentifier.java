@@ -58,7 +58,6 @@ public class ActivityIdentifier extends ibis.constellation.ActivityIdentifier
      *
      * @return the constellation identifier.
      */
-    @Override
     public ConstellationIdentifier getOrigin() {
         return CID;
     }

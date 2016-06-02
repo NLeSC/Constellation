@@ -167,8 +167,8 @@ public class DistributedConstellation {
         }
 
         @Override
-        public ConstellationIdentifier identifier() {
-            return identifier;
+        public String identifier() {
+            return identifier.toString();
         }
 
         @Override
@@ -209,16 +209,14 @@ public class DistributedConstellation {
         String tmp = p.getProperty("ibis.constellation.remotesteal.throttle",
                 "false");
 
-        if (tmp != null) {
-            if (tmp.equalsIgnoreCase("true")) {
-                REMOTE_STEAL_THROTTLE = true;
-            } else if (tmp.equalsIgnoreCase("false")) {
-                REMOTE_STEAL_THROTTLE = false;
-            } else {
-                throw new IllegalArgumentException(
-                        "unrecognized value for \"ibis.constellation.remotesteal.throttle\": "
-                                + tmp);
-            }
+        if (tmp.equalsIgnoreCase("true")) {
+            REMOTE_STEAL_THROTTLE = true;
+        } else if (tmp.equalsIgnoreCase("false")) {
+            REMOTE_STEAL_THROTTLE = false;
+        } else {
+            throw new IllegalArgumentException(
+                    "unrecognized value for \"ibis.constellation.remotesteal.throttle\": "
+                            + tmp);
         }
 
         tmp = p.getProperty("ibis.constellation.remotesteal.timeout");

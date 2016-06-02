@@ -80,7 +80,7 @@ public abstract class Activity implements Serializable {
      * @param id
      *            the activity identifier to initialize with.
      */
-    public void initialize(ActivityIdentifier id) {
+    public final void initialize(ActivityIdentifier id) {
         this.identifier = id;
     }
 
@@ -91,7 +91,7 @@ public abstract class Activity implements Serializable {
      * @param executor
      *            the executor to initialize with.
      */
-    public void setExecutor(Executor executor) {
+    public final void setExecutor(Executor executor) {
         this.executor = executor;
     }
 
@@ -141,8 +141,8 @@ public abstract class Activity implements Serializable {
     /**
      * Sends an event using the executor of the current activity.
      *
-     * TODO: what if the destination cannot be found? The send() is probably
-     * asynchronous.
+     * Note that if the destination cannot be found, no exception will result,
+     * since the implementation is probably asynchronous.
      *
      * @param e
      *            the event to be sent
@@ -257,7 +257,7 @@ public abstract class Activity implements Serializable {
      * Note that this method does not throw checked exceptions. It can, however,
      * throw runtime exceptions or errors, and constellation should deal with
      * that.
-     * 
+     *
      * @param e
      *            the event.
      *

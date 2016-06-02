@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityContext;
-import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.CTimer;
 import ibis.constellation.Concluder;
 import ibis.constellation.Constellation;
@@ -173,7 +172,7 @@ public class ExecutorWrapper implements Constellation {
 
         try {
             return generator.createActivityID(expectsEvents);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             // Oops, we ran out of IDs. Get some more from our parent!
             if (parent != null) {
                 generator = parent.getActivityIdentifierFactory(identifier);
@@ -204,7 +203,7 @@ public class ExecutorWrapper implements Constellation {
     }
 
     @Override
-    public ActivityIdentifier submit(Activity a) {
+    public ibis.constellation.ActivityIdentifier submit(Activity a) {
 
         activitiesSubmitted++;
 
@@ -483,7 +482,11 @@ public class ExecutorWrapper implements Constellation {
     }
 
     @Override
-    public ConstellationIdentifier identifier() {
+    public String identifier() {
+        return identifier.toString();
+    }
+
+    ConstellationIdentifier id() {
         return identifier;
     }
 

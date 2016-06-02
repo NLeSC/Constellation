@@ -125,8 +125,7 @@ public abstract class Executor implements Serializable {
     /**
      * Indicates to the executor that it can start running activities. This is
      * usually repetitively called from the {@link #run()} method, which can
-     * return when processActivities() returns <code>true</code>. TODO:
-     * exceptions?
+     * return when processActivities() returns <code>true</code>.
      *
      * @return whether the {@link #run()} method should return.
      */
@@ -195,7 +194,7 @@ public abstract class Executor implements Serializable {
      *
      * @return the constellation identifier
      */
-    public ConstellationIdentifier identifier() {
+    public String identifier() {
         if (owner == null) {
             throw new Error(
                     "identifier() called but this executor is not embedded in a constellation instance yet");
@@ -206,8 +205,6 @@ public abstract class Executor implements Serializable {
     /**
      * Sends the specified event. The destination activity is encoded in the
      * event.
-     *
-     * TODO: exceptions?
      *
      * @param e
      *            the event to send

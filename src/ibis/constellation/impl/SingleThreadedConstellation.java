@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityContext;
-import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.CTimer;
+import ibis.constellation.Constellation;
 import ibis.constellation.Event;
 import ibis.constellation.Executor;
 import ibis.constellation.ExecutorContext;
@@ -68,7 +68,7 @@ public class SingleThreadedConstellation extends Thread {
             1);
 
     // Hashmap allowing quick lookup of the activities in our 4 queues.
-    private HashMap<ActivityIdentifier, ActivityRecord> lookup = new HashMap<ActivityIdentifier, ActivityRecord>();
+    private HashMap<ibis.constellation.ActivityIdentifier, ActivityRecord> lookup = new HashMap<ibis.constellation.ActivityIdentifier, ActivityRecord>();
 
     private final ConstellationIdentifier identifier;
 
@@ -217,21 +217,14 @@ public class SingleThreadedConstellation extends Thread {
         if (parent != null) {
             parent.register(this);
             stats = parent.getStats();
-            stealTimer = stats.getTimer("java", identifier().toString(),
-                    "steal");
-            eventTimer = stats.getTimer("java", identifier().toString(),
-                    "handleEvents");
-            activeTimer = stats.getTimer("java", identifier().toString(),
-                    "active");
         } else {
-            stats = null;
-            stealTimer = new CTimer("unknown", "java", identifier().toString(),
-                    "steal");
-            eventTimer = new CTimer("unknown", "java", identifier().toString(),
-                    "handleEvents");
-            activeTimer = new CTimer("unknown", "java", identifier().toString(),
-                    "active");
+            stats = new Stats(identifier.toString());
         }
+
+        stealTimer = stats.getTimer("java", identifier().toString(), "steal");
+        eventTimer = stats.getTimer("java", identifier().toString(),
+                "handleEvents");
+        activeTimer = stats.getTimer("java", identifier().toString(), "active");
 
         wrapper = new ExecutorWrapper(this, executor, p, identifier);
 
@@ -276,7 +269,7 @@ public class SingleThreadedConstellation extends Thread {
         return identifier;
     }
 
-    ActivityIdentifier performSubmit(Activity a) {
+    ibis.constellation.ActivityIdentifier performSubmit(Activity a) {
 
         ActivityIdentifier id = createActivityID(a.expectsEvents());
         a.initialize(id);
@@ -287,8 +280,8 @@ public class SingleThreadedConstellation extends Thread {
         return doSubmit(ar, c, id);
     }
 
-    ActivityIdentifier doSubmit(ActivityRecord ar, ActivityContext c,
-            ActivityIdentifier id) {
+    ibis.constellation.ActivityIdentifier doSubmit(ActivityRecord ar,
+            ActivityContext c, ActivityIdentifier id) {
 
         Activity a = ar.activity;
 
@@ -625,9 +618,6 @@ public class SingleThreadedConstellation extends Thread {
 
     boolean isMaster() {
         return parent == null;
-        // FIXME: this is not correct ??
-        // Why?? Maybe if there is no DistributedConstellation??
-        // Currently not possible, I think. --Ceriel
     }
 
     void handleEvent(Event e) {
@@ -657,7 +647,7 @@ public class SingleThreadedConstellation extends Thread {
 
             if (cid == null) {
                 // If not, we simply send the event to the parent
-                cid = (ConstellationIdentifier) e.target.getOrigin();
+                cid = ((ActivityIdentifier) e.target).getOrigin();
             }
         }
 
@@ -859,16 +849,14 @@ public class SingleThreadedConstellation extends Thread {
                 }
 
                 if (a != null) {
-                    if (!parent.handleStealReply(this,
-                            new StealReply(wrapper.identifier(), s.source,
-                                    s.pool, s.context, a))) {
+                    if (!parent.handleStealReply(this, new StealReply(
+                            wrapper.id(), s.source, s.pool, s.context, a))) {
                         reclaim(a);
                     }
                 } else if (!ignoreEmptyStealReplies) {
                     // No result, but we send a reply anyway.
-                    parent.handleStealReply(this,
-                            new StealReply(wrapper.identifier(), s.source,
-                                    s.pool, s.context, a));
+                    parent.handleStealReply(this, new StealReply(wrapper.id(),
+                            s.source, s.pool, s.context, a));
                 } else {
                     // No result, and we're not supposed to tell anyone
                     if (Debug.DEBUG_STEAL) {
@@ -1213,6 +1201,10 @@ public class SingleThreadedConstellation extends Thread {
     public CTimer getTimer(String standardDevice, String standardThread,
             String standardAction) {
         return stats.getTimer(standardDevice, standardThread, standardAction);
+    }
+
+    public Constellation getConstellation() {
+        return wrapper;
     }
 
 }

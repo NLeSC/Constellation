@@ -2,8 +2,7 @@ package ibis.constellation.impl;
 
 import java.io.Serializable;
 
-public final class ConstellationIdentifier extends
-        ibis.constellation.ConstellationIdentifier implements Serializable {
+public final class ConstellationIdentifier implements Serializable {
 
     private static final long serialVersionUID = -8236873210293335756L;
 

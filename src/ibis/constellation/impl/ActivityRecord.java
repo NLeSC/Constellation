@@ -29,7 +29,7 @@ public class ActivityRecord implements Serializable, ObjectData {
     static final int ERROR = Integer.MAX_VALUE;
 
     public final Activity activity;
-    private CircularBuffer<Event> queue;
+    private final CircularBuffer<Event> queue;
     private int state = INITIALIZING;
 
     private boolean stolen = false;
@@ -38,6 +38,7 @@ public class ActivityRecord implements Serializable, ObjectData {
 
     public ActivityRecord(Activity activity) {
         this.activity = activity;
+        queue = new CircularBuffer<Event>(4);
     }
 
     public void enqueue(Event e) {
@@ -48,16 +49,12 @@ public class ActivityRecord implements Serializable, ObjectData {
                             + activity + " (event from " + e.source + ")");
         }
 
-        if (queue == null) {
-            queue = new CircularBuffer<Event>(4);
-        }
-
         queue.insertLast(e);
     }
 
     Event dequeue() {
 
-        if (queue == null || queue.size() == 0) {
+        if (queue.size() == 0) {
             return null;
         }
 
@@ -65,11 +62,6 @@ public class ActivityRecord implements Serializable, ObjectData {
     }
 
     int pendingEvents() {
-
-        if (queue == null || queue.size() == 0) {
-            return 0;
-        }
-
         return queue.size();
     }
 
@@ -249,11 +241,7 @@ public class ActivityRecord implements Serializable, ObjectData {
     @Override
     public String toString() {
         return activity + " STATE: " + getStateAsString() + " "
-                + (queue == null ? -1 : queue.size());
-    }
-
-    public long getHopCount() {
-        return 0;
+                + "event queue size = " + queue.size();
     }
 
     public ActivityContext getContext() {

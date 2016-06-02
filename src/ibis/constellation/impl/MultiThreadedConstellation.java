@@ -10,7 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityContext;
-import ibis.constellation.ActivityIdentifier;
+import ibis.constellation.CTimer;
+import ibis.constellation.Concluder;
+import ibis.constellation.Constellation;
 import ibis.constellation.Event;
 import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealPool;
@@ -57,6 +59,83 @@ public class MultiThreadedConstellation {
 
     private final Stats stats;
 
+    private final Facade facade = new Facade();
+
+    private class Facade implements Constellation {
+
+        /* Following methods implement the Constellation interface */
+
+        @Override
+        public ibis.constellation.ActivityIdentifier submit(Activity a) {
+            return performSubmit(a);
+        }
+
+        @Override
+        public void send(Event e) {
+
+            if (!e.target.expectsEvents()) {
+                throw new IllegalArgumentException("Target activity " + e.target
+                        + "  does not expect an event!");
+            }
+
+            // An external application wishes to send an event to 'e.target'.
+            performSend(e);
+        }
+        //
+        // @Override
+        // public void cancel(ActivityIdentifier aid) {
+        // // ignored!
+        // }
+
+        @Override
+        public boolean activate() {
+            return MultiThreadedConstellation.this.activate();
+        }
+
+        @Override
+        public void done() {
+            if (logger.isInfoEnabled()) {
+                logger.info("Calling performDone");
+            }
+            MultiThreadedConstellation.this.done();
+        }
+
+        @Override
+        public void done(Concluder concluder) {
+            if (logger.isInfoEnabled()) {
+                logger.info("Calling performDone");
+            }
+            MultiThreadedConstellation.this.done(concluder);
+        }
+
+        @Override
+        public boolean isMaster() {
+            return parent == null;
+        }
+
+        @Override
+        public String identifier() {
+            return identifier.toString();
+        }
+
+        @Override
+        public CTimer getTimer(String standardDevice, String standardThread,
+                String standardAction) {
+            return stats.getTimer(standardDevice, standardThread,
+                    standardAction);
+        }
+
+        @Override
+        public CTimer getTimer() {
+            return stats.getTimer();
+        }
+
+        @Override
+        public CTimer getOverallTimer() {
+            return stats.getTimer("java", "main", "overall");
+        }
+    }
+
     public MultiThreadedConstellation(Properties p) {
         this(null, p);
     }
@@ -90,8 +169,12 @@ public class MultiThreadedConstellation {
             logger.info("Starting MultiThreadedConstellation " + identifier);
         }
 
-        parent.register(this);
-        stats = parent.getStats();
+        if (parent != null) {
+            parent.register(this);
+            stats = parent.getStats();
+        } else {
+            stats = new Stats(identifier.toString());
+        }
     }
 
     public Stats getStats() {
@@ -100,7 +183,8 @@ public class MultiThreadedConstellation {
 
     int next = 0;
 
-    synchronized ActivityIdentifier performSubmit(Activity a) {
+    synchronized ibis.constellation.ActivityIdentifier performSubmit(
+            Activity a) {
 
         ActivityContext c = a.getContext();
         for (int i = 0; i < workerCount; i++) {
@@ -124,7 +208,7 @@ public class MultiThreadedConstellation {
         // Since we don't known where the target activity is located, we simply
         // send the message to it's parent constellation (which may be local).
         handleEventMessage(new EventMessage(identifier,
-                (ConstellationIdentifier) e.target.getOrigin(), e));
+                ((ActivityIdentifier) e.target).getOrigin(), e));
     }
 
     void performCancel(ActivityIdentifier aid) {
@@ -417,6 +501,24 @@ public class MultiThreadedConstellation {
         }
     }
 
+    public void done(Concluder concluder) {
+
+        logger.info("done");
+
+        if (active) {
+            for (SingleThreadedConstellation u : workers) {
+                u.performDone();
+            }
+        } else {
+            for (SingleThreadedConstellation u : incomingWorkers) {
+                u.performDone();
+            }
+        }
+        if (concluder != null) {
+            concluder.conclude();
+        }
+    }
+
     void deliverStealRequest(StealRequest sr) {
         // steal request delivered by our parent.
 
@@ -544,5 +646,10 @@ public class MultiThreadedConstellation {
             // it has been exported
             parent.handleApplicationMessage(am, true);
         }
+    }
+
+    public Constellation getConstellation() {
+        return facade;
+
     }
 }

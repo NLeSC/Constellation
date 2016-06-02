@@ -2,9 +2,6 @@ package ibis.constellation;
 
 import java.io.Serializable;
 
-import ibis.constellation.Activity;
-import ibis.constellation.ConstellationIdentifier;
-
 /**
  * An <code>ActivityIdentifier</code> uniquely identifies an {@link Activity}
  * instance.
@@ -21,11 +18,4 @@ public abstract class ActivityIdentifier implements Serializable {
      * @return whether this activity expects events.
      */
     public abstract boolean expectsEvents();
-
-    /**
-     * Returns the constellation identifier that created this activity.
-     *
-     * @return the constellation identifier.
-     */
-    public abstract ConstellationIdentifier getOrigin();
 }
