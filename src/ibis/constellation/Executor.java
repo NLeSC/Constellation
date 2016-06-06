@@ -173,7 +173,7 @@ public abstract class Executor implements Serializable {
     }
 
     /**
-     * Submits an activity to the current executor. TODO: exceptions?
+     * Submits an activity to the current executor.
      *
      * @param job
      *            the activity to submit

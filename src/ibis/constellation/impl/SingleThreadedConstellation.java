@@ -159,8 +159,8 @@ public class SingleThreadedConstellation extends Thread {
             try {
                 out = new PrintStream(new BufferedOutputStream(
                         new FileOutputStream(filename)));
-            } catch (Exception e) {
-                logger.error("Failed to open output file " + outfile);
+            } catch (Throwable e) {
+                logger.error("Failed to open output file " + filename);
                 out = System.out;
             }
 
