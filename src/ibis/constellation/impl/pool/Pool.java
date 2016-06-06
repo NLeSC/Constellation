@@ -81,6 +81,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             IbisCapabilities.MEMBERSHIP_TOTALLY_ORDERED);
 
     private final ReceivePort rp;
+    private final ReceivePort rports[];
 
     private final ConcurrentHashMap<IbisIdentifier, SendPort> sendports = new ConcurrentHashMap<IbisIdentifier, SendPort>();
 
@@ -304,6 +305,21 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             updater.start();
             if (closedPool) {
                 ibis.registry().waitUntilPoolClosed();
+                IbisIdentifier[] ids = ibis.registry().joinedIbises();
+                rports = new ReceivePort[ids.length];
+                for (int i = 0; i < rports.length; i++) {
+                    if (!ids[i].equals(ibis.identifier())) {
+                        try {
+                            rports[i] = ibis.createReceivePort(portType,
+                                    "constellation_" + ids[i].name(), this);
+                            rports[i].enableConnections();
+                        } catch (Throwable e) {
+                            logger.warn("Could not create port", e);
+                        }
+                    }
+                }
+            } else {
+                rports = null;
             }
 
             stats = new Stats(getId());
@@ -334,17 +350,9 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         rp.enableMessageUpcalls();
         if (closedPool) {
             IbisIdentifier[] ids = ibis.registry().joinedIbises();
-            ReceivePort[] ports = new ReceivePort[ids.length];
-            for (int i = 0; i < ports.length; i++) {
-                if (!ids[i].equals(ibis.identifier())) {
-                    try {
-                        ports[i] = ibis.createReceivePort(portType,
-                                "constellation_" + ids[i].name(), this);
-                        ports[i].enableConnections();
-                        ports[i].enableMessageUpcalls();
-                    } catch (Throwable e) {
-                        logger.warn("Could not create port", e);
-                    }
+            for (int i = 0; i < rports.length; i++) {
+                if (rports[i] != null) {
+                    rports[i].enableMessageUpcalls();
                 }
             }
             if (isMaster()) {
@@ -567,31 +575,65 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         updater.done();
 
         // Try to cleanly disconnect all send and receive ports....
+        if (logger.isInfoEnabled()) {
+            logger.info("disabling receive port");
+        }
         try {
             rp.disableConnections();
             rp.disableMessageUpcalls();
         } catch (Exception e) {
-            e.printStackTrace();
+            if (logger.isInfoEnabled()) {
+                logger.info("Clean receive port got execption", e);
+            }
         }
 
+        if (logger.isInfoEnabled()) {
+            logger.info("Closing send ports");
+        }
         for (SendPort sp : sendports.values()) {
             try {
                 sp.close();
             } catch (Exception e) {
-                e.printStackTrace();
+                if (logger.isInfoEnabled()) {
+                    logger.info("Close sendport got execption", e);
+                }
             }
         }
 
+        if (logger.isInfoEnabled()) {
+            logger.info("Closing receive ports");
+        }
         try {
             rp.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            if (logger.isInfoEnabled()) {
+                logger.info("Close receive port got execption", e);
+            }
+        }
+        if (rports != null) {
+            for (int i = 0; i < rports.length; i++) {
+                if (rports[i] != null) {
+                    try {
+                        rports[i].close();
+                    } catch (IOException e) {
+                        if (logger.isInfoEnabled()) {
+                            logger.info("Close receive port " + rports[i].name()
+                                    + " got execption", e);
+                        }
+                    }
+                }
+            }
         }
 
+        if (logger.isInfoEnabled()) {
+            logger.info("Ending ibis");
+        }
         try {
             ibis.end();
         } catch (IOException e) {
-            e.printStackTrace();
+            if (logger.isInfoEnabled()) {
+                logger.info("ibis.end() got execption", e);
+            }
         }
     }
 
@@ -772,8 +814,13 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     public void upcall(ReadMessage rm)
             throws IOException, ClassNotFoundException {
 
+        IbisIdentifier source = rm.origin().ibisIdentifier();
         int timerEvent = -1;
         byte opcode = rm.readByte();
+
+        if (logger.isInfoEnabled()) {
+            logger.info(getString(opcode, "Got") + " from " + source.name());
+        }
 
         if (opcode == OPCODE_STEAL_REPLY || opcode == OPCODE_EVENT_MESSAGE) {
             timerEvent = communicationTimer.start(getString(opcode, "read"));
@@ -791,7 +838,6 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         }
 
         long sz = -1;
-        IbisIdentifier source = rm.origin().ibisIdentifier();
         Object data = null;
         try {
             data = rm.readObject();
@@ -1118,7 +1164,6 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
         } catch (IOException e) {
             logger.warn("Failed to register pool " + tag, e);
-            e.printStackTrace(System.err);
         }
     }
 
