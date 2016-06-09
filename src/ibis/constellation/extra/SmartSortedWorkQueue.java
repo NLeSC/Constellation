@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import ibis.constellation.ActivityContext;
 import ibis.constellation.ActivityIdentifier;
-import ibis.constellation.Event;
 import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.context.OrActivityContext;
@@ -42,39 +41,8 @@ public class SmartSortedWorkQueue extends WorkQueue {
     }
 
     @Override
-    public int size() {
+    public synchronized int size() {
         return size;
-    }
-
-    private ActivityRecord getUnit(String name, boolean head) {
-
-        SortedList tmp = unit.get(name);
-
-        if (tmp == null) {
-            return null;
-        }
-
-        assert tmp.size() > 0;
-
-        ActivityRecord a;
-
-        if (head) {
-            a = tmp.removeHead();
-        } else {
-            a = tmp.removeTail();
-        }
-
-        assert a != null;
-
-        if (tmp.size() == 0) {
-            unit.remove(name);
-        }
-
-        size--;
-
-        ids.remove(a.identifier());
-
-        return a;
     }
 
     private ActivityRecord getUnit(UnitExecutorContext c, StealStrategy s) {
@@ -118,55 +86,6 @@ public class SmartSortedWorkQueue extends WorkQueue {
         return a;
     }
 
-    private ActivityRecord getOr(String name, boolean head) {
-
-        SortedList tmp = or.get(name);
-
-        if (tmp == null) {
-            return null;
-        }
-
-        assert tmp.size() > 0;
-
-        ActivityRecord a = null;
-
-        if (head) {
-            a = tmp.removeHead();
-        } else {
-            a = tmp.removeTail();
-        }
-
-        if (tmp.size() == 0) {
-            or.remove(name);
-        }
-
-        assert a != null;
-
-        // Remove entry for this ActivityRecord from all lists....
-        UnitActivityContext[] all = ((OrActivityContext) a.activity
-                .getContext()).getContexts();
-
-        for (int i = 0; i < all.length; i++) {
-
-            // Remove this activity from all entries in the 'or' table
-            tmp = or.get(all[i].name);
-
-            if (tmp != null) {
-                tmp.removeByReference(a);
-
-                if (tmp.size() == 0) {
-                    or.remove(all[i].name);
-                }
-            }
-        }
-
-        size--;
-
-        ids.remove(a.identifier());
-
-        return a;
-    }
-
     private ActivityRecord getOr(UnitExecutorContext c, StealStrategy s) {
 
         SortedList tmp = or.get(c.name);
@@ -175,10 +94,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
             return null;
         }
 
-        if (tmp.size() == 0) {
-            log.error("(getOr2): or.get returned null unexpectedly!");
-            return null;
-        }
+        assert (tmp.size() > 0);
 
         ActivityRecord a = null;
 
@@ -230,24 +146,6 @@ public class SmartSortedWorkQueue extends WorkQueue {
         return a;
     }
 
-    @Override
-    public ActivityRecord dequeue(boolean head) {
-
-        if (size == 0) {
-            return null;
-        }
-
-        if (unit.size() > 0) {
-            return getUnit(unit.keySet().iterator().next(), head);
-        }
-
-        if (or.size() > 0) {
-            return getOr(or.keySet().iterator().next(), head);
-        }
-
-        return null;
-    }
-
     private void enqueueUnit(UnitActivityContext c, ActivityRecord a) {
 
         SortedList tmp = unit.get(c.name);
@@ -283,7 +181,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
     }
 
     @Override
-    public void enqueue(ActivityRecord a) {
+    public synchronized void enqueue(ActivityRecord a) {
 
         ActivityContext c = a.activity.getContext();
 
@@ -292,16 +190,13 @@ public class SmartSortedWorkQueue extends WorkQueue {
             return;
         }
 
-        if (c.isOr()) {
-            enqueueOr((OrActivityContext) c, a);
-            return;
-        }
-
-        log.error(id + "EEP: ran into unknown Context Type ! " + c);
+        assert (c.isOr());
+        enqueueOr((OrActivityContext) c, a);
     }
 
     @Override
-    public ActivityRecord steal(ExecutorContext c, StealStrategy s) {
+    public synchronized ActivityRecord steal(ExecutorContext c,
+            StealStrategy s) {
 
         if (c.isUnit()) {
 
@@ -316,51 +211,27 @@ public class SmartSortedWorkQueue extends WorkQueue {
             return a;
         }
 
-        if (c.isOr()) {
+        assert (c.isOr());
 
-            OrExecutorContext o = (OrExecutorContext) c;
+        OrExecutorContext o = (OrExecutorContext) c;
 
-            for (int i = 0; i < o.size(); i++) {
+        for (int i = 0; i < o.size(); i++) {
 
-                UnitExecutorContext ctx = o.get(i);
+            UnitExecutorContext ctx = o.get(i);
 
-                ActivityRecord a = getUnit(ctx, s);
+            ActivityRecord a = getUnit(ctx, s);
 
-                if (a != null) {
-                    return a;
-                }
+            if (a != null) {
+                return a;
+            }
 
-                a = getOr(ctx, s);
+            a = getOr(ctx, s);
 
-                if (a != null) {
-                    return a;
-                }
+            if (a != null) {
+                return a;
             }
         }
 
         return null;
-    }
-
-    @Override
-    public boolean contains(ActivityIdentifier id) {
-        return ids.containsKey(id);
-    }
-
-    @Override
-    public ActivityRecord lookup(ActivityIdentifier id) {
-        return ids.get(id);
-    }
-
-    @Override
-    public boolean deliver(ActivityIdentifier id, Event e) {
-
-        ActivityRecord ar = ids.get(id);
-
-        if (ar != null) {
-            ar.enqueue(e);
-            return true;
-        }
-
-        return false;
     }
 }

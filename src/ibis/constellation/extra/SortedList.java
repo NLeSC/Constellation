@@ -1,9 +1,9 @@
 package ibis.constellation.extra;
 
-import ibis.constellation.impl.ActivityRecord;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ibis.constellation.impl.ActivityRecord;
 
 public class SortedList {
 
@@ -34,7 +34,7 @@ public class SortedList {
         size = 0;
     }
 
-    public synchronized void insert(ActivityRecord a, long rank) {
+    public void insert(ActivityRecord a, long rank) {
 
         Node n = new Node(a, rank);
 
@@ -109,7 +109,7 @@ public class SortedList {
         size++;
     }
 
-    public synchronized ActivityRecord removeHead() {
+    public ActivityRecord removeHead() {
 
         if (size == 0) {
             return null;
@@ -130,7 +130,7 @@ public class SortedList {
         return tmp;
     }
 
-    public synchronized ActivityRecord removeTail() {
+    public ActivityRecord removeTail() {
 
         if (size == 0) {
             return null;
@@ -151,11 +151,11 @@ public class SortedList {
         return tmp;
     }
 
-    public synchronized int size() {
+    public int size() {
         return size;
     }
 
-    public synchronized boolean removeByReference(ActivityRecord o) {
+    public boolean removeByReference(ActivityRecord o) {
 
         Node current = head;
 
@@ -198,7 +198,7 @@ public class SortedList {
         return false;
     }
 
-    public synchronized ActivityRecord removeOneInRange(long start, long end) {
+    public ActivityRecord removeOneInRange(long start, long end) {
 
         Node current = head;
 
@@ -240,74 +240,4 @@ public class SortedList {
         return current.data;
     }
 
-    public synchronized ActivityRecord[] removeSetInRange(long start, long end,
-            int count) {
-
-        // NOTE: this selects the smallest part of the range, which is not what
-        // we want ?
-        if (size == 0) {
-            return null;
-        }
-
-        Node s = head;
-
-        while (s != null && s.rank < start) {
-            s = s.next;
-        }
-
-        if (s == null || s.rank > end) {
-            return null;
-        }
-
-        Node e = s;
-        int len = 1;
-
-        while (e != tail && e.next.rank <= end && len < count) {
-            len++;
-            e = e.next;
-        }
-
-        // We now have a sublist of length 'len' from 's' (inclusive) to 'e'
-        // (inclusive)
-        ActivityRecord[] result = new ActivityRecord[len];
-
-        if (len == size) {
-            // The entire list is selected
-            for (int i = 0; i < len; i++) {
-                result[i++] = head.data;
-                head = head.next;
-            }
-
-            head = tail = null;
-            size = 0;
-            return result;
-        }
-
-        // Only part is selected. Unlink first
-        if (s == head) {
-            // The head part of the list is selected
-            head = e.next;
-            head.prev = null;
-        } else if (e == tail) {
-            // The tail part of the list is selected
-            tail = s.prev;
-            tail.next = null;
-        } else {
-            // Arbitrary center section is selected
-            s.prev.next = e.next;
-            e.next.prev = s.prev;
-        }
-
-        s.prev = null;
-        e.next = null;
-        size -= len;
-
-        // Next copy the data
-        for (int i = 0; i < len; i++) {
-            result[i++] = s.data;
-            s = s.next;
-        }
-
-        return result;
-    }
 }

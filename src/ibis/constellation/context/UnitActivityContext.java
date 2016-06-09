@@ -1,5 +1,8 @@
 package ibis.constellation.context;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ibis.constellation.ActivityContext;
 import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealStrategy;
@@ -7,6 +10,9 @@ import ibis.constellation.StealStrategy;
 public class UnitActivityContext extends ActivityContext {
 
     private static final long serialVersionUID = 6134114690113562356L;
+
+    private static final Logger log = LoggerFactory
+            .getLogger(UnitActivityContext.class);
 
     public static final long DEFAULT_RANK = 0;
 
@@ -78,6 +84,9 @@ public class UnitActivityContext extends ActivityContext {
 
         if (!name.equals(offer.name)) {
             return false;
+        }
+        if (log.isInfoEnabled()) {
+            log.info("Matching context string: " + name);
         }
 
         switch (s.strategy) {
