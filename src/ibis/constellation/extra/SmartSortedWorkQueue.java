@@ -53,6 +53,10 @@ public class SmartSortedWorkQueue extends WorkQueue {
             return null;
         }
 
+        if (log.isInfoEnabled()) {
+            log.info("Matching context string: " + c.name);
+        }
+
         assert tmp.size() > 0;
 
         ActivityRecord a = null;
@@ -92,6 +96,10 @@ public class SmartSortedWorkQueue extends WorkQueue {
 
         if (tmp == null) {
             return null;
+        }
+
+        if (log.isInfoEnabled()) {
+            log.info("Matching context string: " + c.name);
         }
 
         assert (tmp.size() > 0);
