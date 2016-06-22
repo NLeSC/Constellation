@@ -400,13 +400,15 @@ public class ExecutorWrapper implements Constellation {
         tmp.activity.setExecutor(executor);
         current = tmp;
 
-        if (PROFILE) {
+        boolean finishing = tmp.isFinishing();
+
+        if (PROFILE && !finishing) {
             evt = computationTimer.start();
         }
 
         tmp.run();
 
-        if (PROFILE) {
+        if (PROFILE && !finishing) {
             computationTimer.stop(evt);
         }
 

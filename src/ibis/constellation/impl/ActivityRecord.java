@@ -73,6 +73,10 @@ public class ActivityRecord implements Serializable, ObjectData {
         return (state == RUNNABLE);
     }
 
+    boolean isFinishing() {
+        return state == FINISHING;
+    }
+
     public boolean isStolen() {
         return stolen;
     }

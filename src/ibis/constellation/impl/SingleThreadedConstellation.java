@@ -119,6 +119,8 @@ public class SingleThreadedConstellation extends Thread {
 
     private volatile boolean havePendingRequests = false;
 
+    private boolean seenDone = false;
+
     SingleThreadedConstellation(Executor executor, Properties p) {
         this(null, executor, p);
     }
@@ -342,6 +344,13 @@ public class SingleThreadedConstellation extends Thread {
         done = true;
         havePendingRequests = true;
         notifyAll();
+        while (!seenDone) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                // ignore
+            }
+        }
     }
 
     private ActivityRecord[] trim(ActivityRecord[] a, int count) {
@@ -721,7 +730,12 @@ public class SingleThreadedConstellation extends Thread {
     }
 
     private synchronized boolean getDone() {
-        return done;
+        if (done) {
+            seenDone = true;
+            notifyAll();
+            return true;
+        }
+        return false;
     }
 
     private void swapEventQueues() {
