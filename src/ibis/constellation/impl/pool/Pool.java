@@ -1265,6 +1265,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             return readOrWrite + " steal request";
         case OPCODE_STEAL_REPLY:
             return readOrWrite + " steal reply";
+        case OPCODE_STATISTICS:
+            return readOrWrite + " statistics";
         default:
             return readOrWrite + " other";
         }

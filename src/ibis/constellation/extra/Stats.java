@@ -106,14 +106,21 @@ public class Stats implements java.io.Serializable {
     }
 
     private void write(CTimer timer, String fileName, boolean perThread) {
-        PrintStream ps = null;
+        PrintStream ps = System.out;
         try {
-            ps = new PrintStream(fileName);
+            if (fileName != null) {
+                ps = new PrintStream(fileName);
+            } else {
+                ps.println("PLOT DATA");
+            }
             ps.print(timer.gnuPlotData(perThread));
+            if (fileName == null) {
+                ps.println("END PLOT DATA");
+            }
         } catch (FileNotFoundException e) {
             System.out.println(e);
         } finally {
-            if (ps != null) {
+            if (fileName != null && ps != null) {
                 ps.close();
             }
         }
@@ -122,8 +129,9 @@ public class Stats implements java.io.Serializable {
     private void printPlotData() {
         CTimer temp = getTotalMCTimer();
         temp.filterOverall();
-        write(temp, "gantt.data", false);
-        write(temp, "gantt-thread.data", true);
+        // write(temp, "gantt.data", false);
+        // write(temp, "gantt-thread.data", true);
+        write(temp, null, true);
     }
 
     void print(PrintStream stream, String kind, CTimer t) {

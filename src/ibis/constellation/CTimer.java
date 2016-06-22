@@ -401,6 +401,20 @@ public class CTimer implements java.io.Serializable {
      * imprecision in synchronizing between nodes.
      */
     public void filterOverall() {
+
+        ArrayList<TimerEvent> filtered = new ArrayList<TimerEvent>();
+
+        for (TimerEvent event : events) {
+            if (event.getStart() >= 0 && event.getEnd() > event.getStart()) {
+                filtered.add(event);
+            } else {
+                System.out.println("Filtered out event: " + event);
+            }
+
+        }
+
+        this.events = filtered;
+
         TimerEvent overallEvent = getOverallEvent();
         if (overallEvent == null)
             return;
@@ -413,7 +427,7 @@ public class CTimer implements java.io.Serializable {
 
         normalize(startFilter);
 
-        ArrayList<TimerEvent> filtered = new ArrayList<TimerEvent>();
+        filtered = new ArrayList<TimerEvent>();
 
         for (TimerEvent event : events) {
             if (event.getStart() >= 0 && event.getEnd() < endFilter) {

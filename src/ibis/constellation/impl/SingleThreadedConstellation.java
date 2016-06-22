@@ -549,6 +549,7 @@ public class SingleThreadedConstellation extends Thread {
                     } else {
                         stolen.enqueue(a);
                     }
+                    signal();
                 }
             }
         }
@@ -886,24 +887,23 @@ public class SingleThreadedConstellation extends Thread {
 
         if (pauseTime > 0) {
 
-            boolean wake = havePendingRequests;
+            synchronized (this) {
+                boolean wake = havePendingRequests;
 
-            while (!wake) {
+                while (!wake) {
 
-                try {
-                    long tmp = System.currentTimeMillis();
-                    Thread.sleep(pauseTime);
+                    try {
+                        wait(pauseTime);
+                    } catch (Throwable e) {
+                        // ignored
+                    }
 
-                    tmp = System.currentTimeMillis() - tmp;
-                } catch (Exception e) {
-                    // ignored
-                }
+                    wake = havePendingRequests;
 
-                wake = havePendingRequests;
-
-                if (!wake) {
-                    pauseTime = deadline - System.currentTimeMillis();
-                    wake = (pauseTime <= 0);
+                    if (!wake) {
+                        pauseTime = deadline - System.currentTimeMillis();
+                        wake = (pauseTime <= 0);
+                    }
                 }
             }
         }
@@ -917,6 +917,8 @@ public class SingleThreadedConstellation extends Thread {
 
             long now = System.currentTimeMillis();
 
+            logger.info(
+                    "nextStealDeadline - now = " + (nextStealDeadline - now));
             if (now >= nextStealDeadline) {
                 nextStealDeadline = now + stealDelay;
                 return 0;
@@ -930,6 +932,7 @@ public class SingleThreadedConstellation extends Thread {
 
     private void resetStealDeadline() {
         if (THROTTLE_STEALS) {
+            logger.info("Resetting steal deadline");
             nextStealDeadline = 0;
         }
     }

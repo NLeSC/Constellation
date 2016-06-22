@@ -25,7 +25,7 @@ public class ExecutorWrapper implements Constellation {
 
     static final Logger logger = LoggerFactory.getLogger(ExecutorWrapper.class);
 
-    private static final boolean PROFILE = false;
+    private final boolean PROFILE;
 
     int QUEUED_JOB_LIMIT = 1000000;
 
@@ -82,6 +82,9 @@ public class ExecutorWrapper implements Constellation {
 
         QUEUED_JOB_LIMIT = Integer.parseInt(p.getProperty(
                 "ibis.constellation.queue.limit", "" + QUEUED_JOB_LIMIT));
+
+        PROFILE = Boolean.parseBoolean(
+                p.getProperty("ibis.constellation.profile", "false"));
 
         if (logger.isInfoEnabled()) {
             logger.info("Executor set job limit to " + QUEUED_JOB_LIMIT);
@@ -247,7 +250,7 @@ public class ExecutorWrapper implements Constellation {
 
     @Override
     public void send(Event e) {
-        int evt;
+        int evt = 0;
 
         if (PROFILE) {
             evt = messagesTimer.start();
@@ -392,7 +395,7 @@ public class ExecutorWrapper implements Constellation {
     }
 
     private void process(ActivityRecord tmp) {
-        int evt;
+        int evt = 0;
 
         tmp.activity.setExecutor(executor);
         current = tmp;
