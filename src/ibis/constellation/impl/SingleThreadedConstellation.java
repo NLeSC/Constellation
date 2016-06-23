@@ -31,12 +31,8 @@ public class SingleThreadedConstellation extends Thread {
     static final Logger logger = LoggerFactory
             .getLogger(SingleThreadedConstellation.class);
 
-    private static final boolean PROFILE = false;
-    private static final boolean PROFILE_ACTIVE = false;
-    private static final boolean PROFILE_EVENTS = false;
-    private static final boolean PROFILE_STEALS = true;
-    private static final boolean THROTTLE_STEALS = true;
-    private static final int DEFAULT_STEAL_DELAY = 50;
+    private final boolean PROFILE_STEALS;
+    private static final int DEFAULT_STEAL_DELAY = 20;
     private static final boolean DEFAULT_IGNORE_EMPTY_STEAL_REPLIES = false;
 
     private final MultiThreadedConstellation parent;
@@ -112,8 +108,6 @@ public class SingleThreadedConstellation extends Thread {
 
     private final Stats stats;
     private final CTimer stealTimer;
-    private final CTimer eventTimer;
-    private final CTimer activeTimer;
 
     private final boolean ignoreEmptyStealReplies;
 
@@ -129,6 +123,9 @@ public class SingleThreadedConstellation extends Thread {
             Executor executor, Properties p) {
 
         super();
+
+        PROFILE_STEALS = Boolean.parseBoolean(
+                p.getProperty("ibis.constellation.profile", "false"));
 
         // this.thread = this;
         this.parent = parent;
@@ -224,9 +221,6 @@ public class SingleThreadedConstellation extends Thread {
         }
 
         stealTimer = stats.getTimer("java", identifier().toString(), "steal");
-        eventTimer = stats.getTimer("java", identifier().toString(),
-                "handleEvents");
-        activeTimer = stats.getTimer("java", identifier().toString(), "active");
 
         wrapper = new ExecutorWrapper(this, executor, p, identifier);
 
@@ -272,14 +266,14 @@ public class SingleThreadedConstellation extends Thread {
     }
 
     ibis.constellation.ActivityIdentifier performSubmit(Activity a) {
-
-        ActivityIdentifier id = createActivityID(a.expectsEvents());
-        a.initialize(id);
-
-        ActivityRecord ar = new ActivityRecord(a);
-        ActivityContext c = a.getContext();
-
-        return doSubmit(ar, c, id);
+        /*
+         * This method is called by MultiThreadedConstellation, in case the user
+         * calls submit() on a constellation instance. The
+         * MultiThreadedConstellation then picks a specific
+         * SingleThreadedConstellation, and the activity should be submitted to
+         * its wrapper, because this executor may not be able to steal.
+         */
+        return wrapper.submit(a);
     }
 
     ibis.constellation.ActivityIdentifier doSubmit(ActivityRecord ar,
@@ -927,7 +921,7 @@ public class SingleThreadedConstellation extends Thread {
 
     private long stealAllowed() {
 
-        if (THROTTLE_STEALS) {
+        if (stealDelay > 0) {
 
             long now = System.currentTimeMillis();
 
@@ -945,10 +939,8 @@ public class SingleThreadedConstellation extends Thread {
     }
 
     private void resetStealDeadline() {
-        if (THROTTLE_STEALS) {
-            logger.info("Resetting steal deadline");
-            nextStealDeadline = 0;
-        }
+        logger.info("Resetting steal deadline");
+        nextStealDeadline = 0;
     }
 
     synchronized void deliverWrongContext(ActivityRecord a) {
@@ -971,52 +963,20 @@ public class SingleThreadedConstellation extends Thread {
         }
     }
 
-    private long start;
-    private long idlestart;
-
     boolean processActivities() {
 
         if (havePendingRequests) {
-            int evnt = 0;
-            if (PROFILE_EVENTS) {
-                evnt = eventTimer.start();
-            }
             processEvents();
-            if (PROFILE_EVENTS) {
-                eventTimer.stop(evnt);
-            }
         }
 
-        int act = 0;
-        if (PROFILE_ACTIVE) {
-            act = activeTimer.start();
-        }
         // NOTE: one problem here is that we cannot tell if we did any work
         // or not. We would like to know, since this allows us to reset
         // several variables (e.g., sleepIndex)
 
-        int jobs = 0;
-
         boolean more = wrapper.process();
-
-        if (more) {
-            jobs++;
-        }
 
         while (more && !havePendingRequests) {
             more = wrapper.process();
-
-            if (more) {
-                jobs++;
-            }
-        }
-
-        if (PROFILE_ACTIVE) {
-            if (jobs > 0) {
-                activeTimer.stop(act);
-            } else {
-                activeTimer.cancel(act);
-            }
         }
 
         if (stealsFrom() == StealPool.NONE) {
@@ -1068,7 +1028,7 @@ public class SingleThreadedConstellation extends Thread {
                         }
 
                         if (more) {
-                            // ignore steal deadline when we are succesfull!
+                            // ignore steal deadline when we are successful!
                             resetStealDeadline();
                         }
                     }
@@ -1088,31 +1048,14 @@ public class SingleThreadedConstellation extends Thread {
     @Override
     public void run() {
 
-        start = System.currentTimeMillis();
-        idlestart = start;
+        long start = System.currentTimeMillis();
 
         wrapper.runExecutor();
 
-        long time = System.currentTimeMillis() - start;
-
-        printStatistics(time);
+        printStatistics(System.currentTimeMillis() - start);
     }
 
     public void printStatistics(long totalTime) {
-
-        long cpuTime = 0;
-        long userTime = 0;
-        double cpuPerc = 0.0;
-        double userPerc = 0.0;
-
-        long blocked = 0;
-        long blockedTime = 0;
-
-        long waited = 0;
-        long waitedTime = 0;
-
-        double blockedPerc = 0.0;
-        double waitedPerc = 0.0;
 
         final long messagesInternal = wrapper.getMessagesInternal();
         final long messagesExternal = wrapper.getMessagesExternal();
@@ -1130,86 +1073,65 @@ public class SingleThreadedConstellation extends Thread {
         final long stealSuccessIn = wrapper.getStealSuccess();
         final long stolen = wrapper.getStolen();
 
-        double eventTime = eventTimer.totalTimeVal() / 1000.0;
-        double activeTime = activeTimer.totalTimeVal() / 1000.0;
         double idleTime = stealTimer.totalTimeVal() / 1000.0;
 
-        final double eventPerc = (100.0 * eventTime) / totalTime;
-        final double activePerc = (100.0 * activeTime) / totalTime;
         final double idlePerc = (100.0 * idleTime) / totalTime;
         final double messPerc = (100.0 * messagesTime) / totalTime;
 
-        final double computationTime = wrapper.getComputationTimer()
-                .totalTimeVal() / 1000.0 - messagesTime;
-        final int activitiesInvoked = wrapper.getComputationTimer().nrTimes();
+        final double initializeTime = wrapper.getInitializeTimer()
+                .totalTimeVal() / 1000.0;
+        final int activitiesInvoked = wrapper.getInitializeTimer().nrTimes();
+        final double processTime = wrapper.getProcessTimer().totalTimeVal()
+                / 1000.0;
+        final double cleanupTime = wrapper.getCleanupTimer().totalTimeVal()
+                / 1000.0;
 
-        final double comp = (100.0 * computationTime) / totalTime;
         final double fact = ((double) activitiesInvoked)
                 / (activitiesSubmitted + activitiesAdded);
+        final double initializePerc = (100.0 * initializeTime) / totalTime;
+        final double processPerc = (100.0 * processTime) / totalTime;
+        final double cleanupPerc = (100.0 * cleanupTime) / totalTime;
 
         synchronized (out) {
 
             out.println(identifier + " statistics");
             out.println(" Time");
-            out.println("   total      : " + totalTime + " ms.");
-            if (PROFILE_ACTIVE) {
-                out.println("   active     : " + activeTime + " ms. ("
-                        + activePerc + " %)");
-            }
-            if (PROFILE_EVENTS) {
-                out.println("   command    : " + eventTime + " ms. ("
-                        + eventPerc + " %)");
+            out.println("   total        : " + totalTime + " ms.");
+            if (wrapper.PROFILE) {
+                out.println("   initialize   : " + initializeTime + " ms. ("
+                        + initializePerc + " %)");
+                out.println("     process    : " + processTime + " ms. ("
+                        + processPerc + " %)");
+                out.println("   cleanup      : " + cleanupTime + " ms. ("
+                        + cleanupPerc + " %)");
+                out.println("   message time : " + messagesTime + " ms. ("
+                        + messPerc + " %)");
             }
 
             if (PROFILE_STEALS) {
-                out.println("   idle count: " + stealTimer.nrTimes());
-                out.println("   idle time : " + idleTime + " ms. (" + idlePerc
-                        + " %)");
-            }
-
-            if (PROFILE) {
-                out.println("        run() : " + computationTime + " ms. ("
-                        + comp + " %)");
-
-                out.println("   mess time : " + messagesTime + " ms. ("
-                        + messPerc + " %)");
-
-                out.println("   cpu time   : " + cpuTime + " ms. (" + cpuPerc
-                        + " %)");
-
-                out.println("   user time  : " + userTime + " ms. (" + userPerc
-                        + " %)");
-
-                out.println("   blocked    : " + blocked + " times");
-
-                out.println("   block time : " + blockedTime + " ms. ("
-                        + blockedPerc + " %)");
-
-                out.println("   waited     : " + waited + " times");
-
-                out.println("   wait time  : " + waitedTime + " ms. ("
-                        + waitedPerc + " %)");
-
+                out.println("   idle count   : " + stealTimer.nrTimes());
+                out.println("   idle time    : " + idleTime + " ms. ("
+                        + idlePerc + " %)");
             }
 
             out.println(" Activities");
-            out.println("   submitted  : " + activitiesSubmitted);
-            out.println("   added      : " + activitiesAdded);
-            if (PROFILE) {
-                out.println("   invoked    : " + activitiesInvoked + " (" + fact
-                        + " /act)");
+            out.println("   submitted    : " + activitiesSubmitted);
+            out.println("   added        : " + activitiesAdded);
+            if (wrapper.PROFILE) {
+                out.println("   invoked      : " + activitiesInvoked + " ("
+                        + fact + " /act)");
             }
             out.println("  Wrong Context");
-            out.println("   submitted  : " + wrongContextSubmitted);
-            out.println("   added      : " + wrongContextAdded);
-            out.println("   discovered : " + wrongContextDiscovered);
+            out.println("   submitted    : " + wrongContextSubmitted);
+            out.println("   added        : " + wrongContextAdded);
+            out.println("   discovered   : " + wrongContextDiscovered);
             out.println(" Messages");
-            out.println("   internal   : " + messagesInternal);
-            out.println("   external   : " + messagesExternal);
+            out.println("   internal     : " + messagesInternal);
+            out.println("   external     : " + messagesExternal);
             out.println(" Steals");
-            out.println("   incoming   : " + steals);
-            out.println("   success    : " + stealSuccessIn);
-            out.println("   stolen     : " + stolen);
+            out.println("   incoming     : " + steals);
+            out.println("   success      : " + stealSuccessIn);
+            out.println("   stolen       : " + stolen);
         }
 
         out.flush();

@@ -25,7 +25,7 @@ public class ExecutorWrapper implements Constellation {
 
     static final Logger logger = LoggerFactory.getLogger(ExecutorWrapper.class);
 
-    private final boolean PROFILE;
+    final boolean PROFILE;
 
     int QUEUED_JOB_LIMIT = 1000000;
 
@@ -53,7 +53,9 @@ public class ExecutorWrapper implements Constellation {
 
     private ActivityIdentifierFactory generator;
 
-    private final CTimer computationTimer;
+    private final CTimer initializeTimer;
+    private final CTimer cleanupTimer;
+    private final CTimer processTimer;
 
     private long activitiesSubmitted;
     private long activitiesAdded;
@@ -103,8 +105,12 @@ public class ExecutorWrapper implements Constellation {
         remoteStealStrategy = executor.getRemoteStealStrategy();
         messagesTimer = parent.getTimer("java", parent.identifier().toString(),
                 "message sending");
-        computationTimer = parent.getTimer("java",
-                parent.identifier().toString(), "computation");
+        initializeTimer = parent.getTimer("java",
+                parent.identifier().toString(), "initialize");
+        cleanupTimer = parent.getTimer("java", parent.identifier().toString(),
+                "cleanup");
+        processTimer = parent.getTimer("java", parent.identifier().toString(),
+                "process");
 
     }
 
@@ -399,17 +405,17 @@ public class ExecutorWrapper implements Constellation {
 
         tmp.activity.setExecutor(executor);
         current = tmp;
+        CTimer timer = tmp.isFinishing() ? cleanupTimer
+                : tmp.isRunnable() ? processTimer : initializeTimer;
 
-        boolean finishing = tmp.isFinishing();
-
-        if (PROFILE && !finishing) {
-            evt = computationTimer.start();
+        if (PROFILE) {
+            evt = timer.start();
         }
 
         tmp.run();
 
-        if (PROFILE && !finishing) {
-            computationTimer.stop(evt);
+        if (PROFILE) {
+            timer.stop(evt);
         }
 
         if (tmp.needsToRun()) {
@@ -438,8 +444,16 @@ public class ExecutorWrapper implements Constellation {
         return false;
     }
 
-    CTimer getComputationTimer() {
-        return computationTimer;
+    CTimer getInitializeTimer() {
+        return initializeTimer;
+    }
+
+    CTimer getProcessTimer() {
+        return processTimer;
+    }
+
+    CTimer getCleanupTimer() {
+        return cleanupTimer;
     }
 
     long getActivitiesSubmitted() {
