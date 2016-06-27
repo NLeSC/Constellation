@@ -2,7 +2,6 @@ package ibis.constellation.impl;
 
 import java.io.PrintStream;
 import java.util.HashMap;
-import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +12,7 @@ import ibis.constellation.CTimer;
 import ibis.constellation.Concluder;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationCreationException;
+import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Event;
 import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealPool;
@@ -33,12 +33,12 @@ public class DistributedConstellation {
     private static final int STEAL_MASTER = 2;
     private static final int STEAL_NONE = 3;
 
-    private static boolean REMOTE_STEAL_THROTTLE = true;
+    private final boolean REMOTE_STEAL_THROTTLE;
 
     // FIXME setting this too low at startup causes load imbalance!
     // machines keep hammering the master for work, and (after a while)
     // get a flood of replies.
-    private static long REMOTE_STEAL_TIMEOUT = 1000;
+    private final long REMOTE_STEAL_TIMEOUT;
 
     private boolean active;
 
@@ -189,10 +189,10 @@ public class DistributedConstellation {
         }
     }
 
-    public DistributedConstellation(Properties p)
+    public DistributedConstellation(ConstellationProperties props)
             throws ConstellationCreationException {
 
-        String stealName = p.getProperty("ibis.constellation.stealing", "pool");
+        String stealName = props.STEALING;
 
         if (stealName.equalsIgnoreCase("mw")) {
             stealing = STEAL_MASTER;
@@ -206,37 +206,13 @@ public class DistributedConstellation {
                     "Unknown stealing strategy: " + stealName);
         }
 
-        String tmp = p.getProperty("ibis.constellation.remotesteal.throttle",
-                "false");
+        REMOTE_STEAL_THROTTLE = props.REMOTESTEAL_THROTTLE;
 
-        if (tmp.equalsIgnoreCase("true")) {
-            REMOTE_STEAL_THROTTLE = true;
-        } else if (tmp.equalsIgnoreCase("false")) {
-            REMOTE_STEAL_THROTTLE = false;
-        } else {
-            throw new IllegalArgumentException(
-                    "unrecognized value for \"ibis.constellation.remotesteal.throttle\": "
-                            + tmp);
-        }
-
-        tmp = p.getProperty("ibis.constellation.remotesteal.timeout");
-
-        if (tmp != null) {
-
-            try {
-                REMOTE_STEAL_TIMEOUT = Long.parseLong(tmp);
-            } catch (Exception e) {
-                logger.error("Failed to parse "
-                        + "ibis.constellation.remotesteal.timeout: " + tmp);
-                throw new IllegalArgumentException(
-                        "unrecognized value for \"ibis.constellation.remotesteal.timeout\": "
-                                + tmp);
-            }
-        }
+        REMOTE_STEAL_TIMEOUT = props.REMOTESTEAL_TIMEOUT;
 
         // Init communication here...
         try {
-            pool = new Pool(this, p);
+            pool = new Pool(this, props);
 
             cidFactory = pool.getCIDFactory();
             identifier = cidFactory.generateConstellationIdentifier();

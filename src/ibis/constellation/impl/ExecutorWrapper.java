@@ -1,7 +1,6 @@
 package ibis.constellation.impl;
 
 import java.util.HashMap;
-import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +10,7 @@ import ibis.constellation.ActivityContext;
 import ibis.constellation.CTimer;
 import ibis.constellation.Concluder;
 import ibis.constellation.Constellation;
+import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Event;
 import ibis.constellation.Executor;
 import ibis.constellation.ExecutorContext;
@@ -27,7 +27,7 @@ public class ExecutorWrapper implements Constellation {
 
     final boolean PROFILE;
 
-    int QUEUED_JOB_LIMIT = 1000000;
+    final int QUEUED_JOB_LIMIT;
 
     private final SingleThreadedConstellation parent;
 
@@ -76,17 +76,15 @@ public class ExecutorWrapper implements Constellation {
     private ActivityRecord current;
 
     ExecutorWrapper(SingleThreadedConstellation parent, Executor executor,
-            Properties p, ConstellationIdentifier identifier) {
+            ConstellationProperties p, ConstellationIdentifier identifier) {
         this.parent = parent;
         this.identifier = identifier;
         this.generator = parent.getActivityIdentifierFactory(identifier);
         this.executor = executor;
 
-        QUEUED_JOB_LIMIT = Integer.parseInt(p.getProperty(
-                "ibis.constellation.queue.limit", "" + QUEUED_JOB_LIMIT));
+        QUEUED_JOB_LIMIT = p.QUEUED_JOB_LIMIT;
 
-        PROFILE = Boolean.parseBoolean(
-                p.getProperty("ibis.constellation.profile", "false"));
+        PROFILE = p.PROFILE;
 
         if (logger.isInfoEnabled()) {
             logger.info("Executor set job limit to " + QUEUED_JOB_LIMIT);

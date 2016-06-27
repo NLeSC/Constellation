@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +13,7 @@ import ibis.constellation.Activity;
 import ibis.constellation.ActivityContext;
 import ibis.constellation.CTimer;
 import ibis.constellation.Constellation;
+import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Event;
 import ibis.constellation.Executor;
 import ibis.constellation.ExecutorContext;
@@ -32,8 +32,6 @@ public class SingleThreadedConstellation extends Thread {
             .getLogger(SingleThreadedConstellation.class);
 
     private final boolean PROFILE_STEALS;
-    private static final int DEFAULT_STEAL_DELAY = 20;
-    private static final boolean DEFAULT_IGNORE_EMPTY_STEAL_REPLIES = false;
 
     private final MultiThreadedConstellation parent;
 
@@ -115,17 +113,14 @@ public class SingleThreadedConstellation extends Thread {
 
     private boolean seenDone = false;
 
-    SingleThreadedConstellation(Executor executor, Properties p) {
+    SingleThreadedConstellation(Executor executor, ConstellationProperties p) {
         this(null, executor, p);
     }
 
     public SingleThreadedConstellation(MultiThreadedConstellation parent,
-            Executor executor, Properties p) {
+            Executor executor, ConstellationProperties props) {
 
-        super();
-
-        PROFILE_STEALS = Boolean.parseBoolean(
-                p.getProperty("ibis.constellation.profile", "false"));
+        PROFILE_STEALS = props.PROFILE;
 
         // this.thread = this;
         this.parent = parent;
@@ -150,7 +145,7 @@ public class SingleThreadedConstellation extends Thread {
 
         super.setName(identifier().toString());
 
-        String outfile = p.getProperty("ibis.constellation.outputfile");
+        String outfile = props.OUTPUT;
 
         if (outfile != null) {
             String filename = outfile + "." + identifier.getId();
@@ -171,42 +166,20 @@ public class SingleThreadedConstellation extends Thread {
             logger.info("Starting SingleThreadedConstellation: " + identifier);
         }
 
-        String tmp = p.getProperty("ibis.constellation.steal.delay");
-
-        if (tmp != null && tmp.length() > 0) {
-            stealDelay = Integer.parseInt(tmp);
-        } else {
-            stealDelay = DEFAULT_STEAL_DELAY;
-        }
+        stealDelay = props.STEAL_DELAY;
 
         if (logger.isInfoEnabled()) {
             logger.info("SingleThreaded: steal delay set to " + stealDelay
                     + " ms.");
         }
 
-        tmp = p.getProperty("ibis.constellation.stealsize");
-
-        if (tmp == null) {
-            tmp = p.getProperty("ibis.constellation.steal.size");
-        }
-
-        if (tmp != null && tmp.length() > 0) {
-            stealSize = Integer.parseInt(tmp);
-        } else {
-            stealSize = 1;
-        }
+        stealSize = props.STEAL_SIZE;
 
         if (logger.isInfoEnabled()) {
             logger.info("SingleThreaded: steal size set to " + stealSize);
         }
 
-        tmp = p.getProperty("ibis.constellation.steal.ignorereplies");
-
-        if (tmp != null && tmp.length() > 0) {
-            ignoreEmptyStealReplies = Boolean.parseBoolean(tmp);
-        } else {
-            ignoreEmptyStealReplies = DEFAULT_IGNORE_EMPTY_STEAL_REPLIES;
-        }
+        ignoreEmptyStealReplies = props.STEAL_IGNORE_EMPTY_REPLIES;
 
         if (logger.isInfoEnabled()) {
             logger.info("SingleThreaded: ignore empty steal replies set to "
@@ -222,7 +195,7 @@ public class SingleThreadedConstellation extends Thread {
 
         stealTimer = stats.getTimer("java", identifier().toString(), "steal");
 
-        wrapper = new ExecutorWrapper(this, executor, p, identifier);
+        wrapper = new ExecutorWrapper(this, executor, props, identifier);
 
         myPool = wrapper.belongsTo();
         stealPool = wrapper.stealsFrom();
@@ -925,8 +898,10 @@ public class SingleThreadedConstellation extends Thread {
 
             long now = System.currentTimeMillis();
 
-            logger.info(
-                    "nextStealDeadline - now = " + (nextStealDeadline - now));
+            if (logger.isDebugEnabled()) {
+                logger.debug("nextStealDeadline - now = "
+                        + (nextStealDeadline - now));
+            }
             if (now >= nextStealDeadline) {
                 nextStealDeadline = now + stealDelay;
                 return 0;
@@ -939,7 +914,7 @@ public class SingleThreadedConstellation extends Thread {
     }
 
     private void resetStealDeadline() {
-        logger.info("Resetting steal deadline");
+        logger.debug("Resetting steal deadline");
         nextStealDeadline = 0;
     }
 

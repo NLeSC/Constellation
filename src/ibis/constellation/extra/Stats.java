@@ -1,6 +1,5 @@
 package ibis.constellation.extra;
 
-import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,11 +45,8 @@ public class Stats implements java.io.Serializable {
         CTimer timer = getTotalMCTimer();
         timer.filterOverall();
         // System.out.println(timer.extensiveOutput());
-
-        printActions(stream, timer);
-
-        printDataTransfers(stream);
-
+        // printActions(stream, timer);
+        // printDataTransfers(stream);
         printPlotData();
     }
 
@@ -109,18 +105,22 @@ public class Stats implements java.io.Serializable {
         PrintStream ps = System.out;
         try {
             if (fileName != null) {
-                ps = new PrintStream(fileName);
+                try {
+                    ps = new PrintStream(fileName);
+                } catch (Throwable e) {
+                    System.err.println(e);
+                    ps.println("BEGIN PLOT DATA");
+                    fileName = null; // To prevent closing System.out
+                }
             } else {
-                ps.println("PLOT DATA");
+                ps.println("BEGIN PLOT DATA");
             }
             ps.print(timer.gnuPlotData(perThread));
             if (fileName == null) {
                 ps.println("END PLOT DATA");
             }
-        } catch (FileNotFoundException e) {
-            System.out.println(e);
         } finally {
-            if (fileName != null && ps != null) {
+            if (fileName != null) {
                 ps.close();
             }
         }

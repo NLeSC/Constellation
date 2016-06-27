@@ -3,7 +3,6 @@ package ibis.constellation.impl.pool;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -11,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ibis.constellation.CTimer;
+import ibis.constellation.ConstellationProperties;
 import ibis.constellation.ObjectData;
 import ibis.constellation.StealPool;
 import ibis.constellation.extra.Debug;
@@ -35,7 +35,6 @@ import ibis.ipl.Registry;
 import ibis.ipl.RegistryEventHandler;
 import ibis.ipl.SendPort;
 import ibis.ipl.WriteMessage;
-import ibis.util.TypedProperties;
 
 public class Pool implements RegistryEventHandler, MessageUpcall {
 
@@ -226,18 +225,17 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
     private int gotStats;
 
-    public Pool(final DistributedConstellation owner, final Properties p)
+    public Pool(final DistributedConstellation owner,
+            final ConstellationProperties properties)
             throws PoolCreationFailedException {
 
-        TypedProperties properties = new TypedProperties(p);
         this.owner = owner;
-        closedPool = properties.getBooleanProperty("ibis.constellation.closed",
-                false);
+        closedPool = properties.CLOSED;
 
         try {
             ibis = IbisFactory.createIbis(
                     closedPool ? closedIbisCapabilities : openIbisCapabilities,
-                    p, true, closedPool ? null : this, portType);
+                    properties, true, closedPool ? null : this, portType);
 
             local = ibis.identifier();
 
@@ -245,26 +243,19 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
                 ibis.registry().enableEvents();
             }
 
-            String tmp = properties.getProperty("ibis.constellation.master",
-                    "auto");
-
-            if (tmp.equalsIgnoreCase("auto") || tmp.equalsIgnoreCase("true")) {
+            boolean canBeMaster = properties.MASTER;
+            if (canBeMaster) {
                 // Elect a server
                 master = ibis.registry().elect("Constellation Master");
-            } else if (tmp.equalsIgnoreCase("false")) {
+            } else {
                 master = ibis.registry()
                         .getElectionResult("Constellation Master");
-            } else {
-                master = null;
-            }
-
-            if (master == null) {
-                throw new PoolCreationFailedException("Failed to find master!");
             }
 
             // We determine our rank here. This rank should only be used for
             // debugging purposes!
-            tmp = System.getProperty("ibis.constellation.rank");
+            String tmp = properties
+                    .getProperty(ConstellationProperties.S_PREFIX + "rank");
 
             if (tmp != null) {
                 try {

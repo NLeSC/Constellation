@@ -2,7 +2,6 @@ package ibis.constellation.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Properties;
 import java.util.Random;
 
 import org.slf4j.Logger;
@@ -13,6 +12,7 @@ import ibis.constellation.ActivityContext;
 import ibis.constellation.CTimer;
 import ibis.constellation.Concluder;
 import ibis.constellation.Constellation;
+import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Event;
 import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealPool;
@@ -136,12 +136,12 @@ public class MultiThreadedConstellation {
         }
     }
 
-    public MultiThreadedConstellation(Properties p) {
+    public MultiThreadedConstellation(ConstellationProperties p) {
         this(null, p);
     }
 
     public MultiThreadedConstellation(DistributedConstellation parent,
-            Properties p) {
+            ConstellationProperties properties) {
 
         this.parent = parent;
 
@@ -156,13 +156,7 @@ public class MultiThreadedConstellation {
         incomingWorkers = new ArrayList<SingleThreadedConstellation>();
         myContext = UnitExecutorContext.DEFAULT;
 
-        String tmp = p.getProperty("ibis.constellation.stealsize.local");
-
-        if (tmp != null && tmp.length() > 0) {
-            localStealSize = Integer.parseInt(tmp);
-        } else {
-            localStealSize = 1;
-        }
+        localStealSize = properties.STEAL_SIZE;
 
         if (logger.isInfoEnabled()) {
             logger.info("MultiThreaded: steal size set to " + localStealSize);

@@ -121,30 +121,20 @@ public class ConstellationFactory {
             throw new IllegalArgumentException("Need at least one executor!");
         }
 
-        String tmp = p.getProperty("ibis.constellation.distributed", "true");
+        ConstellationProperties props = new ConstellationProperties(p);
 
-        boolean needsDistributed;
-
-        if (tmp.equalsIgnoreCase("true")) {
-            needsDistributed = true;
-        } else if (tmp.equalsIgnoreCase("false")) {
-            needsDistributed = false;
-        } else {
-            throw new IllegalArgumentException(
-                    "unrecognized value for \"ibis.constellation.distributed\": "
-                            + tmp);
-        }
+        boolean needsDistributed = props.DISTRIBUTED;
 
         DistributedConstellation d = needsDistributed
-                ? new DistributedConstellation(p) : null;
+                ? new DistributedConstellation(props) : null;
 
         MultiThreadedConstellation m = (needsDistributed || e.length > 1)
-                ? new MultiThreadedConstellation(d, p) : null;
+                ? new MultiThreadedConstellation(d, props) : null;
 
         SingleThreadedConstellation s = null;
 
         for (int i = 0; i < e.length; i++) {
-            s = new SingleThreadedConstellation(m, e[i], p);
+            s = new SingleThreadedConstellation(m, e[i], props);
         }
 
         return d != null ? d.getConstellation()

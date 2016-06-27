@@ -1,0 +1,178 @@
+package ibis.constellation;
+
+import java.util.Properties;
+
+import ibis.util.TypedProperties;
+
+/**
+ * This class defines the properties that affect the behavior of constellation.
+ */
+public class ConstellationProperties extends TypedProperties {
+    /**
+     * All properties start with the prefix "ibis.constellation.".
+     */
+    public static final String S_PREFIX = "ibis.constellation.";
+
+    /**
+     * The "distributed" property is a boolean property instructing the
+     * {@link ConstellationFactory} whether to create a distributed
+     * constellation or not. The default is "true".
+     */
+    public static final String S_DISTRIBUTED = S_PREFIX + "distributed";
+
+    public final boolean DISTRIBUTED;
+
+    /**
+     * The "stealing" property is a string property defining the steal strategy
+     * to use. There are three: <br>
+     * "pool" indicates: steal from anyone <br>
+     * "mw" indicates: master-worker, so only steal from master <br>
+     * "none" indicates: don't steal at all. <br>
+     * The default value is: "pool".
+     */
+    public static final String S_STEALING = S_PREFIX + "stealing";
+
+    public final String STEALING;
+
+    private static final String S_REMOTESTEAL_PREFIX = S_PREFIX
+            + "remotesteal.";
+
+    private static final String S_STEAL_PREFIX = S_PREFIX + "steal.";
+
+    /**
+     * The "remotesteal.throttle" property is a boolean property indicating
+     * whether only one outstanding remote steal request per UnitExecutorContext
+     * is allowed. The default value is "false".
+     */
+    public static final String S_REMOTESTEAL_THROTTLE = S_REMOTESTEAL_PREFIX
+            + "throttle";
+
+    public final boolean REMOTESTEAL_THROTTLE;
+
+    /**
+     * The "remotesteal.timeout" property is an integer property indicating the
+     * timeout for remote steal requests, in milliseconds. The default is
+     * "1000".
+     */
+    public static final String S_REMOTESTEAL_TIMEOUT = S_REMOTESTEAL_PREFIX
+            + "timeout";
+
+    public final long REMOTESTEAL_TIMEOUT;
+
+    /**
+     * The "profile" property is a boolean property indicating whether
+     * constellation should provide some timing information. The default is
+     * "false".
+     */
+    public static final String S_PROFILE = S_PREFIX + "profile";
+
+    public final boolean PROFILE;
+
+    /**
+     * The "output" property is a string property indicating an output file to
+     * write statistics to. If not specified (default), <code>System.out</code>
+     * is used.
+     */
+    public static final String S_OUTPUT = S_PREFIX + "output";
+
+    public final String OUTPUT;
+
+    /**
+     * The "steal.delay" property is an integer property, specifying the minimum
+     * time interval between failed steal attempts, in milliseconds. The default
+     * is "20".
+     */
+    public static final String S_STEAL_DELAY = S_STEAL_PREFIX + "delay";
+
+    public final int STEAL_DELAY;
+
+    /**
+     * The "steal.size" property is an integer property, specifying how many
+     * activities to try and steal on each steal attempt, for local steals. The
+     * default is "1".
+     */
+    public static final String S_STEAL_SIZE = S_STEAL_PREFIX + "size";
+
+    /**
+     * The "remotesteal.size" property is an integer property, specifying how
+     * many activities to try and steal on each steal attempt, for remote
+     * steals. The default is "1".
+     */
+    public static final String S_REMOTESTEAL_SIZE = S_REMOTESTEAL_PREFIX
+            + "size";
+
+    /** Value of the "steal.size" property. */
+    public final int STEAL_SIZE;
+
+    /** Value of the "steal.size" property. */
+    public final int REMOTESTEAL_SIZE;
+
+    /**
+     * The "steal.ignoreEmptyReplies" property is a boolean property determining
+     * whether empty steal replies should be given or not. The default is
+     * "false".
+     */
+    public static final String S_STEAL_IGNORE_EMPTY_REPLIES = S_STEAL_PREFIX
+            + "ignoreEmptyReplies";
+
+    /** Value of the "steal.ignoreEmptyReplies" property. */
+    public final boolean STEAL_IGNORE_EMPTY_REPLIES;
+
+    /**
+     * The "closed" property is a boolean property indicating whether the
+     * current run is a closed run, that is, whether the total number of nodes
+     * involved is fixed. If true, the property "ibis.pool.size" should be set
+     * to the number of nodes.
+     */
+    public static final String S_CLOSED = S_PREFIX + "closed";
+
+    /** Value of the "closed" property. */
+    public final boolean CLOSED;
+
+    /**
+     * The "master" property is a boolean property indicating whether the
+     * current constellation instance is a candidate to be the master. At least
+     * one of the constellation instances should be. See
+     * {@link Constellation#isMaster()}. The default is "true". Note that only
+     * one constellation instance will actually become the master. For that
+     * instance, {@link Constellation#isMaster()} will return true, for the
+     * other instances it will return false.
+     */
+    public static final String S_MASTER = S_PREFIX + "master";
+
+    /** Value of the "master" property. */
+    public final boolean MASTER;
+
+    /**
+     * When an executor spawns new activities, these new activities are
+     * initially added to queues that are local to this executor. This makes
+     * them easily accessible for this executor, but not so easily accessible
+     * for other executors. The "queue.limit" property defines the maximum
+     * length of these local queues. When this limit is reached, new activities
+     * are pushed onto queues higher up in the system, making them more easily
+     * accessible for other executors. The default value is "100".
+     */
+    public static final String S_QUEUED_JOB_LIMIT = S_PREFIX + "queue.limit";
+
+    /** Value of the "queue.limit" property. */
+    public final int QUEUED_JOB_LIMIT;
+
+    public ConstellationProperties(Properties p) {
+        super(p);
+        MASTER = getBooleanProperty(S_MASTER, true);
+        CLOSED = getBooleanProperty(S_CLOSED, false);
+        DISTRIBUTED = getBooleanProperty(S_DISTRIBUTED, true);
+        PROFILE = getBooleanProperty(S_CLOSED, false);
+        OUTPUT = getProperty(S_OUTPUT);
+        REMOTESTEAL_THROTTLE = getBooleanProperty(S_REMOTESTEAL_THROTTLE,
+                false);
+        STEAL_DELAY = getIntProperty(S_STEAL_DELAY, 20);
+        STEAL_IGNORE_EMPTY_REPLIES = getBooleanProperty(
+                S_STEAL_IGNORE_EMPTY_REPLIES, false);
+        STEAL_SIZE = getIntProperty(S_STEAL_SIZE, 1);
+        REMOTESTEAL_SIZE = getIntProperty(S_REMOTESTEAL_SIZE, 1);
+        STEALING = getProperty(S_STEALING, "pool");
+        REMOTESTEAL_TIMEOUT = getLongProperty(S_REMOTESTEAL_TIMEOUT, 1000);
+        QUEUED_JOB_LIMIT = getIntProperty(S_QUEUED_JOB_LIMIT, 100);
+    }
+}
