@@ -162,7 +162,7 @@ public class ConstellationProperties extends TypedProperties {
         MASTER = getBooleanProperty(S_MASTER, true);
         CLOSED = getBooleanProperty(S_CLOSED, false);
         DISTRIBUTED = getBooleanProperty(S_DISTRIBUTED, true);
-        PROFILE = getBooleanProperty(S_CLOSED, false);
+        PROFILE = getBooleanProperty(S_PROFILE, false);
         OUTPUT = getProperty(S_OUTPUT);
         REMOTESTEAL_THROTTLE = getBooleanProperty(S_REMOTESTEAL_THROTTLE,
                 false);
