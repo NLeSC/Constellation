@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityContext;
-import ibis.constellation.CTimer;
 import ibis.constellation.Concluder;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationProperties;
@@ -16,8 +15,8 @@ import ibis.constellation.Executor;
 import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
+import ibis.constellation.extra.CTimer;
 import ibis.constellation.extra.CircularBuffer;
-import ibis.constellation.extra.Debug;
 import ibis.constellation.extra.SmartSortedWorkQueue;
 import ibis.constellation.extra.WorkQueue;
 
@@ -260,8 +259,8 @@ public class ExecutorWrapper implements Constellation {
             evt = messagesTimer.start();
         }
 
-        if (Debug.DEBUG_EVENTS) {
-            logger.info("SEND EVENT " + e.source + " to " + e.target);
+        if (logger.isDebugEnabled()) {
+            logger.debug("SEND EVENT " + e.source + " to " + e.target);
         }
 
         // First check if the activity is local.
@@ -347,8 +346,8 @@ public class ExecutorWrapper implements Constellation {
     private ActivityRecord doSteal(ExecutorContext context, StealStrategy s,
             boolean allowRestricted) {
 
-        if (Debug.DEBUG_STEAL) {
-            logger.info("STEAL BASE(" + identifier + "): activities F: "
+        if (logger.isTraceEnabled()) {
+            logger.trace("STEAL BASE(" + identifier + "): activities F: "
                     + fresh.size() + " W: " + /* wrongContext.size() + */" R: "
                     + runnable.size() + " L: " + lookup.size());
         }
@@ -367,8 +366,8 @@ public class ExecutorWrapper implements Constellation {
 
                 lookup.remove(r.identifier());
 
-                if (Debug.DEBUG_STEAL) {
-                    logger.info("STOLEN " + r.identifier());
+                if (logger.isTraceEnabled()) {
+                    logger.trace("STOLEN " + r.identifier());
                 }
 
                 return r;
@@ -388,8 +387,8 @@ public class ExecutorWrapper implements Constellation {
 
             lookup.remove(r.identifier());
 
-            if (Debug.DEBUG_STEAL) {
-                logger.info("STOLEN " + r.identifier());
+            if (logger.isDebugEnabled()) {
+                logger.debug("STOLEN " + r.identifier());
             }
 
             return r;
@@ -562,19 +561,17 @@ public class ExecutorWrapper implements Constellation {
     @Override
     public CTimer getTimer(String standardDevice, String standardThread,
             String standardAction) {
-        logger.error("not implemented: getTimer()");
-        throw new Error("Not implemented: getTimer()");
+        return parent.getStats().getTimer(standardDevice, standardThread,
+                standardAction);
     }
 
     @Override
     public CTimer getTimer() {
-        logger.error("not implemented: getTimer()");
-        throw new Error("Not implemented: getTimer()");
+        return parent.getStats().getTimer();
     }
 
     @Override
     public CTimer getOverallTimer() {
-        logger.error("not implemented: getOverallTimer()");
-        throw new Error("Not implemented: getOverallTimer()");
+        return parent.getStats().getOverallTimer();
     }
 }

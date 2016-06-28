@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
-import ibis.constellation.CTimer;
 import ibis.constellation.Concluder;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationCreationException;
@@ -18,8 +17,8 @@ import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealPool;
 import ibis.constellation.context.OrExecutorContext;
 import ibis.constellation.context.UnitExecutorContext;
+import ibis.constellation.extra.CTimer;
 import ibis.constellation.extra.ConstellationIdentifierFactory;
-import ibis.constellation.extra.Debug;
 import ibis.constellation.extra.Stats;
 import ibis.constellation.impl.pool.Pool;
 import ibis.constellation.impl.pool.PoolCreationFailedException;
@@ -185,7 +184,7 @@ public class DistributedConstellation {
 
         @Override
         public CTimer getOverallTimer() {
-            return stats.getTimer("java", "main", "overall");
+            return stats.getOverallTimer();
         }
     }
 
@@ -433,8 +432,8 @@ public class DistributedConstellation {
 
         if (stealing == STEAL_MASTER) {
             if (pool.forwardToMaster(sr)) {
-                if (Debug.DEBUG_STEAL && logger.isInfoEnabled()) {
-                    logger.info("D MASTER FORWARD steal request from child "
+                if (logger.isDebugEnabled()) {
+                    logger.debug("D MASTER FORWARD steal request from child "
                             + sr.source);
                 }
             } else {

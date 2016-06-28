@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityContext;
-import ibis.constellation.CTimer;
 import ibis.constellation.Concluder;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationProperties;
@@ -19,8 +18,8 @@ import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.context.OrExecutorContext;
 import ibis.constellation.context.UnitExecutorContext;
+import ibis.constellation.extra.CTimer;
 import ibis.constellation.extra.ConstellationIdentifierFactory;
-import ibis.constellation.extra.Debug;
 import ibis.constellation.extra.SimpleConstellationIdentifierFactory;
 import ibis.constellation.extra.Stats;
 
@@ -132,7 +131,7 @@ public class MultiThreadedConstellation {
 
         @Override
         public CTimer getOverallTimer() {
-            return stats.getTimer("java", "main", "overall");
+            return stats.getOverallTimer();
         }
     }
 
@@ -306,8 +305,8 @@ public class MultiThreadedConstellation {
         final ExecutorContext context = c.getContext();
         final StealPool pool = c.stealsFrom();
 
-        if (Debug.DEBUG_STEAL && logger.isInfoEnabled()) {
-            logger.info("M STEAL REQUEST from child " + c.identifier()
+        if (logger.isTraceEnabled()) {
+            logger.trace("M STEAL REQUEST from child " + c.identifier()
                     + " with context " + context + " to pool " + pool);
         }
 

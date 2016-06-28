@@ -9,11 +9,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ibis.constellation.CTimer;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.ObjectData;
 import ibis.constellation.StealPool;
-import ibis.constellation.extra.Debug;
+import ibis.constellation.extra.CTimer;
 import ibis.constellation.extra.Stats;
 import ibis.constellation.extra.TimeSyncInfo;
 import ibis.constellation.impl.ConstellationIdentifier;
@@ -714,8 +713,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
         ConstellationIdentifier target = m.target;
 
-        if (Debug.DEBUG_COMMUNICATION && logger.isInfoEnabled()) {
-            logger.info("POOL FORWARD Message from " + m.source + " to "
+        if (logger.isTraceEnabled()) {
+            logger.trace("POOL FORWARD Message from " + m.source + " to "
                     + m.target + " " + m);
         }
 
@@ -902,8 +901,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             StealRequest m = (StealRequest) data;
             registerRank(m.source, source);
 
-            if (Debug.DEBUG_COMMUNICATION || Debug.DEBUG_STEAL) {
-                logger.info("POOL RECEIVE StealRequest from " + m.source);
+            if (logger.isTraceEnabled()) {
+                logger.trace("POOL RECEIVE StealRequest from " + m.source);
             }
 
             m.setRemote();
@@ -915,8 +914,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             StealReply m = (StealReply) data;
             registerRank(m.source, source);
 
-            if (Debug.DEBUG_COMMUNICATION || Debug.DEBUG_STEAL) {
-                logger.info("POOL RECEIVE StealReply from " + m.source);
+            if (logger.isTraceEnabled()) {
+                logger.trace("POOL RECEIVE StealReply from " + m.source);
             }
 
             owner.deliverRemoteStealReply(m);
@@ -927,8 +926,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             EventMessage m = (EventMessage) data;
             registerRank(m.source, source);
 
-            if (Debug.DEBUG_COMMUNICATION || Debug.DEBUG_EVENTS) {
-                logger.info("POOL RECEIVE EventMessage from " + m.source);
+            if (logger.isTraceEnabled()) {
+                logger.trace("POOL RECEIVE EventMessage from " + m.source);
             }
 
             owner.deliverRemoteEvent(m);

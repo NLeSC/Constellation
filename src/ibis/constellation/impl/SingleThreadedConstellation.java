@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityContext;
-import ibis.constellation.CTimer;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Event;
@@ -20,8 +19,8 @@ import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.extra.ActivityLocationLookup;
+import ibis.constellation.extra.CTimer;
 import ibis.constellation.extra.CircularBuffer;
-import ibis.constellation.extra.Debug;
 import ibis.constellation.extra.SmartSortedWorkQueue;
 import ibis.constellation.extra.Stats;
 import ibis.constellation.extra.WorkQueue;
@@ -433,9 +432,9 @@ public class SingleThreadedConstellation extends Thread {
 
     void deliverStealRequest(StealRequest sr) {
         // steal request (possibly remote) to enqueue and handle later
-        if (Debug.DEBUG_STEAL && logger.isInfoEnabled()) {
-            logger.info("S REMOTE STEAL REQUEST from " + sr.source + " context "
-                    + sr.context);
+        if (logger.isTraceEnabled()) {
+            logger.trace("S REMOTE STEAL REQUEST from " + sr.source
+                    + " context " + sr.context);
         }
         postStealRequest(sr);
     }
@@ -654,11 +653,11 @@ public class SingleThreadedConstellation extends Thread {
 
         synchronized (incoming) {
 
-            if (Debug.DEBUG_STEAL && logger.isInfoEnabled()) {
+            if (logger.isTraceEnabled()) {
                 StealRequest tmp = incoming.stealRequests.get(s.source);
 
                 if (tmp != null) {
-                    logger.info("Steal request overtaken: " + s.source);
+                    logger.trace("Steal request overtaken: " + s.source);
                 }
             }
 
@@ -707,8 +706,8 @@ public class SingleThreadedConstellation extends Thread {
 
     private void swapEventQueues() {
 
-        if (Debug.DEBUG_SUBMIT && logger.isInfoEnabled()) {
-            logger.info("Processing events while idle!\n" + incoming.toString()
+        if (logger.isTraceEnabled()) {
+            logger.trace("Processing events while idle!\n" + incoming.toString()
                     + "\n" + processing.toString());
         }
 
@@ -841,14 +840,14 @@ public class SingleThreadedConstellation extends Thread {
                             s.source, s.pool, s.context, a));
                 } else {
                     // No result, and we're not supposed to tell anyone
-                    if (Debug.DEBUG_STEAL) {
-                        logger.info("IGNORING empty steal reply");
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("IGNORING empty steal reply");
                     }
                 }
 
             } else {
-                if (Debug.DEBUG_STEAL) {
-                    logger.info("DROPPING STALE STEAL REQUEST");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("DROPPING STALE STEAL REQUEST");
                 }
             }
         }
@@ -985,8 +984,8 @@ public class SingleThreadedConstellation extends Thread {
 
                 if (nextDeadline == 0) {
 
-                    if (Debug.DEBUG_STEAL && logger.isInfoEnabled()) {
-                        logger.info("GENERATING STEAL REQUEST at " + identifier
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("GENERATING STEAL REQUEST at " + identifier
                                 + " with context " + getContext());
                     }
 
@@ -1119,6 +1118,10 @@ public class SingleThreadedConstellation extends Thread {
 
     public Constellation getConstellation() {
         return wrapper;
+    }
+
+    Stats getStats() {
+        return stats;
     }
 
 }

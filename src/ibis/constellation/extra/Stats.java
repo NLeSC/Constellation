@@ -4,8 +4,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import ibis.constellation.CTimer;
-
 public class Stats implements java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -15,6 +13,8 @@ public class Stats implements java.io.Serializable {
     private final String hostId;
 
     private transient TimeSyncInfo syncInfo;
+
+    private CTimer overallTimer;
 
     // This is the public interface to the rest of the framework.
     public Stats(String hostId) {
@@ -47,7 +47,7 @@ public class Stats implements java.io.Serializable {
         // System.out.println(timer.extensiveOutput());
         // printActions(stream, timer);
         // printDataTransfers(stream);
-        printPlotData();
+        printPlotData(stream);
     }
 
     synchronized void addTimer(CTimer timer) {
@@ -59,17 +59,6 @@ public class Stats implements java.io.Serializable {
 
         for (CTimer t : actionTimers) {
             print(stream, t.getAction(), t);
-        }
-    }
-
-    private void printDataTransfers(PrintStream stream) {
-        CTimer timer = getTotalMCTimer();
-        timer.onlyDataTransfers();
-
-        List<CTimer> actionTimers = timer.groupByAction();
-
-        for (CTimer t : actionTimers) {
-            stream.println(t.dataTransferOutput());
         }
     }
 
@@ -126,7 +115,7 @@ public class Stats implements java.io.Serializable {
         }
     }
 
-    private void printPlotData() {
+    private void printPlotData(PrintStream stream) {
         CTimer temp = getTotalMCTimer();
         temp.filterOverall();
         // write(temp, "gantt.data", false);
@@ -151,5 +140,13 @@ public class Stats implements java.io.Serializable {
                 standardAction);
         addTimer(timer);
         return timer;
+    }
+
+    public synchronized CTimer getOverallTimer() {
+        if (overallTimer == null) {
+            overallTimer = getTimer("java", "main", "overall");
+        }
+        return overallTimer;
+
     }
 }
