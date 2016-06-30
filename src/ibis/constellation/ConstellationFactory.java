@@ -121,7 +121,13 @@ public class ConstellationFactory {
             throw new IllegalArgumentException("Need at least one executor!");
         }
 
-        ConstellationProperties props = new ConstellationProperties(p);
+        ConstellationProperties props;
+
+        if (p instanceof ConstellationProperties) {
+            props = (ConstellationProperties) p;
+        } else {
+            props = new ConstellationProperties(p);
+        }
 
         boolean needsDistributed = props.DISTRIBUTED;
 
