@@ -546,7 +546,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
                 }
             } else {
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(30000);
                 } catch (Throwable e) {
                     // ignore
                 }
