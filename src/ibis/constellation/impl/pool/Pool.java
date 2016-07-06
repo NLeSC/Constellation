@@ -224,6 +224,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
     private int gotStats;
 
+    private boolean terminated;
+
     public Pool(final DistributedConstellation owner,
             final ConstellationProperties properties)
             throws PoolCreationFailedException {
@@ -519,6 +521,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         } else {
             ibis.registry().waitUntilTerminated();
         }
+        terminated = true;
     }
 
     public void handleStats() {
@@ -1260,6 +1263,10 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         default:
             return readOrWrite + " other";
         }
+    }
+
+    public boolean isTerminated() {
+        return terminated;
     }
 
 }

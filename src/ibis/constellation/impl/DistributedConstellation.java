@@ -266,13 +266,17 @@ public class DistributedConstellation {
             logger.warn("Failed to terminate pool!", e);
         }
 
+        logger.info("Pool terminated");
         subConstellation.done();
+        logger.info("Subconstellation done");
 
         if (concluder != null) {
             concluder.conclude();
+            logger.info("Concluded");
         }
 
         pool.handleStats();
+        logger.info("HandleStats done");
 
         if (pool.isMaster()) {
             if (logger.isInfoEnabled()) {
@@ -401,6 +405,13 @@ public class DistributedConstellation {
         // A steal request coming in from the subconstellation below.
 
         if (stealing == STEAL_NONE) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("D STEAL REQUEST swizzled from " + sr.source);
+            }
+            return;
+        }
+
+        if (pool.isTerminated()) {
             if (logger.isDebugEnabled()) {
                 logger.debug("D STEAL REQUEST swizzled from " + sr.source);
             }
