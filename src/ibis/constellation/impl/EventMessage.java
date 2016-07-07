@@ -33,4 +33,9 @@ public class EventMessage extends Message implements ObjectData {
             event.readData(m);
         }
     }
+
+    @Override
+    public String toString() {
+        return "EventMessage: " + super.toString();
+    }
 }

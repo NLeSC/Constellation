@@ -403,7 +403,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     }
 
     public boolean isLocal(ConstellationIdentifier id) {
-        return (rank << 32 ^ id.getId()) == 0;
+        return rank == id.getId() >> 32;
     }
 
     private SendPort getSendPort(IbisIdentifier id) throws IOException {
@@ -711,10 +711,6 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     }
 
     public boolean forward(EventMessage em) {
-
-        // logger.info("POOL:FORWARD EventMessage from " + em.source +
-        // " to " + em.target + " target " + em.event.target);
-
         return forward(em, OPCODE_EVENT_MESSAGE);
     }
 
@@ -735,6 +731,13 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             return false;
         }
 
+        if (logger.isInfoEnabled() && opcode == OPCODE_EVENT_MESSAGE) {
+            logger.info("Sending " + m + " to " + id);
+            if (!isLocal(m.source)) {
+                logger.error("Strange event message: " + m, new Throwable());
+            }
+        }
+
         return doForward(id, opcode, m);
     }
 
@@ -753,10 +756,17 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     private void registerRank(int rank, IbisIdentifier id) {
         IbisIdentifier old = locationCache.put(rank, id);
 
+        if (old == null) {
+            logger.error("Register rank " + rank + ", id = " + id,
+                    new Throwable());
+        }
+
         // sanity check
         if (old != null && !old.equals(id)) {
-            logger.error("Location cache overwriting rank " + rank
-                    + " with different id! " + old + " != " + id);
+            logger.error(
+                    "Location cache overwriting rank " + rank
+                            + " with different id! " + old + " != " + id,
+                    new Throwable());
         }
     }
 
@@ -933,10 +943,11 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
         case OPCODE_EVENT_MESSAGE: {
             EventMessage m = (EventMessage) data;
-            registerRank(m.source, source);
+            // registerRank(m.source, source); NO! event messages can be
+            // forwarded when an activation was stolen. --Ceriel
 
-            if (logger.isTraceEnabled()) {
-                logger.trace("POOL RECEIVE EventMessage from " + m.source);
+            if (logger.isInfoEnabled()) {
+                logger.info("RECEIVE EventMessage; " + m);
             }
 
             owner.deliverRemoteEvent(m);
