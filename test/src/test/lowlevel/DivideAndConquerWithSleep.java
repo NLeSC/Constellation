@@ -55,6 +55,8 @@ public class DivideAndConquerWithSleep extends Activity {
 
             finish();
         } else {
+            System.out.println(
+                    "Spawning " + branch + " jobs with depth " + (depth - 1));
             for (int i = 0; i < branch; i++) {
                 submit(new DivideAndConquerWithSleep(identifier(), branch,
                         depth - 1, load));
@@ -79,6 +81,8 @@ public class DivideAndConquerWithSleep extends Activity {
 
     @Override
     public void cleanup() {
+        System.out.println(
+                "Done with " + branch + " jobs of depth " + (depth - 1));
         send(new Event(identifier(), parent, count));
     }
 
