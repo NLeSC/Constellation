@@ -113,6 +113,8 @@ public class DistributedConstellation {
 
     private final Stats stats;
 
+    private boolean PROFILE;
+
     private class Facade implements Constellation {
 
         /* Following methods implement the Constellation interface */
@@ -209,6 +211,8 @@ public class DistributedConstellation {
 
         REMOTE_STEAL_TIMEOUT = props.REMOTESTEAL_TIMEOUT;
 
+        PROFILE = props.PROFILE;
+
         // Init communication here...
         try {
             pool = new Pool(this, props);
@@ -278,7 +282,7 @@ public class DistributedConstellation {
         pool.handleStats();
         logger.info("HandleStats done");
 
-        if (pool.isMaster()) {
+        if (PROFILE && pool.isMaster()) {
             if (logger.isInfoEnabled()) {
                 logger.info("Printing statistics");
             }

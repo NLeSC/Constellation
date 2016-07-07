@@ -318,8 +318,12 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
             stats = new Stats(getId());
 
-            communicationTimer = stats.getTimer("java", "data receiver",
-                    "receive data");
+            if (properties.PROFILE) {
+                communicationTimer = stats.getTimer("java", "data receiver",
+                        "receive data");
+            } else {
+                communicationTimer = null;
+            }
         } catch (Throwable e) {
             if (ibis != null) {
                 try {
@@ -527,41 +531,43 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     }
 
     public void handleStats() {
-        Stats stats = owner.getStats();
-        if (isMaster) {
-            stats.setSyncInfo(syncInfo);
-            if (logger.isInfoEnabled()) {
-                logger.info("waiting for stats of other nodes");
-            }
+        if (communicationTimer != null) { // Only if profiling.
+            Stats stats = owner.getStats();
+            if (isMaster) {
+                stats.setSyncInfo(syncInfo);
+                if (logger.isInfoEnabled()) {
+                    logger.info("waiting for stats of other nodes");
+                }
 
-            if (closedPool) {
-                synchronized (this) {
-                    int nClients = ibis.registry().getPoolSize() - 1;
-                    long time = System.currentTimeMillis();
-                    while (gotStats < nClients) {
-                        try {
-                            wait(1000);
-                        } catch (Throwable e) {
-                            // ignore
+                if (closedPool) {
+                    synchronized (this) {
+                        int nClients = ibis.registry().getPoolSize() - 1;
+                        long time = System.currentTimeMillis();
+                        while (gotStats < nClients) {
+                            try {
+                                wait(1000);
+                            } catch (Throwable e) {
+                                // ignore
+                            }
+                            if (System.currentTimeMillis() - time > 60000) {
+                                break;
+                            }
                         }
-                        if (System.currentTimeMillis() - time > 60000) {
-                            break;
-                        }
+                    }
+                } else {
+                    try {
+                        Thread.sleep(30000);
+                    } catch (Throwable e) {
+                        // ignore
                     }
                 }
             } else {
-                try {
-                    Thread.sleep(30000);
-                } catch (Throwable e) {
-                    // ignore
+                if (logger.isInfoEnabled()) {
+                    logger.info("Sending statistics to master");
                 }
-            }
-        } else {
-            if (logger.isInfoEnabled()) {
-                logger.info("Sending statistics to master");
-            }
-            synchronized (stats) {
-                doForward(master, OPCODE_STATISTICS, stats);
+                synchronized (stats) {
+                    doForward(master, OPCODE_STATISTICS, stats);
+                }
             }
         }
     }
@@ -754,8 +760,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         IbisIdentifier old = locationCache.put(rank, id);
 
         if (logger.isInfoEnabled() && old == null) {
-            logger.info("Register rank " + rank + ", id = " + id,
-                    new Throwable());
+            logger.info("Register rank " + rank + ", id = " + id);
         }
 
         // sanity check
@@ -828,7 +833,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             logger.info(getString(opcode, "Got") + " from " + source.name());
         }
 
-        if (opcode == OPCODE_STEAL_REPLY || opcode == OPCODE_EVENT_MESSAGE) {
+        if (communicationTimer != null && (opcode == OPCODE_STEAL_REPLY
+                || opcode == OPCODE_EVENT_MESSAGE)) {
             timerEvent = communicationTimer.start(getString(opcode, "read"));
         }
 

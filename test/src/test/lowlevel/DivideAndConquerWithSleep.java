@@ -154,13 +154,18 @@ public class DivideAndConquerWithSleep extends Activity {
 
             long end = System.nanoTime();
 
-            double nsPerJob = ((end - start)) / (double) count;
+            double msPerJob = Math.round(((end - start) / 10000.0) * nodes
+                    * executors / Math.pow(branch, depth)) / 100.0;
 
             String correct = (result == count) ? " (CORRECT)" : " (WRONG!)";
 
             logger.info("D&C(" + branch + ", " + depth + ") = " + result
-                    + correct + " total time = " + (end - start)
-                    + " job time = " + nsPerJob + " nsec/job");
+                    + correct + " total time = "
+                    + Math.round((end - start) / 1000000.0) / 1000.0
+                    + " sec; leaf job time = " + msPerJob
+                    + " msec/job; overhead = "
+                    + Math.round(100 * 100 * (msPerJob - load) / (load)) / 100.0
+                    + "%");
 
         }
 
