@@ -733,9 +733,6 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
         if (logger.isInfoEnabled() && opcode == OPCODE_EVENT_MESSAGE) {
             logger.info("Sending " + m + " to " + id);
-            if (!isLocal(m.source)) {
-                logger.error("Strange event message: " + m, new Throwable());
-            }
         }
 
         return doForward(id, opcode, m);
