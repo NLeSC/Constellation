@@ -1,0 +1,79 @@
+<project name="Constellation tests" default="build" basedir=".">
+
+	<property name="version" value="0.2" />
+	<property name="jar" value="constellation-tests-${version}.jar" />
+	<property name="zip" value="constellation-tests-${version}.zip" />
+	<property name="src-zip" value="constellation-tests-${version}-src.zip" />
+
+	<property name="srcdir" value="./src" />
+	<property name="builddir" value="./build" />
+	<property name="distdir" value="./lib" />
+
+	<path id="default.classpath">
+<!--
+		<fileset dir="external">
+			<include name="*.jar" />
+		</fileset>
+-->
+		<fileset dir="../lib">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<!-- Compile constellation tests -->
+	<target name="compile">
+		<mkdir dir="${distdir}" />
+		<mkdir dir="${builddir}" />
+
+		<javac destdir="${builddir}" 
+                       srcdir="${srcdir}" 
+                       target="1.7" 
+                       source="1.7" 
+                       debug="true" 
+                       classpathref="default.classpath" 
+                       includeantruntime="false"/>
+
+		<jar jarfile="${distdir}/${jar}" basedir="${builddir}" includes="**">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+			</manifest>
+		</jar>
+
+	</target>
+
+	<target name="build" depends="clean,compile">
+	</target>
+
+	<target name="bin.zip" depends="build">
+		<delete failonerror="false" file="${zip}" />
+
+		<zip destfile="${zip}">
+			<zipfileset dir="." prefix="constellation-tests-${version}" includes="external/**,jars/**,*.properties,*.example,notices/**,README.txt,INSTALL.txt,LICENSE.txt,javadoc/**" />
+			<zipfileset dir="." prefix="constellation-tests-${version}" filemode="755" includes="bin/**" />
+		</zip>
+	</target>
+
+	<target name="src.zip" depends="build">
+		<delete failonerror="false" file="${src-zip}" />
+
+		<zip destfile="${src-zip}">
+			<zipfileset dir="." prefix="constellation-tests-${version}" includes="src/**,external/**,jars/**,*.properties,*.example,notices/**,README.txt,INSTALL.txt,LICENSE.txt,javadoc/**,build.xml" />
+			<zipfileset dir="." prefix="constellation-tests-${version}" filemode="755" includes="bin/**" />
+		</zip>
+	</target>
+
+
+	<!-- remove all generated code -->
+	<target name="clean" description="Removes the ${distdir} directory">
+		<delete failonerror="false" dir="${builddir}" />
+		<delete failonerror="false" dir="${distdir}" />
+	</target>
+
+	<target name="distclean" depends="clean">
+		<delete failonerror="false" dir="./build-eclipse" />
+		<delete failonerror="false" file="${zip}" />
+		<delete failonerror="false" file="${src-zip}" />
+	</target>
+
+
+</project>
