@@ -756,8 +756,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     private void registerRank(int rank, IbisIdentifier id) {
         IbisIdentifier old = locationCache.put(rank, id);
 
-        if (old == null) {
-            logger.error("Register rank " + rank + ", id = " + id,
+        if (logger.isInfoEnabled() && old == null) {
+            logger.info("Register rank " + rank + ", id = " + id,
                     new Throwable());
         }
 
