@@ -226,6 +226,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
     private boolean terminated;
 
+    private IbisIdentifier[] ids = null;
+
     public Pool(final DistributedConstellation owner,
             final ConstellationProperties properties)
             throws PoolCreationFailedException {
@@ -297,7 +299,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             updater.start();
             if (closedPool) {
                 ibis.registry().waitUntilPoolClosed();
-                IbisIdentifier[] ids = ibis.registry().joinedIbises();
+                ids = ibis.registry().joinedIbises();
                 rports = new ReceivePort[ids.length];
                 for (int i = 0; i < rports.length; i++) {
                     if (!ids[i].equals(ibis.identifier())) {
@@ -328,6 +330,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             }
             throw new PoolCreationFailedException("Pool creation failed", e);
         }
+        logger.info("Pool created");
     }
 
     public Stats getStats() {
@@ -341,7 +344,6 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
         rp.enableMessageUpcalls();
         if (closedPool) {
-            IbisIdentifier[] ids = ibis.registry().joinedIbises();
             for (int i = 0; i < rports.length; i++) {
                 if (rports[i] != null) {
                     rports[i].enableMessageUpcalls();
@@ -1258,8 +1260,33 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             return readOrWrite + " steal request";
         case OPCODE_STEAL_REPLY:
             return readOrWrite + " steal reply";
+        case OPCODE_POOL_REGISTER_REQUEST:
+            return readOrWrite + " pool register request";
+        case OPCODE_POOL_UPDATE_REQUEST:
+            return readOrWrite + " pool update request";
+        case OPCODE_POOL_UPDATE_REPLY:
+            return readOrWrite + " pool update reply";
+        case OPCODE_RANK_REGISTER_REQUEST:
+            return readOrWrite + " rank register request";
+        case OPCODE_RANK_LOOKUP_REQUEST:
+            return readOrWrite + " rank lookup request";
+        case OPCODE_RANK_LOOKUP_REPLY:
+            return readOrWrite + " rank lookup reply";
         case OPCODE_STATISTICS:
             return readOrWrite + " statistics";
+        case OPCODE_REQUEST_TIME:
+            return readOrWrite + " request time";
+        case OPCODE_SEND_TIME:
+            return readOrWrite + " send time";
+        case OPCODE_NOTHING:
+            return readOrWrite + " nothing";
+        case OPCODE_RELEASE:
+            return readOrWrite + " release";
+        case OPCODE_PING:
+            return readOrWrite + " ping";
+        case OPCODE_PONG:
+            return readOrWrite + " pong";
+
         default:
             return readOrWrite + " other";
         }

@@ -191,7 +191,7 @@ public class DistributedConstellation {
     public DistributedConstellation(ConstellationProperties props)
             throws ConstellationCreationException {
 
-        String stealName = props.STEALING;
+        String stealName = props.STEALSTRATEGY;
 
         if (stealName.equalsIgnoreCase("mw")) {
             stealing = STEAL_MASTER;
@@ -413,7 +413,8 @@ public class DistributedConstellation {
 
         if (pool.isTerminated()) {
             if (logger.isDebugEnabled()) {
-                logger.debug("D STEAL REQUEST swizzled from " + sr.source);
+                logger.debug("D STEAL REQUEST from " + sr.source
+                        + " not sent, pool is terminated");
             }
             return;
         }

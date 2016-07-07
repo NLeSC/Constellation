@@ -2,12 +2,19 @@ package ibis.constellation;
 
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ibis.util.TypedProperties;
 
 /**
  * This class defines the properties that affect the behavior of constellation.
  */
 public class ConstellationProperties extends TypedProperties {
+
+    public static final Logger logger = LoggerFactory
+            .getLogger(ConstellationProperties.class);
+
     /**
      * All properties start with the prefix "ibis.constellation.".
      */
@@ -30,9 +37,9 @@ public class ConstellationProperties extends TypedProperties {
      * "none" indicates: don't steal at all. <br>
      * The default value is: "pool".
      */
-    public static final String S_STEALING = S_PREFIX + "stealing";
+    public static final String S_STEALSTRATEGY = S_PREFIX + "stealing";
 
-    public final String STEALING;
+    public final String STEALSTRATEGY;
 
     private static final String S_REMOTESTEAL_PREFIX = S_PREFIX
             + "remotesteal.";
@@ -171,8 +178,17 @@ public class ConstellationProperties extends TypedProperties {
                 S_STEAL_IGNORE_EMPTY_REPLIES, false);
         STEAL_SIZE = getIntProperty(S_STEAL_SIZE, 1);
         REMOTESTEAL_SIZE = getIntProperty(S_REMOTESTEAL_SIZE, 1);
-        STEALING = getProperty(S_STEALING, "pool");
+        STEALSTRATEGY = getProperty(S_STEALSTRATEGY, "pool");
         REMOTESTEAL_TIMEOUT = getLongProperty(S_REMOTESTEAL_TIMEOUT, 1000);
         QUEUED_JOB_LIMIT = getIntProperty(S_QUEUED_JOB_LIMIT, 100);
+        if (logger.isInfoEnabled()) {
+            logger.info("MASTER = " + MASTER);
+            logger.info("CLOSED = " + CLOSED);
+            logger.info("DISTRIBUTED = " + DISTRIBUTED);
+            logger.info("STEAL_DELAY = " + STEAL_DELAY);
+            logger.info("STEAL_SIZE = " + STEAL_SIZE);
+            logger.info("REMOTESTEAL_SIZE = " + REMOTESTEAL_SIZE);
+            logger.info("STEALSTRATEGY = " + STEALSTRATEGY);
+        }
     }
 }
