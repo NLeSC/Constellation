@@ -599,7 +599,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             logger.info("Closing receive ports");
         }
         try {
-            rp.close();
+            rp.close(10000);
         } catch (IOException e) {
             if (logger.isInfoEnabled()) {
                 logger.info("Close receive port got execption", e);
@@ -609,7 +609,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             for (int i = 0; i < rports.length; i++) {
                 if (rports[i] != null) {
                     try {
-                        rports[i].close();
+                        rports[i].close(10000);
                     } catch (IOException e) {
                         if (logger.isInfoEnabled()) {
                             logger.info("Close receive port " + rports[i].name()
@@ -658,8 +658,9 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
         int eventNo = -1;
         long sz = 0;
+        WriteMessage wm = null;
         try {
-            WriteMessage wm = s.newMessage();
+            wm = s.newMessage();
             String name = getString(opcode, "write");
 
             boolean mustStartTimer = name != null && communicationTimer != null;
@@ -687,8 +688,11 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
                 communicationTimer.stop(eventNo);
                 communicationTimer.addBytes(sz, eventNo);
             }
-        } catch (Throwable e) {
-            logger.warn("POOL lost communication to " + id, e);
+        } catch (IOException e) {
+            logger.warn("Communication to " + id + " gave exception", e);
+            if (wm != null) {
+                wm.finish(e);
+            }
             if (eventNo != -1) {
                 communicationTimer.cancel(eventNo);
             }

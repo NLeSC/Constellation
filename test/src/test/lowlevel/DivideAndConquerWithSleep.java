@@ -56,8 +56,8 @@ public class DivideAndConquerWithSleep extends Activity {
             finish();
         } else {
             for (int i = 0; i < branch; i++) {
-                submit(new DivideAndConquerWithSleep(identifier(),
-                        branch, depth - 1, load));
+                submit(new DivideAndConquerWithSleep(identifier(), branch,
+                        depth - 1, load));
             }
             suspend();
         }
@@ -91,7 +91,7 @@ public class DivideAndConquerWithSleep extends Activity {
     public static void main(String[] args) {
 
         try {
-            long start = System.currentTimeMillis();
+            long start = System.nanoTime();
 
             int branch = Integer.parseInt(args[0]);
             int depth = Integer.parseInt(args[1]);
@@ -134,9 +134,9 @@ public class DivideAndConquerWithSleep extends Activity {
 
                 long result = (Long) a.waitForEvent().data;
 
-                long end = System.currentTimeMillis();
+                long end = System.nanoTime();
 
-                double nsPerJob = (1000.0 * 1000.0 * (end - start)) / count;
+                double nsPerJob = ((end - start)) / (double) count;
 
                 String correct = (result == count) ? " (CORRECT)" : " (WRONG!)";
 
