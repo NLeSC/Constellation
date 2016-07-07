@@ -1,8 +1,12 @@
 package test.lowlevel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
+import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationFactory;
 import ibis.constellation.Event;
 import ibis.constellation.Executor;
@@ -21,6 +25,9 @@ public class DivideAndConquerWithSleep extends Activity {
      */
 
     private static final long serialVersionUID = 3379531054395374984L;
+
+    private static final Logger logger = LoggerFactory
+            .getLogger(DivideAndConquerWithSleep.class);
 
     private final ActivityIdentifier parent;
 
@@ -55,7 +62,7 @@ public class DivideAndConquerWithSleep extends Activity {
 
             finish();
         } else {
-            System.out.println(
+            logger.info(
                     "Spawning " + branch + " jobs with depth " + (depth - 1));
             for (int i = 0; i < branch; i++) {
                 submit(new DivideAndConquerWithSleep(identifier(), branch,
@@ -81,8 +88,10 @@ public class DivideAndConquerWithSleep extends Activity {
 
     @Override
     public void cleanup() {
-        System.out.println(
-                "Done with " + branch + " jobs of depth " + (depth - 1));
+        if (depth > 0) {
+            logger.info(
+                    "Done with " + branch + " jobs of depth " + (depth - 1));
+        }
         send(new Event(identifier(), parent, count));
     }
 
@@ -94,69 +103,68 @@ public class DivideAndConquerWithSleep extends Activity {
 
     public static void main(String[] args) {
 
-        try {
-            long start = System.nanoTime();
+        long start = System.nanoTime();
 
-            int branch = Integer.parseInt(args[0]);
-            int depth = Integer.parseInt(args[1]);
-            int load = Integer.parseInt(args[2]);
-            int nodes = Integer.parseInt(args[3]);
-            int executors = Integer.parseInt(args[4]);
+        int branch = Integer.parseInt(args[0]);
+        int depth = Integer.parseInt(args[1]);
+        int load = Integer.parseInt(args[2]);
+        int nodes = Integer.parseInt(args[3]);
+        int executors = Integer.parseInt(args[4]);
 
-            Executor[] e = new Executor[executors];
+        Executor[] e = new Executor[executors];
 
-            for (int i = 0; i < executors; i++) {
-                e[i] = new SimpleExecutor(new UnitExecutorContext("DC"),
-                        StealStrategy.SMALLEST, StealStrategy.BIGGEST);
-            }
-
-            Constellation c = ConstellationFactory.createConstellation(e);
-            c.activate();
-
-            if (c.isMaster()) {
-
-                long count = 0;
-
-                for (int i = 0; i <= depth; i++) {
-                    count += Math.pow(branch, i);
-                }
-
-                double time = (load * Math.pow(branch, depth))
-                        / (1000 * (nodes * executors));
-
-                System.out.println("Running D&C with branch factor " + branch
-                        + " and depth " + depth + " load " + load
-                        + " (expected jobs: " + count + ", expected time: "
-                        + time + " sec.)");
-
-                SingleEventCollector a = new SingleEventCollector(
-                        new UnitActivityContext("DC"));
-
-                c.submit(a);
-                c.submit(new DivideAndConquerWithSleep(a.identifier(), branch,
-                        depth, load));
-
-                long result = (Long) a.waitForEvent().data;
-
-                long end = System.nanoTime();
-
-                double nsPerJob = ((end - start)) / (double) count;
-
-                String correct = (result == count) ? " (CORRECT)" : " (WRONG!)";
-
-                System.out.println("D&C(" + branch + ", " + depth + ") = "
-                        + result + correct + " total time = " + (end - start)
-                        + " job time = " + nsPerJob + " nsec/job");
-
-            }
-
-            c.done();
-
-        } catch (Exception e) {
-            System.err.println("Oops: " + e);
-            e.printStackTrace(System.err);
-            System.exit(1);
+        for (int i = 0; i < executors; i++) {
+            e[i] = new SimpleExecutor(new UnitExecutorContext("DC"),
+                    StealStrategy.SMALLEST, StealStrategy.BIGGEST);
         }
+
+        Constellation c;
+        try {
+            c = ConstellationFactory.createConstellation(e);
+        } catch (ConstellationCreationException e1) {
+            logger.error("Could not create constellation", e1);
+            return;
+        }
+        c.activate();
+
+        if (c.isMaster()) {
+
+            long count = 0;
+
+            for (int i = 0; i <= depth; i++) {
+                count += Math.pow(branch, i);
+            }
+
+            double time = (load * Math.pow(branch, depth))
+                    / (1000 * (nodes * executors));
+
+            logger.info(
+                    "Running D&C with branch factor " + branch + " and depth "
+                            + depth + " load " + load + " (expected jobs: "
+                            + count + ", expected time: " + time + " sec.)");
+
+            SingleEventCollector a = new SingleEventCollector(
+                    new UnitActivityContext("DC"));
+
+            c.submit(a);
+            c.submit(new DivideAndConquerWithSleep(a.identifier(), branch,
+                    depth, load));
+
+            long result = (Long) a.waitForEvent().data;
+
+            long end = System.nanoTime();
+
+            double nsPerJob = ((end - start)) / (double) count;
+
+            String correct = (result == count) ? " (CORRECT)" : " (WRONG!)";
+
+            logger.info("D&C(" + branch + ", " + depth + ") = " + result
+                    + correct + " total time = " + (end - start)
+                    + " job time = " + nsPerJob + " nsec/job");
+
+        }
+
+        c.done();
 
     }
 }
