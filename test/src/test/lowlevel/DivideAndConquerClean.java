@@ -1,5 +1,8 @@
 package test.lowlevel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
@@ -21,6 +24,9 @@ public class DivideAndConquerClean extends Activity {
      */
 
     private static final long serialVersionUID = 3379531054395374984L;
+
+    private static final Logger logger = LoggerFactory
+            .getLogger(DivideAndConquerClean.class);
 
     private final ActivityIdentifier parent;
 
@@ -79,11 +85,13 @@ public class DivideAndConquerClean extends Activity {
 
     public static void main(String[] args) throws Exception {
 
-        long start = System.currentTimeMillis();
+        int branch = Integer.parseInt(args[0]);
+        int depth = Integer.parseInt(args[1]);
+        // int load = Integer.parseInt(args[2]); Ignored for this version
+        int nodes = Integer.parseInt(args[3]);
+        int executors = Integer.parseInt(args[4]);
 
-        int index = 0;
-
-        int executors = Integer.parseInt(args[index++]);
+        long start = System.nanoTime();
 
         Executor[] e = new Executor[executors];
 
@@ -95,9 +103,6 @@ public class DivideAndConquerClean extends Activity {
         Constellation c = ConstellationFactory.createConstellation(e);
         c.activate();
 
-        int branch = Integer.parseInt(args[index++]);
-        int depth = Integer.parseInt(args[index++]);
-
         long count = 0;
 
         for (int i = 0; i <= depth; i++) {
@@ -106,7 +111,7 @@ public class DivideAndConquerClean extends Activity {
 
         if (c.isMaster()) {
 
-            System.out.println(
+            logger.info(
                     "Running D&C with branch factor " + branch + " and depth "
                             + depth + " (expected jobs: " + count + ")");
 
@@ -118,15 +123,16 @@ public class DivideAndConquerClean extends Activity {
 
             long result = (Long) a.waitForEvent().data;
 
-            long end = System.currentTimeMillis();
+            long end = System.nanoTime();
 
-            double nsPerJob = (1000.0 * 1000.0 * (end - start)) / count;
+            double msPerJob = Math.round(((end - start) / 10000.0) * executors
+                    * nodes / Math.pow(branch, depth)) / 100.0;
 
             String correct = (result == count) ? " (CORRECT)" : " (WRONG!)";
-
-            System.out.println("D&C(" + branch + ", " + depth + ") = " + result
-                    + correct + " total time = " + (end - start)
-                    + " job time = " + nsPerJob + " nsec/job");
+            logger.info("D&C(" + branch + ", " + depth + ") = " + result
+                    + correct + " total time = "
+                    + Math.round((end - start) / 1000000.0) / 1000.0
+                    + " sec; leaf job time = " + msPerJob + " msec/job");
         }
 
         c.done();
