@@ -27,6 +27,15 @@ class PoolInfo implements Serializable {
         timestamp = 1;
     }
 
+    PoolInfo(PoolInfo orig) {
+        this.tag = orig.tag;
+        this.master = orig.master;
+        this.isMaster = orig.isMaster;
+        this.isDummy = orig.isDummy;
+        this.timestamp = orig.timestamp;
+        this.members = new ArrayList<IbisIdentifier>(orig.members);
+    }
+
     PoolInfo(String tag) {
         this.tag = tag;
         this.master = null;

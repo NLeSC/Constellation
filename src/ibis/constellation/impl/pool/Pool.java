@@ -1081,6 +1081,10 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         }
 
         if (tmp.currentTimeStamp() > request.timestamp) {
+            synchronized (tmp) {
+                // Copy to avoid ConcurrentModificationException.
+                tmp = new PoolInfo(tmp);
+            }
             doForward(request.source, OPCODE_POOL_UPDATE_REPLY, tmp);
         } else {
             logger.info("No updates found for pool " + request.tag + " / "
