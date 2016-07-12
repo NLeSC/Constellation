@@ -119,7 +119,7 @@ public class SingleThreadedConstellation extends Thread {
     public SingleThreadedConstellation(MultiThreadedConstellation parent,
             Executor executor, ConstellationProperties props) {
 
-        PROFILE_STEALS = props.PROFILE;
+        PROFILE_STEALS = props.PROFILE_STEAL;
 
         // this.thread = this;
         this.parent = parent;

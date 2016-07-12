@@ -357,7 +357,7 @@ public class DistributedConstellation {
     }
 
     void performCancel(ActivityIdentifier aid) {
-        logger.error("INTERNAL ERROR: cancel not implemented!");
+        logger.error("Cancel not implemented!");
     }
 
     public void deliverRemoteStealRequest(StealRequest sr) {
@@ -485,7 +485,7 @@ public class DistributedConstellation {
         // Sanity check
         if (cidFactory.isLocal(target)) {
             logger.error(
-                    "INTERNAL ERROR: received message for local constellation (dropped message!)");
+                    "Received message for local constellation (dropped message!)");
             return true;
         }
 
@@ -494,15 +494,18 @@ public class DistributedConstellation {
         }
 
         if (enqueueOnFail) {
-            logger.error(
-                    "ERROR: failed to forward message to remote constellation "
-                            + target + " (will retry!)");
+            if (logger.isInfoEnabled()) {
+                logger.info("Failed to forward message to remote constellation "
+                        + target + " (will retry!)");
+            }
             delivery.enqueue(m);
             return true;
         }
 
-        logger.error("ERROR: failed to forward message to remote constellation "
-                + target + " (may retry)");
+        if (logger.isInfoEnabled()) {
+            logger.info("Failed to forward message to remote constellation "
+                    + target + " (may retry)");
+        }
         return false;
     }
 
@@ -514,7 +517,7 @@ public class DistributedConstellation {
         // Sanity check
         if (cidFactory.isLocal(target)) {
             logger.error(
-                    "INTERNAL ERROR: received steal reply for local constellation (reclaiming work and dropped reply)");
+                    "Received steal reply for local constellation (reclaiming work and dropped reply)");
             return false;
         }
 
@@ -522,11 +525,11 @@ public class DistributedConstellation {
             // If the send fails we reclaim the work.
 
             if (!m.isEmpty()) {
-                logger.warn("FAILED to deliver steal reply to " + target
+                logger.info("Failed to deliver steal reply to " + target
                         + " (reclaiming work and dropping reply)");
                 return false;
             } else {
-                logger.warn("FAILED to deliver empty steal reply to " + target
+                logger.info("Failed to deliver empty steal reply to " + target
                         + " (dropping reply)");
             }
         }

@@ -221,6 +221,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     private boolean gotAnswer;
     private boolean gotPong;
     private Stats stats;
+    private final ConstellationProperties properties;
 
     private int gotStats;
 
@@ -234,6 +235,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
         this.owner = owner;
         closedPool = properties.CLOSED;
+        this.properties = properties;
 
         try {
             ibis = IbisFactory.createIbis(
@@ -318,7 +320,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
             stats = new Stats(getId());
 
-            if (properties.PROFILE) {
+            if (properties.PROFILE_COMMUNICATION) {
                 communicationTimer = stats.getTimer("java", "data receiver",
                         "receive data");
             } else {
@@ -531,7 +533,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     }
 
     public void handleStats() {
-        if (communicationTimer != null) { // Only if profiling.
+        if (properties.PROFILE) { // Only if profiling.
             Stats stats = owner.getStats();
             if (isMaster) {
                 stats.setSyncInfo(syncInfo);
@@ -732,8 +734,10 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         IbisIdentifier id = translate(target);
 
         if (id == null) {
-            logger.warn("POOL failed to translate " + target
-                    + " to an IbisIdentifier");
+            if (logger.isInfoEnabled()) {
+                logger.info("POOL failed to translate " + target
+                        + " to an IbisIdentifier");
+            }
             return false;
         }
 
@@ -799,8 +803,10 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         IbisIdentifier tmp = locationCache.get(info.rank);
 
         if (tmp == null) {
-            logger.warn("Location lookup for rank " + rank
-                    + " returned null! Dropping reply");
+            if (logger.isInfoEnabled()) {
+                logger.info("Location lookup for rank " + rank
+                        + " returned null! Dropping reply");
+            }
             // Timo: drop reply, sender will retry automatically, and does not
             // handle null replies well.
             return;
@@ -817,7 +823,9 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             logger.debug("Obtaining time from " + id.name());
         }
         long myTime = System.nanoTime();
-        times.put(id, new Long(myTime));
+        synchronized (times) {
+            times.put(id, new Long(myTime));
+        }
         doForward(id, OPCODE_REQUEST_TIME, null);
     }
 
@@ -861,7 +869,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
                 long l = ((Long) data).longValue();
                 Long myTime = times.get(source);
                 if (myTime == null) {
-                    logger.warn("Ignored roque time answer");
+                    logger.warn("Ignored rogue time answer");
                     return;
                 }
                 long interval = (System.nanoTime() - myTime.longValue());

@@ -1,5 +1,6 @@
 package ibis.constellation.extra;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -426,6 +427,15 @@ public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
     public void add(String nickName, String thread, String action, long l,
             long m, long n, long o) {
         add(new TimerEvent(getNode(), nickName, thread, action, l, m, n, o));
+    }
 
+    private synchronized void writeObject(java.io.ObjectOutputStream stream)
+            throws IOException {
+        stream.defaultWriteObject();
+    }
+
+    private void readObject(java.io.ObjectInputStream stream)
+            throws ClassNotFoundException, IOException {
+        stream.defaultReadObject();
     }
 }

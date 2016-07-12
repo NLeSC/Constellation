@@ -59,7 +59,7 @@ public class ConstellationProperties extends TypedProperties {
     /**
      * The "remotesteal.timeout" property is an integer property indicating the
      * timeout for remote steal requests, in milliseconds. The default is
-     * "1000".
+     * "5000".
      */
     public static final String S_REMOTESTEAL_TIMEOUT = S_REMOTESTEAL_PREFIX
             + "timeout";
@@ -74,6 +74,26 @@ public class ConstellationProperties extends TypedProperties {
     public static final String S_PROFILE = S_PREFIX + "profile";
 
     public final boolean PROFILE;
+
+    /**
+     * The "profile.communication" property is a boolean property indicating
+     * whether constellation should provide some timing information on steql or
+     * event messages. The default is "false". Note: the overhead for this
+     * profiler can be large.
+     */
+    public static final String S_PROFILE_COMMUNICATION = S_PREFIX
+            + "profile.communication";
+
+    public final boolean PROFILE_COMMUNICATION;
+
+    /**
+     * The "profile.steal" property is a boolean property indicating whether
+     * constellation should provide some timing information on steqls. The
+     * default is "false". Note: the overhead for this profiler can be large.
+     */
+    private static final String S_PROFILE_STEAL = "profile.steal";
+
+    public final boolean PROFILE_STEAL;
 
     /**
      * The "output" property is a string property indicating an output file to
@@ -170,6 +190,9 @@ public class ConstellationProperties extends TypedProperties {
         CLOSED = getBooleanProperty(S_CLOSED, false);
         DISTRIBUTED = getBooleanProperty(S_DISTRIBUTED, true);
         PROFILE = getBooleanProperty(S_PROFILE, false);
+        PROFILE_COMMUNICATION = getBooleanProperty(S_PROFILE_COMMUNICATION,
+                false);
+        PROFILE_STEAL = getBooleanProperty(S_PROFILE_STEAL, false);
         OUTPUT = getProperty(S_OUTPUT);
         REMOTESTEAL_THROTTLE = getBooleanProperty(S_REMOTESTEAL_THROTTLE,
                 false);
@@ -179,7 +202,7 @@ public class ConstellationProperties extends TypedProperties {
         STEAL_SIZE = getIntProperty(S_STEAL_SIZE, 1);
         REMOTESTEAL_SIZE = getIntProperty(S_REMOTESTEAL_SIZE, 1);
         STEALSTRATEGY = getProperty(S_STEALSTRATEGY, "pool");
-        REMOTESTEAL_TIMEOUT = getLongProperty(S_REMOTESTEAL_TIMEOUT, 1000);
+        REMOTESTEAL_TIMEOUT = getLongProperty(S_REMOTESTEAL_TIMEOUT, 5000);
         QUEUED_JOB_LIMIT = getIntProperty(S_QUEUED_JOB_LIMIT, 100);
         if (logger.isInfoEnabled()) {
             logger.info("MASTER = " + MASTER);
