@@ -49,7 +49,7 @@ public class DivideAndConquerWithLoad extends Activity {
 
     @Override
     public void initialize() {
-
+        logger.info("Initialize " + identifier() + ", depth = " + depth);
         if (depth == 0) {
 
             if (load > 0) {
@@ -74,7 +74,7 @@ public class DivideAndConquerWithLoad extends Activity {
 
     @Override
     public void process(Event e) {
-
+        logger.info("Got event " + e);
         count += (Long) e.data;
 
         merged++;
@@ -88,6 +88,7 @@ public class DivideAndConquerWithLoad extends Activity {
 
     @Override
     public void cleanup() {
+        logger.info("Cleanup " + identifier());
         send(new Event(identifier(), parent, count));
     }
 

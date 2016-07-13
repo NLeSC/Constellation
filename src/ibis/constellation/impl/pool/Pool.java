@@ -524,6 +524,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     }
 
     public void terminate() throws IOException {
+        updater.done();
         if (isMaster) {
             ibis.registry().terminate();
         } else {
