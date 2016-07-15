@@ -55,4 +55,26 @@ public class Event implements Serializable, ObjectData {
             ((ObjectData) data).readData(m);
         }
     }
+
+    @Override
+    public String toString() {
+        String s = "source: ";
+        if (source != null) {
+            s += source.toString();
+        } else
+            s += " none";
+        s += "; target: ";
+        if (target != null) {
+            s += target.toString();
+        } else
+            s += " none";
+
+        s += "; data = ";
+        if (data != null) {
+            s += data.toString();
+        } else {
+            s += " none";
+        }
+        return s;
+    }
 }
