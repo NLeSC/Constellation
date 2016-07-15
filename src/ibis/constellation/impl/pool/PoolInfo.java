@@ -4,9 +4,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ibis.ipl.IbisIdentifier;
 
 class PoolInfo implements Serializable {
+
+    private static final Logger logger = LoggerFactory
+            .getLogger(PoolInfo.class);
 
     final String tag;
 
@@ -18,6 +24,10 @@ class PoolInfo implements Serializable {
     private ArrayList<IbisIdentifier> members;
 
     PoolInfo(String tag, IbisIdentifier master, boolean isMaster) {
+        if (logger.isInfoEnabled()) {
+            logger.info(
+                    "Creating pool with tag " + tag + " and member " + master);
+        }
         this.tag = tag;
         this.master = master;
         this.isMaster = isMaster;
@@ -37,6 +47,9 @@ class PoolInfo implements Serializable {
     }
 
     PoolInfo(String tag) {
+        if (logger.isInfoEnabled()) {
+            logger.info("Creating pool with tag " + tag);
+        }
         this.tag = tag;
         this.master = null;
         this.isMaster = false;
@@ -60,11 +73,17 @@ class PoolInfo implements Serializable {
     }
 
     synchronized void addMember(IbisIdentifier id) {
+        if (logger.isInfoEnabled()) {
+            logger.info("Adding " + id + " to pool with tag " + tag);
+        }
         members.add(id);
         timestamp++;
     }
 
     synchronized void removeMember(IbisIdentifier id) {
+        if (logger.isInfoEnabled()) {
+            logger.info("Removing " + id + " from pool with tag " + tag);
+        }
         members.remove(id);
         timestamp++;
     }
