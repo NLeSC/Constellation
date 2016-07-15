@@ -167,7 +167,7 @@ public class DivideAndConquerWithLoadAndContext extends Activity {
                     + " sec.)");
 
             SingleEventCollector a = new SingleEventCollector(
-                    new UnitActivityContext("Even"));
+                    new UnitActivityContext((rank % 2) == 0 ? "Even" : "Odd"));
 
             c.submit(a);
             c.submit(new DivideAndConquerWithLoadAndContext(
