@@ -37,7 +37,7 @@ public class DivideAndConquerWithLoadAndContext extends Activity {
     private final int depth;
     private final int load;
 
-    private long took = 0;
+    private long count = 0;
     private int merged = 0;
 
     public DivideAndConquerWithLoadAndContext(ActivityContext c,
@@ -63,7 +63,7 @@ public class DivideAndConquerWithLoadAndContext extends Activity {
                     time = System.currentTimeMillis() - start;
                 }
 
-                took = time;
+                count = 1;
             }
 
             finish();
@@ -89,7 +89,7 @@ public class DivideAndConquerWithLoadAndContext extends Activity {
     @Override
     public void process(Event e) {
         logger.debug("Got event " + e);
-        took += (Long) e.data;
+        count += (Long) e.data;
 
         merged++;
 
@@ -103,13 +103,13 @@ public class DivideAndConquerWithLoadAndContext extends Activity {
     @Override
     public void cleanup() {
         logger.debug("Cleanup " + identifier());
-        send(new Event(identifier(), parent, took));
+        send(new Event(identifier(), parent, count));
     }
 
     @Override
     public String toString() {
         return "DC(" + identifier() + ") " + branch + ", " + depth + ", "
-                + merged + " -> " + took;
+                + merged + " -> " + count;
     }
 
     public static void main(String[] args) {
