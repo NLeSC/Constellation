@@ -117,6 +117,9 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         private ArrayList<PoolInfo> updates = new ArrayList<PoolInfo>();
 
         public synchronized void addTag(String tag) {
+            if (logger.isInfoEnabled()) {
+                logger.info("Adding tag " + tag + " to PoolUpdater");
+            }
             if (!tags.contains(tag)) {
                 tags.add(tag);
             }
@@ -127,6 +130,9 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         }
 
         public synchronized void enqueueUpdate(PoolInfo info) {
+            if (logger.isInfoEnabled()) {
+                logger.info("Enqueueing PoolInfo update");
+            }
             updates.add(info);
             notifyAll();
         }
@@ -137,6 +143,9 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
                 return null;
             }
 
+            if (logger.isInfoEnabled()) {
+                logger.info("Dequeueing PoolInfo update");
+            }
             // Dequeue in LIFO order too prevent unnecessary updates
             return updates.remove(updates.size() - 1);
         }
@@ -186,6 +195,9 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             long sleep = deadline - System.currentTimeMillis();
 
             if (sleep > 0) {
+                if (logger.isInfoEnabled()) {
+                    logger.info("PoolUpdater sleeping " + sleep + " ms");
+                }
                 try {
                     synchronized (this) {
                         wait(sleep);
@@ -199,6 +211,10 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         @Override
         public void run() {
 
+            if (logger.isInfoEnabled()) {
+                logger.info("Starting PoolUpdater");
+            }
+
             while (!getDone()) {
 
                 processUpdates();
@@ -206,6 +222,10 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
                 long now = System.currentTimeMillis();
 
                 if (now >= deadline) {
+                    if (logger.isInfoEnabled()) {
+                        logger.info("PoolUpdater requesting updates");
+                    }
+
                     sendUpdateRequests();
                     deadline = now + currentDelay;
                 }
@@ -524,12 +544,12 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     }
 
     public void terminate() throws IOException {
-        updater.done();
         if (isMaster) {
             ibis.registry().terminate();
         } else {
             ibis.registry().waitUntilTerminated();
         }
+        updater.done();
         terminated = true;
     }
 

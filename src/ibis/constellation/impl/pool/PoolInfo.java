@@ -97,6 +97,11 @@ class PoolInfo implements Serializable {
     }
 
     synchronized IbisIdentifier selectRandom(Random random) {
-        return members.get(random.nextInt(members.size()));
+        IbisIdentifier id = members.get(random.nextInt(members.size()));
+        if (logger.isInfoEnabled()) {
+            logger.info("Selecting " + id + " from list of " + members.size()
+                    + " members");
+        }
+        return id;
     }
 }
