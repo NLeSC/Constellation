@@ -45,8 +45,7 @@ public class SingleEventCollector extends Activity {
     @Override
     public void initialize() {
         if (logger.isDebugEnabled()) {
-            logger.debug(
-                    "Single event collector " + identifier() + " started.");
+            logger.debug("Single event collector " + identifier() + " started.");
         }
         suspend();
     }
@@ -55,8 +54,8 @@ public class SingleEventCollector extends Activity {
     public synchronized void process(Event e) {
 
         if (logger.isDebugEnabled()) {
-            logger.debug(
-                    "Single event collector " + identifier() + " got result!");
+            logger.debug("Single event collector " + identifier()
+                    + " got result!");
         }
 
         event = e;
