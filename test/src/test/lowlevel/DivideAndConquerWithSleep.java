@@ -62,7 +62,7 @@ public class DivideAndConquerWithSleep extends Activity {
 
             finish();
         } else {
-            logger.info(
+            logger.debug(
                     "Spawning " + branch + " jobs with depth " + (depth - 1));
             for (int i = 0; i < branch; i++) {
                 submit(new DivideAndConquerWithSleep(identifier(), branch,
@@ -89,7 +89,7 @@ public class DivideAndConquerWithSleep extends Activity {
     @Override
     public void cleanup() {
         if (depth > 0) {
-            logger.info(
+            logger.debug(
                     "Done with " + branch + " jobs of depth " + (depth - 1));
         }
         send(new Event(identifier(), parent, count));

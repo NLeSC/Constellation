@@ -1,20 +1,27 @@
 package test.lowlevel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityContext;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
+import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationFactory;
 import ibis.constellation.Event;
 import ibis.constellation.Executor;
+import ibis.constellation.ExecutorContext;
 import ibis.constellation.SimpleExecutor;
 import ibis.constellation.SingleEventCollector;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.ExecutorContext;
 import ibis.constellation.context.UnitActivityContext;
 import ibis.constellation.context.UnitExecutorContext;
 
 public class DivideAndConquerWithLoadAndContext extends Activity {
+
+    private static final Logger logger = LoggerFactory
+            .getLogger(DivideAndConquerWithLoadAndContext.class);
 
     /*
      * This is a simple divide and conquer example. The user can specify the
@@ -44,7 +51,7 @@ public class DivideAndConquerWithLoadAndContext extends Activity {
 
     @Override
     public void initialize() {
-
+        logger.debug("Initialize " + identifier() + ", depth = " + depth);
         if (depth == 0) {
 
             if (load > 0) {
@@ -81,7 +88,7 @@ public class DivideAndConquerWithLoadAndContext extends Activity {
 
     @Override
     public void process(Event e) {
-
+        logger.debug("Got event " + e);
         took += (Long) e.data;
 
         merged++;
@@ -95,6 +102,7 @@ public class DivideAndConquerWithLoadAndContext extends Activity {
 
     @Override
     public void cleanup() {
+        logger.debug("Cleanup " + identifier());
         send(new Event(identifier(), parent, took));
     }
 
@@ -106,81 +114,86 @@ public class DivideAndConquerWithLoadAndContext extends Activity {
 
     public static void main(String[] args) {
 
-        try {
-            long start = System.currentTimeMillis();
+        long start = System.nanoTime();
 
-            int branch = Integer.parseInt(args[0]);
-            int depth = Integer.parseInt(args[1]);
-            int load = Integer.parseInt(args[2]);
-            int nodes = Integer.parseInt(args[3]);
-            int executors = Integer.parseInt(args[4]);
-            int rank = Integer.parseInt(args[5]);
+        int branch = Integer.parseInt(args[0]);
+        int depth = Integer.parseInt(args[1]);
+        int load = Integer.parseInt(args[2]);
+        int nodes = Integer.parseInt(args[3]);
+        int executors = Integer.parseInt(args[4]);
+        int rank = Integer.parseInt(args[5]);
 
-            ExecutorContext even = new UnitExecutorContext("Even");
-            ExecutorContext odd = new UnitExecutorContext("Odd");
+        ExecutorContext even = new UnitExecutorContext("Even");
+        ExecutorContext odd = new UnitExecutorContext("Odd");
 
-            Executor[] e = new Executor[executors];
+        Executor[] e = new Executor[executors];
 
-            for (int i = 0; i < executors; i++) {
+        for (int i = 0; i < executors; i++) {
 
-                if (rank % 2 == 0) {
-                    e[i] = new SimpleExecutor(even, StealStrategy.SMALLEST,
-                            StealStrategy.BIGGEST);
-                } else {
-                    e[i] = new SimpleExecutor(odd, StealStrategy.SMALLEST,
-                            StealStrategy.BIGGEST);
-                }
+            if (rank % 2 == 0) {
+                e[i] = new SimpleExecutor(even, StealStrategy.SMALLEST,
+                        StealStrategy.BIGGEST);
+            } else {
+                e[i] = new SimpleExecutor(odd, StealStrategy.SMALLEST,
+                        StealStrategy.BIGGEST);
             }
-
-            Constellation c = ConstellationFactory.createConstellation(e);
-            c.activate();
-
-            if (c.isMaster()) {
-
-                long count = 0;
-
-                for (int i = 0; i <= depth; i++) {
-                    count += Math.pow(branch, i);
-                }
-
-                double time = (load * Math.pow(branch, depth))
-                        / (1000 * (nodes * executors));
-
-                System.out.println(
-                        "Running D&C with even/odd context and branch factor "
-                                + branch + " and depth " + depth + " load "
-                                + load + " (expected jobs: " + count
-                                + ", expected time: " + time + " sec.)");
-
-                SingleEventCollector a = new SingleEventCollector(
-                        new UnitActivityContext("Even"));
-
-                c.submit(a);
-                c.submit(new DivideAndConquerWithLoadAndContext(
-                        new UnitActivityContext("EVEN", depth), a.identifier(),
-                        branch, depth, load));
-
-                long result = (Long) a.waitForEvent().data;
-
-                long end = System.currentTimeMillis();
-
-                double nsPerJob = (1000.0 * 1000.0 * (end - start)) / count;
-
-                String correct = (result == count) ? " (CORRECT)" : " (WRONG!)";
-
-                System.out.println("D&C(" + branch + ", " + depth + ") = "
-                        + result + correct + " total time = " + (end - start)
-                        + " job time = " + nsPerJob + " nsec/job");
-
-            }
-
-            c.done();
-
-        } catch (Exception e) {
-            System.err.println("Oops: " + e);
-            e.printStackTrace(System.err);
-            System.exit(1);
         }
+
+        Constellation c;
+        try {
+            c = ConstellationFactory.createConstellation(e);
+        } catch (ConstellationCreationException e1) {
+            logger.error("Could not create constellation", e1);
+            return;
+        }
+        c.activate();
+
+        logger.info("My rank is " + rank);
+
+        if (c.isMaster()) {
+
+            long count = 0;
+
+            for (int i = 0; i <= depth; i++) {
+                count += Math.pow(branch, i);
+            }
+
+            double time = (load * Math.pow(branch, depth))
+                    / (1000 * (nodes * executors));
+
+            logger.info("Running D&C with even/odd context and branch factor "
+                    + branch + " and depth " + depth + " load " + load
+                    + " (expected jobs: " + count + ", expected time: " + time
+                    + " sec.)");
+
+            SingleEventCollector a = new SingleEventCollector(
+                    new UnitActivityContext("Even"));
+
+            c.submit(a);
+            c.submit(new DivideAndConquerWithLoadAndContext(
+                    new UnitActivityContext("EVEN", depth), a.identifier(),
+                    branch, depth, load));
+
+            long result = (Long) a.waitForEvent().data;
+
+            long end = System.nanoTime();
+
+            double msPerJob = Math.round(((end - start) / 10000.0) * nodes
+                    * executors / Math.pow(branch, depth)) / 100.0;
+
+            String correct = (result == count) ? " (CORRECT)" : " (WRONG!)";
+
+            logger.info("D&C(" + branch + ", " + depth + ") = " + result
+                    + correct + " total time = "
+                    + Math.round((end - start) / 1000000.0) / 1000.0
+                    + " sec; leaf job time = " + msPerJob
+                    + " msec/job; overhead = "
+                    + Math.round(100 * 100 * (msPerJob - load) / (load)) / 100.0
+                    + "%");
+
+        }
+
+        c.done();
 
     }
 }
