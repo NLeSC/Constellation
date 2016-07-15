@@ -37,7 +37,7 @@ public class DivideAndConquerWithLoadAndContext extends Activity {
     private final int depth;
     private final int load;
 
-    private long count = 0;
+    private long count = 1;
     private int merged = 0;
 
     public DivideAndConquerWithLoadAndContext(ActivityContext c,
@@ -62,8 +62,6 @@ public class DivideAndConquerWithLoadAndContext extends Activity {
                 while (time < load) {
                     time = System.currentTimeMillis() - start;
                 }
-
-                count = 1;
             }
 
             finish();
