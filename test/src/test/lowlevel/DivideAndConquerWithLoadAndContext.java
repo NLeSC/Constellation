@@ -171,7 +171,7 @@ public class DivideAndConquerWithLoadAndContext extends Activity {
 
             c.submit(a);
             c.submit(new DivideAndConquerWithLoadAndContext(
-                    new UnitActivityContext("EVEN", depth), a.identifier(),
+                    new UnitActivityContext("Even", depth), a.identifier(),
                     branch, depth, load));
 
             long result = (Long) a.waitForEvent().data;
