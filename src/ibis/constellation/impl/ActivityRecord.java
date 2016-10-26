@@ -1,7 +1,8 @@
 package ibis.constellation.impl;
 
-import java.io.IOException;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,13 +10,11 @@ import org.slf4j.LoggerFactory;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityContext;
 import ibis.constellation.ActivityIdentifier;
+import ibis.constellation.ByteBuffers;
 import ibis.constellation.Event;
-import ibis.constellation.ObjectData;
 import ibis.constellation.extra.CircularBuffer;
-import ibis.ipl.ReadMessage;
-import ibis.ipl.WriteMessage;
 
-public class ActivityRecord implements Serializable, ObjectData {
+public class ActivityRecord implements Serializable, ByteBuffers {
 
     public static final Logger logger = LoggerFactory
             .getLogger(ActivityRecord.class);
@@ -253,22 +252,22 @@ public class ActivityRecord implements Serializable, ObjectData {
     }
 
     @Override
-    public void writeData(WriteMessage m) throws IOException {
+    public void pushByteBuffers(List<ByteBuffer> list) {
         if (queue != null) {
-            queue.writeData(m);
+            queue.pushByteBuffers(list);
         }
-        if (activity != null && activity instanceof ObjectData) {
-            ((ObjectData) activity).writeData(m);
+        if (activity != null && activity instanceof ByteBuffers) {
+            ((ByteBuffers) activity).pushByteBuffers(list);
         }
     }
 
     @Override
-    public void readData(ReadMessage m) throws IOException {
+    public void popByteBuffers(List<ByteBuffer> list) {
         if (queue != null) {
-            queue.readData(m);
+            queue.popByteBuffers(list);
         }
-        if (activity != null && activity instanceof ObjectData) {
-            ((ObjectData) activity).readData(m);
+        if (activity != null && activity instanceof ByteBuffers) {
+            ((ByteBuffers) activity).popByteBuffers(list);
         }
     }
 }

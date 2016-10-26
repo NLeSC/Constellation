@@ -12,8 +12,7 @@ public class PipelineTest {
     public static void main(String[] args) {
 
         // Simple test that creates, starts and stops a set of constellations.
-        // When
-        // the lot is running, it deploys a series of jobs.
+        // When the lot is running, it deploys a series of jobs.
         int jobs = Integer.parseInt(args[0]);
         int size = Integer.parseInt(args[1]);
         int rank = Integer.parseInt(args[2]);

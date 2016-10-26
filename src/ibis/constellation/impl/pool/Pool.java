@@ -1,6 +1,7 @@
 package ibis.constellation.impl.pool;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -9,8 +10,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ibis.constellation.ByteBufferCache;
 import ibis.constellation.ConstellationProperties;
-import ibis.constellation.ObjectData;
+import ibis.constellation.ByteBuffers;
 import ibis.constellation.StealPool;
 import ibis.constellation.extra.CTimer;
 import ibis.constellation.extra.Stats;
@@ -108,6 +110,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
         private static final long MIN_DELAY = 1000;
         private static final long MAX_DELAY = 10000;
+        private static final long INCR_DELAY = 0;
 
         private long deadline = 0;
         private long currentDelay = MIN_DELAY;
@@ -164,7 +167,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
             if (update == null) {
                 // No updates
-                // currentDelay += MIN_DELAY;
+                currentDelay += INCR_DELAY;
 
                 if (currentDelay >= MAX_DELAY) {
                     currentDelay = MAX_DELAY;
@@ -194,7 +197,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
             long sleep = deadline - System.currentTimeMillis();
 
-            if (sleep > 0) {
+            while (sleep > 0) {
                 if (logger.isInfoEnabled()) {
                     logger.info("PoolUpdater sleeping " + sleep + " ms");
                 }
@@ -205,6 +208,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
                 } catch (Exception e) {
                     // ignore
                 }
+                sleep = deadline - System.currentTimeMillis();
             }
         }
 
@@ -704,9 +708,26 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             }
             wm.writeByte(opcode);
             wm.writeObject(data);
-            if (data != null && data instanceof ObjectData) {
+            if (data != null && data instanceof ByteBuffers) {
                 wm.flush();
-                ((ObjectData) data).writeData(wm);
+                ArrayList<ByteBuffer> list = new ArrayList<ByteBuffer>();
+                ((ByteBuffers) data).pushByteBuffers(list);
+                if (logger.isInfoEnabled()) {
+                    logger.info("Writing " + list.size() + " bytebuffers");
+                }
+                wm.writeInt(list.size());
+                for (ByteBuffer b : list) {
+                    b.position(0);
+                    b.limit(b.capacity());
+                    wm.writeInt(b.capacity());
+                }
+                for (ByteBuffer b : list) {
+                    wm.writeByteBuffer(b);
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(
+                                "Wrote bytebuffer of size " + b.capacity());
+                    }
+                }
             }
             sz = wm.finish();
             if (eventNo != -1) {
@@ -882,8 +903,26 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         Object data = null;
         try {
             data = rm.readObject();
-            if (data != null && data instanceof ObjectData) {
-                ((ObjectData) data).readData(rm);
+            if (data != null && data instanceof ByteBuffers) {
+                int nByteBuffers = rm.readInt();
+                ArrayList<ByteBuffer> l = new ArrayList<ByteBuffer>();
+                if (nByteBuffers > 0) {
+                    if (logger.isInfoEnabled()) {
+                        logger.info("Reading " + nByteBuffers + " bytebuffers");
+                    }
+                    for (int i = 0; i < nByteBuffers; i++) {
+                        int capacity = rm.readInt();
+                        ByteBuffer b = ByteBufferCache.getByteBuffer(capacity,
+                                false);
+                        l.add(b);
+                    }
+                    for (ByteBuffer b : l) {
+                        b.position(0);
+                        b.limit(b.capacity());
+                        rm.readByteBuffer(b);
+                    }
+                }
+                ((ByteBuffers) data).popByteBuffers(l);
             }
 
             if (opcode == OPCODE_SEND_TIME) {
@@ -1233,7 +1272,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             // TODO: will repeat for ever if pool master does not exist...
             while (id == null) {
                 if (logger.isDebugEnabled()) {
-                    logger.info("Searching master for POOL " + electTag);
+                    logger.debug("Searching master for POOL " + electTag);
                 }
                 id = reg.getElectionResult(electTag, 1000);
             }

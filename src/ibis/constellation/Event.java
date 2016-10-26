@@ -1,17 +1,15 @@
 package ibis.constellation;
 
-import java.io.IOException;
 import java.io.Serializable;
-
-import ibis.ipl.ReadMessage;
-import ibis.ipl.WriteMessage;
+import java.nio.ByteBuffer;
+import java.util.List;
 
 /**
  * An <code>Event</code> can be used for communication between {@link Activity
  * activities}. A common usage is to notify an activity that certain data is
  * available, or that some processing steps have been finished.
  */
-public class Event implements Serializable, ObjectData {
+public class Event implements Serializable, ByteBuffers {
 
     private static final long serialVersionUID = 8672434537078611592L;
 
@@ -43,20 +41,6 @@ public class Event implements Serializable, ObjectData {
     }
 
     @Override
-    public void writeData(WriteMessage m) throws IOException {
-        if (data != null && data instanceof ObjectData) {
-            ((ObjectData) data).writeData(m);
-        }
-    }
-
-    @Override
-    public void readData(ReadMessage m) throws IOException {
-        if (data != null && data instanceof ObjectData) {
-            ((ObjectData) data).readData(m);
-        }
-    }
-
-    @Override
     public String toString() {
         String s = "source: ";
         if (source != null) {
@@ -76,5 +60,19 @@ public class Event implements Serializable, ObjectData {
             s += " none";
         }
         return s;
+    }
+
+    @Override
+    public void pushByteBuffers(List<ByteBuffer> list) {
+        if (data != null && data instanceof ByteBuffers) {
+            ((ByteBuffers) data).pushByteBuffers(list);
+        }
+    }
+
+    @Override
+    public void popByteBuffers(List<ByteBuffer> list) {
+        if (data != null && data instanceof ByteBuffers) {
+            ((ByteBuffers) data).popByteBuffers(list);
+        }
     }
 }

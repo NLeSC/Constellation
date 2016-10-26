@@ -3,9 +3,9 @@ package ibis.constellation;
 /**
  * A <code>SimpleActivity</code> is an activity that only requires a single
  * invocation of its {@link #simpleActivity()} method. In particular, it has
- * (default) implementations of {@link Activity#cancel()},
- * {@link Activity#initialize()}, and {@link Activity#cleanup()}, and it does
- * not expect events. It does provide a concept of a parent activity.
+ * (default) implementations of {@link Activity#initialize()} and
+ * {@link Activity#cleanup()}, and it does not expect events. It does provide a
+ * concept of a parent activity.
  */
 public abstract class SimpleActivity extends Activity {
 

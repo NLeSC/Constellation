@@ -1,13 +1,12 @@
 package ibis.constellation.impl;
 
-import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.List;
 
+import ibis.constellation.ByteBuffers;
 import ibis.constellation.Event;
-import ibis.constellation.ObjectData;
-import ibis.ipl.ReadMessage;
-import ibis.ipl.WriteMessage;
 
-public class EventMessage extends Message implements ObjectData {
+public class EventMessage extends Message implements ByteBuffers {
 
     private static final long serialVersionUID = -5430024744123215066L;
 
@@ -21,21 +20,21 @@ public class EventMessage extends Message implements ObjectData {
     }
 
     @Override
-    public void writeData(WriteMessage m) throws IOException {
-        if (event != null) {
-            event.writeData(m);
-        }
-    }
-
-    @Override
-    public void readData(ReadMessage m) throws IOException {
-        if (event != null) {
-            event.readData(m);
-        }
-    }
-
-    @Override
     public String toString() {
         return "EventMessage: " + super.toString();
+    }
+
+    @Override
+    public void pushByteBuffers(List<ByteBuffer> list) {
+        if (event != null) {
+            event.pushByteBuffers(list);
+        }
+    }
+
+    @Override
+    public void popByteBuffers(List<ByteBuffer> list) {
+        if (event != null) {
+            event.popByteBuffers(list);
+        }
     }
 }

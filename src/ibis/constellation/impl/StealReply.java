@@ -1,15 +1,14 @@
 package ibis.constellation.impl;
 
-import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.List;
 
+import ibis.constellation.ByteBuffers;
 import ibis.constellation.ExecutorContext;
-import ibis.constellation.ObjectData;
 import ibis.constellation.StealPool;
-import ibis.ipl.ReadMessage;
-import ibis.ipl.WriteMessage;
 
-public class StealReply extends Message implements ObjectData {
+public class StealReply extends Message implements ByteBuffers {
 
     private static final long serialVersionUID = 2655647847327367590L;
 
@@ -73,22 +72,22 @@ public class StealReply extends Message implements ObjectData {
     }
 
     @Override
-    public void writeData(WriteMessage m) throws IOException {
+    public void pushByteBuffers(List<ByteBuffer> list) {
         if (work != null) {
             for (Object a : work) {
-                if (a != null && a instanceof ObjectData) {
-                    ((ObjectData) a).writeData(m);
+                if (a != null && a instanceof ByteBuffers) {
+                    ((ByteBuffers) a).pushByteBuffers(list);
                 }
             }
         }
     }
 
     @Override
-    public void readData(ReadMessage m) throws IOException {
+    public void popByteBuffers(List<ByteBuffer> list) {
         if (work != null) {
             for (Object a : work) {
-                if (a != null && a instanceof ObjectData) {
-                    ((ObjectData) a).readData(m);
+                if (a != null && a instanceof ByteBuffers) {
+                    ((ByteBuffers) a).popByteBuffers(list);
                 }
             }
         }

@@ -11,7 +11,7 @@ public class CreateTest {
 
     public static void main(String[] args) {
 
-        // Simple test that creates, starts and stops a cohort
+        // Simple test that creates, starts and stops a constellation.
         try {
             int executors = Integer.parseInt(args[0]);
 

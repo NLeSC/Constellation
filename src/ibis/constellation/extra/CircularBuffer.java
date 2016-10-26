@@ -1,16 +1,15 @@
 package ibis.constellation.extra;
 
-import java.io.IOException;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ibis.constellation.ObjectData;
-import ibis.ipl.ReadMessage;
-import ibis.ipl.WriteMessage;
+import ibis.constellation.ByteBuffers;
 
-public class CircularBuffer<T> implements Serializable, ObjectData {
+public class CircularBuffer<T> implements Serializable, ByteBuffers {
 
     private static final long serialVersionUID = 5853279675709435595L;
 
@@ -218,25 +217,24 @@ public class CircularBuffer<T> implements Serializable, ObjectData {
     }
 
     @Override
-    public void writeData(WriteMessage m) throws IOException {
+    public void pushByteBuffers(List<ByteBuffer> list) {
         if (array != null) {
             for (Object a : array) {
-                if (a != null && a instanceof ObjectData) {
-                    ((ObjectData) a).writeData(m);
+                if (a != null && a instanceof ByteBuffers) {
+                    ((ByteBuffers) a).pushByteBuffers(list);
                 }
             }
         }
     }
 
     @Override
-    public void readData(ReadMessage m) throws IOException {
+    public void popByteBuffers(List<ByteBuffer> list) {
         if (array != null) {
             for (Object a : array) {
-                if (a != null && a instanceof ObjectData) {
-                    ((ObjectData) a).readData(m);
+                if (a != null && a instanceof ByteBuffers) {
+                    ((ByteBuffers) a).popByteBuffers(list);
                 }
             }
         }
     }
-
 }

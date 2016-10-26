@@ -33,7 +33,7 @@ public class ExecutorWrapper implements Constellation {
 
     private final ConstellationIdentifier identifier;
 
-    private final Executor executor;
+    private final ExecutorBase executor;
 
     private final ExecutorContext myContext;
 
@@ -75,7 +75,7 @@ public class ExecutorWrapper implements Constellation {
 
     private ActivityRecord current;
 
-    ExecutorWrapper(SingleThreadedConstellation parent, Executor executor,
+    ExecutorWrapper(SingleThreadedConstellation parent, ExecutorBase executor,
             ConstellationProperties p, ConstellationIdentifier identifier) {
         this.parent = parent;
         this.identifier = identifier;
@@ -402,7 +402,7 @@ public class ExecutorWrapper implements Constellation {
     private void process(ActivityRecord tmp) {
         int evt = 0;
 
-        tmp.activity.setExecutor(executor);
+        tmp.activity.setExecutor((Executor) executor);
         current = tmp;
         CTimer timer = tmp.isFinishing() ? cleanupTimer
                 : tmp.isRunnable() ? processTimer : initializeTimer;
