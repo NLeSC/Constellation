@@ -8,7 +8,7 @@ import ibis.constellation.ByteBuffers;
 import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealPool;
 
-public class StealReply extends Message implements ByteBuffers {
+public class StealReply extends MessageBase implements ByteBuffers {
 
     private static final long serialVersionUID = 2655647847327367590L;
 
