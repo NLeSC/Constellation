@@ -70,11 +70,16 @@ public class CommunicationLayerImpl
 
     private IbisIdentifier[] ids = null;
 
+    private final ConstellationProperties properties;
+
+    private CTimer communicationTimer;
+
     public CommunicationLayerImpl(final ConstellationProperties properties,
             Pool pool) throws PoolCreationFailedException {
 
         closedPool = properties.CLOSED;
         this.pool = pool;
+        this.properties = properties;
 
         try {
             ibis = IbisFactory.createIbis(
@@ -116,9 +121,6 @@ public class CommunicationLayerImpl
 
             rp = ibis.createReceivePort(portType, "constellation", this);
             rp.enableConnections();
-
-            // MOVED: to activate
-            // rp.enableMessageUpcalls();
 
             if (closedPool) {
                 ibis.registry().waitUntilPoolClosed();
@@ -236,21 +238,20 @@ public class CommunicationLayerImpl
     }
 
     @Override
-    public boolean sendMessage(Message m) {
+    public boolean sendMessage(NodeIdentifier destination, Message m) {
         SendPort s;
-        IbisIdentifier source = ((NodeIdentifierImpl) m.node)
+        IbisIdentifier dest = ((NodeIdentifierImpl) destination)
                 .getIbisIdentifier();
         try {
-            s = getSendPort(source);
+            s = getSendPort(dest);
         } catch (IOException e1) {
-            logger.warn("POOL failed to connect to " + source, e1);
+            logger.warn("POOL failed to connect to " + dest, e1);
             return false;
         }
 
         int eventNo = -1;
         long sz = 0;
         WriteMessage wm = null;
-        CTimer communicationTimer = pool.getTimer();
         try {
             wm = s.newMessage();
             String name = Pool.getString(m.opcode, "write");
@@ -291,7 +292,7 @@ public class CommunicationLayerImpl
                 communicationTimer.addBytes(sz, eventNo);
             }
         } catch (IOException e) {
-            logger.warn("Communication to " + source + " gave exception", e);
+            logger.warn("Communication to " + dest + " gave exception", e);
             if (wm != null) {
                 wm.finish(e);
             }
@@ -311,14 +312,13 @@ public class CommunicationLayerImpl
         IbisIdentifier source = rm.origin().ibisIdentifier();
         int timerEvent = -1;
         byte opcode = rm.readByte();
-        CTimer communicationTimer = pool.getTimer();
         boolean hasObject = rm.readBoolean();
 
         if (communicationTimer != null && hasObject) {
             timerEvent = communicationTimer
                     .start(Pool.getString(opcode, "read"));
         }
-        Message m = new Message(opcode, null, new NodeIdentifierImpl(source));
+        Message m = new Message(opcode, null);
 
         if (hasObject) {
             long sz = -1;
@@ -360,7 +360,7 @@ public class CommunicationLayerImpl
         } else {
             rm.finish();
         }
-        pool.upcall(m);
+        pool.upcall(new NodeIdentifierImpl(source), m);
     }
 
     @Override
@@ -478,6 +478,14 @@ public class CommunicationLayerImpl
     }
 
     public void activate() {
+
+        if (properties.PROFILE_COMMUNICATION) {
+            communicationTimer = pool.getStats().getTimer("java",
+                    "data handling", "read/write data");
+        } else {
+            communicationTimer = null;
+        }
+
         rp.enableMessageUpcalls();
         if (closedPool) {
             for (int i = 0; i < rports.length; i++) {

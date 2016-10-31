@@ -1,13 +1,13 @@
 package ibis.constellation.impl.pool.communication;
 
-public class Message {
+import java.io.Serializable;
+
+public class Message implements Serializable {
     public byte opcode;
     public Object contents;
-    public NodeIdentifier node; // destination or origin
 
-    public Message(byte opcode, Object contents, NodeIdentifier node) {
+    public Message(byte opcode, Object contents) {
         this.opcode = opcode;
         this.contents = contents;
-        this.node = node;
     }
 }

@@ -216,9 +216,10 @@ public class DistributedConstellation {
         // Init communication here...
         try {
             pool = new Pool(this, props);
-
-            cidFactory = pool.getCIDFactory();
+            cidFactory = new DistributedConstellationIdentifierFactory(
+                    pool.getRank());
             identifier = cidFactory.generateConstellationIdentifier();
+            stats = new Stats(identifier.toString());
 
             myContext = UnitExecutorContext.DEFAULT;
 
@@ -238,8 +239,6 @@ public class DistributedConstellation {
                 logger.info("Starting DistributedConstellation " + identifier
                         + " / " + myContext);
             }
-
-            stats = pool.getStats();
         } catch (PoolCreationFailedException e) {
             throw new ConstellationCreationException(
                     "could not create DistributedConstellation", e);
@@ -275,7 +274,11 @@ public class DistributedConstellation {
         logger.info("Subconstellation done");
 
         if (concluder != null) {
-            concluder.conclude();
+            try {
+                concluder.conclude();
+            } catch (Throwable e) {
+                logger.warn("Conclude threw exception: ", e);
+            }
             logger.info("Concluded");
         }
 
@@ -586,13 +589,12 @@ public class DistributedConstellation {
     void stealsFrom(StealPool stealsFrom) {
 
         if (stealsFrom == null) {
-            logger.warn("Constellation does not steal from to any pool!");
+            logger.warn("Constellation does not steal from any pool!");
             return;
         }
 
         if (stealsFrom.isNone()) {
-            // We don't belong to any pool. As a result, no one can steal from
-            // us.
+            // We explicitly don't steal from any pool.
             return;
         }
 

@@ -11,12 +11,10 @@ import org.slf4j.LoggerFactory;
 
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.StealPool;
-import ibis.constellation.extra.CTimer;
 import ibis.constellation.extra.Stats;
 import ibis.constellation.extra.TimeSyncInfo;
 import ibis.constellation.impl.ConstellationIdentifier;
 import ibis.constellation.impl.DistributedConstellation;
-import ibis.constellation.impl.DistributedConstellationIdentifierFactory;
 import ibis.constellation.impl.EventMessage;
 import ibis.constellation.impl.MessageBase;
 import ibis.constellation.impl.StealReply;
@@ -57,8 +55,6 @@ public class Pool {
 
     private final ConcurrentHashMap<Integer, NodeIdentifier> locationCache = new ConcurrentHashMap<Integer, NodeIdentifier>();
 
-    private final DistributedConstellationIdentifierFactory cidFactory;
-
     private final NodeIdentifier local;
     private final NodeIdentifier master;
 
@@ -69,8 +65,6 @@ public class Pool {
     private final Random random = new Random();
 
     private final boolean closedPool;
-
-    private final CTimer communicationTimer;
 
     private final HashMap<NodeIdentifier, Long> times = new HashMap<NodeIdentifier, Long>();
     private final TimeSyncInfo syncInfo;
@@ -213,7 +207,6 @@ public class Pool {
     private boolean gotRelease;
     private boolean gotAnswer;
     private boolean gotPong;
-    private Stats stats;
     private final ConstellationProperties properties;
 
     private int gotStats;
@@ -237,7 +230,6 @@ public class Pool {
         master = comm.getMaster();
         rank = comm.getRank();
         isMaster = local.equals(master);
-        cidFactory = new DistributedConstellationIdentifierFactory(rank);
         locationCache.put((int) rank, local);
 
         // Register my rank at the master
@@ -252,15 +244,6 @@ public class Pool {
         // Start the updater thread...
         updater.start();
 
-        stats = new Stats(getId());
-
-        if (properties.PROFILE_COMMUNICATION) {
-            communicationTimer = stats.getTimer("java", "data receiver",
-                    "receive data");
-        } else {
-            communicationTimer = null;
-        }
-
         if (closedPool) {
             ids = comm.getNodeIdentifiers();
         }
@@ -270,7 +253,7 @@ public class Pool {
     }
 
     public Stats getStats() {
-        return stats;
+        return owner.getStats();
     }
 
     public void activate() {
@@ -284,8 +267,7 @@ public class Pool {
                 for (NodeIdentifier id : ids) {
                     if (!id.equals(local)) {
                         // First do a pingpong to make sure that the other side
-                        // has
-                        // upcalls enabled already.
+                        // has upcalls enabled already.
                         doForward(id, OPCODE_PING, null);
                         synchronized (this) {
                             while (!gotPong) {
@@ -327,10 +309,6 @@ public class Pool {
                 }
             }
         }
-    }
-
-    public DistributedConstellationIdentifierFactory getCIDFactory() {
-        return cidFactory;
     }
 
     public boolean isLocal(ConstellationIdentifier id) {
@@ -403,9 +381,9 @@ public class Pool {
         return lookupRank(rank);
     }
 
-    private boolean doForward(NodeIdentifier source, byte opcode, Object data) {
-        Message m = new Message(opcode, data, source);
-        return comm.sendMessage(m);
+    private boolean doForward(NodeIdentifier dest, byte opcode, Object data) {
+        Message m = new Message(opcode, data);
+        return comm.sendMessage(dest, m);
     }
 
     public boolean forward(StealReply sr) {
@@ -523,9 +501,8 @@ public class Pool {
         doForward(id, OPCODE_REQUEST_TIME, null);
     }
 
-    public void upcall(Message rm) {
+    public void upcall(NodeIdentifier source, Message rm) {
 
-        NodeIdentifier source = rm.node;
         byte opcode = rm.opcode;
 
         if (logger.isInfoEnabled()) {
@@ -941,10 +918,6 @@ public class Pool {
         requestUpdate(tmp.master, tag, tmp.currentTimeStamp());
     }
 
-    private String getId() {
-        return local.name();
-    }
-
     public static String getString(int opcode, String readOrWrite) {
         switch (opcode) {
         case OPCODE_EVENT_MESSAGE:
@@ -987,10 +960,6 @@ public class Pool {
 
     public boolean isTerminated() {
         return terminated;
-    }
-
-    public CTimer getTimer() {
-        return communicationTimer;
     }
 
 }

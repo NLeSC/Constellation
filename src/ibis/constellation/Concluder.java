@@ -10,8 +10,7 @@ public interface Concluder {
 
     /**
      * This method is invoked when all instances of a constellation pool have
-     * decided to terminate, see {@link Constellation#done(Concluder)}. TODO
-     * what happens when this method throws an exception?
+     * decided to terminate, see {@link Constellation#done(Concluder)}.
      */
     public void conclude();
 }
