@@ -60,8 +60,6 @@ public class CommunicationLayerImpl
 
     private final ConcurrentHashMap<IbisIdentifier, SendPort> sendports = new ConcurrentHashMap<IbisIdentifier, SendPort>();
 
-    private final ConcurrentHashMap<Integer, NodeIdentifier> locationCache = new ConcurrentHashMap<Integer, NodeIdentifier>();
-
     private long rank = -1;
 
     private final Pool pool;
@@ -394,7 +392,6 @@ public class CommunicationLayerImpl
     @Override
     public void left(IbisIdentifier arg0) {
         // TODO Auto-generated method stub
-
     }
 
     @Override
