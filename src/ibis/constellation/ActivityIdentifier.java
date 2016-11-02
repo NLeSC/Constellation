@@ -3,7 +3,7 @@ package ibis.constellation;
 import java.io.Serializable;
 
 /**
- * An <code>ActivityIdentifier</code> uniquely identifies an {@link Activity}
+ * An <code>ActivityIdentifierImpl</code> uniquely identifies an {@link ActivityBase}
  * instance.
  *
  * @version 1.0

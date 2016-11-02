@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import ibis.constellation.context.UnitActivityContext;
 
 /**
- * A <code>FlexibleEventCollector</code> is an {@link Activity} that just waits
+ * A <code>FlexibleEventCollector</code> is an {@link ActivityBase} that just waits
  * for events, indefinitely, and collects them. It provides a method
  * {@link #waitForEvents()}, to be used by other activities, to collect the
  * events collected so far.
@@ -20,7 +20,7 @@ public class FlexibleEventCollector extends Activity {
     /**
      * Constructs a <code>FlexibleEventCollector</code> with the specified
      * activity context. Note: this is an activity that will receive events (see
-     * {@link Activity#Activity(ActivityContext, boolean)}).
+     * {@link ActivityBase#Activity(ActivityContext, boolean)}).
      *
      * @param c
      *            the activity context

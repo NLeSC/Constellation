@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import ibis.constellation.context.UnitActivityContext;
 
 /**
- * A <code>MultiEventCollector</code> is an {@link Activity} that just waits for
+ * A <code>MultiEventCollector</code> is an {@link ActivityBase} that just waits for
  * a specific number of events, and collects them. It provides a method
  * {@link #waitForEvents()}, to be used by other activities, to collect the
  * events and block until the specified number of events is reached, after which
@@ -25,7 +25,7 @@ public class MultiEventCollector extends Activity {
     /**
      * Constructs a <code>MultiEventCollector</code> with the specified activity
      * context and event count. Note: this is an activity that will receive
-     * events (see {@link Activity#Activity(ActivityContext, boolean)}).
+     * events (see {@link ActivityBase#Activity(ActivityContext, boolean)}).
      *
      * @param c
      *            the activity context of this event collector
@@ -40,7 +40,7 @@ public class MultiEventCollector extends Activity {
     /**
      * Constructs a <code>MultiEventCollector</code> with the default activity
      * context and specified event count. Note: this is an activity that will
-     * receive events (see {@link Activity#Activity(ActivityContext, boolean)}).
+     * receive events (see {@link ActivityBase#Activity(ActivityContext, boolean)}).
      *
      * @param events
      *            the number of events to be collected

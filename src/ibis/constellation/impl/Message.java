@@ -33,7 +33,7 @@ public abstract class Message implements Serializable {
         return old;
     }
 
-    public ActivityIdentifier targetActivity() {
+    public ActivityIdentifierImpl targetActivity() {
         return null;
     }
 

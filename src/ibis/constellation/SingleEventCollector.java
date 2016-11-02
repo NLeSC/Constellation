@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import ibis.constellation.context.UnitActivityContext;
 
 /**
- * A <code>SingleEventCollector</code> is an {@link Activity} that just waits
+ * A <code>SingleEventCollector</code> is an {@link ActivityBase} that just waits
  * for a single event, and saves it. It provides a method
  * {@link #waitForEvent()}, to be used by other activities, to collect the event
  * and block until it arrives, after which the <code>SingleEventCollector</code>
@@ -24,7 +24,7 @@ public class SingleEventCollector extends Activity {
     /**
      * Constructs a <code>SingleEventCollector</code> with the specified
      * activity context. Note: this is an activity that will receive events (see
-     * {@link Activity#Activity(ActivityContext, boolean)}).
+     * {@link ActivityBase#Activity(ActivityContext, boolean)}).
      *
      * @param c
      *            the activity context of this event collector
@@ -36,7 +36,7 @@ public class SingleEventCollector extends Activity {
     /**
      * Constructs a <code>SingleEventCollector</code> with the default activity
      * context. Note: this is an activity that will receive events (see
-     * {@link Activity#Activity(ActivityContext, boolean)}).
+     * {@link ActivityBase#Activity(ActivityContext, boolean)}).
      */
     public SingleEventCollector() {
         this(UnitActivityContext.DEFAULT);

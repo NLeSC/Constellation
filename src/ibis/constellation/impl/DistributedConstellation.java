@@ -137,7 +137,7 @@ public class DistributedConstellation {
         }
         //
         // @Override
-        // public void cancel(ActivityIdentifier aid) {
+        // public void cancel(ActivityIdentifierImpl aid) {
         // // ignored!
         // }
 
