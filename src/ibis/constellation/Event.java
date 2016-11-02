@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
- * An <code>Event</code> can be used for communication between {@link Activity
+ * An <code>Event</code> can be used for communication between {@link ActivityBase
  * activities}. A common usage is to notify an activity that certain data is
  * available, or that some processing steps have been finished.
  */

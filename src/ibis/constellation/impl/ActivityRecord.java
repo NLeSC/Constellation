@@ -143,20 +143,20 @@ public class ActivityRecord implements Serializable, ByteBuffers {
 
                 activity.initialize();
 
-                if (activity.mustSuspend()) {
+                if (((ActivityBase) activity).mustSuspend()) {
                     if (pendingEvents() > 0) {
                         state = RUNNABLE;
                     } else {
                         state = SUSPENDED;
                     }
-                } else if (activity.mustFinish()) {
+                } else if (((ActivityBase) activity).mustFinish()) {
                     state = FINISHING;
                 } else {
                     throw new IllegalStateException(
-                            "Activity did not suspend or finish!");
+                            "ActivityBase did not suspend or finish!");
                 }
 
-                activity.reset();
+                ((ActivityBase) activity).reset();
                 break;
 
             case RUNNABLE:
@@ -170,21 +170,21 @@ public class ActivityRecord implements Serializable, ByteBuffers {
 
                 activity.process(e);
 
-                if (activity.mustSuspend()) {
+                if (((ActivityBase) activity).mustSuspend()) {
                     // We only suspend the job if there are no pending events.
                     if (pendingEvents() > 0) {
                         state = RUNNABLE;
                     } else {
                         state = SUSPENDED;
                     }
-                } else if (activity.mustFinish()) {
+                } else if (((ActivityBase) activity).mustFinish()) {
                     state = FINISHING;
                 } else {
                     throw new IllegalStateException(
-                            "Activity did not suspend or finish!");
+                            "ActivityBase did not suspend or finish!");
                 }
 
-                activity.reset();
+                ((ActivityBase) activity).reset();
                 break;
 
             case FINISHING:
@@ -207,7 +207,7 @@ public class ActivityRecord implements Serializable, ByteBuffers {
             }
 
         } catch (Throwable e) {
-            logger.error("Activity failed: ", e);
+            logger.error("ActivityBase failed: ", e);
             state = ERROR;
         }
 

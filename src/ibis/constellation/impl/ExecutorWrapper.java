@@ -176,7 +176,7 @@ public class ExecutorWrapper implements Constellation {
         return null;
     }
 
-    private ActivityIdentifier createActivityID(boolean expectsEvents) {
+    private ActivityIdentifierImpl createActivityID(boolean expectsEvents) {
 
         try {
             return generator.createActivityID(expectsEvents);
@@ -206,7 +206,7 @@ public class ExecutorWrapper implements Constellation {
         relocated.insertLast(a);
     }
 
-    protected ActivityRecord lookup(ActivityIdentifier id) {
+    protected ActivityRecord lookup(ActivityIdentifierImpl id) {
         return lookup.get(id);
     }
 
@@ -215,7 +215,7 @@ public class ExecutorWrapper implements Constellation {
 
         activitiesSubmitted++;
 
-        ActivityIdentifier id = createActivityID(a.expectsEvents());
+        ActivityIdentifierImpl id = createActivityID(a.expectsEvents());
         a.initialize(id);
 
         ActivityRecord ar = new ActivityRecord(a);
@@ -282,7 +282,7 @@ public class ExecutorWrapper implements Constellation {
 
         } else {
             messagesExternal++;
-            // Activity is not local, so let our parent handle it.
+            // ActivityBase is not local, so let our parent handle it.
             parent.handleEvent(e);
         }
 
@@ -402,7 +402,7 @@ public class ExecutorWrapper implements Constellation {
     private void process(ActivityRecord tmp) {
         int evt = 0;
 
-        tmp.activity.setExecutor((Executor) executor);
+        ((ActivityBase) tmp.activity).setExecutor((Executor) executor);
         current = tmp;
         CTimer timer = tmp.isFinishing() ? cleanupTimer
                 : tmp.isRunnable() ? processTimer : initializeTimer;

@@ -2,23 +2,24 @@ package ibis.constellation.impl;
 
 import java.io.Serializable;
 
-import ibis.constellation.Activity;
+import ibis.constellation.ActivityIdentifier;
 
 /**
- * An <code>ActivityIdentifier</code> uniquely identifies an {@link Activity}
- * instance.
+ * An <code>ActivityIdentifierImpl</code> uniquely identifies an
+ * {@link ActivityBase} instance.
  *
  * @version 1.0
  * @since 1.0
  */
-public class ActivityIdentifier extends ibis.constellation.ActivityIdentifier
+class ActivityIdentifierImpl extends ActivityIdentifier
         implements Serializable {
 
     /* Generated */
     private static final long serialVersionUID = 4785081436543353644L;
 
     // The globally unique UUID for this activity is "CID:AID"
-    // "CID" is the id of the Constellation on which this Activity was created,
+    // "CID" is the id of the Constellation on which this ActivityBase was
+    // created,
     // "AID" is the sequence number of this activity on that executor.
     private final ConstellationIdentifier CID;
     private final long AID;
@@ -35,7 +36,7 @@ public class ActivityIdentifier extends ibis.constellation.ActivityIdentifier
      * @param expectsEvents
      *            whether this activity expects events
      */
-    public ActivityIdentifier(ConstellationIdentifier cid, long aid,
+    ActivityIdentifierImpl(ConstellationIdentifier cid, long aid,
             boolean expectsEvents) {
         this.CID = cid;
         this.AID = aid;
@@ -58,7 +59,7 @@ public class ActivityIdentifier extends ibis.constellation.ActivityIdentifier
      *
      * @return the constellation identifier.
      */
-    public ConstellationIdentifier getOrigin() {
+    ConstellationIdentifier getOrigin() {
         return CID;
     }
 
@@ -82,7 +83,7 @@ public class ActivityIdentifier extends ibis.constellation.ActivityIdentifier
         if (getClass() != obj.getClass())
             return false;
 
-        final ActivityIdentifier other = (ActivityIdentifier) obj;
+        final ActivityIdentifierImpl other = (ActivityIdentifierImpl) obj;
 
         return (CID.equals(other.CID) && AID == other.AID);
     }

@@ -249,7 +249,7 @@ public class SingleThreadedConstellation extends Thread {
     }
 
     ibis.constellation.ActivityIdentifier doSubmit(ActivityRecord ar,
-            ActivityContext c, ActivityIdentifier id) {
+            ActivityContext c, ActivityIdentifierImpl id) {
 
         Activity a = ar.activity;
 
@@ -283,7 +283,7 @@ public class SingleThreadedConstellation extends Thread {
         logger.error("INTERNAL ERROR: Send not implemented!");
     }
 
-    void performCancel(ActivityIdentifier aid) {
+    void performCancel(ActivityIdentifierImpl aid) {
         logger.error("INTERNAL ERROR: Cancel not implemented!");
     }
 
@@ -623,13 +623,13 @@ public class SingleThreadedConstellation extends Thread {
 
             if (cid == null) {
                 // If not, we simply send the event to the parent
-                cid = ((ActivityIdentifier) e.target).getOrigin();
+                cid = ((ActivityIdentifierImpl) e.target).getOrigin();
             }
         }
 
         if (cid.equals(identifier)) {
             // the target is local, which means we have lost a local activity
-            logger.error("Activity " + e.target
+            logger.error("ActivityBase " + e.target
                     + " does no longer exist! (event dropped)");
             return;
         }
@@ -673,7 +673,7 @@ public class SingleThreadedConstellation extends Thread {
         signal();
     }
 
-    private synchronized ActivityIdentifier createActivityID(
+    private synchronized ActivityIdentifierImpl createActivityID(
             boolean expectsEvents) {
 
         try {

@@ -13,12 +13,12 @@ public class ActivityIdentifierFactory {
         this.end = end;
     }
 
-    public ActivityIdentifier createActivityID(boolean events) {
+    public ActivityIdentifierImpl createActivityID(boolean events) {
 
         if (current >= end) {
             throw new Error("Out of identifiers!");
         }
 
-        return new ActivityIdentifier(cid, current++, events);
+        return new ActivityIdentifierImpl(cid, current++, events);
     }
 }

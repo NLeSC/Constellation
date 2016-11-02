@@ -2,34 +2,22 @@ package ibis.constellation;
 
 import java.io.Serializable;
 
+import ibis.constellation.impl.ActivityBase;
+
 /**
  * In Constellation, a program consists of a collection of loosely coupled
  * activities, which communicate using {@link Event Events}. Each
- * <code>Activity</code> represents an action that is to be performed by the
+ * <code>ActivityBase</code> represents an action that is to be performed by the
  * application, i.e. process some <code>Events</code>, or run a task.
  *
  * This class is the base class for all activities.
  */
-public abstract class Activity implements Serializable {
+public abstract class Activity extends ActivityBase implements Serializable {
 
     private static final long serialVersionUID = -83331265534440970L;
 
-    private static final byte REQUEST_UNKNOWN = 0;
-    private static final byte REQUEST_SUSPEND = 1;
-    private static final byte REQUEST_FINISH = 2;
-
-    private transient Executor executor;
-
-    private ActivityIdentifier identifier;
-    private final ActivityContext context;
-
-    private final boolean restrictToLocal;
-    private final boolean willReceiveEvents;
-
-    private byte next = REQUEST_UNKNOWN;
-
     /**
-     * Initializes this <code>Activity</code> with the specified parameters.
+     * Initializes this <code>ActivityBase</code> with the specified parameters.
      *
      * @param context
      *            the context that specifies which executors can actually
@@ -42,15 +30,13 @@ public abstract class Activity implements Serializable {
      */
     protected Activity(ActivityContext context, boolean restrictToLocal,
             boolean willReceiveEvents) {
-        this.context = context;
-        this.restrictToLocal = restrictToLocal;
-        this.willReceiveEvents = willReceiveEvents;
+        super(context, restrictToLocal, willReceiveEvents);
     }
 
     /**
-     * Initializes this <code>Activity</code> with the specified parameters.
+     * Initializes this <code>ActivityBase</code> with the specified parameters.
      * This version calls
-     * {@link Activity#Activity(ActivityContext, boolean, boolean)}, with
+     * {@link ActivityBase#Activity(ActivityContext, boolean, boolean)}, with
      * <code>false</code> for the <code>restrictToLocal</code> parameter.
      *
      * @param context
@@ -68,31 +54,12 @@ public abstract class Activity implements Serializable {
      * <code>false</code> otherwise.
      *
      * @return whether this activity may receive events.
+     *
+     *         TODO: should this be part of the API? Maybe not.
      */
+    @Override
     public boolean expectsEvents() {
-        return willReceiveEvents;
-    }
-
-    /**
-     * <strong>This method is not part of the user interface!</strong>.
-     * Initializes the activity identifier.
-     *
-     * @param id
-     *            the activity identifier to initialize with.
-     */
-    public final void initialize(ActivityIdentifier id) {
-        this.identifier = id;
-    }
-
-    /**
-     * <strong>This method is not part of the user interface!</strong>.
-     * Initializes the executor field.
-     *
-     * @param executor
-     *            the executor to initialize with.
-     */
-    public final void setExecutor(Executor executor) {
-        this.executor = executor;
+        return super.expectsEvents();
     }
 
     /**
@@ -102,13 +69,9 @@ public abstract class Activity implements Serializable {
      * @exception IllegalStateException
      *                is thrown when the activity is not initialized yet.
      */
+    @Override
     public ActivityIdentifier identifier() {
-
-        if (identifier == null) {
-            throw new IllegalStateException("Activity is not initialized yet");
-        }
-
-        return identifier;
+        return super.identifier();
     }
 
     /**
@@ -118,13 +81,9 @@ public abstract class Activity implements Serializable {
      * @exception IllegalStateException
      *                is thrown when the activity is not initialized yet.
      */
+    @Override
     public Executor getExecutor() {
-
-        if (executor == null) {
-            throw new IllegalStateException("Activity is not initialized yet");
-        }
-
-        return executor;
+        return super.getExecutor();
     }
 
     /**
@@ -156,8 +115,9 @@ public abstract class Activity implements Serializable {
      *
      * @return the activity context.
      */
+    @Override
     public ActivityContext getContext() {
-        return context;
+        return super.getContext();
     }
 
     /**
@@ -165,37 +125,12 @@ public abstract class Activity implements Serializable {
      * local executor, <code>false</code> otherwise.
      *
      * @return whether this activity can only be executed by a local executor.
+     *
+     *         TODO: should this be part of the API? Maybe not.
      */
+    @Override
     public boolean isRestrictedToLocal() {
-        return restrictToLocal;
-    }
-
-    /**
-     * Resets the request state of this activity. Usually not called by the
-     * application.
-     */
-    public void reset() {
-        next = REQUEST_UNKNOWN;
-    }
-
-    /**
-     * Returns <code>true</code> if the activity requested to be suspended,
-     * <code>false</code> otherwise.
-     *
-     * @return whether the activity requested to be suspended.
-     */
-    public boolean mustSuspend() {
-        return (next == REQUEST_SUSPEND);
-    }
-
-    /**
-     * Returns <code>true</code> if the activity requested to be finished,
-     * <code>false</code> otherwise.
-     *
-     * @return whether the activity requested to be finished.
-     */
-    public boolean mustFinish() {
-        return (next == REQUEST_FINISH);
+        return super.isRestrictedToLocal();
     }
 
     /**
@@ -206,14 +141,9 @@ public abstract class Activity implements Serializable {
      *                is thrown when the activity already requested to be
      *                finished.
      */
+    @Override
     public void suspend() {
-
-        if (next == REQUEST_FINISH) {
-            throw new IllegalStateException(
-                    "Activity already requested to finish!");
-        }
-
-        next = REQUEST_SUSPEND;
+        super.suspend();
     }
 
     /**
@@ -224,14 +154,9 @@ public abstract class Activity implements Serializable {
      *                is thrown when the activity already requested to be
      *                suspended.
      */
+    @Override
     public void finish() {
-
-        if (next == REQUEST_SUSPEND) {
-            throw new IllegalStateException(
-                    "Activity already requested to suspend!");
-        }
-
-        next = REQUEST_FINISH;
+        super.finish();
     }
 
     /**
@@ -253,6 +178,9 @@ public abstract class Activity implements Serializable {
      * {@link #suspend()} or {@link #finish()}, depending on what the activity
      * is to do next: {@link #suspend()} when it expects other events, and
      * {@link #finish()} when it is done.
+     *
+     * This method is invoked once at a time, even if more events arrive more or
+     * less simultaneously.
      *
      * Note that this method does not throw checked exceptions. It can, however,
      * throw runtime exceptions or errors, and constellation should deal with
@@ -279,9 +207,4 @@ public abstract class Activity implements Serializable {
     // * Todo never called???
     // */
     // public abstract void cancel();
-
-    @Override
-    public String toString() {
-        return identifier + " " + context;
-    }
 }

@@ -9,7 +9,7 @@ public class LocationCache {
 
     public static final Logger logger = LoggerFactory
             .getLogger(LocationCache.class);
-    private HashMap<ActivityIdentifier, Entry> map = new HashMap<ActivityIdentifier, Entry>();
+    private HashMap<ActivityIdentifierImpl, Entry> map = new HashMap<ActivityIdentifierImpl, Entry>();
 
     public final class Entry {
 
@@ -22,7 +22,7 @@ public class LocationCache {
         }
     }
 
-    public synchronized ConstellationIdentifier lookup(ActivityIdentifier a) {
+    public synchronized ConstellationIdentifier lookup(ActivityIdentifierImpl a) {
 
         final Entry tmp = map.get(a);
 
@@ -33,11 +33,11 @@ public class LocationCache {
         }
     }
 
-    public synchronized Entry lookupEntry(ActivityIdentifier a) {
+    public synchronized Entry lookupEntry(ActivityIdentifierImpl a) {
         return map.get(a);
     }
 
-    public synchronized ConstellationIdentifier remove(ActivityIdentifier a) {
+    public synchronized ConstellationIdentifier remove(ActivityIdentifierImpl a) {
 
         final Entry tmp = map.remove(a);
 
@@ -48,7 +48,7 @@ public class LocationCache {
         }
     }
 
-    public synchronized void removeIfEqual(ActivityIdentifier a,
+    public synchronized void removeIfEqual(ActivityIdentifierImpl a,
             ConstellationIdentifier c) {
 
         final Entry tmp = map.get(a);
@@ -62,7 +62,7 @@ public class LocationCache {
         }
     }
 
-    public synchronized void put(ActivityIdentifier a,
+    public synchronized void put(ActivityIdentifierImpl a,
             ConstellationIdentifier c, long count) {
 
         // NOTE: we only replace an existing entry if count is larger

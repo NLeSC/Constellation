@@ -82,7 +82,7 @@ public class MultiThreadedConstellation {
         }
         //
         // @Override
-        // public void cancel(ActivityIdentifier aid) {
+        // public void cancel(ActivityIdentifierImpl aid) {
         // // ignored!
         // }
 
@@ -201,10 +201,10 @@ public class MultiThreadedConstellation {
         // Since we don't known where the target activity is located, we simply
         // send the message to it's parent constellation (which may be local).
         handleEventMessage(new EventMessage(identifier,
-                ((ActivityIdentifier) e.target).getOrigin(), e));
+                ((ActivityIdentifierImpl) e.target).getOrigin(), e));
     }
 
-    void performCancel(ActivityIdentifier aid) {
+    void performCancel(ActivityIdentifierImpl aid) {
         logger.error("INTERNAL ERROR: cancel not implemented!");
     }
 
