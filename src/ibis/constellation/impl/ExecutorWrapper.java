@@ -255,6 +255,9 @@ public class ExecutorWrapper implements Constellation {
 
     @Override
     public void send(Event e) {
+
+        ActivityIdentifierImpl target = (ActivityIdentifierImpl) e.target;
+        ActivityIdentifierImpl source = (ActivityIdentifierImpl) e.source;
         int evt = 0;
 
         if (PROFILE_COMM) {
@@ -262,11 +265,11 @@ public class ExecutorWrapper implements Constellation {
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("SEND EVENT " + e.source + " to " + e.target);
+            logger.debug("SEND EVENT " + source + " to " + target);
         }
 
         // First check if the activity is local.
-        ActivityRecord ar = lookup.get(e.target);
+        ActivityRecord ar = lookup.get(target);
 
         if (ar != null) {
 
@@ -291,7 +294,7 @@ public class ExecutorWrapper implements Constellation {
         }
     }
 
-    public boolean queueEvent(Event e) {
+    boolean queueEvent(Event e) {
 
         ActivityRecord ar = lookup.get(e.target);
 
@@ -402,7 +405,7 @@ public class ExecutorWrapper implements Constellation {
     private void process(ActivityRecord tmp) {
         int evt = 0;
 
-        ((ActivityBase) tmp.activity).setExecutor((Executor) executor);
+        tmp.activity.setExecutor((Executor) executor);
         current = tmp;
         CTimer timer = tmp.isFinishing() ? cleanupTimer
                 : tmp.isRunnable() ? processTimer : initializeTimer;

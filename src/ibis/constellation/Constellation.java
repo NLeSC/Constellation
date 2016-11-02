@@ -11,9 +11,9 @@ public interface Constellation {
     /**
      * Submit an activity.
      *
-     * The submitted ActivityBase will be inserted into Constellation and executed
-     * if and when a suitable Executor is found. An ActivityIdentifierImpl is
-     * returned that can be used to refer to this submitted ActivityBase at a later
+     * The submitted Activity will be inserted into Constellation and executed
+     * if and when a suitable Executor is found. An ActivityIdentifier is
+     * returned that can be used to refer to this submitted Activity at a later
      * moment in time.
      *
      * It is up to the user to make sure that this constellation instance has a
@@ -21,9 +21,9 @@ public interface Constellation {
      * be stolen from.
      *
      * @param job
-     *            the ActivityBase to submit
-     * @return ActivityIdentifierImpl that can be used to refer to the submitted
-     *         ActivityBase.
+     *            the Activity to submit
+     * @return ActivityIdentifier that can be used to refer to the submitted
+     *         Activity.
      */
     public ActivityIdentifier submit(Activity job);
 
@@ -36,14 +36,14 @@ public interface Constellation {
     public void send(Event e);
 
     // /**
-    // * Cancel an ActivityBase.
+    // * Cancel an Activity.
     // *
     // * Todo: figure out and describe semantics of this.
     // *
     // * @param activity
     // * activity to be cancelled
     // */
-    // public void cancel(ActivityIdentifierImpl activity);
+    // public void cancel(ActivityIdentifier activity);
 
     /**
      * Activate this Constellation implementation.

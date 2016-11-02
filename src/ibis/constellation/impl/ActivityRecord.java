@@ -7,7 +7,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ibis.constellation.Activity;
 import ibis.constellation.ActivityContext;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.ByteBuffers;
@@ -27,7 +26,7 @@ public class ActivityRecord implements Serializable, ByteBuffers {
     static final int DONE = 5;
     static final int ERROR = Integer.MAX_VALUE;
 
-    public final Activity activity;
+    public final ActivityBase activity;
     private final CircularBuffer<Event> queue;
     private int state = INITIALIZING;
 
@@ -35,7 +34,7 @@ public class ActivityRecord implements Serializable, ByteBuffers {
     private boolean relocated = false;
     private boolean remote = false;
 
-    public ActivityRecord(Activity activity) {
+    public ActivityRecord(ActivityBase activity) {
         this.activity = activity;
         queue = new CircularBuffer<Event>(4);
     }
@@ -66,6 +65,10 @@ public class ActivityRecord implements Serializable, ByteBuffers {
 
     public ActivityIdentifier identifier() {
         return activity.identifier();
+    }
+
+    public ActivityIdentifierImpl identifierImpl() {
+        return activity.identifierImpl();
     }
 
     boolean isRunnable() {
@@ -143,20 +146,20 @@ public class ActivityRecord implements Serializable, ByteBuffers {
 
                 activity.initialize();
 
-                if (((ActivityBase) activity).mustSuspend()) {
+                if (activity.mustSuspend()) {
                     if (pendingEvents() > 0) {
                         state = RUNNABLE;
                     } else {
                         state = SUSPENDED;
                     }
-                } else if (((ActivityBase) activity).mustFinish()) {
+                } else if (activity.mustFinish()) {
                     state = FINISHING;
                 } else {
                     throw new IllegalStateException(
                             "ActivityBase did not suspend or finish!");
                 }
 
-                ((ActivityBase) activity).reset();
+                activity.reset();
                 break;
 
             case RUNNABLE:
@@ -170,21 +173,21 @@ public class ActivityRecord implements Serializable, ByteBuffers {
 
                 activity.process(e);
 
-                if (((ActivityBase) activity).mustSuspend()) {
+                if (activity.mustSuspend()) {
                     // We only suspend the job if there are no pending events.
                     if (pendingEvents() > 0) {
                         state = RUNNABLE;
                     } else {
                         state = SUSPENDED;
                     }
-                } else if (((ActivityBase) activity).mustFinish()) {
+                } else if (activity.mustFinish()) {
                     state = FINISHING;
                 } else {
                     throw new IllegalStateException(
                             "ActivityBase did not suspend or finish!");
                 }
 
-                ((ActivityBase) activity).reset();
+                activity.reset();
                 break;
 
             case FINISHING:

@@ -6,13 +6,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ibis.constellation.ActivityContext;
-import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.context.OrActivityContext;
 import ibis.constellation.context.OrExecutorContext;
 import ibis.constellation.context.UnitActivityContext;
 import ibis.constellation.context.UnitExecutorContext;
+import ibis.constellation.impl.ActivityIdentifierImpl;
 import ibis.constellation.impl.ActivityRecord;
 
 public class SmartSortedWorkQueue extends WorkQueue {
@@ -28,7 +28,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
     // 'OR' jobs may have more suitable locations, but their context matching
     // is more expensive
 
-    protected final HashMap<ActivityIdentifier, ActivityRecord> ids = new HashMap<ActivityIdentifier, ActivityRecord>();
+    protected final HashMap<ActivityIdentifierImpl, ActivityRecord> ids = new HashMap<ActivityIdentifierImpl, ActivityRecord>();
 
     protected final HashMap<String, SortedList> unit = new HashMap<String, SortedList>();
 
@@ -165,7 +165,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
 
         tmp.insert(a, c.rank);
         size++;
-        ids.put(a.identifier(), a);
+        ids.put(a.identifierImpl(), a);
     }
 
     private void enqueueOr(OrActivityContext c, ActivityRecord a) {
@@ -185,7 +185,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
         }
 
         size++;
-        ids.put(a.identifier(), a);
+        ids.put(a.identifierImpl(), a);
     }
 
     @Override
