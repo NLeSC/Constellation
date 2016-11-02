@@ -1,18 +1,16 @@
 package ibis.constellation.impl;
 
-import java.io.Serializable;
-
+import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 
 /**
  * An <code>ActivityIdentifierImpl</code> uniquely identifies an
- * {@link ActivityBase} instance.
+ * {@link Activity} instance.
  *
  * @version 1.0
  * @since 1.0
  */
-class ActivityIdentifierImpl extends ActivityIdentifier
-        implements Serializable {
+public class ActivityIdentifierImpl implements ActivityIdentifier {
 
     /* Generated */
     private static final long serialVersionUID = 4785081436543353644L;
@@ -49,7 +47,6 @@ class ActivityIdentifierImpl extends ActivityIdentifier
      *
      * @return whether this activity expects events.
      */
-    @Override
     public boolean expectsEvents() {
         return expectsEvents;
     }

@@ -7,7 +7,7 @@ import ibis.constellation.impl.ActivityBase;
 /**
  * In Constellation, a program consists of a collection of loosely coupled
  * activities, which communicate using {@link Event Events}. Each
- * <code>ActivityBase</code> represents an action that is to be performed by the
+ * <code>Activity</code> represents an action that is to be performed by the
  * application, i.e. process some <code>Events</code>, or run a task.
  *
  * This class is the base class for all activities.
@@ -17,7 +17,7 @@ public abstract class Activity extends ActivityBase implements Serializable {
     private static final long serialVersionUID = -83331265534440970L;
 
     /**
-     * Initializes this <code>ActivityBase</code> with the specified parameters.
+     * Initializes this <code>Activity</code> with the specified parameters.
      *
      * @param context
      *            the context that specifies which executors can actually
@@ -34,9 +34,9 @@ public abstract class Activity extends ActivityBase implements Serializable {
     }
 
     /**
-     * Initializes this <code>ActivityBase</code> with the specified parameters.
+     * Initializes this <code>Activity</code> with the specified parameters.
      * This version calls
-     * {@link ActivityBase#Activity(ActivityContext, boolean, boolean)}, with
+     * {@link Activity#Activity(ActivityContext, boolean, boolean)}, with
      * <code>false</code> for the <code>restrictToLocal</code> parameter.
      *
      * @param context
@@ -47,19 +47,6 @@ public abstract class Activity extends ActivityBase implements Serializable {
      */
     protected Activity(ActivityContext context, boolean willReceiveEvents) {
         this(context, false, willReceiveEvents);
-    }
-
-    /**
-     * Returns <code>true</code> if this activity may receive events,
-     * <code>false</code> otherwise.
-     *
-     * @return whether this activity may receive events.
-     *
-     *         TODO: should this be part of the API? Maybe not.
-     */
-    @Override
-    public boolean expectsEvents() {
-        return super.expectsEvents();
     }
 
     /**
@@ -118,19 +105,6 @@ public abstract class Activity extends ActivityBase implements Serializable {
     @Override
     public ActivityContext getContext() {
         return super.getContext();
-    }
-
-    /**
-     * Returns <code>true</code> if this activity can only be executed by a
-     * local executor, <code>false</code> otherwise.
-     *
-     * @return whether this activity can only be executed by a local executor.
-     *
-     *         TODO: should this be part of the API? Maybe not.
-     */
-    @Override
-    public boolean isRestrictedToLocal() {
-        return super.isRestrictedToLocal();
     }
 
     /**

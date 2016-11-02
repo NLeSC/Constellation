@@ -71,8 +71,7 @@ public class MultiThreadedConstellation {
 
         @Override
         public void send(Event e) {
-
-            if (!e.target.expectsEvents()) {
+            if (!((ActivityIdentifierImpl) e.target).expectsEvents()) {
                 throw new IllegalArgumentException("Target activity " + e.target
                         + "  does not expect an event!");
             }
@@ -188,7 +187,7 @@ public class MultiThreadedConstellation {
             if (c.satisfiedBy(e.getContext(), StealStrategy.ANY)) {
                 return e.performSubmit(a);
             }
-            if (e.belongsTo().containsWorld()) {
+            if (e.belongsTo().isWorld()) {
                 return e.performSubmit(a);
             }
         }

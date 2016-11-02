@@ -7,7 +7,7 @@ import ibis.constellation.impl.ExecutorBase;
 
 /**
  * An <code>Executor</code> represents some hardware capable of running
- * {@link ActivityBase activities}. This could be a single core, a multiple-core
+ * {@link Activity activities}. This could be a single core, a multiple-core
  * processor, some specialized hardware, or an entire cluster. It is up to the
  * application how executors represent the hardware. Constellation provides the
  * {@link SimpleExecutor} implementation, but applications may provide others. A

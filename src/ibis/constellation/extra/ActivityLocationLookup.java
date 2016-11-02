@@ -2,22 +2,22 @@ package ibis.constellation.extra;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import ibis.constellation.ActivityIdentifier;
+import ibis.constellation.impl.ActivityIdentifierImpl;
 import ibis.constellation.impl.ConstellationIdentifier;
 
 public class ActivityLocationLookup {
 
-    private ConcurrentHashMap<ActivityIdentifier, ConstellationIdentifier> locations = new ConcurrentHashMap<ActivityIdentifier, ConstellationIdentifier>();
+    private ConcurrentHashMap<ActivityIdentifierImpl, ConstellationIdentifier> locations = new ConcurrentHashMap<ActivityIdentifierImpl, ConstellationIdentifier>();
 
-    public void add(ActivityIdentifier aid, ConstellationIdentifier cid) {
+    public void add(ActivityIdentifierImpl aid, ConstellationIdentifier cid) {
         locations.put(aid, cid);
     }
 
-    public ConstellationIdentifier remove(ActivityIdentifier aid) {
+    public ConstellationIdentifier remove(ActivityIdentifierImpl aid) {
         return locations.remove(aid);
     }
 
-    public ConstellationIdentifier lookup(ActivityIdentifier aid) {
+    public ConstellationIdentifier lookup(ActivityIdentifierImpl aid) {
         return locations.get(aid);
     }
 }

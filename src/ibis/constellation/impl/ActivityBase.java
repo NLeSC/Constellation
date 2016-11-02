@@ -3,6 +3,8 @@ package ibis.constellation.impl;
 import java.io.Serializable;
 
 import ibis.constellation.ActivityContext;
+import ibis.constellation.ActivityIdentifier;
+import ibis.constellation.Event;
 import ibis.constellation.Executor;
 
 public abstract class ActivityBase implements Serializable {
@@ -13,7 +15,7 @@ public abstract class ActivityBase implements Serializable {
 
     private transient Executor executor;
 
-    private ibis.constellation.ActivityIdentifier identifier;
+    private ActivityIdentifierImpl identifier;
     private final ActivityContext context;
 
     private final boolean restrictToLocal;
@@ -58,12 +60,20 @@ public abstract class ActivityBase implements Serializable {
         this.executor = executor;
     }
 
-    protected ibis.constellation.ActivityIdentifier identifier() {
+    protected ActivityIdentifier identifier() {
         if (identifier == null) {
             throw new IllegalStateException(
                     "ActivityBase is not initialized yet");
         }
 
+        return identifier;
+    }
+
+    ActivityIdentifierImpl identifierImpl() {
+        if (identifier == null) {
+            throw new IllegalStateException(
+                    "ActivityBase is not initialized yet");
+        }
         return identifier;
     }
 
@@ -82,7 +92,7 @@ public abstract class ActivityBase implements Serializable {
      *
      * @return the activity context.
      */
-    protected ActivityContext getContext() {
+    public ActivityContext getContext() {
         return context;
     }
 
@@ -164,6 +174,12 @@ public abstract class ActivityBase implements Serializable {
     // * Todo never called???
     // */
     // public abstract void cancel();
+
+    public abstract void initialize();
+
+    public abstract void process(Event e);
+
+    public abstract void cleanup();
 
     @Override
     public String toString() {

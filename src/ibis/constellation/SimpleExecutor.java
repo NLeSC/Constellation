@@ -9,6 +9,8 @@ import ibis.constellation.context.UnitExecutorContext;
  * A <code>SimpleExecutor</code> is an {@link Executor} whose {@link #run()}
  * method calls {@link #processActivities()} repetitively, until it indicates
  * that there are no more activities for this executor.
+ *
+ * TODO: move to a utility package?
  */
 public class SimpleExecutor extends Executor {
 

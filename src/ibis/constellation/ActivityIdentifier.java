@@ -3,19 +3,22 @@ package ibis.constellation;
 import java.io.Serializable;
 
 /**
- * An <code>ActivityIdentifierImpl</code> uniquely identifies an {@link ActivityBase}
- * instance.
+ * An <code>ActivityIdentifier</code> uniquely identifies an {@link Activity}
+ * instance. The only valid ActivityIdentifiers are those returned from the
+ * constellation system. In other words, it is not possible to create your own
+ * activity identifiers.
  *
  * @version 1.0
  * @since 1.0
  */
-public abstract class ActivityIdentifier implements Serializable {
+public interface ActivityIdentifier extends Serializable {
 
     /**
-     * Returns <code>true</code> if this activity expects events,
-     * <code>false</code> otherwise.
+     * Returns a human-readable unique string identifying the {@link Activity}
+     * instance to which this ActivityIdentifier refers. This method can be used
+     * for debugging prints.
      *
-     * @return whether this activity expects events.
+     * @return a string representation of this ActivityIdentifier.
      */
-    public abstract boolean expectsEvents();
+    public String toString();
 }
