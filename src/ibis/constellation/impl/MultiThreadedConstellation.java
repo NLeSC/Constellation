@@ -387,7 +387,7 @@ public class MultiThreadedConstellation {
 
                 UnitExecutorContext u = (UnitExecutorContext) tmp;
 
-                String name = u.name;
+                String name = u.getName();
 
                 if (!map.containsKey(name)) {
                     map.put(name, u);
@@ -399,7 +399,7 @@ public class MultiThreadedConstellation {
                     UnitExecutorContext u = o.get(j);
 
                     if (u != null) {
-                        String name = u.name;
+                        String name = u.getName();
 
                         if (!map.containsKey(name)) {
                             map.put(name, u);

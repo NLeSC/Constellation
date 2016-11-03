@@ -7,7 +7,7 @@ import ibis.constellation.ActivityContext;
 import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealStrategy;
 
-public class UnitActivityContext extends ActivityContext {
+public final class UnitActivityContext extends ActivityContext {
 
     private static final long serialVersionUID = 6134114690113562356L;
 
@@ -19,10 +19,10 @@ public class UnitActivityContext extends ActivityContext {
     public static final UnitActivityContext DEFAULT = new UnitActivityContext(
             "DEFAULT", DEFAULT_RANK);
 
-    public final String name;
-    public final long rank;
+    private final String name;
+    private final long rank;
 
-    protected final int hashCode;
+    private final int hashCode;
 
     public UnitActivityContext(String name, long rank) {
 
@@ -35,6 +35,14 @@ public class UnitActivityContext extends ActivityContext {
         this.name = name;
         this.rank = rank;
         this.hashCode = name.hashCode();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public long getRank() {
+        return rank;
     }
 
     public UnitActivityContext(String name) {
@@ -82,7 +90,7 @@ public class UnitActivityContext extends ActivityContext {
 
     private boolean satisfiedBy(UnitExecutorContext offer, StealStrategy s) {
 
-        if (!name.equals(offer.name)) {
+        if (!name.equals(offer.getName())) {
             return false;
         }
         if (log.isInfoEnabled()) {

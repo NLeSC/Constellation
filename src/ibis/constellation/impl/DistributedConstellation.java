@@ -82,17 +82,17 @@ public class DistributedConstellation {
             if (!value) {
                 // Reset the pending value for this context. We don't care if
                 // if was set or not.
-                deadlines.remove(c.name);
+                deadlines.remove(c.getName());
                 return false;
             }
 
             long time = System.currentTimeMillis();
 
-            Long deadline = deadlines.get(c.name);
+            Long deadline = deadlines.get(c.getName());
 
             if (deadline == null) {
                 // No pending set for this context. so set it.
-                deadlines.put(c.name, time + REMOTE_STEAL_TIMEOUT);
+                deadlines.put(c.getName(), time + REMOTE_STEAL_TIMEOUT);
                 return false;
             }
 
@@ -104,7 +104,7 @@ public class DistributedConstellation {
 
             // Pending set for this context, but the deadline has passed, so we
             // are allowed to reset it.
-            deadlines.put(c.name, time + REMOTE_STEAL_TIMEOUT);
+            deadlines.put(c.getName(), time + REMOTE_STEAL_TIMEOUT);
             return false;
         }
     }

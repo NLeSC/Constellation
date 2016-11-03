@@ -12,41 +12,36 @@ import ibis.constellation.StealStrategy;
  * consists of several (more than 1) unit activity contexts. This may represent
  * the fact that an activity may be executed by more than one type of executor.
  */
-public class OrActivityContext extends ActivityContext {
+public final class OrActivityContext extends ActivityContext {
 
     private static final long serialVersionUID = -1202476921345669674L;
 
-    protected final UnitActivityContext[] unitContexts;
+    private final UnitActivityContext[] unitContexts;
 
-    protected final int hashCode;
-    protected final boolean ordered;
+    private final int hashCode;
+    private final boolean ordered;
 
     private static class UnitActivityContextSorter
             implements Comparator<UnitActivityContext> {
 
         public int compare(UnitActivityContext u1, UnitActivityContext u2) {
 
-            if (u1.hashCode == u2.hashCode) {
+            if (u1.hashCode() == u2.hashCode()) {
 
-                if (u1.rank == u2.rank) {
+                if (u1.getRank() == u2.getRank()) {
                     return 0;
-                } else if (u1.rank < u2.rank) {
+                } else if (u1.getRank() < u2.getRank()) {
                     return -1;
                 } else {
                     return 1;
                 }
 
-            } else if (u1.hashCode < u2.hashCode) {
+            } else if (u1.hashCode() < u2.hashCode()) {
                 return -1;
             } else {
                 return 1;
             }
         }
-    }
-
-    private static UnitActivityContext[] sort(UnitActivityContext[] in) {
-        Arrays.sort(in, new UnitActivityContextSorter());
-        return in;
     }
 
     private static int generateHash(UnitActivityContext[] in) {
@@ -57,7 +52,7 @@ public class OrActivityContext extends ActivityContext {
         int hashCode = 1;
 
         for (int i = 0; i < in.length; i++) {
-            hashCode = 31 * hashCode + (in[i] == null ? 0 : in[i].hashCode);
+            hashCode = 31 * hashCode + (in[i] == null ? 0 : in[i].hashCode());
         }
 
         return hashCode;
@@ -82,17 +77,17 @@ public class OrActivityContext extends ActivityContext {
                     + "OrContext: 2 or more contexts required!");
         }
 
-        unitContexts = unit;
+        unitContexts = unit.clone();
         this.ordered = ordered;
 
         if (!ordered) {
             // When the OrContext is unordered, the order of the elements is
             // unimportant. We therefore sort it to get a uniform order,
             // regardless of the user defined order.
-            sort(unitContexts);
+            Arrays.sort(unitContexts, new UnitActivityContextSorter());
         }
 
-        hashCode = 31 * generateHash(unitContexts);
+        hashCode = generateHash(unitContexts);
     }
 
     /**

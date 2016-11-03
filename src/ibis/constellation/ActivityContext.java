@@ -2,6 +2,9 @@ package ibis.constellation;
 
 import java.io.Serializable;
 
+import ibis.constellation.context.OrActivityContext;
+import ibis.constellation.context.UnitActivityContext;
+
 /**
  * An <code>ActivityContext</code> represents some characterization of the
  * activity at hand, and is instrumental in determining which executors can
@@ -14,14 +17,18 @@ public abstract class ActivityContext implements Serializable {
     private static final long serialVersionUID = 3149128711424555747L;
 
     protected ActivityContext() {
-        // empty
+        if (!(this instanceof OrActivityContext)
+                && !(this instanceof UnitActivityContext)) {
+            throw new Error(
+                    "An ActivityContext should either be an OrActivityContext or a UnitActivityContext");
+        }
     }
 
     /**
      * Determines if the specified executor context, in combination with the
      * specified steal strategy, satisfies this activity context (so that it can
      * actually be executed by the executor calling this method).
-     * 
+     *
      * @param executorContext
      *            the executor context to match
      * @param stealStrategy
