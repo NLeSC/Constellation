@@ -47,14 +47,14 @@ public class SmartSortedWorkQueue extends WorkQueue {
 
     private ActivityRecord getUnit(UnitExecutorContext c, StealStrategy s) {
 
-        SortedList tmp = unit.get(c.name);
+        SortedList tmp = unit.get(c.getName());
 
         if (tmp == null) {
             return null;
         }
 
         if (log.isInfoEnabled()) {
-            log.info("Matching context string: " + c.name);
+            log.info("Matching context string: " + c.getName());
         }
 
         assert tmp.size() > 0;
@@ -80,7 +80,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
         assert a != null;
 
         if (tmp.size() == 0) {
-            unit.remove(c.name);
+            unit.remove(c.getName());
         }
 
         size--;
@@ -92,14 +92,14 @@ public class SmartSortedWorkQueue extends WorkQueue {
 
     private ActivityRecord getOr(UnitExecutorContext c, StealStrategy s) {
 
-        SortedList tmp = or.get(c.name);
+        SortedList tmp = or.get(c.getName());
 
         if (tmp == null) {
             return null;
         }
 
         if (log.isInfoEnabled()) {
-            log.info("Matching context string: " + c.name);
+            log.info("Matching context string: " + c.getName());
         }
 
         assert (tmp.size() > 0);
@@ -125,7 +125,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
         assert a != null;
 
         if (tmp.size() == 0) {
-            or.remove(c.name);
+            or.remove(c.getName());
         }
 
         // Remove entry for this ActivityRecord from all lists....
@@ -136,13 +136,13 @@ public class SmartSortedWorkQueue extends WorkQueue {
             UnitActivityContext u = cntx.get(i);
 
             // Remove this activity from all entries in the 'or' table
-            tmp = or.get(u.name);
+            tmp = or.get(u.getName());
 
             if (tmp != null) {
                 tmp.removeByReference(a);
 
                 if (tmp.size() == 0) {
-                    or.remove(u.name);
+                    or.remove(u.getName());
                 }
             }
         }
@@ -156,14 +156,14 @@ public class SmartSortedWorkQueue extends WorkQueue {
 
     private void enqueueUnit(UnitActivityContext c, ActivityRecord a) {
 
-        SortedList tmp = unit.get(c.name);
+        SortedList tmp = unit.get(c.getName());
 
         if (tmp == null) {
-            tmp = new SortedList(c.name);
-            unit.put(c.name, tmp);
+            tmp = new SortedList(c.getName());
+            unit.put(c.getName(), tmp);
         }
 
-        tmp.insert(a, c.rank);
+        tmp.insert(a, c.getRank());
         size++;
         ids.put(a.identifierImpl(), a);
     }
@@ -174,14 +174,14 @@ public class SmartSortedWorkQueue extends WorkQueue {
 
             UnitActivityContext uc = c.get(i);
 
-            SortedList tmp = or.get(uc.name);
+            SortedList tmp = or.get(uc.getName());
 
             if (tmp == null) {
-                tmp = new SortedList(uc.name);
-                or.put(uc.name, tmp);
+                tmp = new SortedList(uc.getName());
+                or.put(uc.getName(), tmp);
             }
 
-            tmp.insert(a, uc.rank);
+            tmp.insert(a, uc.getRank());
         }
 
         size++;

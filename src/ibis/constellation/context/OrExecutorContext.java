@@ -12,9 +12,9 @@ public class OrExecutorContext extends ExecutorContext {
 
     private static final long serialVersionUID = -1202476921345669674L;
 
-    protected final UnitExecutorContext[] unitContexts;
+    private final UnitExecutorContext[] unitContexts;
 
-    protected final boolean ordered;
+    private final boolean ordered;
 
     /**
      * Constructs an executor context that consists of more than one unit
@@ -37,7 +37,7 @@ public class OrExecutorContext extends ExecutorContext {
                     + "OrContext: 2 or more contexts required!");
         }
 
-        unitContexts = contexts;
+        unitContexts = contexts.clone();
         this.ordered = ordered;
     }
 

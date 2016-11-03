@@ -15,7 +15,7 @@ public class UnitExecutorContext extends ExecutorContext {
     public static final UnitExecutorContext DEFAULT = new UnitExecutorContext(
             "DEFAULT");
 
-    public final String name;
+    private final String name;
     private final int hashCode;
 
     public UnitExecutorContext(String name) {
@@ -51,5 +51,9 @@ public class UnitExecutorContext extends ExecutorContext {
     @Override
     public String toString() {
         return "UnitExecutorContext(" + name + ")";
+    }
+
+    public String getName() {
+        return name;
     }
 }

@@ -2,6 +2,9 @@ package ibis.constellation;
 
 import java.io.Serializable;
 
+import ibis.constellation.context.OrExecutorContext;
+import ibis.constellation.context.UnitExecutorContext;
+
 /**
  * An <code>ExecutorContext</code> describes the types of activities that an
  * executor can execute, by means of their {@link ActivityContext activity
@@ -14,6 +17,11 @@ public abstract class ExecutorContext implements Serializable {
     private static final long serialVersionUID = 7860363329440102125L;
 
     protected ExecutorContext() {
+        if (!(this instanceof OrExecutorContext)
+                && !(this instanceof UnitExecutorContext)) {
+            throw new Error(
+                    "An ExecutorContext should either be an OrExecutorContext or a UnitExecutorContext");
+        }
         // empty
     }
 
