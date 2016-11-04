@@ -56,7 +56,7 @@ public class Streaming extends Activity {
     public void process(Event e) {
 
         if (next != null) {
-            send(new Event(identifier(), next, e.data));
+            send(new Event(identifier(), next, e.getData()));
         }
 
         dataSeen++;
@@ -118,7 +118,7 @@ public class Streaming extends Activity {
                 c.send(new Event(a.identifier(), aid, i));
             }
 
-            long result = (Long) a.waitForEvent().data;
+            long result = (Long) a.waitForEvent().getData();
 
             long end = System.currentTimeMillis();
 

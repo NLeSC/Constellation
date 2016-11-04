@@ -44,7 +44,7 @@ public class ActivityRecord implements Serializable, ByteBuffers {
         if (state >= FINISHING) {
             throw new IllegalStateException(
                     "Cannot deliver an event to a finished activity! "
-                            + activity + " (event from " + e.source + ")");
+                            + activity + " (event from " + e.getSource() + ")");
         }
 
         queue.insertLast(e);

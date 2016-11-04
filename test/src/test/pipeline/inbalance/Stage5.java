@@ -55,7 +55,7 @@ public class Stage5 extends Activity {
     @Override
     public void process(Event e) {
 
-        Data data = (Data) e.data;
+        Data data = (Data) e.getData();
 
         if (data.stage == 3) {
             result3 = data;

@@ -71,8 +71,8 @@ public class MultiThreadedConstellation {
 
         @Override
         public void send(Event e) {
-            if (!((ActivityIdentifierImpl) e.target).expectsEvents()) {
-                throw new IllegalArgumentException("Target activity " + e.target
+            if (!((ActivityIdentifierImpl) e.getTarget()).expectsEvents()) {
+                throw new IllegalArgumentException("Target activity " + e.getTarget()
                         + "  does not expect an event!");
             }
 
@@ -200,7 +200,7 @@ public class MultiThreadedConstellation {
         // Since we don't known where the target activity is located, we simply
         // send the message to it's parent constellation (which may be local).
         handleEventMessage(new EventMessage(identifier,
-                ((ActivityIdentifierImpl) e.target).getOrigin(), e));
+                ((ActivityIdentifierImpl) e.getTarget()).getOrigin(), e));
     }
 
     void performCancel(ActivityIdentifierImpl aid) {
@@ -392,7 +392,8 @@ public class MultiThreadedConstellation {
                 if (!map.containsKey(name)) {
                     map.put(name, u);
                 }
-            } else /* if (tmp instanceof OrExecutorContext) */ {
+            } else {
+                assert(tmp instanceof OrExecutorContext);
                 OrExecutorContext o = (OrExecutorContext) tmp;
 
                 for (int j = 0; j < o.size(); j++) {
@@ -632,7 +633,7 @@ public class MultiThreadedConstellation {
             // Sanity check
             if (st == null) {
                 logger.error("INTERNAL ERROR: target activity "
-                        + am.event.target + " has moved more that once!");
+                        + am.event.getTarget() + " has moved more that once!");
             }
         } else {
             // it has been exported

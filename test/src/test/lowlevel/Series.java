@@ -84,7 +84,7 @@ public class Series extends Activity {
             c.submit(a);
             c.submit(new Series(a.identifier(), length, 0));
 
-            long result = (Long) a.waitForEvent().data;
+            long result = (Long) a.waitForEvent().getData();
 
             long end = System.currentTimeMillis();
 

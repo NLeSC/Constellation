@@ -75,7 +75,7 @@ public class DivideAndConquerWithSleep extends Activity {
     @Override
     public void process(Event e) {
 
-        count += (Long) e.data;
+        count += (Long) e.getData();
 
         merged++;
 
@@ -150,7 +150,7 @@ public class DivideAndConquerWithSleep extends Activity {
             c.submit(new DivideAndConquerWithSleep(a.identifier(), branch,
                     depth, load));
 
-            long result = (Long) a.waitForEvent().data;
+            long result = (Long) a.waitForEvent().getData();
 
             long end = System.nanoTime();
 

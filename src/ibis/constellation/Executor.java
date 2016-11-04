@@ -25,7 +25,7 @@ import ibis.constellation.impl.ExecutorBase;
  * <li>a local steal strategy, which decides which activities to execute when
  * stealing from the executor at hand;</li>
  * <li>a "constellation-wide" steal strategy, which decides which activities to
- * execute when stealing from within this constellation, but from other
+ * execute when stealing from within this constellation instance, but from other
  * executors;</li>
  * <li>a remote steal strategy, which decides which activities to execute when
  * stealing from other constellation instances.</li>
@@ -94,5 +94,6 @@ public abstract class Executor extends ExecutorBase implements Serializable {
      * This is the main method of this executor. Usually, it repeatedly calls
      * {@link #processActivities()} until it returns <code>true</code>.
      */
+    @Override
     public abstract void run();
 }

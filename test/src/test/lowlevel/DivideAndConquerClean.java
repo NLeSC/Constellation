@@ -61,7 +61,7 @@ public class DivideAndConquerClean extends Activity {
     @Override
     public void process(Event e) {
 
-        count += (Long) e.data;
+        count += (Long) e.getData();
 
         merged++;
 
@@ -121,7 +121,7 @@ public class DivideAndConquerClean extends Activity {
             c.submit(a);
             c.submit(new DivideAndConquerClean(a.identifier(), branch, depth));
 
-            long result = (Long) a.waitForEvent().data;
+            long result = (Long) a.waitForEvent().getData();
 
             long end = System.nanoTime();
 

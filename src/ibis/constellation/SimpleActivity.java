@@ -1,6 +1,7 @@
 package ibis.constellation;
 
 import ibis.constellation.context.ActivityContext;
+import ibis.constellation.impl.ActivityIdentifierImpl;
 
 /**
  * A <code>SimpleActivity</code> is an activity that only requires a single
@@ -49,7 +50,7 @@ public abstract class SimpleActivity extends Activity {
     protected SimpleActivity(ActivityIdentifier parent, ActivityContext context,
             boolean restictToLocal) {
         super(context, restictToLocal, false);
-        this.parent = parent;
+        setParent(parent);
     }
 
     /**
@@ -98,6 +99,10 @@ public abstract class SimpleActivity extends Activity {
      *            the parent activity identifier.
      */
     public void setParent(ActivityIdentifier parent) {
+        if (!(parent instanceof ActivityIdentifierImpl)) {
+            throw new IllegalArgumentException(
+                    "parent refers to an object of the wrong type");
+        }
         this.parent = parent;
     }
 }

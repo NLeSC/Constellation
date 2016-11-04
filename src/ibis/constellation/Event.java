@@ -16,13 +16,13 @@ public final class Event implements Serializable, ByteBuffers {
     private static final long serialVersionUID = 8672434537078611592L;
 
     /** The source activity of this event. */
-    public final ActivityIdentifier source;
+    private final ActivityIdentifier source;
 
     /** The destination activity of this event. */
-    public final ActivityIdentifier target;
+    private final ActivityIdentifier target;
 
     /** The data of this event. */
-    public final Object data;
+    private final Object data;
 
     /**
      * Constructs an event with the specified parameters: a source, a target,
@@ -50,19 +50,19 @@ public final class Event implements Serializable, ByteBuffers {
     @Override
     public String toString() {
         String s = "source: ";
-        if (source != null) {
-            s += source.toString();
+        if (getSource() != null) {
+            s += getSource().toString();
         } else
             s += " none";
         s += "; target: ";
-        if (target != null) {
-            s += target.toString();
+        if (getTarget() != null) {
+            s += getTarget().toString();
         } else
             s += " none";
 
         s += "; data = ";
-        if (data != null) {
-            s += data.toString();
+        if (getData() != null) {
+            s += getData().toString();
         } else {
             s += " none";
         }
@@ -71,15 +71,42 @@ public final class Event implements Serializable, ByteBuffers {
 
     @Override
     public void pushByteBuffers(List<ByteBuffer> list) {
-        if (data != null && data instanceof ByteBuffers) {
-            ((ByteBuffers) data).pushByteBuffers(list);
+        if (getData() != null && getData() instanceof ByteBuffers) {
+            ((ByteBuffers) getData()).pushByteBuffers(list);
         }
     }
 
     @Override
     public void popByteBuffers(List<ByteBuffer> list) {
-        if (data != null && data instanceof ByteBuffers) {
-            ((ByteBuffers) data).popByteBuffers(list);
+        if (getData() != null && getData() instanceof ByteBuffers) {
+            ((ByteBuffers) getData()).popByteBuffers(list);
         }
+    }
+
+    /**
+     * Returns the identifier of the source activity of this event.
+     * 
+     * @return the source activity identifier
+     */
+    public ActivityIdentifier getSource() {
+        return source;
+    }
+
+    /**
+     * Returns the identifier of the target activity of this event.
+     * 
+     * @return the target activity identifier
+     */
+    public ActivityIdentifier getTarget() {
+        return target;
+    }
+
+    /**
+     * Returns the data object of this event.
+     * 
+     * @return the data object
+     */
+    public Object getData() {
+        return data;
     }
 }

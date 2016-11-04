@@ -47,7 +47,7 @@ public class ActivityIdentifierImpl implements ActivityIdentifier {
      *
      * @return whether this activity expects events.
      */
-    public boolean expectsEvents() {
+    boolean expectsEvents() {
         return expectsEvents;
     }
 
@@ -63,8 +63,7 @@ public class ActivityIdentifierImpl implements ActivityIdentifier {
     @Override
     public int hashCode() {
         final int PRIME = 31;
-        int result = 1;
-        result = PRIME * result + (int) (CID.getId() ^ (CID.getId() >>> 32));
+        int result = (int) (CID.getId() ^ (CID.getId() >>> 32));
         result = PRIME * result + (int) (AID ^ (AID >>> 32));
         return result;
     }

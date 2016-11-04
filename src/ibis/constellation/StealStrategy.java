@@ -9,8 +9,10 @@ import java.io.Serializable;
  * executor can have, for instance, a preference for "big" jobs or "small" jobs,
  * or jobs with a rank within a particular range. The strategies are described
  * by particular opcodes, some of which have additional attributes.
+ *
+ * TODO: hide all get methods from user?
  */
-public class StealStrategy implements Serializable {
+public final class StealStrategy implements Serializable {
 
     private static final long serialVersionUID = 8376483895062977483L;
 
@@ -42,13 +44,13 @@ public class StealStrategy implements Serializable {
     public static final StealStrategy SMALLEST = new StealStrategy(_SMALLEST);
 
     /** The strategy. */
-    public final byte strategy;
+    private final byte strategy;
 
     /** Start of the specific range, if present. */
-    public final long start;
+    private final long start;
 
     /** End of the specific range, if present. */
-    public final long end;
+    private final long end;
 
     /**
      * Constructs a steal strategy object with the specified opcode.
@@ -143,7 +145,7 @@ public class StealStrategy implements Serializable {
     @Override
     public String toString() {
 
-        switch (strategy) {
+        switch (getStrategy()) {
         case _BIGGEST:
             return "BIGGEST";
         case _SMALLEST:
@@ -151,11 +153,49 @@ public class StealStrategy implements Serializable {
         case _ANY:
             return "ANY";
         case _VALUE:
-            return "VALUE(" + start + ")";
+            return "VALUE(" + getValue() + ")";
         case _RANGE:
-            return "RANGE(" + start + " - " + end + ")";
+            return "RANGE(" + getStartOfRange() + " - " + getEndOfRange() + ")";
         default:
             return "UNKNOWN";
         }
+    }
+
+    /**
+     * Returns the strategy opcode of this strategy, one of {@link #_ANY},
+     * {@link #_BIGGEST}, {@link #_RANGE}, {@link #_SMALLEST}, {@link #_VALUE}.
+     *
+     * @return the strategy opcode.
+     */
+    public byte getStrategy() {
+        return strategy;
+    }
+
+    /**
+     * Returns the start of the rank range in case of a {@link #_RANGE}
+     * strategy.
+     *
+     * @return the start of the rank range.
+     */
+    public long getStartOfRange() {
+        return start;
+    }
+
+    /**
+     * Returns the rank value in case of a {@link #_VALUE} strategy.
+     *
+     * @return the rank value.
+     */
+    public long getValue() {
+        return start;
+    }
+
+    /**
+     * Returns the end of the rank range in case of a {@link #_RANGE} strategy.
+     *
+     * @return the end of the rank range.
+     */
+    public long getEndOfRange() {
+        return end;
     }
 }

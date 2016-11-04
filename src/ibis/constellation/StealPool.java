@@ -27,7 +27,8 @@ public final class StealPool extends StealPoolImpl {
     /**
      * An executor that belongs to the <code>NONE</code> steal pool generates
      * activities that cannot be stolen. An executor that can steal from this
-     * steal pool can in fact not steal at all.
+     * steal pool can in fact not steal at all. Note that <code>NONE</code>
+     * takes preference over <code>WORLD</code>.
      */
     public static StealPool NONE = new StealPool("NONE");
 

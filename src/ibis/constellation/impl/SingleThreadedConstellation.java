@@ -550,9 +550,9 @@ public class SingleThreadedConstellation extends Thread {
         // The target activity may be in one of my local queues
 
         Event e = m.event;
-        ActivityIdentifierImpl target = (ActivityIdentifierImpl) e.target;
+        ActivityIdentifierImpl target = (ActivityIdentifierImpl) e.getTarget();
 
-        ActivityRecord tmp = lookup.get(e.target);
+        ActivityRecord tmp = lookup.get(e.getTarget());
 
         if (tmp != null) {
             tmp.enqueue(e);
@@ -603,12 +603,12 @@ public class SingleThreadedConstellation extends Thread {
 
         ConstellationIdentifier cid = null;
 
-        ActivityIdentifierImpl target = (ActivityIdentifierImpl) e.target;
+        ActivityIdentifierImpl target = (ActivityIdentifierImpl) e.getTarget();
 
         synchronized (this) {
 
             // See if the activity is in one of our queues
-            ActivityRecord tmp = lookup.get(e.target);
+            ActivityRecord tmp = lookup.get(e.getTarget());
 
             if (tmp != null) {
                 // It is, so enqueue it and return.
@@ -632,7 +632,7 @@ public class SingleThreadedConstellation extends Thread {
 
         if (cid.equals(identifier)) {
             // the target is local, which means we have lost a local activity
-            logger.error("ActivityBase " + e.target
+            logger.error("ActivityBase " + e.getTarget()
                     + " does no longer exist! (event dropped)");
             return;
         }
@@ -740,8 +740,8 @@ public class SingleThreadedConstellation extends Thread {
                     // now in one of the local queues. If not, return to parent.
                     if (logger.isInfoEnabled()) {
                         logger.info("Failed to deliver message from " + m.source
-                                + " / " + m.event.source + " to " + m.target
-                                + " / " + m.event.target + " (resending)");
+                                + " / " + m.event.getSource() + " to " + m.target
+                                + " / " + m.event.getTarget() + " (resending)");
                     }
 
                     handleEvent(m.event);

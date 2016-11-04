@@ -126,8 +126,8 @@ public class DistributedConstellation {
 
         @Override
         public void send(Event e) {
-            if (!((ActivityIdentifierImpl) e.target).expectsEvents()) {
-                throw new IllegalArgumentException("Target activity " + e.target
+            if (!((ActivityIdentifierImpl) e.getTarget()).expectsEvents()) {
+                throw new IllegalArgumentException("Target activity " + e.getTarget()
                         + "  does not expect an event!");
             }
 
