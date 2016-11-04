@@ -3,6 +3,7 @@ package ibis.constellation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ibis.constellation.context.ExecutorContext;
 import ibis.constellation.context.UnitExecutorContext;
 
 /**

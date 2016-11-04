@@ -1,13 +1,11 @@
 package ibis.constellation.context;
 
-import ibis.constellation.ExecutorContext;
-
 /**
  * A <code>UnitExecutorContext</code> represents a single context, associated
  * with an executor, and determines a specific type of activity that can be
  * executed by the executor.
  */
-public class UnitExecutorContext extends ExecutorContext {
+public final class UnitExecutorContext extends ExecutorContext {
 
     private static final long serialVersionUID = 6134114690113562356L;
 
@@ -31,11 +29,6 @@ public class UnitExecutorContext extends ExecutorContext {
     }
 
     @Override
-    public boolean isUnit() {
-        return true;
-    }
-
-    @Override
     public int hashCode() {
         return hashCode;
     }
@@ -53,6 +46,11 @@ public class UnitExecutorContext extends ExecutorContext {
         return "UnitExecutorContext(" + name + ")";
     }
 
+    /**
+     * Returns the context name used to construct this UnitExecutorContext.
+     * 
+     * @return the context name.
+     */
     public String getName() {
         return name;
     }

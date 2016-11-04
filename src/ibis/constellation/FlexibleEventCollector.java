@@ -2,6 +2,7 @@ package ibis.constellation;
 
 import java.util.ArrayList;
 
+import ibis.constellation.context.ActivityContext;
 import ibis.constellation.context.UnitActivityContext;
 
 /**

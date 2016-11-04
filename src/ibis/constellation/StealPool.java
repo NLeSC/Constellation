@@ -1,5 +1,7 @@
 package ibis.constellation;
 
+import ibis.constellation.context.ActivityContext;
+import ibis.constellation.context.ExecutorContext;
 import ibis.constellation.impl.StealPoolImpl;
 
 /**

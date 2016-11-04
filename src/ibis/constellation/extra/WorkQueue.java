@@ -1,7 +1,7 @@
 package ibis.constellation.extra;
 
-import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealStrategy;
+import ibis.constellation.context.ExecutorContext;
 import ibis.constellation.impl.ActivityRecord;
 
 public abstract class WorkQueue {

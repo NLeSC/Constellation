@@ -8,14 +8,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ibis.constellation.Activity;
-import ibis.constellation.ActivityContext;
 import ibis.constellation.Concluder;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Event;
-import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
+import ibis.constellation.context.ActivityContext;
+import ibis.constellation.context.ExecutorContext;
 import ibis.constellation.context.OrExecutorContext;
 import ibis.constellation.context.UnitExecutorContext;
 import ibis.constellation.extra.CTimer;
@@ -383,7 +383,7 @@ public class MultiThreadedConstellation {
 
             ExecutorContext tmp = workers[i].getContext();
 
-            if (tmp.isUnit()) {
+            if (tmp instanceof UnitExecutorContext) {
 
                 UnitExecutorContext u = (UnitExecutorContext) tmp;
 
@@ -392,7 +392,7 @@ public class MultiThreadedConstellation {
                 if (!map.containsKey(name)) {
                     map.put(name, u);
                 }
-            } else if (tmp.isOr()) {
+            } else /* if (tmp instanceof OrExecutorContext) */ {
                 OrExecutorContext o = (OrExecutorContext) tmp;
 
                 for (int j = 0; j < o.size(); j++) {

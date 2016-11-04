@@ -13,8 +13,8 @@ import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Event;
-import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealPool;
+import ibis.constellation.context.ExecutorContext;
 import ibis.constellation.context.OrExecutorContext;
 import ibis.constellation.context.UnitExecutorContext;
 import ibis.constellation.extra.CTimer;
@@ -318,7 +318,7 @@ public class DistributedConstellation {
 
         boolean result = true;
 
-        if (context.isOr()) {
+        if (context instanceof OrExecutorContext) {
 
             OrExecutorContext ow = (OrExecutorContext) context;
 

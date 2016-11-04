@@ -4,17 +4,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ibis.constellation.Activity;
-import ibis.constellation.ActivityContext;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationFactory;
 import ibis.constellation.Event;
 import ibis.constellation.Executor;
-import ibis.constellation.ExecutorContext;
 import ibis.constellation.SimpleExecutor;
 import ibis.constellation.SingleEventCollector;
 import ibis.constellation.StealStrategy;
+import ibis.constellation.context.ActivityContext;
+import ibis.constellation.context.ExecutorContext;
 import ibis.constellation.context.UnitActivityContext;
 import ibis.constellation.context.UnitExecutorContext;
 

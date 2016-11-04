@@ -3,8 +3,6 @@ package ibis.constellation.context;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import ibis.constellation.ActivityContext;
-import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealStrategy;
 
 /**
@@ -156,11 +154,6 @@ public final class OrActivityContext extends ActivityContext {
     }
 
     @Override
-    public boolean isOr() {
-        return true;
-    }
-
-    @Override
     public int hashCode() {
         return hashCode;
     }
@@ -257,11 +250,11 @@ public final class OrActivityContext extends ActivityContext {
             return false;
         }
 
-        if (offer.isUnit()) {
+        if (offer instanceof UnitExecutorContext) {
             return satisfiedBy((UnitExecutorContext) offer, s);
         }
 
-        if (offer.isOr()) {
+        if (offer instanceof OrExecutorContext) {
             return satisfiedBy((OrExecutorContext) offer, s);
         }
 

@@ -7,10 +7,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ibis.constellation.ActivityContext;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.ByteBuffers;
 import ibis.constellation.Event;
+import ibis.constellation.context.ActivityContext;
 import ibis.constellation.extra.CircularBuffer;
 
 public class ActivityRecord implements Serializable, ByteBuffers {

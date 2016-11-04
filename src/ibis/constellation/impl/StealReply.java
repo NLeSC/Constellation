@@ -5,8 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import ibis.constellation.ByteBuffers;
-import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealPool;
+import ibis.constellation.context.ExecutorContext;
 
 public class StealReply extends Message implements ByteBuffers {
 
