@@ -5,9 +5,9 @@ import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ibis.constellation.ActivityContext;
-import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealStrategy;
+import ibis.constellation.context.ActivityContext;
+import ibis.constellation.context.ExecutorContext;
 import ibis.constellation.context.OrActivityContext;
 import ibis.constellation.context.OrExecutorContext;
 import ibis.constellation.context.UnitActivityContext;
@@ -193,12 +193,12 @@ public class SmartSortedWorkQueue extends WorkQueue {
 
         ActivityContext c = a.activity.getContext();
 
-        if (c.isUnit()) {
+        if (c instanceof UnitActivityContext) {
             enqueueUnit((UnitActivityContext) c, a);
             return;
         }
 
-        assert (c.isOr());
+        assert (c instanceof OrActivityContext);
         enqueueOr((OrActivityContext) c, a);
     }
 
@@ -206,7 +206,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
     public synchronized ActivityRecord steal(ExecutorContext c,
             StealStrategy s) {
 
-        if (c.isUnit()) {
+        if (c instanceof UnitExecutorContext) {
 
             UnitExecutorContext tmp = (UnitExecutorContext) c;
 
@@ -219,7 +219,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
             return a;
         }
 
-        assert (c.isOr());
+        assert (c instanceof OrExecutorContext);
 
         OrExecutorContext o = (OrExecutorContext) c;
 

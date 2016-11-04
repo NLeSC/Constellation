@@ -2,10 +2,10 @@ package ibis.constellation.impl;
 
 import java.io.Serializable;
 
-import ibis.constellation.ActivityContext;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Event;
 import ibis.constellation.Executor;
+import ibis.constellation.context.ActivityContext;
 
 public abstract class ActivityBase implements Serializable {
 

@@ -2,6 +2,7 @@ package ibis.constellation;
 
 import java.io.Serializable;
 
+import ibis.constellation.context.ExecutorContext;
 import ibis.constellation.context.UnitExecutorContext;
 import ibis.constellation.impl.ExecutorBase;
 

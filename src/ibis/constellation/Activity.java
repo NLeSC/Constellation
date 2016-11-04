@@ -2,6 +2,7 @@ package ibis.constellation;
 
 import java.io.Serializable;
 
+import ibis.constellation.context.ActivityContext;
 import ibis.constellation.impl.ActivityBase;
 
 /**

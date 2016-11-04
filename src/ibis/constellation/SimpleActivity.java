@@ -1,5 +1,7 @@
 package ibis.constellation;
 
+import ibis.constellation.context.ActivityContext;
+
 /**
  * A <code>SimpleActivity</code> is an activity that only requires a single
  * invocation of its {@link #simpleActivity()} method. In particular, it has

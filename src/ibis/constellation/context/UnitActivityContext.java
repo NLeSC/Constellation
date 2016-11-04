@@ -3,8 +3,6 @@ package ibis.constellation.context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ibis.constellation.ActivityContext;
-import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealStrategy;
 
 public final class UnitActivityContext extends ActivityContext {
@@ -47,11 +45,6 @@ public final class UnitActivityContext extends ActivityContext {
 
     public UnitActivityContext(String name) {
         this(name, DEFAULT_RANK);
-    }
-
-    @Override
-    public boolean isUnit() {
-        return true;
     }
 
     @Override
@@ -136,11 +129,11 @@ public final class UnitActivityContext extends ActivityContext {
             return false;
         }
 
-        if (offer.isUnit()) {
+        if (offer instanceof UnitExecutorContext) {
             return satisfiedBy((UnitExecutorContext) offer, s);
         }
 
-        if (offer.isOr()) {
+        if (offer instanceof OrExecutorContext) {
             return satisfiedBy((OrExecutorContext) offer, s);
         }
 

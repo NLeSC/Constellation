@@ -1,14 +1,12 @@
 package ibis.constellation.context;
 
-import ibis.constellation.ExecutorContext;
-
 /**
  * An <code>OrExecutorContext</code> represents an executor context that
  * consists of several (more than 1) unit executor contexts. This may represent
  * the fact that an executor may be able to execute more than one type of
  * activity.
  */
-public class OrExecutorContext extends ExecutorContext {
+public final class OrExecutorContext extends ExecutorContext {
 
     private static final long serialVersionUID = -1202476921345669674L;
 
@@ -39,11 +37,6 @@ public class OrExecutorContext extends ExecutorContext {
 
         unitContexts = contexts.clone();
         this.ordered = ordered;
-    }
-
-    @Override
-    public boolean isOr() {
-        return true;
     }
 
     /**

@@ -5,9 +5,9 @@ import java.io.Serializable;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Event;
-import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
+import ibis.constellation.context.ExecutorContext;
 import ibis.constellation.context.UnitExecutorContext;
 
 /**

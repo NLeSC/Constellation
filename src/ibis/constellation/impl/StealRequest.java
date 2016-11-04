@@ -1,8 +1,8 @@
 package ibis.constellation.impl;
 
-import ibis.constellation.ExecutorContext;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
+import ibis.constellation.context.ExecutorContext;
 
 public class StealRequest extends MessageBase {
 
