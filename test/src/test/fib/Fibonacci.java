@@ -62,7 +62,7 @@ public class Fibonacci extends Activity {
             System.out.println("fib " + input + " got event.");
         }
 
-        output += (Integer) e.data;
+        output += (Integer) e.getData();
         merged++;
 
         if (merged < 2) {
@@ -119,7 +119,7 @@ public class Fibonacci extends Activity {
             ActivityIdentifier aid = c.submit(a);
             c.submit(new Fibonacci(aid, input, true));
 
-            int result = (Integer) a.waitForEvent().data;
+            int result = (Integer) a.waitForEvent().getData();
 
             c.done();
 

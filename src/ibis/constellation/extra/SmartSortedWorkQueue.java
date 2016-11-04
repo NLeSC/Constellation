@@ -61,7 +61,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
 
         ActivityRecord a = null;
 
-        switch (s.strategy) {
+        switch (s.getStrategy()) {
         case StealStrategy._BIGGEST:
         case StealStrategy._ANY:
             a = tmp.removeTail();
@@ -72,8 +72,11 @@ public class SmartSortedWorkQueue extends WorkQueue {
             break;
 
         case StealStrategy._VALUE:
+            a = tmp.removeOneInRange(s.getValue(), s.getValue());
+            break;
+
         case StealStrategy._RANGE:
-            a = tmp.removeOneInRange(s.start, s.end);
+            a = tmp.removeOneInRange(s.getStartOfRange(), s.getEndOfRange());
             break;
         }
 
@@ -106,7 +109,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
 
         ActivityRecord a = null;
 
-        switch (s.strategy) {
+        switch (s.getStrategy()) {
         case StealStrategy._BIGGEST:
         case StealStrategy._ANY:
             a = tmp.removeTail();
@@ -117,8 +120,11 @@ public class SmartSortedWorkQueue extends WorkQueue {
             break;
 
         case StealStrategy._VALUE:
+            a = tmp.removeOneInRange(s.getValue(), s.getValue());
+            break;
+
         case StealStrategy._RANGE:
-            a = tmp.removeOneInRange(s.start, s.end);
+            a = tmp.removeOneInRange(s.getStartOfRange(), s.getEndOfRange());
             break;
         }
 

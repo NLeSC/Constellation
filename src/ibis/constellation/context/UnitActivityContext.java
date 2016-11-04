@@ -90,17 +90,17 @@ public final class UnitActivityContext extends ActivityContext {
             log.info("Matching context string: " + name);
         }
 
-        switch (s.strategy) {
+        switch (s.getStrategy()) {
         case StealStrategy._BIGGEST:
         case StealStrategy._SMALLEST:
         case StealStrategy._ANY:
             return true;
 
         case StealStrategy._VALUE:
-            return (rank == s.start);
+            return (rank == s.getValue());
 
         case StealStrategy._RANGE:
-            return (rank >= s.start && rank <= s.end);
+            return (rank >= s.getStartOfRange() && rank <= s.getEndOfRange());
         }
 
         return false;
@@ -133,10 +133,7 @@ public final class UnitActivityContext extends ActivityContext {
             return satisfiedBy((UnitExecutorContext) offer, s);
         }
 
-        if (offer instanceof OrExecutorContext) {
-            return satisfiedBy((OrExecutorContext) offer, s);
-        }
-
-        return false;
+        assert (offer instanceof OrExecutorContext);
+        return satisfiedBy((OrExecutorContext) offer, s);
     }
 }

@@ -256,8 +256,8 @@ public class ExecutorWrapper implements Constellation {
     @Override
     public void send(Event e) {
 
-        ActivityIdentifierImpl target = (ActivityIdentifierImpl) e.target;
-        ActivityIdentifierImpl source = (ActivityIdentifierImpl) e.source;
+        ActivityIdentifierImpl target = (ActivityIdentifierImpl) e.getTarget();
+        ActivityIdentifierImpl source = (ActivityIdentifierImpl) e.getSource();
         int evt = 0;
 
         if (PROFILE_COMM) {
@@ -296,7 +296,7 @@ public class ExecutorWrapper implements Constellation {
 
     boolean queueEvent(Event e) {
 
-        ActivityRecord ar = lookup.get(e.target);
+        ActivityRecord ar = lookup.get(e.getTarget());
 
         if (ar != null) {
 
@@ -312,7 +312,7 @@ public class ExecutorWrapper implements Constellation {
         }
 
         logger.error("ERROR: Cannot deliver event: Failed to find activity "
-                + e.target);
+                + e.getTarget());
 
         return false;
     }

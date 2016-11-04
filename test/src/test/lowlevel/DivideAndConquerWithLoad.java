@@ -75,7 +75,7 @@ public class DivideAndConquerWithLoad extends Activity {
     @Override
     public void process(Event e) {
         logger.debug("Got event " + e);
-        count += (Long) e.data;
+        count += (Long) e.getData();
 
         merged++;
 
@@ -147,7 +147,7 @@ public class DivideAndConquerWithLoad extends Activity {
             c.submit(new DivideAndConquerWithLoad(a.identifier(), branch, depth,
                     load));
 
-            long result = (long) a.waitForEvent().data;
+            long result = (long) a.waitForEvent().getData();
 
             long end = System.nanoTime();
 

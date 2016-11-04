@@ -149,14 +149,10 @@ public class StealPoolImpl implements Serializable {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
         if (set != null) {
-            result = prime * result + Arrays.hashCode(set);
-        } else {
-            result = prime * result + tag.hashCode();
+            return Arrays.hashCode(set);
         }
-        return result;
+        return tag.hashCode();
     }
 
     @Override

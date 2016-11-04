@@ -71,17 +71,17 @@ public class DivideAndConquerWithChecks extends Activity {
 
         if (children == null) {
             System.out.println("EEP: leaf node " + identifier()
-                    + " got stray message! " + e.source + " " + e.target);
+                    + " got stray message! " + e.getSource() + " " + e.getTarget());
         }
 
         for (ActivityIdentifier a : children) {
-            if (a.equals(e.source)) {
+            if (a.equals(e.getSource())) {
                 return;
             }
         }
 
         System.out.println("EEP: node " + identifier() + " got stray message! "
-                + e.source + " " + e.target + " " + Arrays.toString(children));
+                + e.getSource() + " " + e.getTarget() + " " + Arrays.toString(children));
 
     }
 
@@ -90,9 +90,9 @@ public class DivideAndConquerWithChecks extends Activity {
 
         checkSource(e);
 
-        received[merged] = e.source;
+        received[merged] = e.getSource();
 
-        count += (Long) e.data;
+        count += (Long) e.getData();
 
         merged++;
 
@@ -154,7 +154,7 @@ public class DivideAndConquerWithChecks extends Activity {
             c.submit(new DivideAndConquerWithChecks(a.identifier(), branch,
                     depth));
 
-            long result = (Long) a.waitForEvent().data;
+            long result = (Long) a.waitForEvent().getData();
 
             long end = System.currentTimeMillis();
 
