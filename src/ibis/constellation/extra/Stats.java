@@ -54,13 +54,13 @@ public class Stats implements java.io.Serializable {
         timers.add(timer);
     }
 
-    private void printActions(PrintStream stream, CTimer timer) {
-        List<CTimer> actionTimers = timer.groupByAction();
-
-        for (CTimer t : actionTimers) {
-            print(stream, t.getAction(), t);
-        }
-    }
+//    private void printActions(PrintStream stream, CTimer timer) {
+//        List<CTimer> actionTimers = timer.groupByAction();
+//
+//        for (CTimer t : actionTimers) {
+//            print(stream, t.getAction(), t);
+//        }
+//    }
 
     private synchronized void clean() {
         for (CTimer timer : timers) {

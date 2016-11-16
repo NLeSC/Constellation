@@ -17,7 +17,9 @@ import ibis.constellation.impl.StealPoolImpl;
  */
 public final class StealPool extends StealPoolImpl {
 
-    /**
+	private static final long serialVersionUID = -5231970051093339530L;
+
+	/**
      * An executor that belongs to the <code>WORLD</code> steal pool generates
      * activities that can in principle be stolen by any other executor. An
      * executor that can steal from this steal pool can steal from any pool.

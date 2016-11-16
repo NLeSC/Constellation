@@ -13,8 +13,8 @@ public class StealPoolImpl implements Serializable {
     protected final String tag;
     private final StealPool[] set;
 
-    private static final StealPoolImpl WORLD = StealPool.WORLD;
-    private static final StealPoolImpl NONE = StealPool.NONE;
+    private static final StealPool WORLD = StealPool.WORLD;
+    private static final StealPool NONE = StealPool.NONE;
 
     public StealPoolImpl(StealPoolImpl... set) {
 
@@ -36,13 +36,13 @@ public class StealPoolImpl implements Serializable {
                         "StealPool cannot be recursive!");
             }
 
-            if (set[i].equals(StealPool.NONE)) {
+            if (set[i].equals(NONE)) {
                 continue;
             }
 
             tmp.add(set[i]);
 
-            if (set[i].equals(StealPool.WORLD)) {
+            if (set[i].equals(WORLD)) {
                 tag = "WORLD";
                 this.set = null;
                 return;
@@ -77,11 +77,11 @@ public class StealPoolImpl implements Serializable {
     }
 
     public boolean isWorld() {
-        return this.equals(StealPool.WORLD);
+        return this.equals(WORLD);
     }
 
     public boolean isNone() {
-        return this.equals(StealPool.NONE);
+        return this.equals(NONE);
     }
 
     public StealPool[] set() {
@@ -115,21 +115,21 @@ public class StealPoolImpl implements Serializable {
             if (s.set != null) {
                 StealPoolImpl s2 = merge(s.set());
                 // Now it is flattened.
-                if (s2.equals(StealPool.WORLD)) {
-                    return StealPool.WORLD;
+                if (s2.equals(WORLD)) {
+                    return WORLD;
                 }
                 if (s2.set != null) {
                     for (StealPool s3 : s2.set()) {
-                        if (!s3.equals(StealPool.NONE)) {
+                        if (!s3.equals(NONE)) {
                             tmp.add(s3);
                         }
                     }
                 }
             } else {
-                if (s.equals(StealPool.WORLD)) {
-                    return StealPool.WORLD;
+                if (s.equals(WORLD)) {
+                    return WORLD;
                 }
-                if (!s.equals(StealPool.NONE)) {
+                if (!s.equals(NONE)) {
                     tmp.add(pools[i]);
                 }
             }
@@ -137,7 +137,7 @@ public class StealPoolImpl implements Serializable {
 
         if (tmp.size() == 0) {
             // May happen if all StealPools are NONE
-            return StealPool.NONE;
+            return NONE;
         }
 
         if (tmp.size() == 1) {

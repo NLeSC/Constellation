@@ -97,7 +97,6 @@ public class SingleThreadedConstellation extends Thread {
     private PendingRequests incoming = new PendingRequests();
     private PendingRequests processing = new PendingRequests();
 
-    private ActivityIdentifierFactory aidFactory;
     private long startID = 0;
     private long blockSize = 1000000;
 
@@ -127,11 +126,9 @@ public class SingleThreadedConstellation extends Thread {
         if (parent != null) {
             identifier = parent.getConstellationIdentifierFactory(null)
                     .generateConstellationIdentifier();
-            aidFactory = parent.getActivityIdentifierFactory(identifier);
         } else {
             // We're on our own
             identifier = new ConstellationIdentifier(0);
-            aidFactory = getActivityIdentifierFactory(identifier);
         }
 
         stolen = new SmartSortedWorkQueue("ST(" + identifier + ")-stolen");
@@ -674,28 +671,6 @@ public class SingleThreadedConstellation extends Thread {
             incoming.deliveredApplicationMessages.add(m);
         }
         signal();
-    }
-
-    private synchronized ActivityIdentifierImpl createActivityID(
-            boolean expectsEvents) {
-
-        try {
-            return aidFactory.createActivityID(expectsEvents);
-        } catch (Exception e) {
-            // Oops, we ran out of IDs. Get some more from our parent!
-            if (parent != null) {
-                aidFactory = parent.getActivityIdentifierFactory(identifier);
-            } else {
-                aidFactory = getActivityIdentifierFactory(identifier);
-            }
-        }
-
-        try {
-            return aidFactory.createActivityID(expectsEvents);
-        } catch (Exception e) {
-            throw new RuntimeException(
-                    "INTERNAL ERROR: failed to create new ID block!", e);
-        }
     }
 
     private synchronized boolean getDone() {

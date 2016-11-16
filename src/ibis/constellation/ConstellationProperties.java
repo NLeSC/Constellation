@@ -12,7 +12,9 @@ import ibis.util.TypedProperties;
  */
 public class ConstellationProperties extends TypedProperties {
 
-    public static final Logger logger = LoggerFactory
+	private static final long serialVersionUID = -5316962541092148997L;
+
+	public static final Logger logger = LoggerFactory
             .getLogger(ConstellationProperties.class);
 
     /**

@@ -53,7 +53,7 @@ public class DistributedConstellation {
 
     private ExecutorContext myContext;
 
-    private long stealReplyDeadLine;
+    // private long stealReplyDeadLine;
 
     private final int stealing;
 

@@ -15,7 +15,9 @@ import ibis.constellation.context.UnitExecutorContext;
  */
 public abstract class ExecutorBase implements Serializable {
 
-    private final ExecutorContext context;
+	private static final long serialVersionUID = 1L;
+
+	private final ExecutorContext context;
 
     private final StealStrategy localStealStrategy;
     private final StealStrategy constellationStealStrategy;

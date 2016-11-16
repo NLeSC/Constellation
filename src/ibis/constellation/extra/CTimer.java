@@ -59,9 +59,9 @@ public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
             return queued;
         }
 
-        public long getSubmitted() {
-            return submitted;
-        }
+//        public long getSubmitted() {
+//            return submitted;
+//        }
 
         public long getStart() {
             return start;
