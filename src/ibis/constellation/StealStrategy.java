@@ -10,7 +10,8 @@ import java.io.Serializable;
  * or jobs with a rank within a particular range. The strategies are described
  * by particular opcodes, some of which have additional attributes.
  *
- * TODO: hide all get methods from user?
+ * TODO: hide all get methods from user? They don't do any harm, but the
+ * application will probably never use them.
  */
 public final class StealStrategy implements Serializable {
 

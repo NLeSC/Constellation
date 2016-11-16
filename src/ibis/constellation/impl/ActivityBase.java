@@ -107,8 +107,7 @@ public abstract class ActivityBase implements Serializable {
     }
 
     /**
-     * Resets the request state of this activity. Usually not called by the
-     * application.
+     * Resets the request state of this activity.
      */
     void reset() {
         next = REQUEST_UNKNOWN;
