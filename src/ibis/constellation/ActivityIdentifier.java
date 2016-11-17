@@ -8,7 +8,7 @@ import java.io.Serializable;
  * constellation system. In other words, it is not possible to create your own
  * activity identifiers.
  *
- * TODO: make this impossible.
+ * TODO: make this impossible in the API.
  *
  * @version 1.0
  * @since 1.0

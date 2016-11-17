@@ -11,7 +11,7 @@ import ibis.constellation.impl.ActivityBase;
  * <code>Activity</code> represents an action that is to be performed by the
  * application, i.e. process some <code>Events</code>, or run a task.
  *
- * This class is the base class for all activities.
+ * This class is the base class for all application activities.
  */
 public abstract class Activity extends ActivityBase implements Serializable {
 
@@ -145,6 +145,7 @@ public abstract class Activity extends ActivityBase implements Serializable {
      * throw runtime exceptions or errors, and constellation should deal with
      * that.
      */
+    @Override
     public abstract void initialize();
 
     /**
@@ -165,6 +166,7 @@ public abstract class Activity extends ActivityBase implements Serializable {
      *            the event.
      *
      */
+    @Override
     public abstract void process(Event e);
 
     /**
@@ -176,6 +178,7 @@ public abstract class Activity extends ActivityBase implements Serializable {
      * throw runtime exceptions or errors, and constellation should deal with
      * that.
      */
+    @Override
     public abstract void cleanup();
 
     // /**

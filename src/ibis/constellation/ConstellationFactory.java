@@ -13,6 +13,13 @@ import ibis.constellation.impl.SingleThreadedConstellation;
 public class ConstellationFactory {
 
     /**
+     * Prevent instantiation of this object type.
+     */
+    private ConstellationFactory() {
+        // nothing
+    }
+
+    /**
      * Creates a constellation instance, using the specified executor and the
      * system properties.
      *

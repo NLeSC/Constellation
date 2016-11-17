@@ -251,7 +251,7 @@ public class SingleThreadedConstellation extends Thread {
     ibis.constellation.ActivityIdentifier doSubmit(ActivityRecord ar,
             ActivityContext c, ActivityIdentifierImpl id) {
 
-        ActivityBase a = ar.activity;
+        ActivityBase a = ar.getActivity();
 
         if (c.satisfiedBy(wrapper.getContext(), StealStrategy.ANY)) {
 
@@ -740,8 +740,9 @@ public class SingleThreadedConstellation extends Thread {
                     // now in one of the local queues. If not, return to parent.
                     if (logger.isInfoEnabled()) {
                         logger.info("Failed to deliver message from " + m.source
-                                + " / " + m.event.getSource() + " to " + m.target
-                                + " / " + m.event.getTarget() + " (resending)");
+                                + " / " + m.event.getSource() + " to "
+                                + m.target + " / " + m.event.getTarget()
+                                + " (resending)");
                     }
 
                     handleEvent(m.event);
@@ -940,6 +941,7 @@ public class SingleThreadedConstellation extends Thread {
         }
     }
 
+    // An Activity.processActivities call ultimately ends up here.
     boolean processActivities() {
 
         if (havePendingRequests) {

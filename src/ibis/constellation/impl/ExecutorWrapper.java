@@ -215,6 +215,7 @@ public class ExecutorWrapper implements Constellation {
 
         activitiesSubmitted++;
 
+        // Create an activity identifier and initialize the activity with it.
         ActivityIdentifierImpl id = createActivityID(a.expectsEvents());
         a.initialize(id);
 
@@ -405,7 +406,7 @@ public class ExecutorWrapper implements Constellation {
     private void process(ActivityRecord tmp) {
         int evt = 0;
 
-        tmp.activity.setExecutor((Executor) executor);
+        tmp.getActivity().setExecutor((Executor) executor);
         current = tmp;
         CTimer timer = tmp.isFinishing() ? cleanupTimer
                 : tmp.isRunnable() ? processTimer : initializeTimer;
