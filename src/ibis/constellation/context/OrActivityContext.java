@@ -17,7 +17,6 @@ public final class OrActivityContext extends ActivityContext {
     private final UnitActivityContext[] unitContexts;
 
     private final int hashCode;
-    private final boolean ordered;
 
     private static class UnitActivityContextSorter
             implements Comparator<UnitActivityContext> {
@@ -76,7 +75,6 @@ public final class OrActivityContext extends ActivityContext {
         }
 
         unitContexts = unit.clone();
-        this.ordered = ordered;
 
         if (!ordered) {
             // When the OrContext is unordered, the order of the elements is

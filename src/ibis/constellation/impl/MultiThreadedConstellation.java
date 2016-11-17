@@ -629,12 +629,7 @@ public class MultiThreadedConstellation {
 
             // NOTE: this should always return null!
             cid = st.deliverEventMessage(am);
-
-            // Sanity check
-            if (st == null) {
-                logger.error("INTERNAL ERROR: target activity "
-                        + am.event.getTarget() + " has moved more that once!");
-            }
+            
         } else {
             // it has been exported
             parent.handleApplicationMessage(am, true);
