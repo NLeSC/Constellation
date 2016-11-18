@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
-import ibis.constellation.Concluder;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationProperties;
@@ -53,7 +52,7 @@ public class DistributedConstellation {
 
     private ExecutorContext myContext;
 
-    private long stealReplyDeadLine;
+    // private long stealReplyDeadLine;
 
     private final int stealing;
 
@@ -127,8 +126,8 @@ public class DistributedConstellation {
         @Override
         public void send(Event e) {
             if (!((ActivityIdentifierImpl) e.getTarget()).expectsEvents()) {
-                throw new IllegalArgumentException("Target activity " + e.getTarget()
-                        + "  does not expect an event!");
+                throw new IllegalArgumentException("Target activity "
+                        + e.getTarget() + "  does not expect an event!");
             }
 
             // An external application wishes to send an event to 'e.target'.
@@ -151,14 +150,6 @@ public class DistributedConstellation {
                 logger.info("Calling performDone");
             }
             performDone();
-        }
-
-        @Override
-        public void done(Concluder concluder) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Calling performDone");
-            }
-            performDone(concluder);
         }
 
         @Override
@@ -256,10 +247,6 @@ public class DistributedConstellation {
     }
 
     private void performDone() {
-        performDone(null);
-    }
-
-    private void performDone(Concluder concluder) {
         try {
             // NOTE: this will proceed directly on the master. On other
             // instances, it blocks until the master terminates.
@@ -271,15 +258,6 @@ public class DistributedConstellation {
         logger.info("Pool terminated");
         subConstellation.done();
         logger.info("Subconstellation done");
-
-        if (concluder != null) {
-            try {
-                concluder.conclude();
-            } catch (Throwable e) {
-                logger.warn("Conclude threw exception: ", e);
-            }
-            logger.info("Concluded");
-        }
 
         pool.handleStats();
         logger.info("HandleStats done");
@@ -539,8 +517,7 @@ public class DistributedConstellation {
         return true;
     }
 
-    ConstellationIdentifierFactory getConstellationIdentifierFactory(
-            ConstellationIdentifier cid) {
+    ConstellationIdentifierFactory getConstellationIdentifierFactory() {
         return cidFactory;
     }
 
@@ -566,22 +543,9 @@ public class DistributedConstellation {
             return;
         }
 
-        if (belongsTo.isSet()) {
-
-            StealPool[] set = belongsTo.set();
-
-            for (int i = 0; i < set.length; i++) {
-
-                // TODO: Why do we care if the stealpool is world ?
-                if (!set[i].isNone()) {
-                    pool.registerWithPool(set[i].getTag());
-                }
-            }
-
-        } else {
-            if (!belongsTo.isNone()) {
-                pool.registerWithPool(belongsTo.getTag());
-            }
+        StealPool[] set = belongsTo.set();
+        for (int i = 0; i < set.length; i++) {
+            pool.registerWithPool(set[i].getTag());
         }
     }
 
@@ -597,16 +561,10 @@ public class DistributedConstellation {
             return;
         }
 
-        if (stealsFrom.isSet()) {
+        StealPool[] set = stealsFrom.set();
 
-            StealPool[] set = stealsFrom.set();
-
-            for (int i = 0; i < set.length; i++) {
-                pool.followPool(set[i].getTag());
-            }
-
-        } else {
-            pool.followPool(stealsFrom.getTag());
+        for (int i = 0; i < set.length; i++) {
+            pool.followPool(set[i].getTag());
         }
     }
 

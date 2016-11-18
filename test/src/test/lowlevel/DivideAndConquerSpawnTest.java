@@ -99,7 +99,8 @@ public class DivideAndConquerSpawnTest extends Activity {
             return;
         }
 
-        // We have finished completely
+        // We have finished completely. Send message to event collector.
+        send(new Event(identifier(), parent, 1));
         finish();
     }
 

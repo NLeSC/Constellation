@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ibis.constellation.Activity;
-import ibis.constellation.Concluder;
+import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Event;
@@ -72,8 +72,8 @@ public class MultiThreadedConstellation {
         @Override
         public void send(Event e) {
             if (!((ActivityIdentifierImpl) e.getTarget()).expectsEvents()) {
-                throw new IllegalArgumentException("Target activity " + e.getTarget()
-                        + "  does not expect an event!");
+                throw new IllegalArgumentException("Target activity "
+                        + e.getTarget() + "  does not expect an event!");
             }
 
             // An external application wishes to send an event to 'e.target'.
@@ -96,14 +96,6 @@ public class MultiThreadedConstellation {
                 logger.info("Calling performDone");
             }
             MultiThreadedConstellation.this.done();
-        }
-
-        @Override
-        public void done(Concluder concluder) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Calling performDone");
-            }
-            MultiThreadedConstellation.this.done(concluder);
         }
 
         @Override
@@ -144,7 +136,7 @@ public class MultiThreadedConstellation {
         this.parent = parent;
 
         if (parent != null) {
-            cidFactory = parent.getConstellationIdentifierFactory(null);
+            cidFactory = parent.getConstellationIdentifierFactory();
             identifier = parent.identifier();
         } else {
             cidFactory = new SimpleConstellationIdentifierFactory();
@@ -175,8 +167,7 @@ public class MultiThreadedConstellation {
 
     int next = 0;
 
-    synchronized ibis.constellation.ActivityIdentifier performSubmit(
-            Activity a) {
+    synchronized ActivityIdentifier performSubmit(Activity a) {
 
         ActivityContext c = a.getContext();
         for (int i = 0; i < workerCount; i++) {
@@ -203,7 +194,7 @@ public class MultiThreadedConstellation {
                 ((ActivityIdentifierImpl) e.getTarget()).getOrigin(), e));
     }
 
-    void performCancel(ActivityIdentifierImpl aid) {
+    void performCancel(ActivityIdentifier aid) {
         logger.error("INTERNAL ERROR: cancel not implemented!");
     }
 
@@ -233,6 +224,12 @@ public class MultiThreadedConstellation {
         return tmp;
     }
 
+    // Delivers the specified message to the specified constellation.
+    // This method returns null if either the destination constellation could
+    // not be found (which is an error situation), or the message gets
+    // delivered.
+    // When the message cannot be delivered, the constellation identifier where
+    // it should be sent instead is returned.
     private ConstellationIdentifier deliverLocally(ConstellationIdentifier cid,
             EventMessage m) {
 
@@ -355,9 +352,8 @@ public class MultiThreadedConstellation {
         return null;
     }
 
-    ConstellationIdentifierFactory getConstellationIdentifierFactory(
-            ConstellationIdentifier cid) {
-        return parent.getConstellationIdentifierFactory(cid);
+    ConstellationIdentifierFactory getConstellationIdentifierFactory() {
+        return cidFactory;
     }
 
     synchronized void register(SingleThreadedConstellation constellation) {
@@ -393,7 +389,7 @@ public class MultiThreadedConstellation {
                     map.put(name, u);
                 }
             } else {
-                assert(tmp instanceof OrExecutorContext);
+                assert (tmp instanceof OrExecutorContext);
                 OrExecutorContext o = (OrExecutorContext) tmp;
 
                 for (int j = 0; j < o.size(); j++) {
@@ -491,24 +487,6 @@ public class MultiThreadedConstellation {
             for (SingleThreadedConstellation u : incomingWorkers) {
                 u.performDone();
             }
-        }
-    }
-
-    public void done(Concluder concluder) {
-
-        logger.info("done");
-
-        if (active) {
-            for (SingleThreadedConstellation u : workers) {
-                u.performDone();
-            }
-        } else {
-            for (SingleThreadedConstellation u : incomingWorkers) {
-                u.performDone();
-            }
-        }
-        if (concluder != null) {
-            concluder.conclude();
         }
     }
 
@@ -630,11 +608,6 @@ public class MultiThreadedConstellation {
             // NOTE: this should always return null!
             cid = st.deliverEventMessage(am);
 
-            // Sanity check
-            if (st == null) {
-                logger.error("INTERNAL ERROR: target activity "
-                        + am.event.getTarget() + " has moved more that once!");
-            }
         } else {
             // it has been exported
             parent.handleApplicationMessage(am, true);

@@ -1,24 +1,27 @@
 package ibis.constellation.impl;
 
-public class ActivityIdentifierFactory {
+import ibis.constellation.ActivityIdentifier;
+
+class ActivityIdentifierFactory {
 
     private final ConstellationIdentifier cid;
     private final long end;
     private long current;
 
-    public ActivityIdentifierFactory(final ConstellationIdentifier cid,
+    ActivityIdentifierFactory(final ConstellationIdentifier cid,
             final long start, final long end) {
         this.cid = cid;
         this.current = start;
         this.end = end;
     }
 
-    public ActivityIdentifierImpl createActivityID(boolean events) {
+    ActivityIdentifier createActivityID(boolean events) {
 
         if (current >= end) {
             throw new Error("Out of identifiers!");
         }
 
-        return new ActivityIdentifierImpl(cid, current++, events);
+        return ActivityIdentifierImpl.createActivityIdentifier(cid, current++,
+                events);
     }
 }

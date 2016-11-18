@@ -5,11 +5,13 @@ import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ibis.constellation.ActivityIdentifier;
+
 public class LocationCache {
 
     public static final Logger logger = LoggerFactory
             .getLogger(LocationCache.class);
-    private HashMap<ActivityIdentifierImpl, Entry> map = new HashMap<ActivityIdentifierImpl, Entry>();
+    private HashMap<ActivityIdentifier, Entry> map = new HashMap<ActivityIdentifier, Entry>();
 
     public final class Entry {
 
@@ -22,7 +24,7 @@ public class LocationCache {
         }
     }
 
-    public synchronized ConstellationIdentifier lookup(ActivityIdentifierImpl a) {
+    public synchronized ConstellationIdentifier lookup(ActivityIdentifier a) {
 
         final Entry tmp = map.get(a);
 
@@ -33,11 +35,11 @@ public class LocationCache {
         }
     }
 
-    public synchronized Entry lookupEntry(ActivityIdentifierImpl a) {
+    public synchronized Entry lookupEntry(ActivityIdentifier a) {
         return map.get(a);
     }
 
-    public synchronized ConstellationIdentifier remove(ActivityIdentifierImpl a) {
+    public synchronized ConstellationIdentifier remove(ActivityIdentifier a) {
 
         final Entry tmp = map.remove(a);
 
@@ -48,7 +50,7 @@ public class LocationCache {
         }
     }
 
-    public synchronized void removeIfEqual(ActivityIdentifierImpl a,
+    public synchronized void removeIfEqual(ActivityIdentifier a,
             ConstellationIdentifier c) {
 
         final Entry tmp = map.get(a);
@@ -62,7 +64,7 @@ public class LocationCache {
         }
     }
 
-    public synchronized void put(ActivityIdentifierImpl a,
+    public synchronized void put(ActivityIdentifier a,
             ConstellationIdentifier c, long count) {
 
         // NOTE: we only replace an existing entry if count is larger

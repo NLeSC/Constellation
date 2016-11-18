@@ -690,12 +690,8 @@ public class Pool {
     public StealPool randomlySelectPool(StealPool pool) {
 
         // NOTE: We know the pool is not NULL or NONE.
-        if (pool.isSet()) {
-            StealPool[] tmp = pool.set();
-            pool = tmp[random.nextInt(tmp.length)];
-        }
-
-        return pool;
+        StealPool[] tmp = pool.set();
+        return tmp[random.nextInt(tmp.length)];
     }
 
     private void performRegisterWithPool(PoolRegisterRequest request) {

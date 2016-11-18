@@ -65,20 +65,6 @@ public interface Constellation {
      * Terminate Constellation.
      *
      * When terminating all sub-constellations will be terminated. Termination
-     * may block until all other running constellation implementations in a Pool
-     * have also decided to terminate. When this is the case, the
-     * {@link Concluder#conclude()} method is called, allowing the application
-     * to run some finalization code of its own.
-     *
-     * @param concluder
-     *            object with a {@link Concluder#conclude()} method
-     */
-    public void done(Concluder concluder);
-
-    /**
-     * Terminate Constellation.
-     *
-     * When terminating all sub-constellations will be terminated. Termination
      * may also block until all other running constellation instances in a Pool
      * have also decided to terminate.
      */
@@ -102,9 +88,33 @@ public interface Constellation {
      */
     public String identifier();
 
+    /**
+     * Creates a {@link CTimer} with the specified device, thread, and action
+     * name.
+     *
+     * @param device
+     *            the device name
+     * @param thread
+     *            the thread name
+     * @param action
+     *            the action name
+     * @return the CTimer object
+     */
     public CTimer getTimer(String device, String thread, String action);
 
+    /**
+     * Creates a {@link CTimer} without device, thread, or action name.
+     *
+     * @return the CTimer object
+     */
     public CTimer getTimer();
 
+    /**
+     * Returns the overall timer.
+     *
+     * This timer needs to be started and stopped by the main program.
+     *
+     * @return the overall timer.
+     */
     public CTimer getOverallTimer();
 }
