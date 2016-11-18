@@ -148,7 +148,7 @@ public class DivideAndConquerWithChecks extends Activity {
                     "Running D&C with branch factor " + branch + " and depth "
                             + depth + " (expected jobs: " + count + ")");
 
-            SingleEventCollector a = new SingleEventCollector();
+            SingleEventCollector a = new SingleEventCollector(new UnitActivityContext("DC"));
 
             c.submit(a);
             c.submit(new DivideAndConquerWithChecks(a.identifier(), branch,
