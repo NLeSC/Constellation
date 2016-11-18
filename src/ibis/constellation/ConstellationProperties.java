@@ -12,9 +12,9 @@ import ibis.util.TypedProperties;
  */
 public class ConstellationProperties extends TypedProperties {
 
-	private static final long serialVersionUID = -5316962541092148997L;
+    private static final long serialVersionUID = -5316962541092148997L;
 
-	public static final Logger logger = LoggerFactory
+    public static final Logger logger = LoggerFactory
             .getLogger(ConstellationProperties.class);
 
     /**
@@ -93,9 +93,21 @@ public class ConstellationProperties extends TypedProperties {
      * constellation should provide some timing information on steqls. The
      * default is "false". Note: the overhead for this profiler can be large.
      */
-    private static final String S_PROFILE_STEAL = "profile.steal";
+    public static final String S_PROFILE_STEAL = "profile.steal";
 
     public final boolean PROFILE_STEAL;
+
+    /**
+     * The "printStatistics" property is a boolean property indicating whether
+     * some constellation statistics should be printed or not. Default is
+     * "false".
+     *
+     * See also {@link #S_OUTPUT}.
+     */
+    public static final String S_PRINT_STATISTICS = S_PREFIX
+            + "printStatistics";
+
+    public final boolean PRINT_STATISTICS;
 
     /**
      * The "output" property is a string property indicating an output file to
@@ -195,6 +207,7 @@ public class ConstellationProperties extends TypedProperties {
         PROFILE_COMMUNICATION = getBooleanProperty(S_PROFILE_COMMUNICATION,
                 false);
         PROFILE_STEAL = getBooleanProperty(S_PROFILE_STEAL, false);
+        PRINT_STATISTICS = getBooleanProperty(S_PRINT_STATISTICS, false);
         OUTPUT = getProperty(S_OUTPUT);
         REMOTESTEAL_THROTTLE = getBooleanProperty(S_REMOTESTEAL_THROTTLE,
                 false);

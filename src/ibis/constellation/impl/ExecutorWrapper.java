@@ -59,12 +59,7 @@ public class ExecutorWrapper implements Constellation {
     private final CTimer processTimer;
 
     private long activitiesSubmitted;
-    private long activitiesAdded;
-
     private long wrongContextSubmitted;
-    private long wrongContextAdded;
-
-    private long wrongContextDiscovered;
 
     private long steals;
     private long stealSuccess;
@@ -136,6 +131,10 @@ public class ExecutorWrapper implements Constellation {
         if (lookup.size() > 0) {
             logger.warn("Quiting Constellation with " + lookup.size()
                     + " activities in queue");
+        }
+        parent.performDone();
+        if (concluder != null) {
+            concluder.conclude();
         }
     }
 
@@ -212,8 +211,6 @@ public class ExecutorWrapper implements Constellation {
     @Override
     public ActivityIdentifier submit(Activity a) {
 
-        activitiesSubmitted++;
-
         // Create an activity identifier and initialize the activity with it.
         ActivityIdentifier id = createActivityID(a.expectsEvents());
         a.initialize(id);
@@ -221,9 +218,12 @@ public class ExecutorWrapper implements Constellation {
         ActivityRecord ar = new ActivityRecord(a);
         ActivityContext c = a.getContext();
 
+        activitiesSubmitted++;
+
         if (restricted.size() + fresh.size() >= QUEUED_JOB_LIMIT) {
-            // If we have too much work on our hands we push it to out parent.
-            // Added bonus is that others can access it without interrupting me.
+            // If we have too much work on our hands we push it to out
+            // parent. Added bonus is that others can access it without
+            // interrupting me.
             return parent.doSubmit(ar, c, id);
         }
 
@@ -244,9 +244,14 @@ public class ExecutorWrapper implements Constellation {
                 }
                 fresh.enqueue(ar);
             }
+            // Expensive call, but otherwise parent may not see that there
+            // is work to do ... this is really only needed when the submit
+            // is called from the main program, not if it is called from the
+            // activity. But testing for that may be expensive as well.
+            parent.signal();
+
         } else {
             wrongContextSubmitted++;
-            // TODO: shouldn't we batch these calls.
             parent.deliverWrongContext(ar);
         }
 
@@ -260,21 +265,25 @@ public class ExecutorWrapper implements Constellation {
         ActivityIdentifier source = e.getSource();
         int evt = 0;
 
-        if (PROFILE_COMM) {
-            evt = messagesTimer.start();
-        }
-
         if (logger.isDebugEnabled()) {
             logger.debug("SEND EVENT " + source + " to " + target);
         }
 
+        if (PROFILE_COMM) {
+            evt = messagesTimer.start();
+        }
+
         // First check if the activity is local.
-        ActivityRecord ar = lookup.get(target);
+        ActivityRecord ar;
+
+        ar = lookup.get(target);
+        if (ar != null) {
+            messagesInternal++;
+        } else {
+            messagesExternal++;
+        }
 
         if (ar != null) {
-
-            messagesInternal++;
-
             ar.enqueue(e);
 
             boolean change = ar.setRunnable();
@@ -284,7 +293,6 @@ public class ExecutorWrapper implements Constellation {
             }
 
         } else {
-            messagesExternal++;
             // ActivityBase is not local, so let our parent handle it.
             parent.handleEvent(e);
         }
@@ -461,20 +469,8 @@ public class ExecutorWrapper implements Constellation {
         return activitiesSubmitted;
     }
 
-    long getActivitiesAdded() {
-        return activitiesAdded;
-    }
-
     long getWrongContextSubmitted() {
         return wrongContextSubmitted;
-    }
-
-    long getWrongContextAdded() {
-        return wrongContextAdded;
-    }
-
-    long getWrongContextDiscovered() {
-        return wrongContextDiscovered;
     }
 
     long getMessagesInternal() {
@@ -533,12 +529,7 @@ public class ExecutorWrapper implements Constellation {
 
     @Override
     public boolean activate() {
-        /*
-         * if (parent != null) { return true; }
-         *
-         * while (process());
-         */
-        return false;
+        return parent.performActivate();
     }
 
     public boolean processActitivies() {

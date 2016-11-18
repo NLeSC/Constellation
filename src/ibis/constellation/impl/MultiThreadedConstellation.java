@@ -176,8 +176,7 @@ public class MultiThreadedConstellation {
 
     int next = 0;
 
-    synchronized ibis.constellation.ActivityIdentifier performSubmit(
-            Activity a) {
+    synchronized ActivityIdentifier performSubmit(Activity a) {
 
         ActivityContext c = a.getContext();
         for (int i = 0; i < workerCount; i++) {
