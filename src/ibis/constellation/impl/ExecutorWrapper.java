@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ibis.constellation.Activity;
+import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Concluder;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationProperties;
@@ -174,7 +175,7 @@ public class ExecutorWrapper implements Constellation {
         return null;
     }
 
-    private ActivityIdentifierImpl createActivityID(boolean expectsEvents) {
+    private ActivityIdentifier createActivityID(boolean expectsEvents) {
 
         try {
             return generator.createActivityID(expectsEvents);
@@ -204,17 +205,17 @@ public class ExecutorWrapper implements Constellation {
         relocated.insertLast(a);
     }
 
-    protected ActivityRecord lookup(ActivityIdentifierImpl id) {
+    protected ActivityRecord lookup(ActivityIdentifier id) {
         return lookup.get(id);
     }
 
     @Override
-    public ibis.constellation.ActivityIdentifier submit(Activity a) {
+    public ActivityIdentifier submit(Activity a) {
 
         activitiesSubmitted++;
 
         // Create an activity identifier and initialize the activity with it.
-        ActivityIdentifierImpl id = createActivityID(a.expectsEvents());
+        ActivityIdentifier id = createActivityID(a.expectsEvents());
         a.initialize(id);
 
         ActivityRecord ar = new ActivityRecord(a);
@@ -255,8 +256,8 @@ public class ExecutorWrapper implements Constellation {
     @Override
     public void send(Event e) {
 
-        ActivityIdentifierImpl target = (ActivityIdentifierImpl) e.getTarget();
-        ActivityIdentifierImpl source = (ActivityIdentifierImpl) e.getSource();
+        ActivityIdentifier target = e.getTarget();
+        ActivityIdentifier source = e.getSource();
         int evt = 0;
 
         if (PROFILE_COMM) {

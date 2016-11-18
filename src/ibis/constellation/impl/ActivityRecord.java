@@ -68,10 +68,6 @@ public class ActivityRecord implements Serializable, ByteBuffers {
         return getActivity().identifier();
     }
 
-    public ActivityIdentifierImpl identifierImpl() {
-        return getActivity().identifierImpl();
-    }
-
     boolean isRunnable() {
         return (state == RUNNABLE);
     }

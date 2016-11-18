@@ -5,6 +5,7 @@ import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.context.ActivityContext;
 import ibis.constellation.context.ExecutorContext;
@@ -12,7 +13,6 @@ import ibis.constellation.context.OrActivityContext;
 import ibis.constellation.context.OrExecutorContext;
 import ibis.constellation.context.UnitActivityContext;
 import ibis.constellation.context.UnitExecutorContext;
-import ibis.constellation.impl.ActivityIdentifierImpl;
 import ibis.constellation.impl.ActivityRecord;
 
 public class SmartSortedWorkQueue extends WorkQueue {
@@ -28,7 +28,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
     // 'OR' jobs may have more suitable locations, but their context matching
     // is more expensive
 
-    protected final HashMap<ActivityIdentifierImpl, ActivityRecord> ids = new HashMap<ActivityIdentifierImpl, ActivityRecord>();
+    protected final HashMap<ActivityIdentifier, ActivityRecord> ids = new HashMap<ActivityIdentifier, ActivityRecord>();
 
     protected final HashMap<String, SortedList> unit = new HashMap<String, SortedList>();
 
@@ -135,7 +135,8 @@ public class SmartSortedWorkQueue extends WorkQueue {
         }
 
         // Remove entry for this ActivityRecord from all lists....
-        OrActivityContext cntx = (OrActivityContext) a.getActivity().getContext();
+        OrActivityContext cntx = (OrActivityContext) a.getActivity()
+                .getContext();
 
         for (int i = 0; i < cntx.size(); i++) {
 
@@ -171,7 +172,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
 
         tmp.insert(a, c.getRank());
         size++;
-        ids.put(a.identifierImpl(), a);
+        ids.put(a.identifier(), a);
     }
 
     private void enqueueOr(OrActivityContext c, ActivityRecord a) {
@@ -191,7 +192,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
         }
 
         size++;
-        ids.put(a.identifierImpl(), a);
+        ids.put(a.identifier(), a);
     }
 
     @Override

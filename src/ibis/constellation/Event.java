@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import ibis.constellation.impl.ActivityIdentifierImpl;
-
 /**
  * An <code>Event</code> can be used for communication between {@link Activity
  * activities}. A common usage is to notify an activity that certain data is
@@ -37,11 +35,6 @@ public final class Event implements Serializable, ByteBuffers {
      */
     public Event(ActivityIdentifier source, ActivityIdentifier target,
             Object data) {
-        if (!(target instanceof ActivityIdentifierImpl)
-                || !(source instanceof ActivityIdentifierImpl)) {
-            throw new IllegalArgumentException(
-                    "target or source of event refers to an object of the wrong type");
-        }
         this.source = source;
         this.target = target;
         this.data = data;
@@ -85,7 +78,7 @@ public final class Event implements Serializable, ByteBuffers {
 
     /**
      * Returns the identifier of the source activity of this event.
-     * 
+     *
      * @return the source activity identifier
      */
     public ActivityIdentifier getSource() {
@@ -94,7 +87,7 @@ public final class Event implements Serializable, ByteBuffers {
 
     /**
      * Returns the identifier of the target activity of this event.
-     * 
+     *
      * @return the target activity identifier
      */
     public ActivityIdentifier getTarget() {
@@ -103,7 +96,7 @@ public final class Event implements Serializable, ByteBuffers {
 
     /**
      * Returns the data object of this event.
-     * 
+     *
      * @return the data object
      */
     public Object getData() {

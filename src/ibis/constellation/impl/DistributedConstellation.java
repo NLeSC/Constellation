@@ -127,8 +127,8 @@ public class DistributedConstellation {
         @Override
         public void send(Event e) {
             if (!((ActivityIdentifierImpl) e.getTarget()).expectsEvents()) {
-                throw new IllegalArgumentException("Target activity " + e.getTarget()
-                        + "  does not expect an event!");
+                throw new IllegalArgumentException("Target activity "
+                        + e.getTarget() + "  does not expect an event!");
             }
 
             // An external application wishes to send an event to 'e.target'.
@@ -536,8 +536,7 @@ public class DistributedConstellation {
         return true;
     }
 
-    ConstellationIdentifierFactory getConstellationIdentifierFactory(
-            ConstellationIdentifier cid) {
+    ConstellationIdentifierFactory getConstellationIdentifierFactory() {
         return cidFactory;
     }
 
@@ -563,22 +562,9 @@ public class DistributedConstellation {
             return;
         }
 
-        if (belongsTo.isSet()) {
-
-            StealPool[] set = belongsTo.set();
-
-            for (int i = 0; i < set.length; i++) {
-
-                // TODO: Why do we care if the stealpool is world ?
-                if (!set[i].isNone()) {
-                    pool.registerWithPool(set[i].getTag());
-                }
-            }
-
-        } else {
-            if (!belongsTo.isNone()) {
-                pool.registerWithPool(belongsTo.getTag());
-            }
+        StealPool[] set = belongsTo.set();
+        for (int i = 0; i < set.length; i++) {
+            pool.registerWithPool(set[i].getTag());
         }
     }
 
@@ -595,16 +581,10 @@ public class DistributedConstellation {
             return;
         }
 
-        if (stealsFrom.isSet()) {
+        StealPool[] set = stealsFrom.set();
 
-            StealPool[] set = stealsFrom.set();
-
-            for (int i = 0; i < set.length; i++) {
-                pool.followPool(set[i].getTag());
-            }
-
-        } else {
-            pool.followPool(stealsFrom.getTag());
+        for (int i = 0; i < set.length; i++) {
+            pool.followPool(set[i].getTag());
         }
     }
 

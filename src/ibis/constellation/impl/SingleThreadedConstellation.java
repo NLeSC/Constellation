@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ibis.constellation.Activity;
+import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Event;
@@ -61,7 +62,7 @@ public class SingleThreadedConstellation extends Thread {
             1);
 
     // Hashmap allowing quick lookup of the activities in our 4 queues.
-    private HashMap<ActivityIdentifierImpl, ActivityRecord> lookup = new HashMap<ActivityIdentifierImpl, ActivityRecord>();
+    private HashMap<ActivityIdentifier, ActivityRecord> lookup = new HashMap<ActivityIdentifier, ActivityRecord>();
 
     private final ConstellationIdentifier identifier;
 
@@ -124,7 +125,7 @@ public class SingleThreadedConstellation extends Thread {
         this.parent = parent;
 
         if (parent != null) {
-            identifier = parent.getConstellationIdentifierFactory(null)
+            identifier = parent.getConstellationIdentifierFactory()
                     .generateConstellationIdentifier();
         } else {
             // We're on our own
@@ -245,15 +246,15 @@ public class SingleThreadedConstellation extends Thread {
         return wrapper.submit(a);
     }
 
-    ibis.constellation.ActivityIdentifier doSubmit(ActivityRecord ar,
-            ActivityContext c, ActivityIdentifierImpl id) {
+    ActivityIdentifier doSubmit(ActivityRecord ar, ActivityContext c,
+            ActivityIdentifier id) {
 
         ActivityBase a = ar.getActivity();
 
         if (c.satisfiedBy(wrapper.getContext(), StealStrategy.ANY)) {
 
             synchronized (this) {
-                lookup.put(a.identifierImpl(), ar);
+                lookup.put(a.identifier(), ar);
 
                 if (a.isRestrictedToLocal()) {
                     if (logger.isDebugEnabled()) {
@@ -280,7 +281,7 @@ public class SingleThreadedConstellation extends Thread {
         logger.error("INTERNAL ERROR: Send not implemented!");
     }
 
-    void performCancel(ActivityIdentifierImpl aid) {
+    void performCancel(ActivityIdentifier aid) {
         logger.error("INTERNAL ERROR: Cancel not implemented!");
     }
 
@@ -414,14 +415,14 @@ public class SingleThreadedConstellation extends Thread {
 
         for (int i = 0; i < len; i++) {
             if (ar[i] != null) {
-                lookup.remove(ar[i].identifierImpl());
+                lookup.remove(ar[i].identifier());
 
                 if (isLocal) {
                     ar[i].setRelocated(true);
-                    relocatedActivities.add(ar[i].identifierImpl(), dest);
+                    relocatedActivities.add(ar[i].identifier(), dest);
                 } else {
                     ar[i].setStolen(true);
-                    exportedActivities.add(ar[i].identifierImpl(), dest);
+                    exportedActivities.add(ar[i].identifier(), dest);
                 }
             }
         }
@@ -510,7 +511,7 @@ public class SingleThreadedConstellation extends Thread {
                     // this executor.
 
                     // Timo: Add it to lookup as well!
-                    lookup.put(a.identifierImpl(), a);
+                    lookup.put(a.identifier(), a);
                     if (a.isRelocated()) {
                         if (logger.isDebugEnabled()) {
                             logger.debug("Putting " + a.identifier().toString()
@@ -547,7 +548,7 @@ public class SingleThreadedConstellation extends Thread {
         // The target activity may be in one of my local queues
 
         Event e = m.event;
-        ActivityIdentifierImpl target = (ActivityIdentifierImpl) e.getTarget();
+        ActivityIdentifier target = e.getTarget();
 
         ActivityRecord tmp = lookup.get(e.getTarget());
 
@@ -600,7 +601,7 @@ public class SingleThreadedConstellation extends Thread {
 
         ConstellationIdentifier cid = null;
 
-        ActivityIdentifierImpl target = (ActivityIdentifierImpl) e.getTarget();
+        ActivityIdentifier target = e.getTarget();
 
         synchronized (this) {
 
@@ -623,7 +624,7 @@ public class SingleThreadedConstellation extends Thread {
 
             if (cid == null) {
                 // If not, we simply send the event to the parent
-                cid = target.getOrigin();
+                cid = ((ActivityIdentifierImpl) target).getOrigin();
             }
         }
 
@@ -751,13 +752,13 @@ public class SingleThreadedConstellation extends Thread {
                     // We should unset the stolen flag if an activity is
                     // returned.
                     ar.setStolen(false);
-                    exportedActivities.remove(ar.identifierImpl());
+                    exportedActivities.remove(ar.identifier());
                 }
 
                 if (c.satisfiedBy(wrapper.getContext(), StealStrategy.ANY)) {
 
                     synchronized (this) {
-                        lookup.put(ar.identifierImpl(), ar);
+                        lookup.put(ar.identifier(), ar);
 
                         if (ar.isRestrictedToLocal()) {
                             restricted.enqueue(ar);
@@ -898,7 +899,7 @@ public class SingleThreadedConstellation extends Thread {
 
     synchronized void deliverWrongContext(ActivityRecord a) {
         // Timo: we should add it to the lookup as well
-        lookup.put(a.identifierImpl(), a);
+        lookup.put(a.identifier(), a);
 
         if (a.isRestrictedToLocal()) {
             restrictedWrongContext.enqueue(a);

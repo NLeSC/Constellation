@@ -9,15 +9,15 @@ import ibis.constellation.context.ActivityContext;
 
 public abstract class ActivityBase implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	
-	private static final byte REQUEST_UNKNOWN = 0;
+    private static final long serialVersionUID = 1L;
+
+    private static final byte REQUEST_UNKNOWN = 0;
     private static final byte REQUEST_SUSPEND = 1;
     private static final byte REQUEST_FINISH = 2;
 
     private transient Executor executor;
 
-    private ActivityIdentifierImpl identifier;
+    private ActivityIdentifier identifier;
     private final ActivityContext context;
 
     private final boolean restrictToLocal;
@@ -54,7 +54,7 @@ public abstract class ActivityBase implements Serializable {
         return willReceiveEvents;
     }
 
-    public final void initialize(ActivityIdentifierImpl id) {
+    public final void initialize(ActivityIdentifier id) {
         this.identifier = id;
     }
 

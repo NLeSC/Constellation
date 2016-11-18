@@ -1,5 +1,7 @@
 package ibis.constellation.impl;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 
@@ -10,35 +12,41 @@ import ibis.constellation.ActivityIdentifier;
  * @version 1.0
  * @since 1.0
  */
-public class ActivityIdentifierImpl implements ActivityIdentifier {
+public abstract class ActivityIdentifierImpl {
 
     /* Generated */
     private static final long serialVersionUID = 4785081436543353644L;
+
+    private static final ReentrantLock lock = new ReentrantLock();
 
     // The globally unique UUID for this activity is "CID:AID"
     // "CID" is the id of the Constellation on which this ActivityBase was
     // created,
     // "AID" is the sequence number of this activity on that executor.
-    private final ConstellationIdentifier CID;
-    private final long AID;
-    private final boolean expectsEvents;
+    private ConstellationIdentifier CID;
+    private long AID;
+    private boolean expectsEvents;
 
-    /**
-     * Constructs an activity identifier, using the specified constellation id
-     * and sequence number on that constellation instance.
-     *
-     * @param cid
-     *            the constellation id
-     * @param aid
-     *            the sequence number
-     * @param expectsEvents
-     *            whether this activity expects events
-     */
-    ActivityIdentifierImpl(ConstellationIdentifier cid, long aid,
-            boolean expectsEvents) {
-        this.CID = cid;
-        this.AID = aid;
-        this.expectsEvents = expectsEvents;
+    protected ActivityIdentifierImpl() {
+        // Make sure that we can only create an ActivityIdentifier through the
+        // createActivityIdentifier method.
+        if (!lock.isHeldByCurrentThread()) {
+            throw new Error("Invalid creation of activity identifier");
+        }
+    }
+
+    static ActivityIdentifier createActivityIdentifier(
+            ConstellationIdentifier cid, long aid, boolean expectsEvents) {
+        lock.lock();
+        try {
+            ActivityIdentifierImpl id = new ActivityIdentifier();
+            id.CID = cid;
+            id.AID = aid;
+            id.expectsEvents = expectsEvents;
+            return (ActivityIdentifier) id;
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**

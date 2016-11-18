@@ -4,9 +4,9 @@ import java.io.Serializable;
 
 public abstract class Message implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	
-	public final ConstellationIdentifier source;
+    private static final long serialVersionUID = 1L;
+
+    public final ConstellationIdentifier source;
     public ConstellationIdentifier target;
 
     private transient boolean stale = false;
@@ -33,10 +33,6 @@ public abstract class Message implements Serializable {
         boolean old = stale;
         stale = true;
         return old;
-    }
-
-    public ActivityIdentifierImpl targetActivity() {
-        return null;
     }
 
     @Override

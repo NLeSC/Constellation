@@ -11,8 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ibis.constellation.ByteBufferCache;
-import ibis.constellation.ConstellationProperties;
 import ibis.constellation.ByteBuffers;
+import ibis.constellation.ConstellationProperties;
 import ibis.constellation.StealPool;
 import ibis.constellation.extra.CTimer;
 import ibis.constellation.extra.Stats;
@@ -1104,12 +1104,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     public StealPool randomlySelectPool(StealPool pool) {
 
         // NOTE: We know the pool is not NULL or NONE.
-        if (pool.isSet()) {
-            StealPool[] tmp = pool.set();
-            pool = tmp[random.nextInt(tmp.length)];
-        }
-
-        return pool;
+        StealPool[] tmp = pool.set();
+        return tmp[random.nextInt(tmp.length)];
     }
 
     private void performRegisterWithPool(PoolRegisterRequest request) {

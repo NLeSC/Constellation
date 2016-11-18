@@ -102,9 +102,27 @@ public interface Constellation {
      */
     public String identifier();
 
+    /**
+     * TODO
+     * 
+     * @param device
+     * @param thread
+     * @param action
+     * @return
+     */
     public CTimer getTimer(String device, String thread, String action);
 
+    /**
+     * TODO
+     * 
+     * @return
+     */
     public CTimer getTimer();
 
+    /**
+     * TODO
+     * 
+     * @return
+     */
     public CTimer getOverallTimer();
 }
