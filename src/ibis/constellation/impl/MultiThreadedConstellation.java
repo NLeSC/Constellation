@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
-import ibis.constellation.Concluder;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Event;
@@ -97,14 +96,6 @@ public class MultiThreadedConstellation {
                 logger.info("Calling performDone");
             }
             MultiThreadedConstellation.this.done();
-        }
-
-        @Override
-        public void done(Concluder concluder) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Calling performDone");
-            }
-            MultiThreadedConstellation.this.done(concluder);
         }
 
         @Override
@@ -233,6 +224,12 @@ public class MultiThreadedConstellation {
         return tmp;
     }
 
+    // Delivers the specified message to the specified constellation.
+    // This method returns null if either the destination constellation could
+    // not be found (which is an error situation), or the message gets
+    // delivered.
+    // When the message cannot be delivered, the constellation identifier where
+    // it should be sent instead is returned.
     private ConstellationIdentifier deliverLocally(ConstellationIdentifier cid,
             EventMessage m) {
 
@@ -490,24 +487,6 @@ public class MultiThreadedConstellation {
             for (SingleThreadedConstellation u : incomingWorkers) {
                 u.performDone();
             }
-        }
-    }
-
-    public void done(Concluder concluder) {
-
-        logger.info("done");
-
-        if (active) {
-            for (SingleThreadedConstellation u : workers) {
-                u.performDone();
-            }
-        } else {
-            for (SingleThreadedConstellation u : incomingWorkers) {
-                u.performDone();
-            }
-        }
-        if (concluder != null) {
-            concluder.conclude();
         }
     }
 

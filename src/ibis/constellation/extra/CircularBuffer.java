@@ -144,30 +144,42 @@ public class CircularBuffer<T> implements Serializable, ByteBuffers {
         } else if (index == size) {
             removeLast();
         } else {
-            // TODO: optimize ? i.e., figure out how to move the least data
+            // optimize: i.e., figure out how to move the least data
             int pos = (first + index) % array.length;
-
-            if (next > pos) {
-                // We simply move part of the data back
-                while (pos < next - 1) {
-                    array[pos] = array[pos + 1];
-                    pos++;
+            if (index < size / 2) {
+                // move data forward
+                if (pos < first) {
+                    while (pos > 0) {
+                        array[pos] = array[pos - 1];
+                        pos--;
+                    }
+                    array[0] = array[array.length - 1];
+                    pos = array.length - 1;
                 }
-
-                next--;
-                array[next] = null;
-                size--;
-            } else {
-                // We simply move part of the data forward
                 while (pos > first) {
                     array[pos] = array[pos - 1];
                     pos--;
                 }
-
                 array[first] = null;
-                first++;
-                size--;
+                first = (first == array.length - 1 ? 0 : first + 1);
+            } else {
+                int nextm1 = next == 0 ? array.length - 1 : next - 1;
+                if (pos > nextm1) {
+                    while (pos < array.length - 1) {
+                        array[pos] = array[pos + 1];
+                        pos++;
+                    }
+                    array[array.length - 1] = array[0];
+                    pos = 0;
+                }
+                while (pos < nextm1) {
+                    array[pos] = array[pos + 1];
+                    pos++;
+                }
+                next = nextm1;
+                array[nextm1] = 0;
             }
+            size--;
         }
 
         return true;
@@ -188,6 +200,7 @@ public class CircularBuffer<T> implements Serializable, ByteBuffers {
             if (o.equals(array[index])) {
                 remove(i);
                 removed = true;
+                break;
             }
 
             index++;

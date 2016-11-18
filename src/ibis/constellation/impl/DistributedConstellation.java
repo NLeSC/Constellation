@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
-import ibis.constellation.Concluder;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationProperties;
@@ -154,14 +153,6 @@ public class DistributedConstellation {
         }
 
         @Override
-        public void done(Concluder concluder) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Calling performDone");
-            }
-            performDone(concluder);
-        }
-
-        @Override
         public boolean isMaster() {
             return pool.isMaster();
         }
@@ -257,10 +248,6 @@ public class DistributedConstellation {
     }
 
     private void performDone() {
-        performDone(null);
-    }
-
-    private void performDone(Concluder concluder) {
         try {
             // NOTE: this will proceed directly on the master. On other
             // instances, it blocks until the master terminates.
@@ -272,11 +259,6 @@ public class DistributedConstellation {
         logger.info("Pool terminated");
         subConstellation.done();
         logger.info("Subconstellation done");
-
-        if (concluder != null) {
-            concluder.conclude();
-            logger.info("Concluded");
-        }
 
         pool.handleStats();
         logger.info("HandleStats done");

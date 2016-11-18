@@ -550,8 +550,8 @@ public class SingleThreadedConstellation extends Thread {
         // b) it may about to be reclaimed because the target could not be
         // reached
         //
-
-        // The target activity may be in one of my local queues
+        // When the message can be delivered, null is returned. When not, the
+        // constellation identifier where it should be sent instead is returned.
 
         Event e = m.event;
         ActivityIdentifier target = e.getTarget();
@@ -559,6 +559,7 @@ public class SingleThreadedConstellation extends Thread {
         ActivityRecord tmp = lookup.get(e.getTarget());
 
         if (tmp != null) {
+            // We found the destination activity and enqueue the event for it.
             tmp.enqueue(e);
             return null;
         }
@@ -941,7 +942,13 @@ public class SingleThreadedConstellation extends Thread {
             more = wrapper.process();
         }
 
-        if (stealsFrom() == StealPool.NONE || parent == null) {
+        if (parent == null) {
+            // We are alone here. So, don't go do wait(), since there is no-one
+            // to wake us up...
+            return getDone();
+        }
+
+        if (stealsFrom() == StealPool.NONE) {
             synchronized (this) {
                 while (!havePendingRequests) {
                     try {

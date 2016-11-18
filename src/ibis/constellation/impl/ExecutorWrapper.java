@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
-import ibis.constellation.Concluder;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Event;
@@ -123,19 +122,11 @@ public class ExecutorWrapper implements Constellation {
 
     @Override
     public void done() {
-        done(null);
-    }
-
-    @Override
-    public void done(Concluder concluder) {
         if (lookup.size() > 0) {
             logger.warn("Quiting Constellation with " + lookup.size()
                     + " activities in queue");
         }
         parent.performDone();
-        if (concluder != null) {
-            concluder.conclude();
-        }
     }
 
     private ActivityRecord dequeue() {
@@ -329,31 +320,44 @@ public class ExecutorWrapper implements Constellation {
             boolean allowRestricted, int count,
             ConstellationIdentifier source) {
 
-        // logger.warn("In STEAL on BASE " + context + " " + count);
-
         steals++;
 
         ActivityRecord[] result = new ActivityRecord[count];
 
-        // FIXME: Optimize this!!!
-        for (int i = 0; i < count; i++) {
-            result[i] = doSteal(context, s, allowRestricted);
-
-            if (result[i] == null) {
-
-                if (i == 0) {
-                    return null;
-                } else {
-                    stolenJobs += i;
-                    stealSuccess++;
-                    return result;
-                }
-            }
+        if (logger.isTraceEnabled()) {
+            logger.trace("STEAL BASE(" + identifier + "): activities F: "
+                    + fresh.size() + " W: " + /* wrongContext.size() + */" R: "
+                    + runnable.size() + " L: " + lookup.size());
         }
 
-        stolenJobs += count;
-        stealSuccess++;
-        return result;
+        int r = 0;
+
+        if (allowRestricted) {
+            r = restricted.steal(context, s, result, 0, count);
+        }
+        if (r < count) {
+            r += fresh.steal(context, s, result, r, count - r);
+        }
+
+        if (r != 0) {
+            for (int i = 0; i < r; i++) {
+                if (result[i].isStolen()) {
+                    // Sanity check, should not happen.
+                    logger.warn(
+                            "INTERNAL ERROR: return stolen job " + identifier);
+                }
+
+                lookup.remove(result[i].identifier());
+
+                if (logger.isTraceEnabled()) {
+                    logger.trace("STOLEN " + result[i].identifier());
+                }
+            }
+            stolenJobs += r;
+            stealSuccess++;
+            return result;
+        }
+        return null;
     }
 
     private ActivityRecord doSteal(ExecutorContext context, StealStrategy s,
