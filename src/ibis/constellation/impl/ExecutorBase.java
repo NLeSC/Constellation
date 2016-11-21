@@ -113,6 +113,10 @@ public abstract class ExecutorBase implements Serializable {
      * @return whether the {@link #run()} method should return.
      */
     protected boolean processActivities() {
+        if (owner == null) {
+            throw new Error(
+                    "processActivities() called but this executor is not embedded in a constellation instance yet");
+        }
         return owner.processActitivies();
     }
 

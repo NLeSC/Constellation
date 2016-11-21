@@ -2,37 +2,57 @@ package ibis.constellation.impl;
 
 import java.io.Serializable;
 
+/**
+ * Base class for {@link StealReply}, {@link StealRequest}, and
+ * {@link EventMessage} messages.
+ */
 public abstract class Message implements Serializable {
 
+    /** Dummy serialVersionUID. */
     private static final long serialVersionUID = 1L;
 
+    /** Source of this message. */
     public final ConstellationIdentifier source;
+
+    /**
+     * Target of this message. Note that the target is not final, because a
+     * message may get another target because of relocated activities, or the
+     * target may not yet be known at the time of construction.
+     */
     public ConstellationIdentifier target;
 
-    private transient boolean stale = false;
-
-    protected Message(final ConstellationIdentifier source,
+    /**
+     * Constructs a message with the specified source and target.
+     *
+     * @param source
+     *            the source
+     * @param target
+     *            the target
+     */
+    Message(final ConstellationIdentifier source,
             final ConstellationIdentifier target) {
         this.source = source;
         this.target = target;
     }
 
-    protected Message(final ConstellationIdentifier source) {
+    /**
+     * Constructs a message with the specified source.
+     *
+     * @param source
+     *            the source.
+     */
+    Message(final ConstellationIdentifier source) {
         this.source = source;
     }
 
-    public synchronized void setTarget(ConstellationIdentifier cid) {
+    /**
+     * Sets the target to the specified constellation identifier.
+     * 
+     * @param cid
+     *            the target.
+     */
+    synchronized void setTarget(ConstellationIdentifier cid) {
         this.target = cid;
-    }
-
-    public synchronized boolean getStale() {
-        return stale;
-    }
-
-    public synchronized boolean atomicSetStale() {
-        boolean old = stale;
-        stale = true;
-        return old;
     }
 
     @Override

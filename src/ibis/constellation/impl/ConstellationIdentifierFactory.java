@@ -1,15 +1,12 @@
 package ibis.constellation.impl;
 
-import ibis.constellation.extra.ConstellationIdentifierFactory;
-
-public class DistributedConstellationIdentifierFactory
-        implements ConstellationIdentifierFactory {
+public class ConstellationIdentifierFactory {
 
     private final long rank;
     private final long mask;
     private int count;
 
-    public DistributedConstellationIdentifierFactory(long rank) {
+    public ConstellationIdentifierFactory(long rank) {
         this.rank = rank;
         this.mask = rank << 32;
     }

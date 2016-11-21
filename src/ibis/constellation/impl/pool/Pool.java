@@ -19,7 +19,7 @@ import ibis.constellation.extra.Stats;
 import ibis.constellation.extra.TimeSyncInfo;
 import ibis.constellation.impl.ConstellationIdentifier;
 import ibis.constellation.impl.DistributedConstellation;
-import ibis.constellation.impl.DistributedConstellationIdentifierFactory;
+import ibis.constellation.impl.ConstellationIdentifierFactory;
 import ibis.constellation.impl.EventMessage;
 import ibis.constellation.impl.Message;
 import ibis.constellation.impl.StealReply;
@@ -87,7 +87,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
     private final ConcurrentHashMap<Integer, IbisIdentifier> locationCache = new ConcurrentHashMap<Integer, IbisIdentifier>();
 
-    private final DistributedConstellationIdentifierFactory cidFactory;
+    private final ConstellationIdentifierFactory cidFactory;
 
     private Ibis ibis;
     private final IbisIdentifier local;
@@ -308,7 +308,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             // MOVED: to activate
             // rp.enableMessageUpcalls();
 
-            cidFactory = new DistributedConstellationIdentifierFactory(rank);
+            cidFactory = new ConstellationIdentifierFactory(rank);
 
             locationCache.put((int) rank, local);
 
@@ -428,7 +428,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         }
     }
 
-    public DistributedConstellationIdentifierFactory getCIDFactory() {
+    public ConstellationIdentifierFactory getCIDFactory() {
         return cidFactory;
     }
 
@@ -1099,13 +1099,6 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             logger.debug("Sending steal request to " + id.name());
         }
         return doForward(id, OPCODE_STEAL_REQUEST, sr);
-    }
-
-    public StealPool randomlySelectPool(StealPool pool) {
-
-        // NOTE: We know the pool is not NULL or NONE.
-        StealPool[] tmp = pool.set();
-        return tmp[random.nextInt(tmp.length)];
     }
 
     private void performRegisterWithPool(PoolRegisterRequest request) {

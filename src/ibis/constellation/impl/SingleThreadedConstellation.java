@@ -5,6 +5,8 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +21,6 @@ import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.context.ActivityContext;
 import ibis.constellation.context.ExecutorContext;
-import ibis.constellation.extra.ActivityLocationLookup;
 import ibis.constellation.extra.CTimer;
 import ibis.constellation.extra.CircularBuffer;
 import ibis.constellation.extra.SmartSortedWorkQueue;
@@ -35,8 +36,8 @@ public class SingleThreadedConstellation extends Thread {
 
     private final MultiThreadedConstellation parent;
 
-    private final ActivityLocationLookup exportedActivities = new ActivityLocationLookup();
-    private final ActivityLocationLookup relocatedActivities = new ActivityLocationLookup();
+    private final Map<ActivityIdentifier, ConstellationIdentifier> exportedActivities = new ConcurrentHashMap<ActivityIdentifier, ConstellationIdentifier>();
+    private final Map<ActivityIdentifier, ConstellationIdentifier> relocatedActivities = new ConcurrentHashMap<ActivityIdentifier, ConstellationIdentifier>();
 
     final ExecutorWrapper wrapper;
 
@@ -425,10 +426,10 @@ public class SingleThreadedConstellation extends Thread {
 
                 if (isLocal) {
                     ar[i].setRelocated(true);
-                    relocatedActivities.add(ar[i].identifier(), dest);
+                    relocatedActivities.put(ar[i].identifier(), dest);
                 } else {
                     ar[i].setStolen(true);
-                    exportedActivities.add(ar[i].identifier(), dest);
+                    exportedActivities.put(ar[i].identifier(), dest);
                 }
             }
         }
@@ -565,14 +566,14 @@ public class SingleThreadedConstellation extends Thread {
         }
 
         // If not, it may have been relocated
-        ConstellationIdentifier cid = relocatedActivities.lookup(target);
+        ConstellationIdentifier cid = relocatedActivities.get(target);
 
         if (cid != null) {
             return cid;
         }
 
         // If not, it may have been stolen
-        cid = exportedActivities.lookup(target);
+        cid = exportedActivities.get(target);
 
         if (cid != null) {
             return cid;
@@ -622,11 +623,11 @@ public class SingleThreadedConstellation extends Thread {
             }
 
             // See if we have exported it somewhere
-            cid = exportedActivities.lookup(target);
+            cid = exportedActivities.get(target);
 
             if (cid == null) {
                 // If not, it may have been relocated
-                cid = relocatedActivities.lookup(target);
+                cid = relocatedActivities.get(target);
             }
 
             if (cid == null) {
@@ -790,52 +791,43 @@ public class SingleThreadedConstellation extends Thread {
 
         for (StealRequest s : requests) {
 
-            // Make sure the steal request is still valid!
-            if (!s.getStale()) {
+            ActivityRecord[] a = null;
 
-                ActivityRecord[] a = null;
+            synchronized (this) {
 
-                synchronized (this) {
+                // We grab the lock here to prevent other threads (from
+                // above) from doing a
+                // lookup in the relocated/exported tables while we are
+                // removing activities
+                // from the executor's queue.
 
-                    // We grab the lock here to prevent other threads (from
-                    // above) from doing a
-                    // lookup in the relocated/exported tables while we are
-                    // removing activities
-                    // from the executor's queue.
+                StealStrategy tmp = s.isLocal() ? s.constellationStrategy
+                        : s.remoteStrategy;
 
-                    StealStrategy tmp = s.isLocal() ? s.constellationStrategy
-                            : s.remoteStrategy;
-
-                    // NOTE: a is allowed to be null
-                    a = wrapper.steal(s.context, tmp, s.isLocal(), s.size,
-                            s.source);
-
-                    if (a != null) {
-                        // We have a result. Register the leaving activities.
-                        registerLeavingActivities(a, a.length, s.source,
-                                s.isLocal());
-                    }
-                }
+                // NOTE: a is allowed to be null
+                a = wrapper.steal(s.context, tmp, s.isLocal(), s.size,
+                        s.source);
 
                 if (a != null) {
-                    if (!parent.handleStealReply(this, new StealReply(
-                            wrapper.id(), s.source, s.pool, s.context, a))) {
-                        reclaim(a);
-                    }
-                } else if (!ignoreEmptyStealReplies) {
-                    // No result, but we send a reply anyway.
-                    parent.handleStealReply(this, new StealReply(wrapper.id(),
-                            s.source, s.pool, s.context, a));
-                } else {
-                    // No result, and we're not supposed to tell anyone
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("IGNORING empty steal reply");
-                    }
+                    // We have a result. Register the leaving activities.
+                    registerLeavingActivities(a, a.length, s.source,
+                            s.isLocal());
                 }
+            }
 
+            if (a != null) {
+                if (!parent.handleStealReply(this, new StealReply(wrapper.id(),
+                        s.source, s.pool, s.context, a))) {
+                    reclaim(a);
+                }
+            } else if (!ignoreEmptyStealReplies) {
+                // No result, but we send a reply anyway.
+                parent.handleStealReply(this, new StealReply(wrapper.id(),
+                        s.source, s.pool, s.context, a));
             } else {
+                // No result, and we're not supposed to tell anyone
                 if (logger.isDebugEnabled()) {
-                    logger.debug("DROPPING STALE STEAL REQUEST");
+                    logger.debug("IGNORING empty steal reply");
                 }
             }
         }

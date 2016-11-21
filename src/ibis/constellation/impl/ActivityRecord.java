@@ -7,6 +7,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.ByteBuffers;
 import ibis.constellation.Event;
@@ -26,7 +27,7 @@ public class ActivityRecord implements Serializable, ByteBuffers {
     private static final int DONE = 5;
     private static final int ERROR = Integer.MAX_VALUE;
 
-    private final ActivityBase activity;
+    private final Activity activity;
     private final CircularBuffer<Event> queue;
     private int state = INITIALIZING;
 
@@ -34,7 +35,7 @@ public class ActivityRecord implements Serializable, ByteBuffers {
     private boolean relocated = false;
     private boolean remote = false;
 
-    ActivityRecord(ActivityBase activity) {
+    ActivityRecord(Activity activity) {
         this.activity = activity;
         queue = new CircularBuffer<Event>(4);
     }
