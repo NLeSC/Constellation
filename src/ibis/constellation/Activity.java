@@ -70,7 +70,7 @@ public abstract class Activity extends ActivityBase implements Serializable {
      *                is thrown when the activity is not initialized yet.
      */
     @Override
-    public Executor getExecutor() {
+    public Executor getExecutor() throws IllegalStateException {
         return super.getExecutor();
     }
 
@@ -79,9 +79,12 @@ public abstract class Activity extends ActivityBase implements Serializable {
      *
      * @param job
      *            the activity to be submitted
+     * @exception IllegalStateException
+     *                is thrown when the activity is not initialized yet.
      * @return the activity identifier of the submitted activity
      */
-    public ActivityIdentifier submit(Activity job) {
+    public ActivityIdentifier submit(Activity job)
+            throws IllegalStateException {
         return getExecutor().submit(job);
     }
 
@@ -93,8 +96,10 @@ public abstract class Activity extends ActivityBase implements Serializable {
      *
      * @param e
      *            the event to be sent
+     * @exception IllegalStateException
+     *                is thrown when the activity is not initialized yet.
      */
-    public void send(Event e) {
+    public void send(Event e) throws IllegalStateException {
         getExecutor().send(e);
     }
 
@@ -117,7 +122,7 @@ public abstract class Activity extends ActivityBase implements Serializable {
      *                finished.
      */
     @Override
-    public void suspend() {
+    public void suspend() throws IllegalStateException {
         super.suspend();
     }
 
@@ -130,7 +135,7 @@ public abstract class Activity extends ActivityBase implements Serializable {
      *                suspended.
      */
     @Override
-    public void finish() {
+    public void finish() throws IllegalStateException {
         super.finish();
     }
 

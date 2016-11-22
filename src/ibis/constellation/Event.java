@@ -35,6 +35,8 @@ public final class Event implements Serializable, ByteBuffers {
      */
     public Event(ActivityIdentifier source, ActivityIdentifier target,
             Object data) {
+        source.checkActivityIdentifier();
+        target.checkActivityIdentifier();
         this.source = source;
         this.target = target;
         this.data = data;

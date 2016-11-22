@@ -51,7 +51,7 @@ public class ExecutorWrapper implements Constellation {
     private CircularBuffer<ActivityRecord> relocated = new CircularBuffer<ActivityRecord>(
             1);
 
-    private ActivityIdentifierFactory generator;
+    private long activityCounter = 0;
 
     private final CTimer initializeTimer;
     private final CTimer cleanupTimer;
@@ -72,7 +72,6 @@ public class ExecutorWrapper implements Constellation {
             ConstellationProperties p, ConstellationIdentifier identifier) {
         this.parent = parent;
         this.identifier = identifier;
-        this.generator = parent.getActivityIdentifierFactory(identifier);
         this.executor = executor;
 
         QUEUED_JOB_LIMIT = p.QUEUED_JOB_LIMIT;
@@ -165,27 +164,6 @@ public class ExecutorWrapper implements Constellation {
         return null;
     }
 
-    private ActivityIdentifier createActivityID(boolean expectsEvents) {
-
-        try {
-            return generator.createActivityID(expectsEvents);
-        } catch (Throwable e) {
-            // Oops, we ran out of IDs. Get some more from our parent!
-            if (parent != null) {
-                generator = parent.getActivityIdentifierFactory(identifier);
-            }
-        }
-
-        try {
-            return generator.createActivityID(expectsEvents);
-        } catch (Exception e) {
-            throw new RuntimeException(
-                    "INTERNAL ERROR: failed to create new ID block!", e);
-        }
-
-        // return new MTIdentifier(nextID++);
-    }
-
     void addPrivateActivity(ActivityRecord a) {
         // add an activity that only I am allowed to run, either because
         // it is relocated, or because we have just obtained it and we don't
@@ -195,16 +173,17 @@ public class ExecutorWrapper implements Constellation {
         relocated.insertLast(a);
     }
 
-    protected ActivityRecord lookup(ActivityIdentifier id) {
-        return lookup.get(id);
+    private synchronized ActivityIdentifier createActivityID(boolean events) {
+        return ActivityIdentifierImpl.createActivityIdentifier(identifier,
+                activityCounter++, events);
     }
 
     @Override
     public ActivityIdentifier submit(Activity a) {
-
         // Create an activity identifier and initialize the activity with it.
-        ActivityIdentifier id = createActivityID(a.expectsEvents());
-        a.initialize(id);
+        ActivityBase base = a;
+        ActivityIdentifier id = createActivityID(base.expectsEvents());
+        base.initialize(id);
 
         ActivityRecord ar = new ActivityRecord(a);
         ActivityContext c = a.getContext();
@@ -360,60 +339,6 @@ public class ExecutorWrapper implements Constellation {
         return null;
     }
 
-    private ActivityRecord doSteal(ExecutorContext context, StealStrategy s,
-            boolean allowRestricted) {
-
-        if (logger.isTraceEnabled()) {
-            logger.trace("STEAL BASE(" + identifier + "): activities F: "
-                    + fresh.size() + " W: " + /* wrongContext.size() + */" R: "
-                    + runnable.size() + " L: " + lookup.size());
-        }
-
-        if (allowRestricted) {
-
-            ActivityRecord r = restricted.steal(context, s);
-
-            if (r != null) {
-
-                // Sanity check -- should not happen!
-                if (r.isStolen()) {
-                    logger.warn(
-                            "INTERNAL ERROR: return stolen job " + identifier);
-                }
-
-                lookup.remove(r.identifier());
-
-                if (logger.isTraceEnabled()) {
-                    logger.trace("STOLEN " + r.identifier());
-                }
-
-                return r;
-            }
-
-            // If restricted fails we try the regular queue
-        }
-
-        ActivityRecord r = fresh.steal(context, s);
-
-        if (r != null) {
-
-            // Sanity check -- should not happen!
-            if (r.isStolen()) {
-                logger.error("INTERNAL ERROR: return stolen job " + identifier);
-            }
-
-            lookup.remove(r.identifier());
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("STOLEN " + r.identifier());
-            }
-
-            return r;
-        }
-
-        return null;
-    }
-
     private void process(ActivityRecord tmp) {
         int evt = 0;
 
@@ -536,11 +461,11 @@ public class ExecutorWrapper implements Constellation {
         return parent.performActivate();
     }
 
-    public boolean processActitivies() {
+    boolean processActitivies() {
         return parent.processActivities();
     }
 
-    public void runExecutor() {
+    void runExecutor() {
 
         try {
             executor.run();

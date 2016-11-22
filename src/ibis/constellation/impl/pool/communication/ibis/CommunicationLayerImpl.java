@@ -76,6 +76,12 @@ public class CommunicationLayerImpl
             Pool pool) throws PoolCreationFailedException {
 
         closedPool = properties.CLOSED;
+        if (closedPool) {
+            if (properties.POOLSIZE > 0) {
+                properties.setProperty("ibis.pool.size",
+                        "" + properties.POOLSIZE);
+            }
+        }
         this.pool = pool;
         this.properties = properties;
 
@@ -236,7 +242,8 @@ public class CommunicationLayerImpl
     }
 
     @Override
-    public boolean sendMessage(NodeIdentifier destination, CommunicationMessage m) {
+    public boolean sendMessage(NodeIdentifier destination,
+            CommunicationMessage m) {
         SendPort s;
         IbisIdentifier dest = ((NodeIdentifierImpl) destination)
                 .getIbisIdentifier();

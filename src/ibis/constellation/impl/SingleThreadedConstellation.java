@@ -584,21 +584,6 @@ public class SingleThreadedConstellation extends Thread {
         return null;
     }
 
-    ActivityIdentifierFactory getActivityIdentifierFactory(
-            ConstellationIdentifier cid) {
-
-        if (parent == null) {
-            synchronized (this) {
-                ActivityIdentifierFactory tmp = new ActivityIdentifierFactory(
-                        cid, startID, startID + blockSize);
-                startID += blockSize;
-                return tmp;
-            }
-        }
-
-        return parent.getActivityIdentifierFactory(cid);
-    }
-
     boolean isMaster() {
         return parent == null;
     }
