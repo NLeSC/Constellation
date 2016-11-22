@@ -934,12 +934,6 @@ public class SingleThreadedConstellation extends Thread {
             more = wrapper.process();
         }
 
-        if (parent == null) {
-            // We are alone here. So, don't go do wait(), since there is no-one
-            // to wake us up...
-            return getDone();
-        }
-
         if (stealsFrom() == StealPool.NONE) {
             synchronized (this) {
                 while (!havePendingRequests) {
@@ -967,6 +961,9 @@ public class SingleThreadedConstellation extends Thread {
 
                 // If no work was found we send a steal request to our parent.
                 if (!more) {
+                    if (parent == null) {
+                        break;
+                    }
                     long nextDeadline = stealAllowed();
                     if (nextDeadline == 0) {
 
