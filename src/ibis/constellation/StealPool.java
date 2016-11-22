@@ -1,8 +1,10 @@
 package ibis.constellation;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Random;
 
 import ibis.constellation.context.ActivityContext;
 import ibis.constellation.context.ExecutorContext;
@@ -18,7 +20,7 @@ import ibis.constellation.context.ExecutorContext;
  * A <code>StealPool</code> consists of either a set of other steal pools, or a
  * single string identification.
  */
-public final class StealPool {
+public final class StealPool implements Serializable {
 
     private static final long serialVersionUID = -5231970051093339530L;
 
@@ -260,6 +262,16 @@ public final class StealPool {
             return new StealPool[] { this };
         }
         return set.clone();
+    }
+
+    /**
+     * Selects a random member steal pool from the steal pool at hand.
+     *
+     * @return a random member steal pool.
+     */
+    public StealPool randomlySelectPool(Random random) {
+        StealPool[] tmp = set();
+        return tmp[random.nextInt(tmp.length)];
     }
 
     @Override

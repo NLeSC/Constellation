@@ -16,11 +16,11 @@ import ibis.constellation.extra.TimeSyncInfo;
 import ibis.constellation.impl.ConstellationIdentifier;
 import ibis.constellation.impl.DistributedConstellation;
 import ibis.constellation.impl.EventMessage;
-import ibis.constellation.impl.MessageBase;
+import ibis.constellation.impl.Message;
 import ibis.constellation.impl.StealReply;
 import ibis.constellation.impl.StealRequest;
 import ibis.constellation.impl.pool.communication.CommunicationLayer;
-import ibis.constellation.impl.pool.communication.Message;
+import ibis.constellation.impl.pool.communication.CommunicationMessage;
 import ibis.constellation.impl.pool.communication.NodeIdentifier;
 import ibis.constellation.impl.pool.communication.ibis.CommunicationLayerImpl;
 
@@ -382,7 +382,7 @@ public class Pool {
     }
 
     private boolean doForward(NodeIdentifier dest, byte opcode, Object data) {
-        Message m = new Message(opcode, data);
+        CommunicationMessage m = new CommunicationMessage(opcode, data);
         return comm.sendMessage(dest, m);
     }
 
@@ -398,7 +398,7 @@ public class Pool {
         return forward(em, OPCODE_EVENT_MESSAGE);
     }
 
-    private boolean forward(MessageBase m, byte opcode) {
+    private boolean forward(Message m, byte opcode) {
 
         ConstellationIdentifier target = m.target;
 
@@ -501,7 +501,7 @@ public class Pool {
         doForward(id, OPCODE_REQUEST_TIME, null);
     }
 
-    public void upcall(NodeIdentifier source, Message rm) {
+    public void upcall(NodeIdentifier source, CommunicationMessage rm) {
 
         byte opcode = rm.opcode;
 
@@ -685,13 +685,6 @@ public class Pool {
             logger.debug("Sending steal request to " + id.name());
         }
         return doForward(id, OPCODE_STEAL_REQUEST, sr);
-    }
-
-    public StealPool randomlySelectPool(StealPool pool) {
-
-        // NOTE: We know the pool is not NULL or NONE.
-        StealPool[] tmp = pool.set();
-        return tmp[random.nextInt(tmp.length)];
     }
 
     private void performRegisterWithPool(PoolRegisterRequest request) {

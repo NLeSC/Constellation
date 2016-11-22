@@ -6,7 +6,7 @@ public interface CommunicationLayer {
 
     public NodeIdentifier getMyIdentifier();
 
-    public boolean sendMessage(NodeIdentifier dest, Message m);
+    public boolean sendMessage(NodeIdentifier dest, CommunicationMessage m);
 
     // Message receipt is implicit, in that the upcall() method of Pool gets
     // called.

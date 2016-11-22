@@ -15,7 +15,7 @@ import ibis.constellation.extra.CTimer;
 import ibis.constellation.impl.pool.Pool;
 import ibis.constellation.impl.pool.PoolCreationFailedException;
 import ibis.constellation.impl.pool.communication.CommunicationLayer;
-import ibis.constellation.impl.pool.communication.Message;
+import ibis.constellation.impl.pool.communication.CommunicationMessage;
 import ibis.constellation.impl.pool.communication.NodeIdentifier;
 import ibis.ipl.Ibis;
 import ibis.ipl.IbisCapabilities;
@@ -236,7 +236,7 @@ public class CommunicationLayerImpl
     }
 
     @Override
-    public boolean sendMessage(NodeIdentifier destination, Message m) {
+    public boolean sendMessage(NodeIdentifier destination, CommunicationMessage m) {
         SendPort s;
         IbisIdentifier dest = ((NodeIdentifierImpl) destination)
                 .getIbisIdentifier();
@@ -316,7 +316,7 @@ public class CommunicationLayerImpl
             timerEvent = communicationTimer
                     .start(Pool.getString(opcode, "read"));
         }
-        Message m = new Message(opcode, null);
+        CommunicationMessage m = new CommunicationMessage(opcode, null);
 
         if (hasObject) {
             long sz = -1;

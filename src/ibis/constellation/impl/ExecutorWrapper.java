@@ -212,7 +212,7 @@ public class ExecutorWrapper implements Constellation {
         activitiesSubmitted++;
 
         if (restricted.size() + fresh.size() >= QUEUED_JOB_LIMIT) {
-            // If we have too much work on our hands we push it to out
+            // If we have too much work on our hands we push it to our
             // parent. Added bonus is that others can access it without
             // interrupting me.
             return parent.doSubmit(ar, c, id);

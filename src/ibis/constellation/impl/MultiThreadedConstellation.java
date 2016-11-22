@@ -19,8 +19,6 @@ import ibis.constellation.context.ExecutorContext;
 import ibis.constellation.context.OrExecutorContext;
 import ibis.constellation.context.UnitExecutorContext;
 import ibis.constellation.extra.CTimer;
-import ibis.constellation.extra.ConstellationIdentifierFactory;
-import ibis.constellation.extra.SimpleConstellationIdentifierFactory;
 import ibis.constellation.extra.Stats;
 
 public class MultiThreadedConstellation {
@@ -139,7 +137,7 @@ public class MultiThreadedConstellation {
             cidFactory = parent.getConstellationIdentifierFactory();
             identifier = parent.identifier();
         } else {
-            cidFactory = new SimpleConstellationIdentifierFactory();
+            cidFactory = new ConstellationIdentifierFactory(0);
             identifier = cidFactory.generateConstellationIdentifier();
         }
 

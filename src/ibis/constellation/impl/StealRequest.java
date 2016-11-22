@@ -4,7 +4,7 @@ import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.context.ExecutorContext;
 
-public class StealRequest extends MessageBase {
+public class StealRequest extends Message {
 
     private static final long serialVersionUID = 2655647847327367590L;
 
