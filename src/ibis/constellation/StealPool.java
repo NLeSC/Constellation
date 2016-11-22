@@ -267,6 +267,9 @@ public final class StealPool implements Serializable {
     /**
      * Selects a random member steal pool from the steal pool at hand.
      *
+     * @param random
+     *            the random number generator to use
+     *
      * @return a random member steal pool.
      */
     public StealPool randomlySelectPool(Random random) {

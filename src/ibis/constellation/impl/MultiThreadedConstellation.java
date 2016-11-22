@@ -212,16 +212,6 @@ public class MultiThreadedConstellation {
         return random.nextInt(workerCount);
     }
 
-    synchronized ActivityIdentifierFactory getActivityIdentifierFactory(
-            ConstellationIdentifier cid) {
-
-        ActivityIdentifierFactory tmp = new ActivityIdentifierFactory(cid,
-                startID, startID + blockSize);
-
-        startID += blockSize;
-        return tmp;
-    }
-
     // Delivers the specified message to the specified constellation.
     // This method returns null if either the destination constellation could
     // not be found (which is an error situation), or the message gets

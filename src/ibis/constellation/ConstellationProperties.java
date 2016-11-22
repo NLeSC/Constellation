@@ -5,12 +5,10 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ibis.util.TypedProperties;
-
 /**
  * This class defines the properties that affect the behavior of constellation.
  */
-public class ConstellationProperties extends TypedProperties {
+public class ConstellationProperties extends Properties {
 
     private static final long serialVersionUID = -5316962541092148997L;
 
@@ -66,7 +64,7 @@ public class ConstellationProperties extends TypedProperties {
     public static final String S_REMOTESTEAL_TIMEOUT = S_REMOTESTEAL_PREFIX
             + "timeout";
 
-    public final long REMOTESTEAL_TIMEOUT;
+    public final int REMOTESTEAL_TIMEOUT;
 
     /**
      * The "profile" property is a boolean property indicating whether
@@ -162,13 +160,23 @@ public class ConstellationProperties extends TypedProperties {
     /**
      * The "closed" property is a boolean property indicating whether the
      * current run is a closed run, that is, whether the total number of nodes
-     * involved is fixed. If true, the property "ibis.pool.size" should be set
-     * to the number of nodes.
+     * involved is fixed. If true, the property "poolSize" should be set to the
+     * number of nodes.
      */
     public static final String S_CLOSED = S_PREFIX + "closed";
 
     /** Value of the "closed" property. */
     public final boolean CLOSED;
+
+    /**
+     * The "poolSize" property is an integer property indicating the pool size
+     * if the current run is a closed run, that is, when the total number of
+     * nodes involved is fixed.
+     */
+    public static final String S_POOLSIZE = S_PREFIX + "poolSize";
+
+    /** Value of the "closed" property. */
+    public final int POOLSIZE;
 
     /**
      * The "master" property is a boolean property indicating whether the
@@ -198,10 +206,19 @@ public class ConstellationProperties extends TypedProperties {
     /** Value of the "queue.limit" property. */
     public final int QUEUED_JOB_LIMIT;
 
+    /**
+     * Creates a <code>ConstellationProperties</code> object using the specified
+     * properties.
+     *
+     * @param p
+     *            the properties
+     */
     public ConstellationProperties(Properties p) {
         super(p);
+
         MASTER = getBooleanProperty(S_MASTER, true);
         CLOSED = getBooleanProperty(S_CLOSED, false);
+        POOLSIZE = getIntProperty(S_POOLSIZE, -1);
         DISTRIBUTED = getBooleanProperty(S_DISTRIBUTED, true);
         PROFILE = getBooleanProperty(S_PROFILE, false);
         PROFILE_COMMUNICATION = getBooleanProperty(S_PROFILE_COMMUNICATION,
@@ -217,7 +234,7 @@ public class ConstellationProperties extends TypedProperties {
         STEAL_SIZE = getIntProperty(S_STEAL_SIZE, 1);
         REMOTESTEAL_SIZE = getIntProperty(S_REMOTESTEAL_SIZE, 1);
         STEALSTRATEGY = getProperty(S_STEALSTRATEGY, "pool");
-        REMOTESTEAL_TIMEOUT = getLongProperty(S_REMOTESTEAL_TIMEOUT, 5000);
+        REMOTESTEAL_TIMEOUT = getIntProperty(S_REMOTESTEAL_TIMEOUT, 5000);
         QUEUED_JOB_LIMIT = getIntProperty(S_QUEUED_JOB_LIMIT, 100);
         if (logger.isInfoEnabled()) {
             logger.info("MASTER = " + MASTER);
@@ -229,4 +246,98 @@ public class ConstellationProperties extends TypedProperties {
             logger.info("STEALSTRATEGY = " + STEALSTRATEGY);
         }
     }
+
+    /**
+     * Convenience constructor, using the system properties.
+     */
+    public ConstellationProperties() {
+        this(System.getProperties());
+    }
+
+    /**
+     * Returns true if property <code>name</code> is defined and has a value
+     * that is conventionally associated with 'true' (as in Ant): any of 1, on,
+     * true, yes, or nothing.
+     *
+     * @return true if property is defined and set
+     * @param name
+     *            property name
+     */
+    private boolean getBooleanProperty(String name) {
+        return getBooleanProperty(name, false);
+    }
+
+    /**
+     * Returns true if property <code>name</code> has a value that is
+     * conventionally associated with 'true' (as in Ant): any of 1, on, true,
+     * yes, or nothing. If the property is not defined, return the specified
+     * default value.
+     *
+     * @return true if property is defined and set
+     * @param key
+     *            property name
+     * @param defaultValue
+     *            the value that is returned if the property is absent
+     */
+    private boolean getBooleanProperty(String key, boolean defaultValue) {
+        String value = getProperty(key);
+
+        if (value != null) {
+            return value.equals("1") || value.equals("on") || value.equals("")
+                    || value.equals("true") || value.equals("yes");
+        }
+
+        return defaultValue;
+    }
+
+    /**
+     * Returns the integer value of property.
+     *
+     * @return the integer value of property
+     * @param key
+     *            property name
+     * @throws NumberFormatException
+     *             if the property is undefined or not an integer
+     */
+    private int getIntProperty(String key) {
+        String value = getProperty(key);
+
+        if (value == null) {
+            throw new NumberFormatException("property undefined: " + key);
+        }
+
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            throw new NumberFormatException("Integer expected for property "
+                    + key + ", not \"" + value + "\"");
+        }
+    }
+
+    /**
+     * Returns the integer value of property.
+     *
+     * @return the integer value of property
+     * @param key
+     *            property name
+     * @param defaultValue
+     *            default value if the property is undefined
+     * @throws NumberFormatException
+     *             if the property defined and not an integer
+     */
+    private int getIntProperty(String key, int defaultValue) {
+        String value = getProperty(key);
+
+        if (value == null) {
+            return defaultValue;
+        }
+
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            throw new NumberFormatException("Integer expected for property "
+                    + key + ", not \"" + value + "\"");
+        }
+    }
+
 }

@@ -18,8 +18,8 @@ import ibis.constellation.extra.CTimer;
 import ibis.constellation.extra.Stats;
 import ibis.constellation.extra.TimeSyncInfo;
 import ibis.constellation.impl.ConstellationIdentifier;
-import ibis.constellation.impl.DistributedConstellation;
 import ibis.constellation.impl.ConstellationIdentifierFactory;
+import ibis.constellation.impl.DistributedConstellation;
 import ibis.constellation.impl.EventMessage;
 import ibis.constellation.impl.Message;
 import ibis.constellation.impl.StealReply;
@@ -260,6 +260,13 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         this.owner = owner;
         closedPool = properties.CLOSED;
         this.properties = properties;
+
+        if (closedPool) {
+            if (properties.POOLSIZE > 0) {
+                properties.setProperty("ibis.pool.size",
+                        "" + properties.POOLSIZE);
+            }
+        }
 
         try {
             ibis = IbisFactory.createIbis(
