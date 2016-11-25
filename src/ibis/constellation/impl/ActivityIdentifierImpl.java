@@ -1,5 +1,7 @@
 package ibis.constellation.impl;
 
+import java.io.Serializable;
+
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 
@@ -10,7 +12,7 @@ import ibis.constellation.ActivityIdentifier;
  * @version 1.0
  * @since 1.0
  */
-public abstract class ActivityIdentifierImpl {
+public abstract class ActivityIdentifierImpl implements Serializable {
 
     /* Generated */
     private static final long serialVersionUID = 4785081436543353644L;

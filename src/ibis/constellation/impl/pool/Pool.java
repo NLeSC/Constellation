@@ -217,6 +217,8 @@ public class Pool {
 
     private final CommunicationLayer comm;
 
+    private boolean cleanup;
+
     public Pool(final DistributedConstellation owner,
             final ConstellationProperties properties)
             throws PoolCreationFailedException {
@@ -364,6 +366,9 @@ public class Pool {
     }
 
     public void cleanup() {
+        synchronized (this) {
+            cleanup = true;
+        }
         updater.done();
         comm.cleanup();
     }

@@ -6,11 +6,11 @@ package ibis.constellation;
  */
 public class ConstellationCreationException extends Exception {
 
-	private static final long serialVersionUID = 5816385974217284589L;
+    private static final long serialVersionUID = 5816385974217284589L;
 
-	/**
+    /**
      * Creates a ConstellationCreationException.
-     * 
+     *
      * @param s
      *            describes the reason.
      */
@@ -20,7 +20,7 @@ public class ConstellationCreationException extends Exception {
 
     /**
      * Creates a ConstellationCreationException.
-     * 
+     *
      * @param s
      *            describes the reason.
      * @param cause
