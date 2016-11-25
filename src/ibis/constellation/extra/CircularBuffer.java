@@ -18,7 +18,8 @@ public class CircularBuffer<T> implements Serializable, ByteBuffers {
 
     private Object[] array;
 
-    private int first, next;
+    private int first;
+    private int next;
     private int size;
 
     public CircularBuffer(int initialSize) {

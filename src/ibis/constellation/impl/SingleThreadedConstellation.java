@@ -673,6 +673,9 @@ public class SingleThreadedConstellation extends Thread {
             notifyAll();
             return true;
         }
+        if (logger.isDebugEnabled()) {
+            logger.debug("getDone returns false");
+        }
         return false;
     }
 
@@ -915,6 +918,11 @@ public class SingleThreadedConstellation extends Thread {
 
         boolean more = wrapper.process();
 
+        if (!more && !havePendingRequests) {
+            // Check if there is any matching work in one of the local
+            // queues...
+            more = pushWorkToExecutor(wrapper.getLocalStealStrategy());
+        }
         while (more && !havePendingRequests) {
             more = wrapper.process();
         }
@@ -926,6 +934,9 @@ public class SingleThreadedConstellation extends Thread {
                         wait();
                     } catch (Throwable e) {
                         // ignore
+                    }
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Woke up in processActivities");
                     }
                 }
             }

@@ -203,14 +203,14 @@ public class ExecutorWrapper implements Constellation {
 
             if (ar.isRestrictedToLocal()) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Submit job to restricted, length was "
-                            + restricted.size());
+                    logger.debug("Submit job to restricted of " + identifier
+                            + ", length was " + restricted.size());
                 }
                 restricted.enqueue(ar);
             } else {
                 if (logger.isDebugEnabled()) {
-                    logger.debug(
-                            "Submit job to fresh, length was " + fresh.size());
+                    logger.debug("Submit job to fresh of " + identifier
+                            + ", length was " + fresh.size());
                 }
                 fresh.enqueue(ar);
             }
@@ -375,6 +375,9 @@ public class ExecutorWrapper implements Constellation {
         // match.
 
         if (tmp != null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Processing activity " + tmp.identifier());
+            }
             process(tmp);
             return true;
         }
