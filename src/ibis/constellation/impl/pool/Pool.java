@@ -253,6 +253,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
     private IbisIdentifier[] ids = null;
 
+    private boolean cleanup;
+
     public Pool(final DistributedConstellation owner,
             final ConstellationProperties properties)
             throws PoolCreationFailedException {
@@ -607,6 +609,9 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     }
 
     public void cleanup() {
+        synchronized (this) {
+            cleanup = true;
+        }
         updater.done();
 
         // Try to cleanly disconnect all send and receive ports....
@@ -700,58 +705,71 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         long sz = 0;
         WriteMessage wm = null;
         try {
-            wm = s.newMessage();
-            String name = getString(opcode, "write");
+            synchronized (this) {
+                if (!cleanup) {
+                    wm = s.newMessage();
+                }
+            }
+            if (wm != null) {
+                String name = getString(opcode, "write");
 
-            boolean mustStartTimer = name != null && communicationTimer != null;
-            if (opcode == OPCODE_STEAL_REPLY) {
-                StealReply r = (StealReply) data;
-                if (r.getSize() == 0) {
-                    mustStartTimer = false;
-                }
-            }
-            if (mustStartTimer) {
-                eventNo = communicationTimer.start(name);
-            }
-            wm.writeByte(opcode);
-            wm.writeObject(data);
-            if (data != null && data instanceof ByteBuffers) {
-                wm.flush();
-                ArrayList<ByteBuffer> list = new ArrayList<ByteBuffer>();
-                ((ByteBuffers) data).pushByteBuffers(list);
-                if (logger.isInfoEnabled()) {
-                    logger.info("Writing " + list.size() + " bytebuffers");
-                }
-                wm.writeInt(list.size());
-                for (ByteBuffer b : list) {
-                    b.position(0);
-                    b.limit(b.capacity());
-                    wm.writeInt(b.capacity());
-                }
-                for (ByteBuffer b : list) {
-                    wm.writeByteBuffer(b);
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(
-                                "Wrote bytebuffer of size " + b.capacity());
+                boolean mustStartTimer = name != null
+                        && communicationTimer != null;
+                if (opcode == OPCODE_STEAL_REPLY) {
+                    StealReply r = (StealReply) data;
+                    if (r.getSize() == 0) {
+                        mustStartTimer = false;
                     }
                 }
-            }
-            sz = wm.finish();
-            if (eventNo != -1) {
-                if (logger.isDebugEnabled() && opcode == OPCODE_STEAL_REPLY) {
-                    StealReply r = (StealReply) data;
-                    logger.debug("Gave " + r.getSize() + " jobs away");
+                if (mustStartTimer) {
+                    eventNo = communicationTimer.start(name);
                 }
-                communicationTimer.stop(eventNo);
-                communicationTimer.addBytes(sz, eventNo);
+                wm.writeByte(opcode);
+                wm.writeObject(data);
+                if (data != null && data instanceof ByteBuffers) {
+                    wm.flush();
+                    ArrayList<ByteBuffer> list = new ArrayList<ByteBuffer>();
+                    ((ByteBuffers) data).pushByteBuffers(list);
+                    if (logger.isInfoEnabled()) {
+                        logger.info("Writing " + list.size() + " bytebuffers");
+                    }
+                    wm.writeInt(list.size());
+                    for (ByteBuffer b : list) {
+                        b.position(0);
+                        b.limit(b.capacity());
+                        wm.writeInt(b.capacity());
+                    }
+                    for (ByteBuffer b : list) {
+                        wm.writeByteBuffer(b);
+                        if (logger.isDebugEnabled()) {
+                            logger.debug(
+                                    "Wrote bytebuffer of size " + b.capacity());
+                        }
+                    }
+                }
+                sz = wm.finish();
+                if (eventNo != -1) {
+                    if (logger.isDebugEnabled()
+                            && opcode == OPCODE_STEAL_REPLY) {
+                        StealReply r = (StealReply) data;
+                        logger.debug("Gave " + r.getSize() + " jobs away");
+                    }
+                    communicationTimer.stop(eventNo);
+                    communicationTimer.addBytes(sz, eventNo);
+                }
             }
         } catch (IOException e) {
-            logger.warn("Communication to " + id + " gave exception", e);
             if (wm != null) {
                 wm.finish(e);
             }
             if (eventNo != -1) {
                 communicationTimer.cancel(eventNo);
+            }
+            synchronized (this) {
+                if (!cleanup) {
+                    logger.warn("Communication to " + id + " gave exception",
+                            e);
+                }
             }
             return false;
         }
