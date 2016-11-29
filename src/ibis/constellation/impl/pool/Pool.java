@@ -258,6 +258,10 @@ public class Pool {
         return owner.getStats();
     }
 
+    public String identifier() {
+        return local.name();
+    }
+
     public void activate() {
         comm.activate();
         if (logger.isInfoEnabled()) {

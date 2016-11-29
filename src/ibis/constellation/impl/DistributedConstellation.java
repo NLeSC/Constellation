@@ -454,7 +454,7 @@ public class DistributedConstellation {
             pool = new Pool(this, props);
             cidFactory = new ConstellationIdentifierFactory(pool.getRank());
             identifier = cidFactory.generateConstellationIdentifier();
-            stats = new Stats(identifier.toString());
+            stats = new Stats(pool.identifier());
 
             myContext = UnitExecutorContext.DEFAULT;
 
