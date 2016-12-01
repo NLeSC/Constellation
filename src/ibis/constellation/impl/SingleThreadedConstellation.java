@@ -99,9 +99,6 @@ public class SingleThreadedConstellation extends Thread {
     private PendingRequests incoming = new PendingRequests();
     private PendingRequests processing = new PendingRequests();
 
-    private long startID = 0;
-    private long blockSize = 1000000;
-
     private boolean done = false;
 
     private final Stats stats;

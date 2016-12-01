@@ -263,7 +263,8 @@ public class ConstellationProperties extends Properties {
      * @param name
      *            property name
      */
-    private boolean getBooleanProperty(String name) {
+    @SuppressWarnings("unused")
+	private boolean getBooleanProperty(String name) {
         return getBooleanProperty(name, false);
     }
 
@@ -299,7 +300,8 @@ public class ConstellationProperties extends Properties {
      * @throws NumberFormatException
      *             if the property is undefined or not an integer
      */
-    private int getIntProperty(String key) {
+    @SuppressWarnings("unused")
+	private int getIntProperty(String key) {
         String value = getProperty(key);
 
         if (value == null) {

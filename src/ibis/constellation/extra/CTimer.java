@@ -59,7 +59,8 @@ public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
             return queued;
         }
 
-        public long getSubmitted() {
+        @SuppressWarnings("unused")
+		public long getSubmitted() {
             return submitted;
         }
 

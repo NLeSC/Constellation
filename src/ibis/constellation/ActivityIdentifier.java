@@ -13,7 +13,9 @@ import ibis.constellation.impl.ActivityIdentifierImpl;
  */
 public final class ActivityIdentifier extends ActivityIdentifierImpl {
 
-    /**
+	private static final long serialVersionUID = 1469734868148032028L;
+
+	/**
      * Returns a human-readable unique string identifying the {@link Activity}
      * instance to which this ActivityIdentifier refers. This method can be used
      * for debugging prints.

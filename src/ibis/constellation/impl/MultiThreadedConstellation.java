@@ -49,9 +49,6 @@ public class MultiThreadedConstellation {
 
     private final ConstellationIdentifierFactory cidFactory;
 
-    private long startID = 0;
-    private long blockSize = 1000000;
-
     private final int localStealSize;
 
     private final Stats stats;
