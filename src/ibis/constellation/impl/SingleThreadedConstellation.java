@@ -120,6 +120,8 @@ public class SingleThreadedConstellation extends Thread {
 
         logger.info("PROFILE_STEALS = " + PROFILE_STEALS);
 
+        logger.info("PROFILE_STEALS = " + PROFILE_STEALS);
+
         // this.thread = this;
         this.parent = parent;
 
