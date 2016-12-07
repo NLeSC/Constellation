@@ -13,9 +13,8 @@ public class EventMessage extends MessageBase implements ByteBuffers {
     public final Event event;
 
     public EventMessage(final ConstellationIdentifier source,
-            final ConstellationIdentifier constellationIdentifier,
-            final Event e) {
-        super(source, constellationIdentifier);
+            final ConstellationIdentifier target, final Event e) {
+        super(source, target);
         this.event = e;
     }
 

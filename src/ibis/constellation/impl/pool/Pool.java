@@ -217,6 +217,8 @@ public class Pool {
 
     private final CommunicationLayer comm;
 
+    private boolean cleanup;
+
     public Pool(final DistributedConstellation owner,
             final ConstellationProperties properties)
             throws PoolCreationFailedException {
@@ -224,6 +226,13 @@ public class Pool {
         this.owner = owner;
         closedPool = properties.CLOSED;
         this.properties = properties;
+
+        if (closedPool) {
+            if (properties.POOLSIZE > 0) {
+                properties.setProperty("ibis.pool.size",
+                        "" + properties.POOLSIZE);
+            }
+        }
 
         comm = new CommunicationLayerImpl(properties, this);
         local = comm.getMyIdentifier();
@@ -364,6 +373,9 @@ public class Pool {
     }
 
     public void cleanup() {
+        synchronized (this) {
+            cleanup = true;
+        }
         updater.done();
         comm.cleanup();
     }
@@ -685,17 +697,6 @@ public class Pool {
             logger.debug("Sending steal request to " + id.name());
         }
         return doForward(id, OPCODE_STEAL_REQUEST, sr);
-    }
-
-    public StealPool randomlySelectPool(StealPool pool) {
-
-        // NOTE: We know the pool is not NULL or NONE.
-        if (pool.isSet()) {
-            StealPool[] tmp = pool.set();
-            pool = tmp[random.nextInt(tmp.length)];
-        }
-
-        return pool;
     }
 
     private void performRegisterWithPool(PoolRegisterRequest request) {

@@ -18,11 +18,11 @@ public class Dummy extends SimpleActivity {
 
         double tmp = 0.33333333;
 
-        long time = System.currentTimeMillis();
+        long time = System.nanoTime();
 
         do {
             tmp = Math.cos(tmp);
-        } while (System.currentTimeMillis() - time < 10);
+        } while (System.nanoTime() - time < 100000);
 
         send(new Event(identifier(), getParent(), null));
         finish();

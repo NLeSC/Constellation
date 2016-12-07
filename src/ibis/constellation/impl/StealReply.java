@@ -57,10 +57,6 @@ public class StealReply extends MessageBase implements ByteBuffers {
         return work;
     }
 
-    public ActivityRecord getWork(int i) {
-        return work[i];
-    }
-
     public int getSize() {
 
         if (work == null) {

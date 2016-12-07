@@ -163,14 +163,14 @@ public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
         return hostId;
     }
 
-    public CTimer(String constellation) {
-        this(constellation, null, null, null);
+    public CTimer(String nodeId) {
+        this(nodeId, null, null, null);
     }
 
-    public CTimer(String constellation, String standardDevice,
-            String standardThread, String standardAction) {
+    public CTimer(String nodeId, String standardDevice, String standardThread,
+            String standardAction) {
         this.events = new ArrayList<TimerEvent>();
-        this.hostId = constellation;
+        this.hostId = nodeId;
         this.device = standardDevice;
         this.thread = standardThread;
         this.action = standardAction;

@@ -7,8 +7,6 @@ public class TimeSyncInfo extends HashMap<String, Long>
 
     private static final long serialVersionUID = 1L;
 
-    private String thisNode;
-
     public TimeSyncInfo(String id) {
         super();
         put(id, new Long(0));

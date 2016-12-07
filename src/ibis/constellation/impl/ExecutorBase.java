@@ -15,6 +15,8 @@ import ibis.constellation.context.UnitExecutorContext;
  */
 public abstract class ExecutorBase implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     private final ExecutorContext context;
 
     private final StealStrategy localStealStrategy;
@@ -111,6 +113,10 @@ public abstract class ExecutorBase implements Serializable {
      * @return whether the {@link #run()} method should return.
      */
     protected boolean processActivities() {
+        if (owner == null) {
+            throw new Error(
+                    "processActivities() called but this executor is not embedded in a constellation instance yet");
+        }
         return owner.processActitivies();
     }
 
@@ -207,10 +213,6 @@ public abstract class ExecutorBase implements Serializable {
         return context;
     }
 
-    /**
-     * @param owner
-     *            TODO
-     */
     synchronized void connect(ExecutorWrapper owner) {
 
         if (this.owner != null) {
