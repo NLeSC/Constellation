@@ -151,8 +151,8 @@ public class Pool {
 
             String[] pools = getTags();
 
-            for (int i = 0; i < pools.length; i++) {
-                requestUpdate(pools[i]);
+            for (String pool : pools) {
+                requestUpdate(pool);
             }
         }
 
@@ -412,7 +412,7 @@ public class Pool {
         ConstellationIdentifier target = m.target;
 
         if (logger.isTraceEnabled()) {
-            logger.trace("POOL FORWARD MessageBase from " + m.source + " to " + m.target + " " + m);
+            logger.trace("POOL FORWARD Message from " + m.source + " to " + m.target + " " + m);
         }
 
         NodeIdentifier id = translate(target);

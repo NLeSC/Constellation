@@ -4,6 +4,10 @@ import java.io.Serializable;
 
 public abstract class MessageBase implements Serializable {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
     public final ConstellationIdentifier source;
     public ConstellationIdentifier target;
 
@@ -41,13 +45,15 @@ public abstract class MessageBase implements Serializable {
         String s = "source: ";
         if (source != null) {
             s += source.toString();
-        } else
+        } else {
             s += " none";
+        }
         s += "; target: ";
         if (target != null) {
             s += target.toString();
-        } else
+        } else {
             s += " none";
+        }
         return s;
     }
 }

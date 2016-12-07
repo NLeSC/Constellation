@@ -73,14 +73,17 @@ public abstract class ActivityIdentifierImpl implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
+        }
 
-        if (obj == null)
+        if (obj == null) {
             return false;
+        }
 
-        if (getClass() != obj.getClass())
+        if (getClass() != obj.getClass()) {
             return false;
+        }
 
         final ActivityIdentifierImpl other = (ActivityIdentifierImpl) obj;
 

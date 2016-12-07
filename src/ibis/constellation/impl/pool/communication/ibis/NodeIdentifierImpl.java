@@ -5,6 +5,10 @@ import ibis.ipl.IbisIdentifier;
 
 public class NodeIdentifierImpl implements NodeIdentifier {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
     private final IbisIdentifier id;
 
     public NodeIdentifierImpl(IbisIdentifier id) {

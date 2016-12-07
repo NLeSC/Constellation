@@ -800,8 +800,8 @@ public class DistributedConstellation {
         }
 
         StealPool[] set = belongsTo.set();
-        for (int i = 0; i < set.length; i++) {
-            pool.registerWithPool(set[i].getTag());
+        for (StealPool element : set) {
+            pool.registerWithPool(element.getTag());
         }
     }
 
@@ -825,8 +825,8 @@ public class DistributedConstellation {
 
         StealPool[] set = stealsFrom.set();
 
-        for (int i = 0; i < set.length; i++) {
-            pool.followPool(set[i].getTag());
+        for (StealPool element : set) {
+            pool.followPool(element.getTag());
         }
     }
 

@@ -135,6 +135,8 @@ public class MultiThreadedConstellation {
 
         PROFILE = properties.PROFILE;
 
+        PROFILE = properties.PROFILE;
+
         incomingWorkers = new ArrayList<SingleThreadedConstellation>();
         myContext = UnitExecutorContext.DEFAULT;
 

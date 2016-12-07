@@ -19,8 +19,8 @@ public abstract class WorkQueue {
     public abstract int size();
 
     public void enqueue(ActivityRecord[] a) {
-        for (int i = 0; i < a.length; i++) {
-            enqueue(a[i]);
+        for (ActivityRecord element : a) {
+            enqueue(element);
         }
     }
 

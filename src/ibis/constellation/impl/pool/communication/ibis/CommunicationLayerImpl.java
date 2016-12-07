@@ -137,6 +137,7 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
         }
     }
 
+    @Override
     public NodeIdentifier getMaster() {
         return new NodeIdentifierImpl(master);
     }
@@ -146,10 +147,12 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
         return new NodeIdentifierImpl(local);
     }
 
+    @Override
     public int getPoolSize() {
         return ibis.registry().getPoolSize();
     }
 
+    @Override
     public void terminate() throws IOException {
         if (local.equals(master)) {
             ibis.registry().terminate();
@@ -158,6 +161,7 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
         }
     }
 
+    @Override
     public void cleanup() {
         // Try to cleanly disconnect all send and receive ports....
         if (logger.isInfoEnabled()) {
@@ -196,13 +200,13 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
             }
         }
         if (rports != null) {
-            for (int i = 0; i < rports.length; i++) {
-                if (rports[i] != null) {
+            for (ReceivePort rport : rports) {
+                if (rport != null) {
                     try {
-                        rports[i].close(10000);
+                        rport.close(10000);
                     } catch (IOException e) {
                         if (logger.isInfoEnabled()) {
-                            logger.info("Close receive port " + rports[i].name() + " got execption", e);
+                            logger.info("Close receive port " + rport.name() + " got execption", e);
                         }
                     }
                 }
@@ -451,6 +455,7 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
         return sp;
     }
 
+    @Override
     public void activate() {
 
         if (properties.PROFILE_COMMUNICATION) {
@@ -461,9 +466,9 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
 
         rp.enableMessageUpcalls();
         if (closedPool) {
-            for (int i = 0; i < rports.length; i++) {
-                if (rports[i] != null) {
-                    rports[i].enableMessageUpcalls();
+            for (ReceivePort rport : rports) {
+                if (rport != null) {
+                    rport.enableMessageUpcalls();
                 }
             }
         }

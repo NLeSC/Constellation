@@ -119,8 +119,8 @@ public class ConstellationFactory {
 
         SingleThreadedConstellation s = null;
 
-        for (int i = 0; i < e.length; i++) {
-            s = new SingleThreadedConstellation(m, e[i], props);
+        for (Executor element : e) {
+            s = new SingleThreadedConstellation(m, element, props);
         }
 
         return d != null ? d.getConstellation() : m != null ? m.getConstellation() : s.getConstellation();

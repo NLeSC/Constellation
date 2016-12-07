@@ -44,13 +44,15 @@ public final class Event implements Serializable, ByteBuffers {
         String s = "source: ";
         if (getSource() != null) {
             s += getSource().toString();
-        } else
+        } else {
             s += " none";
+        }
         s += "; target: ";
         if (getTarget() != null) {
             s += getTarget().toString();
-        } else
+        } else {
             s += " none";
+        }
 
         s += "; data = ";
         if (getData() != null) {

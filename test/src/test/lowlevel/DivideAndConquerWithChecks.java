@@ -1,5 +1,7 @@
 package test.lowlevel;
 
+import java.util.Arrays;
+
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
@@ -10,8 +12,6 @@ import ibis.constellation.SingleEventCollector;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.context.UnitActivityContext;
 import ibis.constellation.context.UnitExecutorContext;
-
-import java.util.Arrays;
 
 public class DivideAndConquerWithChecks extends Activity {
 
@@ -112,6 +112,7 @@ public class DivideAndConquerWithChecks extends Activity {
         }
     }
 
+    @Override
     public String toString() {
         return "DC(" + identifier() + " " + Arrays.toString(children) + " " + Arrays.toString(received) + ") " + branch + ", "
                 + depth + ", " + merged + " -> " + count;
