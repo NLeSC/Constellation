@@ -70,8 +70,9 @@ public class DivideAndConquerWithChecks extends Activity {
     private void checkSource(Event e) {
 
         if (children == null) {
-            System.out.println("EEP: leaf node " + identifier()
-                    + " got stray message! " + e.getSource() + " " + e.getTarget());
+            System.out.println(
+                    "EEP: leaf node " + identifier() + " got stray message! "
+                            + e.getSource() + " " + e.getTarget());
         }
 
         for (ActivityIdentifier a : children) {
@@ -81,7 +82,8 @@ public class DivideAndConquerWithChecks extends Activity {
         }
 
         System.out.println("EEP: node " + identifier() + " got stray message! "
-                + e.getSource() + " " + e.getTarget() + " " + Arrays.toString(children));
+                + e.getSource() + " " + e.getTarget() + " "
+                + Arrays.toString(children));
 
     }
 
@@ -148,7 +150,8 @@ public class DivideAndConquerWithChecks extends Activity {
                     "Running D&C with branch factor " + branch + " and depth "
                             + depth + " (expected jobs: " + count + ")");
 
-            SingleEventCollector a = new SingleEventCollector(new UnitActivityContext("DC"));
+            SingleEventCollector a = new SingleEventCollector(
+                    new UnitActivityContext("DC"));
 
             c.submit(a);
             c.submit(new DivideAndConquerWithChecks(a.identifier(), branch,

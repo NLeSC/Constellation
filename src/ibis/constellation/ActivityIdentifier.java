@@ -13,36 +13,36 @@ import ibis.constellation.impl.ActivityIdentifierImpl;
  */
 public final class ActivityIdentifier extends ActivityIdentifierImpl {
 
-	private static final long serialVersionUID = 1469734868148032028L;
+    private static final long serialVersionUID = 1469734868148032028L;
 
-	/**
-	 * Returns a human-readable unique string identifying the {@link Activity}
-	 * instance to which this ActivityIdentifier refers. This method can be used
-	 * for debugging prints.
-	 *
-	 * @return a string representation of this ActivityIdentifier.
-	 */
-	@Override
-	public String toString() {
-		return super.toString();
-	}
+    /**
+     * Returns a human-readable unique string identifying the {@link Activity}
+     * instance to which this ActivityIdentifier refers. This method can be used
+     * for debugging prints.
+     *
+     * @return a string representation of this ActivityIdentifier.
+     */
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 
-	/**
-	 * Returns a hash code for this activity identifier. Note: two activity
-	 * identifiers compare equal if they represent the same activity.
-	 */
-	@Override
-	public int hashCode() {
-		return super.hashCode();
-	}
+    /**
+     * Returns a hash code for this activity identifier. Note: two activity
+     * identifiers compare equal if they represent the same activity.
+     */
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 
-	/**
-	 * Returns whether the specified object is equal to the current activity
-	 * identifier. Note: two activity identifiers compare equal if they
-	 * represent the same activity.
-	 */
-	@Override
-	public boolean equals(Object o) {
-		return super.equals(o);
-	}
+    /**
+     * Returns whether the specified object is equal to the current activity
+     * identifier. Note: two activity identifiers compare equal if they
+     * represent the same activity.
+     */
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
 }

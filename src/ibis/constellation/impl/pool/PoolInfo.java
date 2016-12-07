@@ -11,9 +11,9 @@ import ibis.ipl.IbisIdentifier;
 
 class PoolInfo implements Serializable {
 
-	private static final long serialVersionUID = -5390055224656923666L;
+    private static final long serialVersionUID = -5390055224656923666L;
 
-	private static final Logger logger = LoggerFactory
+    private static final Logger logger = LoggerFactory
             .getLogger(PoolInfo.class);
 
     final String tag;

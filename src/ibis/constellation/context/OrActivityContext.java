@@ -252,7 +252,7 @@ public final class OrActivityContext extends ActivityContext {
             return satisfiedBy((UnitExecutorContext) offer, s);
         }
 
-        assert(offer instanceof OrExecutorContext);
+        assert (offer instanceof OrExecutorContext);
         return satisfiedBy((OrExecutorContext) offer, s);
     }
 

@@ -138,6 +138,8 @@ public class MultiThreadedConstellation {
             identifier = cidFactory.generateConstellationIdentifier();
         }
 
+        PROFILE = properties.PROFILE;
+
         incomingWorkers = new ArrayList<SingleThreadedConstellation>();
         myContext = UnitExecutorContext.DEFAULT;
 
@@ -161,6 +163,8 @@ public class MultiThreadedConstellation {
     }
 
     int next = 0;
+
+    private boolean PROFILE;
 
     synchronized ActivityIdentifier performSubmit(Activity a) {
 
@@ -472,6 +476,13 @@ public class MultiThreadedConstellation {
             for (SingleThreadedConstellation u : incomingWorkers) {
                 u.performDone();
             }
+        }
+
+        if (PROFILE) {
+            if (logger.isInfoEnabled()) {
+                logger.info("Printing statistics");
+            }
+            stats.printStats(System.out);
         }
     }
 

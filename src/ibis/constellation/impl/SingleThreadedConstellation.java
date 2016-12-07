@@ -122,6 +122,8 @@ public class SingleThreadedConstellation extends Thread {
         PROFILE_STEALS = props.PROFILE_STEAL;
         PRINT_STATISTICS = props.PRINT_STATISTICS;
 
+        logger.info("PROFILE_STEALS = " + PROFILE_STEALS);
+
         // this.thread = this;
         this.parent = parent;
 

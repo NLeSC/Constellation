@@ -53,8 +53,8 @@ public class SmartSortedWorkQueue extends WorkQueue {
             return null;
         }
 
-        if (log.isInfoEnabled()) {
-            log.info("Matching context string: " + c.getName());
+        if (log.isDebugEnabled()) {
+            log.debug("Matching context string: " + c.getName());
         }
 
         assert tmp.size() > 0;
@@ -101,8 +101,8 @@ public class SmartSortedWorkQueue extends WorkQueue {
             return null;
         }
 
-        if (log.isInfoEnabled()) {
-            log.info("Matching context string: " + c.getName());
+        if (log.isDebugEnabled()) {
+            log.debug("Matching context string: " + c.getName());
         }
 
         assert (tmp.size() > 0);

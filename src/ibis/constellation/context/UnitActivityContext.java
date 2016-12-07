@@ -86,8 +86,8 @@ public final class UnitActivityContext extends ActivityContext {
         if (!name.equals(offer.getName())) {
             return false;
         }
-        if (log.isInfoEnabled()) {
-            log.info("Matching context string: " + name);
+        if (log.isDebugEnabled()) {
+            log.debug("Matching context string: " + name);
         }
 
         switch (s.getStrategy()) {

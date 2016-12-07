@@ -91,7 +91,7 @@ public class ConstellationProperties extends Properties {
      * constellation should provide some timing information on steqls. The
      * default is "false". Note: the overhead for this profiler can be large.
      */
-    public static final String S_PROFILE_STEAL = "profile.steal";
+    public static final String S_PROFILE_STEAL = S_PREFIX + "profile.steal";
 
     public final boolean PROFILE_STEAL;
 
@@ -263,8 +263,7 @@ public class ConstellationProperties extends Properties {
      * @param name
      *            property name
      */
-    @SuppressWarnings("unused")
-	private boolean getBooleanProperty(String name) {
+    private boolean getBooleanProperty(String name) {
         return getBooleanProperty(name, false);
     }
 
@@ -300,8 +299,7 @@ public class ConstellationProperties extends Properties {
      * @throws NumberFormatException
      *             if the property is undefined or not an integer
      */
-    @SuppressWarnings("unused")
-	private int getIntProperty(String key) {
+    private int getIntProperty(String key) {
         String value = getProperty(key);
 
         if (value == null) {
