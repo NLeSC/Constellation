@@ -96,13 +96,13 @@ public final class StealPool implements Serializable {
 
         HashSet<StealPool> tmp = new HashSet<StealPool>();
 
-        for (int i = 0; i < pools.length; i++) {
-            if (pools[i] == null) {
+        for (StealPool pool : pools) {
+            if (pool == null) {
                 throw new IllegalArgumentException("StealPool list cannot have null references!");
             }
         }
-        for (int i = 0; i < pools.length; i++) {
-            StealPool s = pools[i];
+        for (StealPool pool : pools) {
+            StealPool s = pool;
             if (s.set != null) {
                 StealPool s2 = merge(s.set);
                 // Now it is flattened.
@@ -122,7 +122,7 @@ public final class StealPool implements Serializable {
                     return WORLD;
                 }
                 if (!s.equals(NONE)) {
-                    tmp.add(pools[i]);
+                    tmp.add(pool);
                 }
             }
         }
@@ -177,8 +177,8 @@ public final class StealPool implements Serializable {
                     }
                 }
             } else {
-                for (int i = 0; i < set.length; i++) {
-                    int cmp = other.tag.compareTo(set[i].tag);
+                for (StealPool element : set) {
+                    int cmp = other.tag.compareTo(element.tag);
                     if (cmp == 0) {
                         return true;
                     }
@@ -189,8 +189,8 @@ public final class StealPool implements Serializable {
             }
         } else {
             if (other.set != null) {
-                for (int i = 0; i < other.set.length; i++) {
-                    int cmp = tag.compareTo(other.set[i].tag);
+                for (StealPool element : other.set) {
+                    int cmp = tag.compareTo(element.tag);
                     if (cmp == 0) {
                         return true;
                     }
@@ -279,12 +279,15 @@ public final class StealPool implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         StealPool other = (StealPool) obj;
         if (set == null) {
             if (other.set != null) {

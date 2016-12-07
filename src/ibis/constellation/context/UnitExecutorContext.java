@@ -46,7 +46,7 @@ public final class UnitExecutorContext extends ExecutorContext {
 
     /**
      * Returns the context name used to construct this UnitExecutorContext.
-     * 
+     *
      * @return the context name.
      */
     public String getName() {

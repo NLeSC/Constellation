@@ -486,9 +486,7 @@ public class SingleThreadedConstellation extends Thread {
 
         synchronized (this) {
 
-            for (int i = 0; i < tmp.length; i++) {
-                ActivityRecord a = tmp[i];
-
+            for (ActivityRecord a : tmp) {
                 if (a != null) {
                     // two options here: either the job is stolen (from a remote
                     // constellation) or
@@ -704,9 +702,7 @@ public class SingleThreadedConstellation extends Thread {
             return;
         }
 
-        for (int i = 0; i < a.length; i++) {
-
-            ActivityRecord ar = a[i];
+        for (ActivityRecord ar : a) {
 
             if (ar != null) {
 
@@ -934,9 +930,9 @@ public class SingleThreadedConstellation extends Thread {
 
                         if (result != null) {
 
-                            for (int i = 0; i < result.length; i++) {
-                                if (result[i] != null) {
-                                    wrapper.addPrivateActivity(result[i]);
+                            for (ActivityRecord element : result) {
+                                if (element != null) {
+                                    wrapper.addPrivateActivity(element);
                                     more = true;
                                 }
                             }

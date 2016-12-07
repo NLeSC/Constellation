@@ -76,6 +76,7 @@ public class Streaming extends Activity {
         }
     }
 
+    @Override
     public String toString() {
         return "Streaming(" + identifier() + ") " + length;
     }

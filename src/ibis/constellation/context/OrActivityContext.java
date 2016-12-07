@@ -19,6 +19,7 @@ public final class OrActivityContext extends ActivityContext {
 
     private static class UnitActivityContextSorter implements Comparator<UnitActivityContext> {
 
+        @Override
         public int compare(UnitActivityContext u1, UnitActivityContext u2) {
 
             if (u1.hashCode() == u2.hashCode()) {
@@ -46,8 +47,8 @@ public final class OrActivityContext extends ActivityContext {
 
         int hashCode = 1;
 
-        for (int i = 0; i < in.length; i++) {
-            hashCode = 31 * hashCode + (in[i] == null ? 0 : in[i].hashCode());
+        for (UnitActivityContext element : in) {
+            hashCode = 31 * hashCode + (element == null ? 0 : element.hashCode());
         }
 
         return hashCode;
@@ -126,8 +127,8 @@ public final class OrActivityContext extends ActivityContext {
      * @return whether the unit-context is a member of this activity context.
      */
     public boolean contains(UnitActivityContext u) {
-        for (int i = 0; i < unitContexts.length; i++) {
-            if (u.equals(unitContexts[i])) {
+        for (UnitActivityContext unitContext : unitContexts) {
+            if (u.equals(unitContext)) {
                 return true;
             }
         }
@@ -207,9 +208,7 @@ public final class OrActivityContext extends ActivityContext {
 
     private boolean satisfiedBy(UnitExecutorContext offer, StealStrategy s) {
 
-        for (int i = 0; i < unitContexts.length; i++) {
-
-            UnitActivityContext tmp = unitContexts[i];
+        for (UnitActivityContext tmp : unitContexts) {
 
             if (tmp.satisfiedBy(offer, s)) {
                 return true;
@@ -223,9 +222,9 @@ public final class OrActivityContext extends ActivityContext {
 
         UnitExecutorContext[] tmp = offer.getContexts();
 
-        for (int i = 0; i < tmp.length; i++) {
+        for (UnitExecutorContext element : tmp) {
 
-            if (satisfiedBy(tmp[i], s)) {
+            if (satisfiedBy(element, s)) {
                 return true;
             }
         }

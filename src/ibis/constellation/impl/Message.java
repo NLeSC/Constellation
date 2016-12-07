@@ -44,7 +44,7 @@ public abstract class Message implements Serializable {
 
     /**
      * Sets the target to the specified constellation identifier.
-     * 
+     *
      * @param cid
      *            the target.
      */
@@ -57,13 +57,15 @@ public abstract class Message implements Serializable {
         String s = "source: ";
         if (source != null) {
             s += source.toString();
-        } else
+        } else {
             s += " none";
+        }
         s += "; target: ";
         if (target != null) {
             s += target.toString();
-        } else
+        } else {
             s += " none";
+        }
         return s;
     }
 }

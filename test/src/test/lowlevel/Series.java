@@ -59,6 +59,7 @@ public class Series extends Activity {
         }
     }
 
+    @Override
     public String toString() {
         return "Series(" + identifier() + ") " + length;
     }

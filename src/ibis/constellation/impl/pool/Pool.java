@@ -183,8 +183,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
             String[] pools = getTags();
 
-            for (int i = 0; i < pools.length; i++) {
-                requestUpdate(pools[i]);
+            for (String pool : pools) {
+                requestUpdate(pool);
             }
         }
 
@@ -369,9 +369,9 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
         rp.enableMessageUpcalls();
         if (closedPool) {
-            for (int i = 0; i < rports.length; i++) {
-                if (rports[i] != null) {
-                    rports[i].enableMessageUpcalls();
+            for (ReceivePort rport : rports) {
+                if (rport != null) {
+                    rport.enableMessageUpcalls();
                 }
             }
             if (isMaster()) {
@@ -634,13 +634,13 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             }
         }
         if (rports != null) {
-            for (int i = 0; i < rports.length; i++) {
-                if (rports[i] != null) {
+            for (ReceivePort rport : rports) {
+                if (rport != null) {
                     try {
-                        rports[i].close(10000);
+                        rport.close(10000);
                     } catch (IOException e) {
                         if (logger.isInfoEnabled()) {
-                            logger.info("Close receive port " + rports[i].name() + " got execption", e);
+                            logger.info("Close receive port " + rport.name() + " got execption", e);
                         }
                     }
                 }

@@ -186,6 +186,7 @@ public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
         }
     }
 
+    @Override
     public int start() {
         int eventNo;
         TimerEvent event = new TimerEvent(getNode(), device, thread, action, 0, 0, 0, 0);
@@ -212,6 +213,7 @@ public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
         event.nrBytes = nrBytes;
     }
 
+    @Override
     public void stop(int eventNo) {
         if (eventNo < 0 || eventNo >= events.size()) {
             return;
@@ -290,6 +292,7 @@ public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
         this.events = cleaned;
     }
 
+    @Override
     public int nrTimes() {
         return events.size();
     }
@@ -298,6 +301,7 @@ public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
         return nanos / 1000.0;
     }
 
+    @Override
     public double totalTimeVal() {
         double total = 0.0;
         for (TimerEvent event : events) {
@@ -306,6 +310,7 @@ public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
         return total;
     }
 
+    @Override
     public double averageTimeVal() {
         return totalTimeVal() / nrTimes();
     }
@@ -376,8 +381,9 @@ public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
         this.events = filtered;
 
         TimerEvent overallEvent = getOverallEvent();
-        if (overallEvent == null)
+        if (overallEvent == null) {
             return;
+        }
 
         long startTime = overallEvent.getStart();
         long time = overallEvent.time();
@@ -411,6 +417,7 @@ public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
         return sb.toString();
     }
 
+    @Override
     public void add(String nickName, String thread, String action, long l, long m, long n, long o) {
         add(new TimerEvent(getNode(), nickName, thread, action, l, m, n, o));
     }

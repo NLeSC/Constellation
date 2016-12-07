@@ -56,21 +56,21 @@ public interface CTimer {
 
     /**
      * Returns the number of events recorded for this CTimer.
-     * 
+     *
      * @return the number of events.
      */
     int nrTimes();
 
     /**
      * Returns the total time recorded for events in this CTimer, in microseconds.
-     * 
+     *
      * @return the total time.
      */
     double totalTimeVal();
 
     /**
      * Returns the average time recorded for events in this CTimer, in microseconds.
-     * 
+     *
      * @return the average time.
      */
     public double averageTimeVal();
