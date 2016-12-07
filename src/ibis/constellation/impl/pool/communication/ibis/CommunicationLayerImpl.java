@@ -29,25 +29,18 @@ import ibis.ipl.RegistryEventHandler;
 import ibis.ipl.SendPort;
 import ibis.ipl.WriteMessage;
 
-public class CommunicationLayerImpl
-        implements CommunicationLayer, RegistryEventHandler, MessageUpcall {
+public class CommunicationLayerImpl implements CommunicationLayer, RegistryEventHandler, MessageUpcall {
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(CommunicationLayerImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(CommunicationLayerImpl.class);
 
-    private final PortType portType = new PortType(PortType.COMMUNICATION_FIFO,
-            PortType.COMMUNICATION_RELIABLE, PortType.SERIALIZATION_OBJECT,
-            PortType.RECEIVE_AUTO_UPCALLS, PortType.RECEIVE_TIMEOUT,
+    private final PortType portType = new PortType(PortType.COMMUNICATION_FIFO, PortType.COMMUNICATION_RELIABLE,
+            PortType.SERIALIZATION_OBJECT, PortType.RECEIVE_AUTO_UPCALLS, PortType.RECEIVE_TIMEOUT,
             PortType.CONNECTION_MANY_TO_ONE);
 
-    private static final IbisCapabilities openIbisCapabilities = new IbisCapabilities(
-            IbisCapabilities.MALLEABLE, IbisCapabilities.TERMINATION,
-            IbisCapabilities.ELECTIONS_STRICT,
-            IbisCapabilities.MEMBERSHIP_TOTALLY_ORDERED);
-    private static final IbisCapabilities closedIbisCapabilities = new IbisCapabilities(
-            IbisCapabilities.CLOSED_WORLD, IbisCapabilities.TERMINATION,
-            IbisCapabilities.ELECTIONS_STRICT,
-            IbisCapabilities.MEMBERSHIP_TOTALLY_ORDERED);
+    private static final IbisCapabilities openIbisCapabilities = new IbisCapabilities(IbisCapabilities.MALLEABLE,
+            IbisCapabilities.TERMINATION, IbisCapabilities.ELECTIONS_STRICT, IbisCapabilities.MEMBERSHIP_TOTALLY_ORDERED);
+    private static final IbisCapabilities closedIbisCapabilities = new IbisCapabilities(IbisCapabilities.CLOSED_WORLD,
+            IbisCapabilities.TERMINATION, IbisCapabilities.ELECTIONS_STRICT, IbisCapabilities.MEMBERSHIP_TOTALLY_ORDERED);
 
     private final ReceivePort rp;
     private final ReceivePort rports[];
@@ -72,17 +65,15 @@ public class CommunicationLayerImpl
 
     private CTimer communicationTimer;
 
-    public CommunicationLayerImpl(final ConstellationProperties properties,
-            Pool pool) throws PoolCreationFailedException {
+    public CommunicationLayerImpl(final ConstellationProperties properties, Pool pool) throws PoolCreationFailedException {
 
         closedPool = properties.CLOSED;
         this.pool = pool;
         this.properties = properties;
 
         try {
-            ibis = IbisFactory.createIbis(
-                    closedPool ? closedIbisCapabilities : openIbisCapabilities,
-                    properties, true, closedPool ? null : this, portType);
+            ibis = IbisFactory.createIbis(closedPool ? closedIbisCapabilities : openIbisCapabilities, properties, true,
+                    closedPool ? null : this, portType);
 
             if (!closedPool) {
                 ibis.registry().enableEvents();
@@ -93,16 +84,14 @@ public class CommunicationLayerImpl
                 // Elect a server
                 master = ibis.registry().elect("Constellation Master");
             } else {
-                master = ibis.registry()
-                        .getElectionResult("Constellation Master");
+                master = ibis.registry().getElectionResult("Constellation Master");
             }
 
             local = ibis.identifier();
 
             // We determine our rank here. This rank should only be used for
             // debugging purposes!
-            String tmp = properties
-                    .getProperty(ConstellationProperties.S_PREFIX + "rank");
+            String tmp = properties.getProperty(ConstellationProperties.S_PREFIX + "rank");
 
             if (tmp != null) {
                 try {
@@ -113,8 +102,7 @@ public class CommunicationLayerImpl
             }
 
             if (rank == -1) {
-                rank = ibis.registry().getSequenceNumber(
-                        "constellation-pool-" + master.toString());
+                rank = ibis.registry().getSequenceNumber("constellation-pool-" + master.toString());
             }
 
             rp = ibis.createReceivePort(portType, "constellation", this);
@@ -127,8 +115,7 @@ public class CommunicationLayerImpl
                 for (int i = 0; i < rports.length; i++) {
                     if (!ids[i].equals(ibis.identifier())) {
                         try {
-                            rports[i] = ibis.createReceivePort(portType,
-                                    "constellation_" + ids[i].name(), this);
+                            rports[i] = ibis.createReceivePort(portType, "constellation_" + ids[i].name(), this);
                             rports[i].enableConnections();
                         } catch (Throwable e) {
                             logger.warn("Could not create port", e);
@@ -215,8 +202,7 @@ public class CommunicationLayerImpl
                         rports[i].close(10000);
                     } catch (IOException e) {
                         if (logger.isInfoEnabled()) {
-                            logger.info("Close receive port " + rports[i].name()
-                                    + " got execption", e);
+                            logger.info("Close receive port " + rports[i].name() + " got execption", e);
                         }
                     }
                 }
@@ -238,8 +224,7 @@ public class CommunicationLayerImpl
     @Override
     public boolean sendMessage(NodeIdentifier destination, Message m) {
         SendPort s;
-        IbisIdentifier dest = ((NodeIdentifierImpl) destination)
-                .getIbisIdentifier();
+        IbisIdentifier dest = ((NodeIdentifierImpl) destination).getIbisIdentifier();
         try {
             s = getSendPort(dest);
         } catch (IOException e1) {
@@ -278,8 +263,7 @@ public class CommunicationLayerImpl
                     for (ByteBuffer b : list) {
                         wm.writeByteBuffer(b);
                         if (logger.isDebugEnabled()) {
-                            logger.debug(
-                                    "Wrote bytebuffer of size " + b.capacity());
+                            logger.debug("Wrote bytebuffer of size " + b.capacity());
                         }
                     }
                 }
@@ -304,8 +288,7 @@ public class CommunicationLayerImpl
     }
 
     @Override
-    public void upcall(ReadMessage rm)
-            throws IOException, ClassNotFoundException {
+    public void upcall(ReadMessage rm) throws IOException, ClassNotFoundException {
 
         IbisIdentifier source = rm.origin().ibisIdentifier();
         int timerEvent = -1;
@@ -313,8 +296,7 @@ public class CommunicationLayerImpl
         boolean hasObject = rm.readBoolean();
 
         if (communicationTimer != null && hasObject) {
-            timerEvent = communicationTimer
-                    .start(Pool.getString(opcode, "read"));
+            timerEvent = communicationTimer.start(Pool.getString(opcode, "read"));
         }
         Message m = new Message(opcode, null);
 
@@ -327,13 +309,11 @@ public class CommunicationLayerImpl
                     ArrayList<ByteBuffer> l = new ArrayList<ByteBuffer>();
                     if (nByteBuffers > 0) {
                         if (logger.isInfoEnabled()) {
-                            logger.info(
-                                    "Reading " + nByteBuffers + " bytebuffers");
+                            logger.info("Reading " + nByteBuffers + " bytebuffers");
                         }
                         for (int i = 0; i < nByteBuffers; i++) {
                             int capacity = rm.readInt();
-                            ByteBuffer b = ByteBufferCache
-                                    .getByteBuffer(capacity, false);
+                            ByteBuffer b = ByteBufferCache.getByteBuffer(capacity, false);
                             l.add(b);
                         }
                         for (ByteBuffer b : l) {
@@ -416,14 +396,12 @@ public class CommunicationLayerImpl
 
         if (sp == null) {
             if (logger.isInfoEnabled()) {
-                logger.info(
-                        "Connecting to " + id + " from " + ibis.identifier());
+                logger.info("Connecting to " + id + " from " + ibis.identifier());
             }
             try {
                 sp = ibis.createSendPort(portType);
                 if (closedPool) {
-                    sp.connect(id, "constellation_" + ibis.identifier().name(),
-                            10000, true);
+                    sp.connect(id, "constellation_" + ibis.identifier().name(), 10000, true);
                 } else {
                     sp.connect(id, "constellation");
                 }
@@ -453,8 +431,7 @@ public class CommunicationLayerImpl
             }
 
             if (logger.isInfoEnabled()) {
-                logger.info("Succesfully connected to " + id + " from "
-                        + ibis.identifier());
+                logger.info("Succesfully connected to " + id + " from " + ibis.identifier());
             }
 
             SendPort sp2 = sendports.putIfAbsent(id, sp);
@@ -477,8 +454,7 @@ public class CommunicationLayerImpl
     public void activate() {
 
         if (properties.PROFILE_COMMUNICATION) {
-            communicationTimer = pool.getStats().getTimer("java",
-                    "data handling", "read/write data");
+            communicationTimer = pool.getStats().getTimer("java", "data handling", "read/write data");
         } else {
             communicationTimer = null;
         }
@@ -494,10 +470,8 @@ public class CommunicationLayerImpl
     }
 
     @Override
-    public NodeIdentifier getElectionResult(String electTag, long timeout)
-            throws IOException {
-        IbisIdentifier id = ibis.registry().getElectionResult(electTag,
-                timeout);
+    public NodeIdentifier getElectionResult(String electTag, long timeout) throws IOException {
+        IbisIdentifier id = ibis.registry().getElectionResult(electTag, timeout);
         if (id != null) {
             return new NodeIdentifierImpl(id);
         }

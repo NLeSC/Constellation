@@ -11,9 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A cache of direct {@link ByteBuffer}s of specific sizes. This class is not
- * specifically part of constellation, but it may be useful for applications.
- * This class is thread-safe.
+ * A cache of direct {@link ByteBuffer}s of specific sizes. This class is not specifically part of constellation, but it may be
+ * useful for applications. This class is thread-safe.
  *
  * TODO: move to a utility package?
  */
@@ -54,8 +53,7 @@ public class ByteBufferCache {
                     cnt = increment - l.size();
                 }
                 for (int i = 0; i < cnt; i++) {
-                    ByteBuffer v = ByteBuffer.allocateDirect(sz)
-                            .order(ByteOrder.nativeOrder());
+                    ByteBuffer v = ByteBuffer.allocateDirect(sz).order(ByteOrder.nativeOrder());
                     releaseByteBuffer(v);
                 }
             }
@@ -63,8 +61,7 @@ public class ByteBufferCache {
     }
 
     /**
-     * Release the specified byte buffer, that is, append it to the list of
-     * available byte buffers.
+     * Release the specified byte buffer, that is, append it to the list of available byte buffers.
      *
      * @param b
      *            the byte buffer to be released.
@@ -87,9 +84,8 @@ public class ByteBufferCache {
     private static byte[] initBuffer = new byte[65536];
 
     /**
-     * Obtains a byte buffer of the specified size. If one cannot be found in
-     * the cache, a new one is allocated. If it needs to be clear(ed), the
-     * <code>needsClearing</code> flag should be set to <code>true</code>.
+     * Obtains a byte buffer of the specified size. If one cannot be found in the cache, a new one is allocated. If it needs to be
+     * clear(ed), the <code>needsClearing</code> flag should be set to <code>true</code>.
      *
      * @param sz
      *            size of the byte buffer to be obtained.
@@ -105,8 +101,7 @@ public class ByteBufferCache {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Allocating new bytebuffer");
                 }
-                return ByteBuffer.allocateDirect(sz)
-                        .order(ByteOrder.nativeOrder());
+                return ByteBuffer.allocateDirect(sz).order(ByteOrder.nativeOrder());
             }
             b = l.remove(0);
             FreelistFiller f = fillers.get(sz);
@@ -114,8 +109,7 @@ public class ByteBufferCache {
                 freeList.notify();
             }
             if (logger.isDebugEnabled()) {
-                logger.debug("bytebuffer " + System.identityHashCode(b)
-                        + " from cache");
+                logger.debug("bytebuffer " + System.identityHashCode(b) + " from cache");
             }
         }
         if (needsClearing) {
@@ -130,8 +124,7 @@ public class ByteBufferCache {
     }
 
     /**
-     * Initializes the byte buffer cache with the specified number of buffers of
-     * the specified size.
+     * Initializes the byte buffer cache with the specified number of buffers of the specified size.
      *
      * @param sz
      *            the size of the byte buffers
@@ -143,8 +136,7 @@ public class ByteBufferCache {
             logger.debug("Allocating " + count + " buffers of size " + sz);
         }
         for (int i = 0; i < count; i++) {
-            ByteBuffer v = ByteBuffer.allocateDirect(sz)
-                    .order(ByteOrder.nativeOrder());
+            ByteBuffer v = ByteBuffer.allocateDirect(sz).order(ByteOrder.nativeOrder());
             releaseByteBuffer(v);
         }
         FreelistFiller filler = new FreelistFiller(sz, count);

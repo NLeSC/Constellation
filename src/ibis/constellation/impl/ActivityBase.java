@@ -11,34 +11,29 @@ import ibis.constellation.context.ActivityContext;
 /**
  * As the title suggests: the base class for {@link Activity activities}.
  *
- * This class contains some activity-related stuff that the user should not be
- * bothered with.
+ * This class contains some activity-related stuff that the user should not be bothered with.
  */
 public abstract class ActivityBase implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * Next action after {@link Activity#process()} or
-     * {@link Activity#process(Event)} is not known.
+     * Next action after {@link Activity#process()} or {@link Activity#process(Event)} is not known.
      */
     private static final byte REQUEST_UNKNOWN = 0;
 
     /**
-     * Next action after {@link Activity#process()} or
-     * {@link Activity#process(Event)} is to suspend.
+     * Next action after {@link Activity#process()} or {@link Activity#process(Event)} is to suspend.
      */
     private static final byte REQUEST_SUSPEND = 1;
 
     /**
-     * Next action after {@link Activity#process()} or
-     * {@link Activity#process(Event)} is to finish.
+     * Next action after {@link Activity#process()} or {@link Activity#process(Event)} is to finish.
      */
     private static final byte REQUEST_FINISH = 2;
 
     /**
-     * Next action after {@link Activity#process()} or
-     * {@link Activity#process(Event)}.
+     * Next action after {@link Activity#process()} or {@link Activity#process(Event)}.
      */
     private byte next = REQUEST_UNKNOWN;
 
@@ -61,24 +56,20 @@ public abstract class ActivityBase implements Serializable {
      * Initializes this <code>ActivityBase</code> with the specified parameters.
      *
      * @param context
-     *            the context that specifies which executors can actually
-     *            execute this activity.
+     *            the context that specifies which executors can actually execute this activity.
      * @param restrictToLocal
-     *            when set, specifies that this activity can only be executed by
-     *            a local executor.
+     *            when set, specifies that this activity can only be executed by a local executor.
      * @param willReceiveEvents
      *            when set, specifies that this activity can receive events.
      */
-    protected ActivityBase(ActivityContext context, boolean restrictToLocal,
-            boolean willReceiveEvents) {
+    protected ActivityBase(ActivityContext context, boolean restrictToLocal, boolean willReceiveEvents) {
         this.context = context;
         this.restrictToLocal = restrictToLocal;
         this.willReceiveEvents = willReceiveEvents;
     }
 
     /**
-     * Returns <code>true</code> if this activity may receive events,
-     * <code>false</code> otherwise.
+     * Returns <code>true</code> if this activity may receive events, <code>false</code> otherwise.
      *
      * @return whether this activity may receive events.
      */
@@ -107,8 +98,8 @@ public abstract class ActivityBase implements Serializable {
     }
 
     /**
-     * Returns the activity identifier of this activity. Note that this
-     * identifier only exists after the activity has been submitted.
+     * Returns the activity identifier of this activity. Note that this identifier only exists after the activity has been
+     * submitted.
      *
      * @throws IllegalStateException
      *             is thrown when the activity has not been submitted yet.
@@ -116,16 +107,15 @@ public abstract class ActivityBase implements Serializable {
      */
     protected ActivityIdentifier identifier() {
         if (identifier == null) {
-            throw new IllegalStateException(
-                    "Activity has not been submitted yet");
+            throw new IllegalStateException("Activity has not been submitted yet");
         }
 
         return identifier;
     }
 
     /**
-     * Returns the executor of this activity. Note that this executor does not
-     * exist before {@link Activity#initialize()} has been called.
+     * Returns the executor of this activity. Note that this executor does not exist before {@link Activity#initialize()} has been
+     * called.
      *
      * @throws IllegalStateException
      *             is thrown when the activity is not initialized yet.
@@ -150,8 +140,7 @@ public abstract class ActivityBase implements Serializable {
     }
 
     /**
-     * Returns <code>true</code> if this activity can only be executed by a
-     * local executor, <code>false</code> otherwise.
+     * Returns <code>true</code> if this activity can only be executed by a local executor, <code>false</code> otherwise.
      *
      * @return whether this activity can only be executed by a local executor.
      */
@@ -167,8 +156,7 @@ public abstract class ActivityBase implements Serializable {
     }
 
     /**
-     * Returns <code>true</code> if the activity requested to be suspended,
-     * <code>false</code> otherwise.
+     * Returns <code>true</code> if the activity requested to be suspended, <code>false</code> otherwise.
      *
      * @return whether the activity requested to be suspended.
      */
@@ -177,8 +165,7 @@ public abstract class ActivityBase implements Serializable {
     }
 
     /**
-     * Returns <code>true</code> if the activity requested to be finished,
-     * <code>false</code> otherwise.
+     * Returns <code>true</code> if the activity requested to be finished, <code>false</code> otherwise.
      *
      * @return whether the activity requested to be finished.
      */
@@ -187,36 +174,30 @@ public abstract class ActivityBase implements Serializable {
     }
 
     /**
-     * Requests that the current activity will be suspended. Usually called from
-     * {@link #initialize()} or {@link #process(Event)}.
+     * Requests that the current activity will be suspended. Usually called from {@link #initialize()} or {@link #process(Event)}.
      *
      * @exception IllegalStateException
-     *                is thrown when the activity already requested to be
-     *                finished.
+     *                is thrown when the activity already requested to be finished.
      */
     protected void suspend() throws IllegalStateException {
 
         if (next == REQUEST_FINISH) {
-            throw new IllegalStateException(
-                    "ActivityBase already requested to finish!");
+            throw new IllegalStateException("ActivityBase already requested to finish!");
         }
 
         next = REQUEST_SUSPEND;
     }
 
     /**
-     * Requests that the current activity will be finished. Usually called from
-     * {@link #initialize()} or {@link #process(Event)}.
+     * Requests that the current activity will be finished. Usually called from {@link #initialize()} or {@link #process(Event)}.
      *
      * @exception IllegalStateException
-     *                is thrown when the activity already requested to be
-     *                suspended.
+     *                is thrown when the activity already requested to be suspended.
      */
     protected void finish() throws IllegalStateException {
 
         if (next == REQUEST_SUSPEND) {
-            throw new IllegalStateException(
-                    "ActivityBase already requested to suspend!");
+            throw new IllegalStateException("ActivityBase already requested to suspend!");
         }
 
         next = REQUEST_FINISH;
@@ -228,31 +209,24 @@ public abstract class ActivityBase implements Serializable {
     // public abstract void cancel();
 
     /**
-     * This method, to be implemented by the activity, should perform the
-     * initial processing when the activity is first activated. In the end, it
-     * should call {@link #suspend()} or {@link #finish()}, depending on what
-     * the activity is to do next: {@link #suspend()} when it expects events it
-     * wants to wait for, and {@link #finish()} when it is done.
+     * This method, to be implemented by the activity, should perform the initial processing when the activity is first activated.
+     * In the end, it should call {@link #suspend()} or {@link #finish()}, depending on what the activity is to do next:
+     * {@link #suspend()} when it expects events it wants to wait for, and {@link #finish()} when it is done.
      *
-     * Note that this method does not throw checked exceptions. It can, however,
-     * throw runtime exceptions or errors, and constellation should deal with
-     * that.
+     * Note that this method does not throw checked exceptions. It can, however, throw runtime exceptions or errors, and
+     * constellation should deal with that.
      */
     public abstract void initialize();
 
     /**
-     * This method, to be implemented by the activity, is called when the
-     * activity should handle the specified event. In the end, it should call
-     * {@link #suspend()} or {@link #finish()}, depending on what the activity
-     * is to do next: {@link #suspend()} when it expects other events, and
-     * {@link #finish()} when it is done.
+     * This method, to be implemented by the activity, is called when the activity should handle the specified event. In the end,
+     * it should call {@link #suspend()} or {@link #finish()}, depending on what the activity is to do next: {@link #suspend()}
+     * when it expects other events, and {@link #finish()} when it is done.
      *
-     * This method is invoked once at a time, even if more events arrive more or
-     * less simultaneously.
+     * This method is invoked once at a time, even if more events arrive more or less simultaneously.
      *
-     * Note that this method does not throw checked exceptions. It can, however,
-     * throw runtime exceptions or errors, and constellation should deal with
-     * that.
+     * Note that this method does not throw checked exceptions. It can, however, throw runtime exceptions or errors, and
+     * constellation should deal with that.
      *
      * @param e
      *            the event.
@@ -261,13 +235,11 @@ public abstract class ActivityBase implements Serializable {
     public abstract void process(Event e);
 
     /**
-     * This method, to be implemented by the activity, is called when the
-     * activity is actually finished. It allows the activity, for instance, to
-     * send events to its parent activity, and to otherwise cleanup.
+     * This method, to be implemented by the activity, is called when the activity is actually finished. It allows the activity,
+     * for instance, to send events to its parent activity, and to otherwise cleanup.
      *
-     * Note that this method does not throw checked exceptions. It can, however,
-     * throw runtime exceptions or errors, and constellation should deal with
-     * that.
+     * Note that this method does not throw checked exceptions. It can, however, throw runtime exceptions or errors, and
+     * constellation should deal with that.
      */
     public abstract void cleanup();
 

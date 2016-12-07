@@ -6,10 +6,8 @@ import ibis.constellation.context.ActivityContext;
 import ibis.constellation.context.UnitActivityContext;
 
 /**
- * A <code>FlexibleEventCollector</code> is an {@link Activity} that just waits
- * for events, indefinitely, and collects them. It provides a method
- * {@link #waitForEvents()}, to be used by other activities, to collect the
- * events collected so far.
+ * A <code>FlexibleEventCollector</code> is an {@link Activity} that just waits for events, indefinitely, and collects them. It
+ * provides a method {@link #waitForEvents()}, to be used by other activities, to collect the events collected so far.
  *
  * TODO: move to a utility package?
  */
@@ -21,9 +19,8 @@ public class FlexibleEventCollector extends Activity {
     private boolean waiting = false;
 
     /**
-     * Constructs a <code>FlexibleEventCollector</code> with the specified
-     * activity context. Note: this is an activity that will receive events (see
-     * {@link Activity#Activity(ActivityContext, boolean)}).
+     * Constructs a <code>FlexibleEventCollector</code> with the specified activity context. Note: this is an activity that will
+     * receive events (see {@link Activity#Activity(ActivityContext, boolean)}).
      *
      * @param c
      *            the activity context
@@ -33,8 +30,7 @@ public class FlexibleEventCollector extends Activity {
     }
 
     /**
-     * Constructs a <code>FlexibleEventCollector</code> with the default
-     * activity context.
+     * Constructs a <code>FlexibleEventCollector</code> with the default activity context.
      */
     public FlexibleEventCollector() {
         super(UnitActivityContext.DEFAULT, true);
@@ -68,9 +64,8 @@ public class FlexibleEventCollector extends Activity {
     }
 
     /**
-     * This method blocks waiting for events. As soon as one or more are
-     * available, it creates an array containing these events, clears the event
-     * list of this collector, and returns the array.
+     * This method blocks waiting for events. As soon as one or more are available, it creates an array containing these events,
+     * clears the event list of this collector, and returns the array.
      *
      * @return an array containing the received events.
      */

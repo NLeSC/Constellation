@@ -13,8 +13,7 @@ class PoolInfo implements Serializable {
 
     private static final long serialVersionUID = -5390055224656923666L;
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(PoolInfo.class);
+    private static final Logger logger = LoggerFactory.getLogger(PoolInfo.class);
 
     final String tag;
 
@@ -27,8 +26,7 @@ class PoolInfo implements Serializable {
 
     PoolInfo(String tag, NodeIdentifier master, boolean isMaster) {
         if (logger.isInfoEnabled()) {
-            logger.info(
-                    "Creating pool with tag " + tag + " and member " + master);
+            logger.info("Creating pool with tag " + tag + " and member " + master);
         }
         this.tag = tag;
         this.master = master;
@@ -101,8 +99,7 @@ class PoolInfo implements Serializable {
     synchronized NodeIdentifier selectRandom(Random random) {
         NodeIdentifier id = members.get(random.nextInt(members.size()));
         if (logger.isInfoEnabled()) {
-            logger.info("Selecting " + id + " from list of " + members.size()
-                    + " members");
+            logger.info("Selecting " + id + " from list of " + members.size() + " members");
         }
         return id;
     }

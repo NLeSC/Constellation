@@ -2,8 +2,7 @@ package ibis.constellation.extra;
 
 import java.util.HashMap;
 
-public class TimeSyncInfo extends HashMap<String, Long>
-        implements java.io.Serializable {
+public class TimeSyncInfo extends HashMap<String, Long> implements java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
 

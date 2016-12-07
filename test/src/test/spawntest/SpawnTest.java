@@ -20,20 +20,16 @@ public class SpawnTest {
     public static void main(String[] args) {
 
         try {
-            Constellation c = ConstellationFactory.createConstellation(
-                    new SimpleExecutor(new UnitExecutorContext("TEST"),
-                            StealStrategy.SMALLEST, StealStrategy.BIGGEST,
-                            StealStrategy.BIGGEST));
+            Constellation c = ConstellationFactory.createConstellation(new SimpleExecutor(new UnitExecutorContext("TEST"),
+                    StealStrategy.SMALLEST, StealStrategy.BIGGEST, StealStrategy.BIGGEST));
 
             c.activate();
 
             if (c.isMaster()) {
                 for (int i = 0; i < REPEAT; i++) {
-                    SingleEventCollector a = new SingleEventCollector(
-                            new UnitActivityContext("TEST"));
+                    SingleEventCollector a = new SingleEventCollector(new UnitActivityContext("TEST"));
                     c.submit(a);
-                    c.submit(new TestLoop(a.identifier(), COUNT, CONCURRENT,
-                            SPAWNS_PER_SYNC));
+                    c.submit(new TestLoop(a.identifier(), COUNT, CONCURRENT, SPAWNS_PER_SYNC));
                     a.waitForEvent();
                 }
             }

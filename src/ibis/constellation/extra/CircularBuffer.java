@@ -13,8 +13,7 @@ public class CircularBuffer<T> implements Serializable, ByteBuffers {
 
     private static final long serialVersionUID = 5853279675709435595L;
 
-    private static final Logger log = LoggerFactory
-            .getLogger(CircularBuffer.class);
+    private static final Logger log = LoggerFactory.getLogger(CircularBuffer.class);
 
     private Object[] array;
 

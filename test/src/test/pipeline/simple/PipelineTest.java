@@ -29,8 +29,7 @@ public class PipelineTest {
             Executor[] e = new Executor[executors];
 
             for (int i = 0; i < executors; i++) {
-                e[i] = new SimpleExecutor(new UnitExecutorContext("X"),
-                        StealStrategy.BIGGEST, StealStrategy.SMALLEST);
+                e[i] = new SimpleExecutor(new UnitExecutorContext("X"), StealStrategy.BIGGEST, StealStrategy.SMALLEST);
             }
 
             Constellation c = ConstellationFactory.createConstellation(e);
@@ -40,8 +39,7 @@ public class PipelineTest {
 
                 long start = System.currentTimeMillis();
 
-                MultiEventCollector me = new MultiEventCollector(
-                        new UnitActivityContext("X"), jobs);
+                MultiEventCollector me = new MultiEventCollector(new UnitActivityContext("X"), jobs);
 
                 c.submit(me);
 
@@ -49,8 +47,7 @@ public class PipelineTest {
 
                     System.out.println("SUBMIT " + i);
 
-                    c.submit(new Pipeline(me.identifier(), i, 0,
-                            nodes * executors - 1, sleep, new byte[data]));
+                    c.submit(new Pipeline(me.identifier(), i, 0, nodes * executors - 1, sleep, new byte[data]));
                 }
 
                 System.out.println("SUBMIT DONE");
@@ -59,8 +56,7 @@ public class PipelineTest {
 
                 long end = System.currentTimeMillis();
 
-                System.out.println(
-                        "Total processing time: " + (end - start) + " ms.");
+                System.out.println("Total processing time: " + (end - start) + " ms.");
 
             }
 

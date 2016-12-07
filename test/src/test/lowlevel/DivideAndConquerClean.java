@@ -25,8 +25,7 @@ public class DivideAndConquerClean extends Activity {
 
     private static final long serialVersionUID = 3379531054395374984L;
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(DivideAndConquerClean.class);
+    private static final Logger logger = LoggerFactory.getLogger(DivideAndConquerClean.class);
 
     private final ActivityIdentifier parent;
 
@@ -36,8 +35,7 @@ public class DivideAndConquerClean extends Activity {
     private int merged = 0;
     private long count = 1;
 
-    public DivideAndConquerClean(ActivityIdentifier parent, int branch,
-            int depth) {
+    public DivideAndConquerClean(ActivityIdentifier parent, int branch, int depth) {
         super(new UnitActivityContext("DC", depth), depth > 0);
         this.parent = parent;
         this.branch = branch;
@@ -51,8 +49,7 @@ public class DivideAndConquerClean extends Activity {
             finish();
         } else {
             for (int i = 0; i < branch; i++) {
-                submit(new DivideAndConquerClean(identifier(), branch,
-                        depth - 1));
+                submit(new DivideAndConquerClean(identifier(), branch, depth - 1));
             }
             suspend();
         }
@@ -79,8 +76,7 @@ public class DivideAndConquerClean extends Activity {
 
     @Override
     public String toString() {
-        return "DC(" + identifier() + ") " + branch + ", " + depth + ", "
-                + merged + " -> " + count;
+        return "DC(" + identifier() + ") " + branch + ", " + depth + ", " + merged + " -> " + count;
     }
 
     public static void main(String[] args) throws Exception {
@@ -96,8 +92,7 @@ public class DivideAndConquerClean extends Activity {
         Executor[] e = new Executor[executors];
 
         for (int i = 0; i < executors; i++) {
-            e[i] = new SimpleExecutor(new UnitExecutorContext("DC"),
-                    StealStrategy.SMALLEST, StealStrategy.BIGGEST);
+            e[i] = new SimpleExecutor(new UnitExecutorContext("DC"), StealStrategy.SMALLEST, StealStrategy.BIGGEST);
         }
 
         Constellation c = ConstellationFactory.createConstellation(e);
@@ -111,12 +106,9 @@ public class DivideAndConquerClean extends Activity {
 
         if (c.isMaster()) {
 
-            logger.info(
-                    "Running D&C with branch factor " + branch + " and depth "
-                            + depth + " (expected jobs: " + count + ")");
+            logger.info("Running D&C with branch factor " + branch + " and depth " + depth + " (expected jobs: " + count + ")");
 
-            SingleEventCollector a = new SingleEventCollector(
-                    new UnitActivityContext("DC"));
+            SingleEventCollector a = new SingleEventCollector(new UnitActivityContext("DC"));
 
             c.submit(a);
             c.submit(new DivideAndConquerClean(a.identifier(), branch, depth));
@@ -125,14 +117,11 @@ public class DivideAndConquerClean extends Activity {
 
             long end = System.nanoTime();
 
-            double msPerJob = Math.round(((end - start) / 10000.0) * executors
-                    * nodes / Math.pow(branch, depth)) / 100.0;
+            double msPerJob = Math.round(((end - start) / 10000.0) * executors * nodes / Math.pow(branch, depth)) / 100.0;
 
             String correct = (result == count) ? " (CORRECT)" : " (WRONG!)";
-            logger.info("D&C(" + branch + ", " + depth + ") = " + result
-                    + correct + " total time = "
-                    + Math.round((end - start) / 1000000.0) / 1000.0
-                    + " sec; leaf job time = " + msPerJob + " msec/job");
+            logger.info("D&C(" + branch + ", " + depth + ") = " + result + correct + " total time = "
+                    + Math.round((end - start) / 1000000.0) / 1000.0 + " sec; leaf job time = " + msPerJob + " msec/job");
         }
 
         c.done();

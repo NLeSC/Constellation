@@ -86,8 +86,7 @@ public class Fibonacci extends Activity {
 
     @Override
     public String toString() {
-        return "Fib(" + identifier() + ") " + input + ", " + merged + " -> "
-                + output;
+        return "Fib(" + identifier() + ") " + input + ", " + merged + " -> " + output;
     }
 
     public static void main(String[] args) throws Exception {
@@ -101,8 +100,7 @@ public class Fibonacci extends Activity {
         Executor[] e = new Executor[executors];
 
         for (int i = 0; i < executors; i++) {
-            e[i] = new SimpleExecutor(new UnitExecutorContext("DEFAULT"),
-                    StealStrategy.SMALLEST, StealStrategy.BIGGEST);
+            e[i] = new SimpleExecutor(new UnitExecutorContext("DEFAULT"), StealStrategy.SMALLEST, StealStrategy.BIGGEST);
         }
 
         Constellation c = ConstellationFactory.createConstellation(e);
@@ -125,8 +123,7 @@ public class Fibonacci extends Activity {
 
             long end = System.currentTimeMillis();
 
-            System.out.println("FIB: Fib(" + input + ") = " + result + " ("
-                    + (end - start) + ")");
+            System.out.println("FIB: Fib(" + input + ") = " + result + " (" + (end - start) + ")");
         } else {
             System.out.println("Starting as slave!");
             c.done();

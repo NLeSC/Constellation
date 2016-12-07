@@ -5,9 +5,8 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
- * An <code>Event</code> can be used for communication between {@link Activity
- * activities}. A common usage is to notify an activity that certain data is
- * available, or that some processing steps have been finished.
+ * An <code>Event</code> can be used for communication between {@link Activity activities}. A common usage is to notify an
+ * activity that certain data is available, or that some processing steps have been finished.
  */
 public final class Event implements Serializable, ByteBuffers {
 
@@ -23,8 +22,7 @@ public final class Event implements Serializable, ByteBuffers {
     private final Object data;
 
     /**
-     * Constructs an event with the specified parameters: a source, a target,
-     * and its data.
+     * Constructs an event with the specified parameters: a source, a target, and its data.
      *
      * @param source
      *            the source activity of this event
@@ -33,8 +31,7 @@ public final class Event implements Serializable, ByteBuffers {
      * @param data
      *            the data of this event
      */
-    public Event(ActivityIdentifier source, ActivityIdentifier target,
-            Object data) {
+    public Event(ActivityIdentifier source, ActivityIdentifier target, Object data) {
         source.checkActivityIdentifier();
         target.checkActivityIdentifier();
         this.source = source;

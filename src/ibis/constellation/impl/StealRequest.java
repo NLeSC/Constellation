@@ -19,11 +19,8 @@ public class StealRequest extends MessageBase {
     // network.
     private transient boolean isLocal;
 
-    public StealRequest(final ConstellationIdentifier source,
-            final ExecutorContext context, final StealStrategy localStrategy,
-            final StealStrategy constellationStrategy,
-            final StealStrategy remoteStrategy, final StealPool pool,
-            final int size) {
+    public StealRequest(final ConstellationIdentifier source, final ExecutorContext context, final StealStrategy localStrategy,
+            final StealStrategy constellationStrategy, final StealStrategy remoteStrategy, final StealPool pool, final int size) {
 
         super(source);
         this.context = context;

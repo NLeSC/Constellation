@@ -9,13 +9,11 @@ public final class UnitActivityContext extends ActivityContext {
 
     private static final long serialVersionUID = 6134114690113562356L;
 
-    private static final Logger log = LoggerFactory
-            .getLogger(UnitActivityContext.class);
+    private static final Logger log = LoggerFactory.getLogger(UnitActivityContext.class);
 
     public static final long DEFAULT_RANK = 0;
 
-    public static final UnitActivityContext DEFAULT = new UnitActivityContext(
-            "DEFAULT", DEFAULT_RANK);
+    public static final UnitActivityContext DEFAULT = new UnitActivityContext("DEFAULT", DEFAULT_RANK);
 
     private final String name;
     private final long rank;

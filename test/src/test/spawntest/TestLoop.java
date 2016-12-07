@@ -21,8 +21,7 @@ public class TestLoop extends Activity {
     private long start;
     private long end;
 
-    public TestLoop(ActivityIdentifier parent, long count, int concurrent,
-            int spawns) {
+    public TestLoop(ActivityIdentifier parent, long count, int concurrent, int spawns) {
         super(new UnitActivityContext("TEST", 3), true, true);
         this.parent = parent;
         this.count = count;
@@ -67,8 +66,7 @@ public class TestLoop extends Activity {
         double timeSatin = (end - start) / 1000.0;
         double cost = ((end - start) * 1000.0) / (spawns * count);
 
-        System.out.println("spawn = " + timeSatin + " s, time/spawn = " + cost
-                + " us/spawn");
+        System.out.println("spawn = " + timeSatin + " s, time/spawn = " + cost + " us/spawn");
 
         send(new Event(identifier(), parent, null));
     }

@@ -9,8 +9,7 @@ public abstract class MessageBase implements Serializable {
 
     private transient boolean stale = false;
 
-    protected MessageBase(final ConstellationIdentifier source,
-            final ConstellationIdentifier target) {
+    protected MessageBase(final ConstellationIdentifier source, final ConstellationIdentifier target) {
         this.source = source;
         this.target = target;
     }

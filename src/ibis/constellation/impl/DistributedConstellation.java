@@ -23,22 +23,19 @@ import ibis.constellation.impl.pool.Pool;
 import ibis.constellation.impl.pool.PoolCreationFailedException;
 
 /**
- * A <code>DistributedConstellation</code> sits between the communication pool
- * and the underlying sub-constellation, which is a
+ * A <code>DistributedConstellation</code> sits between the communication pool and the underlying sub-constellation, which is a
  * {@link MultiThreadedConstellation}.
  *
- * Its main tasks are to pass messages from the sub-constellation to the
- * communication pool, and vice versa, and to serve as a facade implementing the
- * {@link Constellation} interface for the application.
+ * Its main tasks are to pass messages from the sub-constellation to the communication pool, and vice versa, and to serve as a
+ * facade implementing the {@link Constellation} interface for the application.
  */
 public class DistributedConstellation {
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(DistributedConstellation.class);
+    private static final Logger logger = LoggerFactory.getLogger(DistributedConstellation.class);
 
     /**
-     * Steal strategy, as determined by properties. Value is one of
-     * {@link #STEAL_POOL}, {@link #STEAL_MASTER}, {@link #STEAL_NONE}.
+     * Steal strategy, as determined by properties. Value is one of {@link #STEAL_POOL}, {@link #STEAL_MASTER},
+     * {@link #STEAL_NONE}.
      */
     private final int stealStrategy;
 
@@ -85,14 +82,12 @@ public class DistributedConstellation {
     private final Facade facade = new Facade();
 
     /**
-     * Random number generator to randomly select whatever needs to be randomly
-     * selected.
+     * Random number generator to randomly select whatever needs to be randomly selected.
      */
     private final Random random = new Random();
 
     /**
-     * A <code>PendingSteal</code> object contains the deadlines for its steal
-     * pool, for several executor contexts.
+     * A <code>PendingSteal</code> object contains the deadlines for its steal pool, for several executor contexts.
      */
     private class PendingSteal {
 
@@ -103,8 +98,7 @@ public class DistributedConstellation {
         final HashMap<String, Long> deadlines = new HashMap<String, Long>();
 
         /**
-         * Constructs a <code>PendingSteal</code> object with the specified
-         * steal pool tag.
+         * Constructs a <code>PendingSteal</code> object with the specified steal pool tag.
          *
          * @param pool
          *            the steal pool tag.
@@ -115,8 +109,7 @@ public class DistributedConstellation {
 
         @Override
         public String toString() {
-            return "PendingSteal: pool = " + pool + ", deadlines for "
-                    + deadlines.entrySet().toString();
+            return "PendingSteal: pool = " + pool + ", deadlines for " + deadlines.entrySet().toString();
         }
 
         /**
@@ -167,14 +160,11 @@ public class DistributedConstellation {
     private boolean PROFILE;
 
     /**
-     * A <code>DeliveryThread</code> is a thread object dealing with delayed
-     * delivery of event messages.
+     * A <code>DeliveryThread</code> is a thread object dealing with delayed delivery of event messages.
      *
-     * Internally, the delivery thread uses two linked lists which are used to
-     * add messages that are to be sent. Only one of these is used to append
-     * messages to, the other is used to actually send messages out. When the
-     * delivery thread wakes up, it switches the lists, so that new messages get
-     * appended to the other list, while the first list gets processed.
+     * Internally, the delivery thread uses two linked lists which are used to add messages that are to be sent. Only one of these
+     * is used to append messages to, the other is used to actually send messages out. When the delivery thread wakes up, it
+     * switches the lists, so that new messages get appended to the other list, while the first list gets processed.
      */
     private class DeliveryThread extends Thread {
 
@@ -188,8 +178,7 @@ public class DistributedConstellation {
         private LinkedList<EventMessage> incoming = new LinkedList<EventMessage>();
 
         /**
-         * Event message list for messages about to be sent. Only to be touched
-         * by the delivery thread.
+         * Event message list for messages about to be sent. Only to be touched by the delivery thread.
          */
         private LinkedList<EventMessage> outgoing = new LinkedList<EventMessage>();
 
@@ -235,9 +224,8 @@ public class DistributedConstellation {
         /**
          * Swaps the incoming and outgoing lists.
          *
-         * The outgoing list is supposed to be empty so can serve as new
-         * incoming list. Note that the delivery thread is the only one touching
-         * the outgoing list.
+         * The outgoing list is supposed to be empty so can serve as new incoming list. Note that the delivery thread is the only
+         * one touching the outgoing list.
          *
          * @return the new outgoing list.
          */
@@ -269,9 +257,8 @@ public class DistributedConstellation {
         }
 
         /**
-         * Determines the new deadline. Needs to be synchronized because
-         * {@link #enqueue(EventMessage)} also uses {@link #currentDelay} and
-         * {@link #deadline}.
+         * Determines the new deadline. Needs to be synchronized because {@link #enqueue(EventMessage)} also uses
+         * {@link #currentDelay} and {@link #deadline}.
          */
         private synchronized void determineDeadline() {
 
@@ -341,8 +328,7 @@ public class DistributedConstellation {
     }
 
     /**
-     * Facade implementing the {@link Constellation} interface for this
-     * <code>DistributedConstellation</code>.
+     * Facade implementing the {@link Constellation} interface for this <code>DistributedConstellation</code>.
      */
     private class Facade implements Constellation {
 
@@ -354,8 +340,7 @@ public class DistributedConstellation {
         @Override
         public void send(Event e) {
             if (!((ActivityIdentifierImpl) e.getTarget()).expectsEvents()) {
-                throw new IllegalArgumentException("Target activity "
-                        + e.getTarget() + "  does not expect an event!");
+                throw new IllegalArgumentException("Target activity " + e.getTarget() + "  does not expect an event!");
             }
 
             // An external application wishes to send an event to
@@ -397,10 +382,8 @@ public class DistributedConstellation {
         }
 
         @Override
-        public CTimer getTimer(String standardDevice, String standardThread,
-                String standardAction) {
-            return stats.getTimer(standardDevice, standardThread,
-                    standardAction);
+        public CTimer getTimer(String standardDevice, String standardThread, String standardAction) {
+            return stats.getTimer(standardDevice, standardThread, standardAction);
         }
 
         @Override
@@ -420,14 +403,12 @@ public class DistributedConstellation {
      * @param props
      *            the properties to use
      * @throws ConstellationCreationException
-     *             is thrown when the communication pool could not be created
-     *             for some reason
+     *             is thrown when the communication pool could not be created for some reason
      * @throws IllegalArgumentException
      *             is thrown when a property value is not recognized
      *
      */
-    public DistributedConstellation(ConstellationProperties props)
-            throws ConstellationCreationException {
+    public DistributedConstellation(ConstellationProperties props) throws ConstellationCreationException {
 
         String stealName = props.STEALSTRATEGY;
 
@@ -439,8 +420,7 @@ public class DistributedConstellation {
             stealStrategy = STEAL_POOL;
         } else {
             logger.error("Unknown stealStrategy strategy: " + stealName);
-            throw new IllegalArgumentException(
-                    "Unknown stealStrategy strategy: " + stealName);
+            throw new IllegalArgumentException("Unknown stealStrategy strategy: " + stealName);
         }
 
         REMOTE_STEAL_THROTTLE = props.REMOTESTEAL_THROTTLE;
@@ -463,27 +443,21 @@ public class DistributedConstellation {
 
             if (logger.isInfoEnabled()) {
                 logger.info("DistributeConstellation : " + identifier.getId());
-                logger.info(
-                        "               throttle : " + REMOTE_STEAL_THROTTLE);
-                logger.info(
-                        "         throttle delay : " + REMOTE_STEAL_TIMEOUT);
+                logger.info("               throttle : " + REMOTE_STEAL_THROTTLE);
+                logger.info("         throttle delay : " + REMOTE_STEAL_TIMEOUT);
                 logger.info("               stealStrategy : " + stealName);
-                logger.info("Starting DistributedConstellation " + identifier
-                        + " / " + myContext);
+                logger.info("Starting DistributedConstellation " + identifier + " / " + myContext);
             }
         } catch (PoolCreationFailedException e) {
-            throw new ConstellationCreationException(
-                    "could not create DistributedConstellation", e);
+            throw new ConstellationCreationException("could not create DistributedConstellation", e);
         }
 
     }
 
     /**
-     * Implements {@link Constellation#done()} for this
-     * <code>DistributedConstellation</code>.
+     * Implements {@link Constellation#done()} for this <code>DistributedConstellation</code>.
      *
-     * It terminates the pool, notifies the sub-constellation, and deals with
-     * statistics.
+     * It terminates the pool, notifies the sub-constellation, and deals with statistics.
      */
     private void performDone() {
         try {
@@ -511,12 +485,10 @@ public class DistributedConstellation {
     }
 
     /**
-     * Checks and sets flags for pending steals for particular steal pools and
-     * contexts.
+     * Checks and sets flags for pending steals for particular steal pools and contexts.
      *
-     * Per (singular) steal pool we check for each of the contexts if a steal
-     * request is pending. If one of the context is not pending yet, we record
-     * the steal for all context and allow the request.
+     * Per (singular) steal pool we check for each of the contexts if a steal request is pending. If one of the context is not
+     * pending yet, we record the steal for all context and allow the request.
      *
      * @param pool
      *            the steal pool
@@ -526,8 +498,7 @@ public class DistributedConstellation {
      *            value to set the pending flag to.
      * @return whether there already is a pending steal.
      */
-    private synchronized boolean setPendingSteal(StealPool pool,
-            ExecutorContext context, boolean value) {
+    private synchronized boolean setPendingSteal(StealPool pool, ExecutorContext context, boolean value) {
 
         String poolTag = pool.getTag();
         PendingSteal tmp = stealThrottle.get(poolTag);
@@ -545,8 +516,7 @@ public class DistributedConstellation {
         }
 
         if (logger.isTraceEnabled()) {
-            logger.trace("setPendingSteal: context = " + context + ", tmp = "
-                    + tmp + ", value = " + value);
+            logger.trace("setPendingSteal: context = " + context + ", tmp = " + tmp + ", value = " + value);
         }
 
         boolean result = true;
@@ -578,8 +548,7 @@ public class DistributedConstellation {
     }
 
     /**
-     * Returns the facade implementing the {@link Constellation} interface for a
-     * <code>DistributedConstellation</code>.
+     * Returns the facade implementing the {@link Constellation} interface for a <code>DistributedConstellation</code>.
      *
      * @return the constellation facade.
      */
@@ -590,16 +559,14 @@ public class DistributedConstellation {
     /**
      * Deals with a steal request delivered by the network (i.e. another node).
      *
-     * The steal request is dealt with by passing it on to the sub-constellation
-     * below.
+     * The steal request is dealt with by passing it on to the sub-constellation below.
      *
      * @param re
      *            the steal request message.
      */
     public void deliverRemoteStealRequest(StealRequest sr) {
         if (logger.isDebugEnabled()) {
-            logger.debug("D REMOTE STEAL REQUEST from constellation "
-                    + sr.source + " context " + sr.context);
+            logger.debug("D REMOTE STEAL REQUEST from constellation " + sr.source + " context " + sr.context);
         }
 
         subConstellation.deliverStealRequest(sr);
@@ -608,8 +575,7 @@ public class DistributedConstellation {
     /**
      * Deals with a steal reply delivered by the network (i.e. another node).
      *
-     * The steal reply is dealt with by checking if it contains any work, and if
-     * so, pass it on to the sub-constellation below.
+     * The steal reply is dealt with by checking if it contains any work, and if so, pass it on to the sub-constellation below.
      *
      * @param sr
      *            the steal reply.
@@ -623,8 +589,7 @@ public class DistributedConstellation {
         if (sr.isEmpty()) {
             // No work in this steal reply.
             if (logger.isDebugEnabled()) {
-                logger.debug("Got empty steal reply for " + sr.target.toString()
-                        + " from " + sr.source.toString());
+                logger.debug("Got empty steal reply for " + sr.target.toString() + " from " + sr.source.toString());
             }
             return;
         }
@@ -663,8 +628,7 @@ public class DistributedConstellation {
 
         if (pool.isTerminated()) {
             if (logger.isDebugEnabled()) {
-                logger.debug("D STEAL REQUEST from " + sr.source
-                        + " not sent, pool is terminated");
+                logger.debug("D STEAL REQUEST from " + sr.source + " not sent, pool is terminated");
             }
             return;
         }
@@ -674,8 +638,7 @@ public class DistributedConstellation {
             return;
         }
 
-        if (stealStrategy == STEAL_POOL
-                && (sr.pool == null || sr.pool.isNone())) {
+        if (stealStrategy == STEAL_POOL && (sr.pool == null || sr.pool.isNone())) {
             // Stealing from nobody is easy!
             return;
         }
@@ -696,8 +659,7 @@ public class DistributedConstellation {
         if (stealStrategy == STEAL_MASTER) {
             if (pool.forwardToMaster(sr)) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("D MASTER FORWARD steal request from child "
-                            + sr.source);
+                    logger.debug("D MASTER FORWARD steal request from child " + sr.source);
                 }
             } else {
                 // Could not send steal request, so reset slot
@@ -707,33 +669,28 @@ public class DistributedConstellation {
         } else if (stealStrategy == STEAL_POOL) {
             if (pool.randomForwardToPool(sp, sr)) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("D RANDOM FORWARD steal request from child "
-                            + sr.source + " to POOL " + sp.getTag());
+                    logger.debug("D RANDOM FORWARD steal request from child " + sr.source + " to POOL " + sp.getTag());
                 }
             } else {
                 // Could not send steal request, so reset slot
                 setPendingSteal(sp, sr.context, false);
             }
         } else {
-            logger.error("D STEAL REQUEST unknown stealStrategy strategy "
-                    + stealStrategy);
+            logger.error("D STEAL REQUEST unknown stealStrategy strategy " + stealStrategy);
         }
     }
 
     /**
      * Handles an event message, either remote or from below.
      *
-     * This method gets called, either as a result of someone in our
-     * constellation sending a message (bottom up) or as a result of a incoming
-     * remote message being forwarded to some other constellation (when an
-     * activity is exported).
+     * This method gets called, either as a result of someone in our constellation sending a message (bottom up) or as a result of
+     * a incoming remote message being forwarded to some other constellation (when an activity is exported).
      *
      * @param m
      *            the event message
      * @param enqueueOnFail
      *            when set, delivery will be retried when it fails.
-     * @return <code>true</code> when the message is dealt with,
-     *         <code>false</code> otherwise.
+     * @return <code>true</code> when the message is dealt with, <code>false</code> otherwise.
      */
     boolean handleApplicationMessage(EventMessage m, boolean enqueueOnFail) {
 
@@ -753,16 +710,14 @@ public class DistributedConstellation {
 
         if (enqueueOnFail) {
             if (logger.isInfoEnabled()) {
-                logger.info("Failed to forward message to remote constellation "
-                        + target + " (will retry!)");
+                logger.info("Failed to forward message to remote constellation " + target + " (will retry!)");
             }
             delivery.enqueue(m);
             return true;
         }
 
         if (logger.isInfoEnabled()) {
-            logger.info("Failed to forward message to remote constellation "
-                    + target + " (may retry)");
+            logger.info("Failed to forward message to remote constellation " + target + " (may retry)");
         }
         return false;
     }
@@ -770,16 +725,13 @@ public class DistributedConstellation {
     /**
      * Receives a steal reply from below, and forwards it to the pool.
      *
-     * If the pool fails to deal with the reply, any work is reclaimed,
-     * indicated by returning <code>false</code>. Otherwise, if the pool
-     * succeeds in forwarding the reply, <code>true</code> is returned. If the
-     * pool fails, but there is no work involved, <code>true</code> is returned
-     * as well, because no further action is warranted.
+     * If the pool fails to deal with the reply, any work is reclaimed, indicated by returning <code>false</code>. Otherwise, if
+     * the pool succeeds in forwarding the reply, <code>true</code> is returned. If the pool fails, but there is no work involved,
+     * <code>true</code> is returned as well, because no further action is warranted.
      *
      * @param m
      *            the steal reply
-     * @return <code>false</code> if the work in the message must be reclaimed,
-     *         <code>true</code> otherwise.
+     * @return <code>false</code> if the work in the message must be reclaimed, <code>true</code> otherwise.
      */
     boolean handleStealReply(StealReply m) {
 
@@ -793,12 +745,10 @@ public class DistributedConstellation {
             // If the send fails we reclaim the work.
 
             if (!m.isEmpty()) {
-                logger.info("Failed to deliver steal reply to " + target
-                        + " (reclaiming work and dropping reply)");
+                logger.info("Failed to deliver steal reply to " + target + " (reclaiming work and dropping reply)");
                 return false;
             } else {
-                logger.info("Failed to deliver empty steal reply to " + target
-                        + " (dropping reply)");
+                logger.info("Failed to deliver empty steal reply to " + target + " (dropping reply)");
             }
         }
 
@@ -806,8 +756,8 @@ public class DistributedConstellation {
     }
 
     /**
-     * Provides a constellation identifier factory to produce identifiers for
-     * sub-constellation instances (both multithreaded and singlethreaded).
+     * Provides a constellation identifier factory to produce identifiers for sub-constellation instances (both multithreaded and
+     * singlethreaded).
      *
      * @return the constellation identifier factory.
      */
@@ -833,9 +783,8 @@ public class DistributedConstellation {
     /**
      * Informs this constellation to which pool it belongs.
      *
-     * This method is called from the MultiThreadedConstellation below. The tags
-     * from the pool get passed on to the communication layer, allowing this
-     * layer to build a picture of which pool is running where.
+     * This method is called from the MultiThreadedConstellation below. The tags from the pool get passed on to the communication
+     * layer, allowing this layer to build a picture of which pool is running where.
      *
      * @param belongsTo
      *            the pool to which this constellation belongs.
@@ -859,10 +808,8 @@ public class DistributedConstellation {
     /**
      * Informs this constellation from which pool it is stealStrategy.
      *
-     * This method is called from the MultiThreadedConstellation below. The tags
-     * from the pool get passed on to the communication layer, allowing this
-     * layer to build a picture of which nodes we are interested in when
-     * stealStrategy.
+     * This method is called from the MultiThreadedConstellation below. The tags from the pool get passed on to the communication
+     * layer, allowing this layer to build a picture of which nodes we are interested in when stealStrategy.
      *
      * @param stealsFrom
      *            the pool from which this constellation is stealStrategy.

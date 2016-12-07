@@ -31,9 +31,8 @@ public class Stats implements java.io.Serializable {
     }
 
     /**
-     * Print the statistics. This is the entry point for the master in the
-     * conclusion phase process all statistics. The statistics from all other
-     * nodes have already been added to this.
+     * Print the statistics. This is the entry point for the master in the conclusion phase process all statistics. The statistics
+     * from all other nodes have already been added to this.
      */
     public void printStats(PrintStream stream) {
         stream.print("\n-------------------------------");
@@ -126,8 +125,7 @@ public class Stats implements java.io.Serializable {
     }
 
     void print(PrintStream stream, String kind, CTimer t) {
-        stream.printf("%-53s %3d %s %s\n", kind, t.nrTimes(), t.averageTime(),
-                t.totalTime());
+        stream.printf("%-53s %3d %s %s\n", kind, t.nrTimes(), t.averageTime(), t.totalTime());
     }
 
     public CTimer getTimer() {
@@ -136,10 +134,8 @@ public class Stats implements java.io.Serializable {
         return timer;
     }
 
-    public CTimer getTimer(String standardDevice, String standardThread,
-            String standardAction) {
-        CTimer timer = new CTimer(hostId, standardDevice, standardThread,
-                standardAction);
+    public CTimer getTimer(String standardDevice, String standardThread, String standardAction) {
+        CTimer timer = new CTimer(hostId, standardDevice, standardThread, standardAction);
         addTimer(timer);
         return timer;
     }

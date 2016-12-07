@@ -21,8 +21,7 @@ public interface CommunicationLayer {
 
     public void cleanup();
 
-    public NodeIdentifier getElectionResult(String electTag, long timeout)
-            throws IOException;
+    public NodeIdentifier getElectionResult(String electTag, long timeout) throws IOException;
 
     public NodeIdentifier elect(String electTag) throws IOException;
 

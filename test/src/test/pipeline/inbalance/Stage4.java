@@ -31,7 +31,6 @@ public class Stage4 extends SimpleActivity {
             }
         }
 
-        send(new Event(identifier(), getParent(),
-                new Data(data.index, 4, data.data)));
+        send(new Event(identifier(), getParent(), new Data(data.index, 4, data.data)));
     }
 }

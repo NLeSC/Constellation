@@ -6,9 +6,8 @@ import java.util.Comparator;
 import ibis.constellation.StealStrategy;
 
 /**
- * An <code>OrActivityContext</code> represents an activity context that
- * consists of several (more than 1) unit activity contexts. This may represent
- * the fact that an activity may be executed by more than one type of executor.
+ * An <code>OrActivityContext</code> represents an activity context that consists of several (more than 1) unit activity contexts.
+ * This may represent the fact that an activity may be executed by more than one type of executor.
  */
 public final class OrActivityContext extends ActivityContext {
 
@@ -18,8 +17,7 @@ public final class OrActivityContext extends ActivityContext {
 
     private final int hashCode;
 
-    private static class UnitActivityContextSorter
-            implements Comparator<UnitActivityContext> {
+    private static class UnitActivityContextSorter implements Comparator<UnitActivityContext> {
 
         public int compare(UnitActivityContext u1, UnitActivityContext u2) {
 
@@ -63,15 +61,13 @@ public final class OrActivityContext extends ActivityContext {
      * @param ordered
      *            whether the order of the unit-contexts is significant
      * @exception IllegalArgumentException
-     *                is thrown when the length of the list of unit-contexts is
-     *                smaller than 2.
+     *                is thrown when the length of the list of unit-contexts is smaller than 2.
      */
     public OrActivityContext(UnitActivityContext[] unit, boolean ordered) {
         super();
 
         if (unit == null || unit.length < 2) {
-            throw new IllegalArgumentException("Invalid arguments to "
-                    + "OrContext: 2 or more contexts required!");
+            throw new IllegalArgumentException("Invalid arguments to " + "OrContext: 2 or more contexts required!");
         }
 
         unitContexts = unit.clone();
@@ -87,14 +83,12 @@ public final class OrActivityContext extends ActivityContext {
     }
 
     /**
-     * Constructs an activity context consisting of a list of unit-contexts. The
-     * order in the list is not significant.
+     * Constructs an activity context consisting of a list of unit-contexts. The order in the list is not significant.
      *
      * @param unit
      *            the list of unit-contexts.
      * @exception IllegalArgumentException
-     *                is thrown when the length of the list of unit-contexts is
-     *                smaller than 2.
+     *                is thrown when the length of the list of unit-contexts is smaller than 2.
      */
     public OrActivityContext(UnitActivityContext[] unit) {
         this(unit, false);
@@ -110,8 +104,7 @@ public final class OrActivityContext extends ActivityContext {
     }
 
     /**
-     * Returns the unit-context corresponding to the specified index, or
-     * <code>null</code> if it does not exist.
+     * Returns the unit-context corresponding to the specified index, or <code>null</code> if it does not exist.
      *
      * @param index
      *            the index
@@ -125,9 +118,8 @@ public final class OrActivityContext extends ActivityContext {
     }
 
     /**
-     * Determines whether the provided unit-context is a member of this activity
-     * context, and returns <code>true</code> if it is, <code>false</code>
-     * otherwise.
+     * Determines whether the provided unit-context is a member of this activity context, and returns <code>true</code> if it is,
+     * <code>false</code> otherwise.
      *
      * @param u
      *            the unit-context

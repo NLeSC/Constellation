@@ -37,8 +37,7 @@ public class DivideAndConquerWithChecks extends Activity {
     private ActivityIdentifier[] children;
     private ActivityIdentifier[] received;
 
-    public DivideAndConquerWithChecks(ActivityIdentifier parent, int branch,
-            int depth) {
+    public DivideAndConquerWithChecks(ActivityIdentifier parent, int branch, int depth) {
         super(new UnitActivityContext("DC", depth), true);
         this.parent = parent;
         this.branch = branch;
@@ -60,8 +59,7 @@ public class DivideAndConquerWithChecks extends Activity {
             received = new ActivityIdentifier[branch];
 
             for (int i = 0; i < branch; i++) {
-                children[i] = submit(new DivideAndConquerWithChecks(
-                        identifier(), branch, depth - 1));
+                children[i] = submit(new DivideAndConquerWithChecks(identifier(), branch, depth - 1));
             }
             suspend();
         }
@@ -70,9 +68,7 @@ public class DivideAndConquerWithChecks extends Activity {
     private void checkSource(Event e) {
 
         if (children == null) {
-            System.out.println(
-                    "EEP: leaf node " + identifier() + " got stray message! "
-                            + e.getSource() + " " + e.getTarget());
+            System.out.println("EEP: leaf node " + identifier() + " got stray message! " + e.getSource() + " " + e.getTarget());
         }
 
         for (ActivityIdentifier a : children) {
@@ -81,8 +77,7 @@ public class DivideAndConquerWithChecks extends Activity {
             }
         }
 
-        System.out.println("EEP: node " + identifier() + " got stray message! "
-                + e.getSource() + " " + e.getTarget() + " "
+        System.out.println("EEP: node " + identifier() + " got stray message! " + e.getSource() + " " + e.getTarget() + " "
                 + Arrays.toString(children));
 
     }
@@ -118,9 +113,8 @@ public class DivideAndConquerWithChecks extends Activity {
     }
 
     public String toString() {
-        return "DC(" + identifier() + " " + Arrays.toString(children) + " "
-                + Arrays.toString(received) + ") " + branch + ", " + depth
-                + ", " + merged + " -> " + count;
+        return "DC(" + identifier() + " " + Arrays.toString(children) + " " + Arrays.toString(received) + ") " + branch + ", "
+                + depth + ", " + merged + " -> " + count;
     }
 
     public static void main(String[] args) throws Exception {
@@ -128,8 +122,7 @@ public class DivideAndConquerWithChecks extends Activity {
         long start = System.currentTimeMillis();
 
         Constellation c = ConstellationFactory.createConstellation(
-                new SimpleExecutor(new UnitExecutorContext("DC"),
-                        StealStrategy.SMALLEST, StealStrategy.BIGGEST));
+                new SimpleExecutor(new UnitExecutorContext("DC"), StealStrategy.SMALLEST, StealStrategy.BIGGEST));
 
         c.activate();
 
@@ -147,15 +140,12 @@ public class DivideAndConquerWithChecks extends Activity {
             }
 
             System.out.println(
-                    "Running D&C with branch factor " + branch + " and depth "
-                            + depth + " (expected jobs: " + count + ")");
+                    "Running D&C with branch factor " + branch + " and depth " + depth + " (expected jobs: " + count + ")");
 
-            SingleEventCollector a = new SingleEventCollector(
-                    new UnitActivityContext("DC"));
+            SingleEventCollector a = new SingleEventCollector(new UnitActivityContext("DC"));
 
             c.submit(a);
-            c.submit(new DivideAndConquerWithChecks(a.identifier(), branch,
-                    depth));
+            c.submit(new DivideAndConquerWithChecks(a.identifier(), branch, depth));
 
             long result = (Long) a.waitForEvent().getData();
 
@@ -165,8 +155,7 @@ public class DivideAndConquerWithChecks extends Activity {
 
             String correct = (result == count) ? " (CORRECT)" : " (WRONG!)";
 
-            System.out.println("D&C(" + branch + ", " + depth + ") = " + result
-                    + correct + " total time = " + (end - start)
+            System.out.println("D&C(" + branch + ", " + depth + ") = " + result + correct + " total time = " + (end - start)
                     + " job time = " + nsPerJob + " nsec/job");
         }
         c.done();

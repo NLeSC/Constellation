@@ -5,10 +5,8 @@ import java.io.Serializable;
 import ibis.constellation.StealStrategy;
 
 /**
- * An <code>ExecutorContext</code> describes the types of activities that an
- * executor can execute, by means of their {@link ActivityContext activity
- * contexts}. The
- * {@link ActivityContext#satisfiedBy(ExecutorContext, StealStrategy)} method
+ * An <code>ExecutorContext</code> describes the types of activities that an executor can execute, by means of their
+ * {@link ActivityContext activity contexts}. The {@link ActivityContext#satisfiedBy(ExecutorContext, StealStrategy)} method
  * determines the matching between executors and activities.
  */
 public abstract class ExecutorContext implements Serializable {

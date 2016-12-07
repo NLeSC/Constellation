@@ -73,14 +73,12 @@ public class Series extends Activity {
 
         System.out.println("Running Series with length " + length);
 
-        Constellation c = ConstellationFactory.createConstellation(
-                new SimpleExecutor(new UnitExecutorContext("S"),
-                        StealStrategy.ANY));
+        Constellation c = ConstellationFactory
+                .createConstellation(new SimpleExecutor(new UnitExecutorContext("S"), StealStrategy.ANY));
         c.activate();
 
         if (c.isMaster()) {
-            SingleEventCollector a = new SingleEventCollector(
-                    new UnitActivityContext("S"));
+            SingleEventCollector a = new SingleEventCollector(new UnitActivityContext("S"));
             c.submit(a);
             c.submit(new Series(a.identifier(), length, 0));
 
@@ -92,8 +90,7 @@ public class Series extends Activity {
 
             String correct = (result == length) ? " (CORRECT)" : " (WRONG!)";
 
-            System.out.println("Series(" + length + ") = " + result + correct
-                    + " total time = " + (end - start) + " job time = "
+            System.out.println("Series(" + length + ") = " + result + correct + " total time = " + (end - start) + " job time = "
                     + nsPerJob + " nsec/job");
         }
         c.done();

@@ -219,8 +219,7 @@ public class Pool {
 
     private boolean cleanup;
 
-    public Pool(final DistributedConstellation owner,
-            final ConstellationProperties properties)
+    public Pool(final DistributedConstellation owner, final ConstellationProperties properties)
             throws PoolCreationFailedException {
 
         this.owner = owner;
@@ -229,8 +228,7 @@ public class Pool {
 
         if (closedPool) {
             if (properties.POOLSIZE > 0) {
-                properties.setProperty("ibis.pool.size",
-                        "" + properties.POOLSIZE);
+                properties.setProperty("ibis.pool.size", "" + properties.POOLSIZE);
             }
         }
 
@@ -243,8 +241,7 @@ public class Pool {
 
         // Register my rank at the master
         if (!isMaster) {
-            doForward(master, OPCODE_RANK_REGISTER_REQUEST,
-                    new RankInfo((int) rank, local));
+            doForward(master, OPCODE_RANK_REGISTER_REQUEST, new RankInfo((int) rank, local));
             syncInfo = null;
         } else {
             syncInfo = new TimeSyncInfo(master.name());
@@ -415,16 +412,14 @@ public class Pool {
         ConstellationIdentifier target = m.target;
 
         if (logger.isTraceEnabled()) {
-            logger.trace("POOL FORWARD MessageBase from " + m.source + " to "
-                    + m.target + " " + m);
+            logger.trace("POOL FORWARD MessageBase from " + m.source + " to " + m.target + " " + m);
         }
 
         NodeIdentifier id = translate(target);
 
         if (id == null) {
             if (logger.isInfoEnabled()) {
-                logger.info("POOL failed to translate " + target
-                        + " to an IbisIdentifier");
+                logger.info("POOL failed to translate " + target + " to an IbisIdentifier");
             }
             return false;
         }
@@ -453,10 +448,7 @@ public class Pool {
 
         // sanity check
         if (old != null && !old.equals(id)) {
-            logger.error(
-                    "Location cache overwriting rank " + rank
-                            + " with different id! " + old + " != " + id,
-                    new Throwable());
+            logger.error("Location cache overwriting rank " + rank + " with different id! " + old + " != " + id, new Throwable());
         }
     }
 
@@ -476,8 +468,7 @@ public class Pool {
         }
 
         // Forward a request to the master for the 'IbisID' of 'rank'
-        doForward(master, OPCODE_RANK_LOOKUP_REQUEST,
-                new RankInfo(rank, local));
+        doForward(master, OPCODE_RANK_LOOKUP_REQUEST, new RankInfo(rank, local));
 
         return null;
     }
@@ -488,16 +479,14 @@ public class Pool {
 
         if (tmp == null) {
             if (logger.isInfoEnabled()) {
-                logger.info("Location lookup for rank " + rank
-                        + " returned null! Dropping reply");
+                logger.info("Location lookup for rank " + rank + " returned null! Dropping reply");
             }
             // Timo: drop reply, sender will retry automatically, and does not
             // handle null replies well.
             return;
         }
 
-        doForward(info.id, OPCODE_RANK_LOOKUP_REPLY,
-                new RankInfo(info.rank, tmp));
+        doForward(info.id, OPCODE_RANK_LOOKUP_REPLY, new RankInfo(info.rank, tmp));
     }
 
     private void getTimeOfOther(NodeIdentifier id) {
@@ -545,8 +534,7 @@ public class Pool {
             long half = interval / 2;
             long offset = myTime.longValue() + half - l;
             if (logger.isDebugEnabled()) {
-                logger.debug("source = " + source.name() + ", offset = "
-                        + offset + ", interval = " + interval);
+                logger.debug("source = " + source.name() + ", offset = " + offset + ", interval = " + interval);
             }
             syncInfo.put(source.name(), new Long(offset));
             if (closedPool) {
@@ -558,10 +546,8 @@ public class Pool {
             return;
         }
 
-        if (logger.isDebugEnabled() && opcode == OPCODE_STEAL_REPLY
-                && data != null) {
-            logger.debug("Jobs stolen from " + source.name() + ": "
-                    + ((StealReply) data).toString());
+        if (logger.isDebugEnabled() && opcode == OPCODE_STEAL_REPLY && data != null) {
+            logger.debug("Jobs stolen from " + source.name() + ": " + ((StealReply) data).toString());
 
         }
 
@@ -670,16 +656,14 @@ public class Pool {
         }
 
         if (info == null) {
-            logger.warn("Failed to randomly select node in pool "
-                    + pool.getTag() + ", pool does not exist?");
+            logger.warn("Failed to randomly select node in pool " + pool.getTag() + ", pool does not exist?");
             return false;
         }
 
         NodeIdentifier id = info.selectRandom(random);
 
         if (id == null) {
-            logger.warn(
-                    "Failed to randomly select node in pool " + pool.getTag());
+            logger.warn("Failed to randomly select node in pool " + pool.getTag());
             return false;
         }
 
@@ -704,8 +688,7 @@ public class Pool {
         PoolInfo tmp = null;
 
         if (logger.isInfoEnabled()) {
-            logger.info("Processing register request " + request.tag + " from "
-                    + request.source);
+            logger.info("Processing register request " + request.tag + " from " + request.source);
         }
 
         synchronized (pools) {
@@ -713,8 +696,7 @@ public class Pool {
         }
 
         if (tmp == null) {
-            logger.error("Failed to find pool " + request.tag + " to register "
-                    + request.source);
+            logger.error("Failed to find pool " + request.tag + " to register " + request.source);
             return;
         }
 
@@ -730,8 +712,7 @@ public class Pool {
         }
 
         if (tmp == null) {
-            logger.warn("Failed to find pool " + request.tag
-                    + " for update request from " + request.source);
+            logger.warn("Failed to find pool " + request.tag + " for update request from " + request.source);
             return;
         }
 
@@ -742,30 +723,24 @@ public class Pool {
             }
             doForward(request.source, OPCODE_POOL_UPDATE_REPLY, tmp);
         } else {
-            logger.info("No updates found for pool " + request.tag + " / "
-                    + request.timestamp);
+            logger.info("No updates found for pool " + request.tag + " / " + request.timestamp);
         }
     }
 
     private void requestRegisterWithPool(NodeIdentifier master, String tag) {
         if (logger.isInfoEnabled()) {
-            logger.info("Sending register request for pool " + tag + " to "
-                    + master);
+            logger.info("Sending register request for pool " + tag + " to " + master);
         }
 
-        doForward(master, OPCODE_POOL_REGISTER_REQUEST,
-                new PoolRegisterRequest(local, tag));
+        doForward(master, OPCODE_POOL_REGISTER_REQUEST, new PoolRegisterRequest(local, tag));
     }
 
-    private void requestUpdate(NodeIdentifier master, String tag,
-            long timestamp) {
+    private void requestUpdate(NodeIdentifier master, String tag, long timestamp) {
         if (logger.isInfoEnabled()) {
-            logger.info("Sending update request for pool " + tag + " to "
-                    + master + " for timestamp " + timestamp);
+            logger.info("Sending update request for pool " + tag + " to " + master + " for timestamp " + timestamp);
         }
 
-        doForward(master, OPCODE_POOL_UPDATE_REQUEST,
-                new PoolUpdateRequest(local, tag, timestamp));
+        doForward(master, OPCODE_POOL_UPDATE_REQUEST, new PoolUpdateRequest(local, tag, timestamp));
     }
 
     public void registerWithPool(String tag) {
@@ -794,8 +769,7 @@ public class Pool {
 
             boolean master = id.equals(local);
 
-            logger.info(
-                    "Master for POOL " + electTag + " is " + id + " " + master);
+            logger.info("Master for POOL " + electTag + " is " + id + " " + master);
 
             // Next, create the pool locally, or register ourselves at the
             // master.
@@ -805,8 +779,7 @@ public class Pool {
                     PoolInfo info = pools.get(tag);
 
                     if (info.hasMembers()) {
-                        logger.warn(
-                                "Hit race in pool registration! -- will recover!");
+                        logger.warn("Hit race in pool registration! -- will recover!");
                         pools.put(tag, new PoolInfo(info, id));
                     } else {
                         pools.put(tag, new PoolInfo(tag, id, true));
@@ -820,8 +793,7 @@ public class Pool {
                     // Sanity checks
                     if (info != null) {
                         if (!info.isDummy) {
-                            logger.error(
-                                    "INTERNAL ERROR: Removed non-dummy PoolInfo!");
+                            logger.error("INTERNAL ERROR: Removed non-dummy PoolInfo!");
                         }
                     } else {
                         logger.warn("Failed to find dummy PoolInfo!");
@@ -860,14 +832,12 @@ public class Pool {
 
             boolean master = id.equals(local);
 
-            logger.info("Found master for POOL " + electTag + " " + id + " "
-                    + master);
+            logger.info("Found master for POOL " + electTag + " " + id + " " + master);
 
             if (master) {
                 // Assuming the pools are static and registered in
                 // the right order this should not happen
-                logger.error(
-                        "INTERNAL ERROR: election of follow pool returned self!");
+                logger.error("INTERNAL ERROR: election of follow pool returned self!");
                 return;
             }
 
@@ -909,8 +879,7 @@ public class Pool {
             tmp = pools.get(tag);
 
             if (tmp == null || tmp.isDummy) {
-                logger.warn(
-                        "Cannot request update for " + tag + ": unknown pool!");
+                logger.warn("Cannot request update for " + tag + ": unknown pool!");
                 return;
             }
 

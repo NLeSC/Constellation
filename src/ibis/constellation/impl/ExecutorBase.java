@@ -32,29 +32,22 @@ public abstract class ExecutorBase implements Serializable {
      * Constructs an <code>Executor</code> with the specified parameters.
      *
      * @param myPool
-     *            steal pool that this executor will belong to. May be
-     *            <code>null</code>m in which case {@link StealPool#NONE} is
+     *            steal pool that this executor will belong to. May be <code>null</code>m in which case {@link StealPool#NONE} is
      *            assumed
      * @param stealsFrom
-     *            steal pool that this executor will steal from. May be
-     *            <code>null</code>m in which case {@link StealPool#NONE} is
+     *            steal pool that this executor will steal from. May be <code>null</code>m in which case {@link StealPool#NONE} is
      *            assumed
      * @param context
-     *            context of this executor, to be used in finding matching
-     *            activities
+     *            context of this executor, to be used in finding matching activities
      * @param localStealStrategy
      *            steal strategy for local steals
      * @param constellationStealStrategy
-     *            steal strategy for steals within this constellation, from
-     *            other executors.
+     *            steal strategy for steals within this constellation, from other executors.
      * @param remoteStealStrategy
-     *            steal strategy for stealing from other constellation
-     *            instances.
+     *            steal strategy for stealing from other constellation instances.
      */
-    protected ExecutorBase(StealPool myPool, StealPool stealsFrom,
-            ExecutorContext context, StealStrategy localStealStrategy,
-            StealStrategy constellationStealStrategy,
-            StealStrategy remoteStealStrategy) {
+    protected ExecutorBase(StealPool myPool, StealPool stealsFrom, ExecutorContext context, StealStrategy localStealStrategy,
+            StealStrategy constellationStealStrategy, StealStrategy remoteStealStrategy) {
 
         if (myPool == null) {
             this.myPool = StealPool.NONE;
@@ -94,28 +87,24 @@ public abstract class ExecutorBase implements Serializable {
     }
 
     /**
-     * Constructs an <code>Executor</code> with default values for the possible
-     * parameters: {@link StealPool#WORLD} for both the steal pool this executor
-     * will belong to and the steal pool this executor will steal from,
-     * {@link UnitExecutorContext#DEFAULT} for the executor context, and
-     * {@link StealStrategy#ANY} for the steal strategies.
+     * Constructs an <code>Executor</code> with default values for the possible parameters: {@link StealPool#WORLD} for both the
+     * steal pool this executor will belong to and the steal pool this executor will steal from,
+     * {@link UnitExecutorContext#DEFAULT} for the executor context, and {@link StealStrategy#ANY} for the steal strategies.
      */
     protected ExecutorBase() {
-        this(StealPool.WORLD, StealPool.WORLD, UnitExecutorContext.DEFAULT,
-                StealStrategy.ANY, StealStrategy.ANY, StealStrategy.ANY);
+        this(StealPool.WORLD, StealPool.WORLD, UnitExecutorContext.DEFAULT, StealStrategy.ANY, StealStrategy.ANY,
+                StealStrategy.ANY);
     }
 
     /**
-     * Indicates to the executor that it can start running activities. This is
-     * usually repetitively called from the {@link #run()} method, which can
-     * return when processActivities() returns <code>true</code>.
+     * Indicates to the executor that it can start running activities. This is usually repetitively called from the {@link #run()}
+     * method, which can return when processActivities() returns <code>true</code>.
      *
      * @return whether the {@link #run()} method should return.
      */
     protected boolean processActivities() {
         if (owner == null) {
-            throw new Error(
-                    "processActivities() called but this executor is not embedded in a constellation instance yet");
+            throw new Error("processActivities() called but this executor is not embedded in a constellation instance yet");
         }
         return owner.processActitivies();
     }
@@ -130,8 +119,7 @@ public abstract class ExecutorBase implements Serializable {
     }
 
     /**
-     * Returns the local steal strategy, which is the strategy used when this
-     * executor is stealing from itself.
+     * Returns the local steal strategy, which is the strategy used when this executor is stealing from itself.
      *
      * @return the local steal strategy
      */
@@ -140,8 +128,7 @@ public abstract class ExecutorBase implements Serializable {
     }
 
     /**
-     * Returns the steal strategy used when stealing within the current
-     * constellation (but from other executors).
+     * Returns the steal strategy used when stealing within the current constellation (but from other executors).
      *
      * @return the steal strategy for stealing within the current constellation
      */
@@ -150,8 +137,7 @@ public abstract class ExecutorBase implements Serializable {
     }
 
     /**
-     * Returns the steal strategy used when stealing from other constellation
-     * instances.
+     * Returns the steal strategy used when stealing from other constellation instances.
      *
      * @return the remote steal strategy
      */
@@ -164,42 +150,36 @@ public abstract class ExecutorBase implements Serializable {
      *
      * @param job
      *            the activity to submit
-     * @return the activity identifier identifying this activity within
-     *         constellation
+     * @return the activity identifier identifying this activity within constellation
      */
     public ActivityIdentifier submit(Activity job) {
         if (owner == null) {
-            throw new Error(
-                    "submit() called but this executor is not embedded in a constellation instance yet");
+            throw new Error("submit() called but this executor is not embedded in a constellation instance yet");
         }
         return owner.submit(job);
     }
 
     /**
-     * Returns the constellation identifier of the current constellation
-     * instance.
+     * Returns the constellation identifier of the current constellation instance.
      *
      * @return the constellation identifier
      */
     public String identifier() {
         if (owner == null) {
-            throw new Error(
-                    "identifier() called but this executor is not embedded in a constellation instance yet");
+            throw new Error("identifier() called but this executor is not embedded in a constellation instance yet");
         }
         return owner.identifier();
     }
 
     /**
-     * Sends the specified event. The destination activity is encoded in the
-     * event.
+     * Sends the specified event. The destination activity is encoded in the event.
      *
      * @param e
      *            the event to send
      */
     public void send(Event e) {
         if (owner == null) {
-            throw new Error(
-                    "send() called but this executor is not embedded in a constellation instance yet");
+            throw new Error("send() called but this executor is not embedded in a constellation instance yet");
         }
         owner.send(e);
     }
@@ -232,8 +212,8 @@ public abstract class ExecutorBase implements Serializable {
     }
 
     /**
-     * This is the main method of this executor. Usually, it repeatedly calls
-     * {@link #processActivities()} until it returns <code>true</code>.
+     * This is the main method of this executor. Usually, it repeatedly calls {@link #processActivities()} until it returns
+     * <code>true</code>.
      */
     public abstract void run();
 }

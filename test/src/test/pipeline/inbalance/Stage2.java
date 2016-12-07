@@ -31,8 +31,7 @@ public class Stage2 extends SimpleActivity {
 
         // Submit stage5 first, as it it used to gather the results from
         // stage3&4
-        ActivityIdentifier id = submit(
-                new Stage5(getParent(), data.index, 100));
+        ActivityIdentifier id = submit(new Stage5(getParent(), data.index, 100));
 
         submit(new Stage3(id, 1000, data));
         submit(new Stage4(id, 600, data));
