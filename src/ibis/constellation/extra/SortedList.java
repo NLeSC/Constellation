@@ -240,8 +240,8 @@ public class SortedList {
         return current.data;
     }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
 }

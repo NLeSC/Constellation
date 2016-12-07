@@ -1,10 +1,8 @@
 package ibis.constellation.context;
 
 /**
- * An <code>OrExecutorContext</code> represents an executor context that
- * consists of several (more than 1) unit executor contexts. This may represent
- * the fact that an executor may be able to execute more than one type of
- * activity.
+ * An <code>OrExecutorContext</code> represents an executor context that consists of several (more than 1) unit executor contexts.
+ * This may represent the fact that an executor may be able to execute more than one type of activity.
  */
 public final class OrExecutorContext extends ExecutorContext {
 
@@ -15,24 +13,20 @@ public final class OrExecutorContext extends ExecutorContext {
     private final boolean ordered;
 
     /**
-     * Constructs an executor context that consists of more than one unit
-     * executor context.
+     * Constructs an executor context that consists of more than one unit executor context.
      *
      * @param contexts
      *            the unit executor contexts
      * @param ordered
-     *            whether the order within the unit executor contexts is
-     *            significant.
+     *            whether the order within the unit executor contexts is significant.
      * @exception IllegalArgumentException
-     *                is thrown when the length of the list of unit-contexts is
-     *                smaller than 2.
+     *                is thrown when the length of the list of unit-contexts is smaller than 2.
      */
     public OrExecutorContext(UnitExecutorContext[] contexts, boolean ordered) {
         super();
 
         if (contexts == null || contexts.length < 2) {
-            throw new IllegalArgumentException("Invalid arguments to "
-                    + "OrContext: 2 or more contexts required!");
+            throw new IllegalArgumentException("Invalid arguments to " + "OrContext: 2 or more contexts required!");
         }
 
         unitContexts = contexts.clone();
@@ -49,8 +43,7 @@ public final class OrExecutorContext extends ExecutorContext {
     }
 
     /**
-     * Returns the unit-context corresponding to the specified index, or
-     * <code>null</code> if it does not exist.
+     * Returns the unit-context corresponding to the specified index, or <code>null</code> if it does not exist.
      *
      * @param index
      *            the index
@@ -75,8 +68,7 @@ public final class OrExecutorContext extends ExecutorContext {
     }
 
     /**
-     * Returns whether the order of the unit-contexts within this context is
-     * significant.
+     * Returns whether the order of the unit-contexts within this context is significant.
      *
      * @return whether the order of the unit-contexts is significant.
      */

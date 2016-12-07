@@ -16,8 +16,7 @@ import ibis.constellation.impl.ActivityRecord;
 
 public class SmartSortedWorkQueue extends WorkQueue {
 
-    public static final Logger log = LoggerFactory
-            .getLogger(SmartSortedWorkQueue.class);
+    public static final Logger log = LoggerFactory.getLogger(SmartSortedWorkQueue.class);
 
     // We maintain two lists here, which reflect the relative complexity of
     // the context associated with the jobs:
@@ -53,8 +52,8 @@ public class SmartSortedWorkQueue extends WorkQueue {
             return null;
         }
 
-        if (log.isInfoEnabled()) {
-            log.info("Matching context string: " + c.getName());
+        if (log.isDebugEnabled()) {
+            log.debug("Matching context string: " + c.getName());
         }
 
         assert tmp.size() > 0;
@@ -101,8 +100,8 @@ public class SmartSortedWorkQueue extends WorkQueue {
             return null;
         }
 
-        if (log.isInfoEnabled()) {
-            log.info("Matching context string: " + c.getName());
+        if (log.isDebugEnabled()) {
+            log.debug("Matching context string: " + c.getName());
         }
 
         assert (tmp.size() > 0);
@@ -135,8 +134,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
         }
 
         // Remove entry for this ActivityRecord from all lists....
-        OrActivityContext cntx = (OrActivityContext) a.getActivity()
-                .getContext();
+        OrActivityContext cntx = (OrActivityContext) a.getActivity().getContext();
 
         for (int i = 0; i < cntx.size(); i++) {
 
@@ -210,8 +208,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
     }
 
     @Override
-    public synchronized ActivityRecord steal(ExecutorContext c,
-            StealStrategy s) {
+    public synchronized ActivityRecord steal(ExecutorContext c, StealStrategy s) {
 
         if (c instanceof UnitExecutorContext) {
 

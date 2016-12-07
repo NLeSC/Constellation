@@ -20,9 +20,8 @@ public class PipelineTest {
         String context = args[3];
 
         try {
-            Constellation c = ConstellationFactory.createConstellation(
-                    new SimpleExecutor(new UnitExecutorContext(context),
-                            StealStrategy.SMALLEST));
+            Constellation c = ConstellationFactory
+                    .createConstellation(new SimpleExecutor(new UnitExecutorContext(context), StealStrategy.SMALLEST));
             c.activate();
 
             if (rank == 0) {
@@ -47,8 +46,7 @@ public class PipelineTest {
 
                 long end = System.currentTimeMillis();
 
-                System.out.println(
-                        "Total processing time: " + (end - start) + " ms.");
+                System.out.println("Total processing time: " + (end - start) + " ms.");
             }
 
             c.done();

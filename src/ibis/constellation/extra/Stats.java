@@ -31,9 +31,8 @@ public class Stats implements java.io.Serializable {
     }
 
     /**
-     * Print the statistics. This is the entry point for the master in the
-     * conclusion phase process all statistics. The statistics from all other
-     * nodes have already been added to this.
+     * Print the statistics. This is the entry point for the master in the conclusion phase process all statistics. The statistics
+     * from all other nodes have already been added to this.
      */
     public void printStats(PrintStream stream) {
         stream.print("\n-------------------------------");
@@ -54,13 +53,13 @@ public class Stats implements java.io.Serializable {
         timers.add(timer);
     }
 
-//    private void printActions(PrintStream stream, CTimer timer) {
-//        List<CTimer> actionTimers = timer.groupByAction();
-//
-//        for (CTimer t : actionTimers) {
-//            print(stream, t.getAction(), t);
-//        }
-//    }
+    // private void printActions(PrintStream stream, CTimer timer) {
+    // List<CTimer> actionTimers = timer.groupByAction();
+    //
+    // for (CTimer t : actionTimers) {
+    // print(stream, t.getAction(), t);
+    // }
+    // }
 
     private synchronized void clean() {
         for (CTimer timer : timers) {
@@ -76,7 +75,9 @@ public class Stats implements java.io.Serializable {
     }
 
     private void normalizeTimer(CTimer timer, TimeSyncInfo timeSyncInfo) {
-        timer.equalize(timeSyncInfo);
+        if (timeSyncInfo != null) {
+            timer.equalize(timeSyncInfo);
+        }
         long min = Long.MAX_VALUE;
         min = Math.min(timer.getMinimumTime(), min);
         timer.normalize(min);
@@ -124,8 +125,7 @@ public class Stats implements java.io.Serializable {
     }
 
     void print(PrintStream stream, String kind, CTimer t) {
-        stream.printf("%-53s %3d %s %s\n", kind, t.nrTimes(), t.averageTime(),
-                t.totalTime());
+        stream.printf("%-53s %3d %s %s\n", kind, t.nrTimes(), t.averageTime(), t.totalTime());
     }
 
     public CTimer getTimer() {
@@ -134,10 +134,8 @@ public class Stats implements java.io.Serializable {
         return timer;
     }
 
-    public CTimer getTimer(String standardDevice, String standardThread,
-            String standardAction) {
-        CTimer timer = new CTimer(hostId, standardDevice, standardThread,
-                standardAction);
+    public CTimer getTimer(String standardDevice, String standardThread, String standardAction) {
+        CTimer timer = new CTimer(hostId, standardDevice, standardThread, standardAction);
         addTimer(timer);
         return timer;
     }

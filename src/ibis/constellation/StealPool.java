@@ -10,15 +10,11 @@ import ibis.constellation.context.ActivityContext;
 import ibis.constellation.context.ExecutorContext;
 
 /**
- * A <code>StealPool</code> is one of the mechanisms to determine the activities
- * that are to be executed by an {@link Executor}. Each executor has two steal
- * pools associated with it: the one it belongs to and the one it can steal
- * from. In addition, an executor can only execute activities whose
- * {@link ActivityContext} matches with the {@link ExecutorContext} of this
- * executor.
+ * A <code>StealPool</code> is one of the mechanisms to determine the activities that are to be executed by an {@link Executor}.
+ * Each executor has two steal pools associated with it: the one it belongs to and the one it can steal from. In addition, an
+ * executor can only execute activities whose {@link ActivityContext} matches with the {@link ExecutorContext} of this executor.
  *
- * A <code>StealPool</code> consists of either a set of other steal pools, or a
- * single string identification.
+ * A <code>StealPool</code> consists of either a set of other steal pools, or a single string identification.
  */
 public final class StealPool implements Serializable {
 
@@ -28,41 +24,33 @@ public final class StealPool implements Serializable {
     private final StealPool[] set;
 
     /**
-     * An executor that belongs to the <code>WORLD</code> steal pool generates
-     * activities that can in principle be stolen by any other executor. An
-     * executor that can steal from this steal pool can steal from any pool,
-     * except <code>NONE</code>.
+     * An executor that belongs to the <code>WORLD</code> steal pool generates activities that can in principle be stolen by any
+     * other executor. An executor that can steal from this steal pool can steal from any pool, except <code>NONE</code>.
      */
     public static StealPool WORLD = new StealPool("WORLD");
 
     /**
-     * An executor that belongs to the <code>NONE</code> steal pool generates
-     * activities that cannot be stolen. An executor that can steal from this
-     * steal pool can in fact not steal at all. Note that <code>NONE</code>
-     * takes preference over <code>WORLD</code>.
+     * An executor that belongs to the <code>NONE</code> steal pool generates activities that cannot be stolen. An executor that
+     * can steal from this steal pool can in fact not steal at all. Note that <code>NONE</code> takes preference over
+     * <code>WORLD</code>.
      */
     public static StealPool NONE = new StealPool("NONE");
 
     /**
-     * Constructs a StealPool that in fact is a collection of other steal pools.
-     * If an executor can steal from such a steal pool, it can in fact steal
-     * from any of its members. If an executor belongs to such a steal pool, it
-     * can be the steal target of any executor having a member of this steal
-     * pool as its steal target.
+     * Constructs a StealPool that in fact is a collection of other steal pools. If an executor can steal from such a steal pool,
+     * it can in fact steal from any of its members. If an executor belongs to such a steal pool, it can be the steal target of
+     * any executor having a member of this steal pool as its steal target.
      *
-     * This constructor is private, so that the only way it can be used is
-     * through the {@link #merge(StealPool...)} method.
+     * This constructor is private, so that the only way it can be used is through the {@link #merge(StealPool...)} method.
      *
      * @param set
      *            the list of steal pools comprising the created steal pool.
      * @throws IllegalArgumentException
-     *             thrown when the argument list has null references or less
-     *             than 2 elements.
+     *             thrown when the argument list has null references or less than 2 elements.
      */
     private StealPool(StealPool... set) {
         if (set == null || set.length < 2) {
-            throw new IllegalArgumentException(
-                    "StealPool set should have at least 2 elements!");
+            throw new IllegalArgumentException("StealPool set should have at least 2 elements!");
         }
 
         this.set = set.clone();
@@ -92,9 +80,8 @@ public final class StealPool implements Serializable {
     }
 
     /**
-     * Returns a StealPool that is the merge result of the steal pools passed as
-     * arguments. If the argument list is empty, {@link #NONE} is returned. If
-     * the argument list contains {@link #WORLD}, {@link #WORLD} is returned.
+     * Returns a StealPool that is the merge result of the steal pools passed as arguments. If the argument list is empty,
+     * {@link #NONE} is returned. If the argument list contains {@link #WORLD}, {@link #WORLD} is returned.
      *
      * @param pools
      *            the steal pool arguments
@@ -111,8 +98,7 @@ public final class StealPool implements Serializable {
 
         for (int i = 0; i < pools.length; i++) {
             if (pools[i] == null) {
-                throw new IllegalArgumentException(
-                        "StealPool list cannot have null references!");
+                throw new IllegalArgumentException("StealPool list cannot have null references!");
             }
         }
         for (int i = 0; i < pools.length; i++) {
@@ -154,10 +140,8 @@ public final class StealPool implements Serializable {
     }
 
     /**
-     * Determines if this steal pool has some member steal pool in common with
-     * the specified steal pool. {@link #NONE} never overlaps, not even with
-     * {@link #NONE}. And then {@link #WORLD} overlaps with any steal pool,
-     * except {@link #NONE}.
+     * Determines if this steal pool has some member steal pool in common with the specified steal pool. {@link #NONE} never
+     * overlaps, not even with {@link #NONE}. And then {@link #WORLD} overlaps with any steal pool, except {@link #NONE}.
      *
      * @param other
      *            the steal pool to determine overlap with.
@@ -223,8 +207,8 @@ public final class StealPool implements Serializable {
     }
 
     /**
-     * Returns the tag of this steal pool. It this steal pool in fact consists
-     * of other steal pools, <code>null</code> is returned.
+     * Returns the tag of this steal pool. It this steal pool in fact consists of other steal pools, <code>null</code> is
+     * returned.
      *
      * @return the tag of this steal pool.
      */
@@ -251,9 +235,8 @@ public final class StealPool implements Serializable {
     }
 
     /**
-     * Returns the list of steal pools of which this steal pool consists. If
-     * this steal pool has no members, a list with only this steal pools is
-     * returned.
+     * Returns the list of steal pools of which this steal pool consists. If this steal pool has no members, a list with only this
+     * steal pools is returned.
      *
      * @return the member steal pools.
      */

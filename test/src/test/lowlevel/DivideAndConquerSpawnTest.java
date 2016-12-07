@@ -86,8 +86,7 @@ public class DivideAndConquerSpawnTest extends Activity {
         double timeSatin = (end - start) / 1000.0;
         double cost = ((end - start) * 1000.0) / (SPAWNS_PER_SYNC * COUNT);
 
-        System.out.println("spawn = " + timeSatin + " s, time/spawn = " + cost
-                + " us/spawn");
+        System.out.println("spawn = " + timeSatin + " s, time/spawn = " + cost + " us/spawn");
 
         test = 0;
         repeat++;
@@ -111,15 +110,13 @@ public class DivideAndConquerSpawnTest extends Activity {
 
     public static void main(String[] args) throws Exception {
 
-        Constellation c = ConstellationFactory.createConstellation(
-                new SimpleExecutor(new UnitExecutorContext("DC"),
-                        StealStrategy.ANY));
+        Constellation c = ConstellationFactory
+                .createConstellation(new SimpleExecutor(new UnitExecutorContext("DC"), StealStrategy.ANY));
         c.activate();
 
         if (c.isMaster()) {
 
-            SingleEventCollector a = new SingleEventCollector(
-                    new UnitActivityContext("DC"));
+            SingleEventCollector a = new SingleEventCollector(new UnitActivityContext("DC"));
 
             c.submit(a);
             c.submit(new DivideAndConquerSpawnTest(a.identifier(), true));

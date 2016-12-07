@@ -23,8 +23,7 @@ import ibis.constellation.extra.Stats;
 
 public class MultiThreadedConstellation {
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(MultiThreadedConstellation.class);
+    private static final Logger logger = LoggerFactory.getLogger(MultiThreadedConstellation.class);
 
     private final DistributedConstellation parent;
 
@@ -67,8 +66,7 @@ public class MultiThreadedConstellation {
         @Override
         public void send(Event e) {
             if (!((ActivityIdentifierImpl) e.getTarget()).expectsEvents()) {
-                throw new IllegalArgumentException("Target activity "
-                        + e.getTarget() + "  does not expect an event!");
+                throw new IllegalArgumentException("Target activity " + e.getTarget() + "  does not expect an event!");
             }
 
             // An external application wishes to send an event to 'e.target'.
@@ -104,10 +102,8 @@ public class MultiThreadedConstellation {
         }
 
         @Override
-        public CTimer getTimer(String standardDevice, String standardThread,
-                String standardAction) {
-            return stats.getTimer(standardDevice, standardThread,
-                    standardAction);
+        public CTimer getTimer(String standardDevice, String standardThread, String standardAction) {
+            return stats.getTimer(standardDevice, standardThread, standardAction);
         }
 
         @Override
@@ -125,8 +121,7 @@ public class MultiThreadedConstellation {
         this(null, p);
     }
 
-    public MultiThreadedConstellation(DistributedConstellation parent,
-            ConstellationProperties properties) {
+    public MultiThreadedConstellation(DistributedConstellation parent, ConstellationProperties properties) {
 
         this.parent = parent;
 
@@ -137,6 +132,8 @@ public class MultiThreadedConstellation {
             cidFactory = new ConstellationIdentifierFactory(0);
             identifier = cidFactory.generateConstellationIdentifier();
         }
+
+        PROFILE = properties.PROFILE;
 
         incomingWorkers = new ArrayList<SingleThreadedConstellation>();
         myContext = UnitExecutorContext.DEFAULT;
@@ -162,6 +159,8 @@ public class MultiThreadedConstellation {
 
     int next = 0;
 
+    private boolean PROFILE;
+
     synchronized ActivityIdentifier performSubmit(Activity a) {
 
         ActivityContext c = a.getContext();
@@ -185,8 +184,7 @@ public class MultiThreadedConstellation {
 
         // Since we don't known where the target activity is located, we simply
         // send the message to it's parent constellation (which may be local).
-        handleEventMessage(new EventMessage(identifier,
-                ((ActivityIdentifierImpl) e.getTarget()).getOrigin(), e));
+        handleEventMessage(new EventMessage(identifier, ((ActivityIdentifierImpl) e.getTarget()).getOrigin(), e));
     }
 
     void performCancel(ActivityIdentifier aid) {
@@ -215,14 +213,12 @@ public class MultiThreadedConstellation {
     // delivered.
     // When the message cannot be delivered, the constellation identifier where
     // it should be sent instead is returned.
-    private ConstellationIdentifier deliverLocally(ConstellationIdentifier cid,
-            EventMessage m) {
+    private ConstellationIdentifier deliverLocally(ConstellationIdentifier cid, EventMessage m) {
 
         SingleThreadedConstellation st = getWorker(cid);
 
         if (st == null) {
-            logger.error("TimerEvent target " + m.target
-                    + " cannot be found (event dropped)");
+            logger.error("TimerEvent target " + m.target + " cannot be found (event dropped)");
             return null;
         }
 
@@ -240,8 +236,7 @@ public class MultiThreadedConstellation {
             if (cid != null) {
 
                 if (cid.equals(m.target)) {
-                    logger.error(
-                            "INTERNAL ERROR: loop in event routing! (dropping event)");
+                    logger.error("INTERNAL ERROR: loop in event routing! (dropping event)");
                     return;
                 }
 
@@ -252,8 +247,7 @@ public class MultiThreadedConstellation {
         } else {
 
             if (parent == null) {
-                logger.error("TimerEvent target " + m.target
-                        + " cannot be found (event dropped)");
+                logger.error("TimerEvent target " + m.target + " cannot be found (event dropped)");
                 return;
             }
 
@@ -274,21 +268,18 @@ public class MultiThreadedConstellation {
             return parent.handleStealReply(m);
         }
 
-        logger.error("Received steal reply for unknown target " + m.target
-                + " (reclaiming work and dropping reply)");
+        logger.error("Received steal reply for unknown target " + m.target + " (reclaiming work and dropping reply)");
         return false;
     }
 
-    ActivityRecord[] handleStealRequest(SingleThreadedConstellation c,
-            int stealSize) {
+    ActivityRecord[] handleStealRequest(SingleThreadedConstellation c, int stealSize) {
         // a steal request from below
 
         final ExecutorContext context = c.getContext();
         final StealPool pool = c.stealsFrom();
 
         if (logger.isTraceEnabled()) {
-            logger.trace("M STEAL REQUEST from child " + c.identifier()
-                    + " with context " + context + " to pool " + pool);
+            logger.trace("M STEAL REQUEST from child " + c.identifier() + " with context " + context + " to pool " + pool);
         }
 
         // First attempt to satisfy the request locally without waiting for
@@ -304,8 +295,7 @@ public class MultiThreadedConstellation {
 
             if (tmp != c && poolMatrix[rank][tmp.getRank()]) {
 
-                int size = tmp.attemptSteal(result, context,
-                        c.getConstellationStealStrategy(), pool, c.identifier(),
+                int size = tmp.attemptSteal(result, context, c.getConstellationStealStrategy(), pool, c.identifier(),
                         localStealSize, true);
 
                 if (size > 0) {
@@ -316,8 +306,7 @@ public class MultiThreadedConstellation {
 
         // If this fails, we do a remote steal followed by an enqueued steal at
         // a random suitable peer.
-        StealRequest sr = new StealRequest(c.identifier(), context,
-                c.getLocalStealStrategy(), c.getConstellationStealStrategy(),
+        StealRequest sr = new StealRequest(c.identifier(), context, c.getLocalStealStrategy(), c.getConstellationStealStrategy(),
                 c.getRemoteStealStrategy(), pool, stealSize);
 
         if (parent != null) {
@@ -344,8 +333,7 @@ public class MultiThreadedConstellation {
     synchronized void register(SingleThreadedConstellation constellation) {
 
         if (active) {
-            throw new Error("Cannot register new BottomConstellation while "
-                    + "TopConstellation is active!");
+            throw new Error("Cannot register new BottomConstellation while " + "TopConstellation is active!");
         }
 
         incomingWorkers.add(constellation);
@@ -397,8 +385,7 @@ public class MultiThreadedConstellation {
         } else if (map.size() == 1) {
             return map.values().iterator().next();
         } else {
-            UnitExecutorContext[] contexts = map.values()
-                    .toArray(new UnitExecutorContext[map.size()]);
+            UnitExecutorContext[] contexts = map.values().toArray(new UnitExecutorContext[map.size()]);
             return new OrExecutorContext(contexts, false);
         }
     }
@@ -417,8 +404,7 @@ public class MultiThreadedConstellation {
             active = true;
 
             workerCount = incomingWorkers.size();
-            workers = incomingWorkers
-                    .toArray(new SingleThreadedConstellation[workerCount]);
+            workers = incomingWorkers.toArray(new SingleThreadedConstellation[workerCount]);
             // No workers may be added after this point
             incomingWorkers = null;
 
@@ -435,8 +421,7 @@ public class MultiThreadedConstellation {
 
             for (int i = 0; i < workerCount; i++) {
                 for (int j = 0; j < workerCount; j++) {
-                    poolMatrix[i][j] = workerStealsFrom[i]
-                            .overlap(workerBelongsTo[j]);
+                    poolMatrix[i][j] = workerStealsFrom[i].overlap(workerBelongsTo[j]);
                 }
             }
 
@@ -473,14 +458,20 @@ public class MultiThreadedConstellation {
                 u.performDone();
             }
         }
+
+        if (PROFILE) {
+            if (logger.isInfoEnabled()) {
+                logger.info("Printing statistics");
+            }
+            stats.printStats(System.out);
+        }
     }
 
     void deliverStealRequest(StealRequest sr) {
         // steal request delivered by our parent.
 
         if (logger.isDebugEnabled()) {
-            logger.info("M REMOTE STEAL REQUEST from child " + sr.source
-                    + " context " + sr.context + " pool " + sr.pool);
+            logger.info("M REMOTE STEAL REQUEST from child " + sr.source + " context " + sr.context + " pool " + sr.pool);
         }
 
         final int rnd = selectRandomWorker();
@@ -496,19 +487,16 @@ public class MultiThreadedConstellation {
                 // We're allowed to steal!
 
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Found steal target: " + tmp.identifier()
-                            + ", pool = " + p);
+                    logger.debug("Found steal target: " + tmp.identifier() + ", pool = " + p);
                 }
-                ActivityRecord[] result = tmp.attemptSteal(sr.context,
-                        sr.remoteStrategy, sr.pool, sr.source, sr.size, false);
+                ActivityRecord[] result = tmp.attemptSteal(sr.context, sr.remoteStrategy, sr.pool, sr.source, sr.size, false);
 
                 if (result != null) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("... and got a job!");
                     }
                     // We've managed to find some work!
-                    if (!parent.handleStealReply(new StealReply(identifier,
-                            sr.source, sr.pool, sr.context, result))) {
+                    if (!parent.handleStealReply(new StealReply(identifier, sr.source, sr.pool, sr.context, result))) {
                         tmp.reclaim(result);
                     }
 
@@ -537,8 +525,7 @@ public class MultiThreadedConstellation {
         // No steal request was posted either. Apparently, we are not able to
         // fulfill this request in the first place! Let's send an empty
         // reply....
-        parent.handleStealReply(new StealReply(identifier, sr.source, sr.pool,
-                sr.context, (ActivityRecord) null));
+        parent.handleStealReply(new StealReply(identifier, sr.source, sr.pool, sr.context, (ActivityRecord) null));
     }
 
     void deliverStealReply(StealReply sr) {
@@ -551,8 +538,7 @@ public class MultiThreadedConstellation {
         SingleThreadedConstellation b = getWorker(sr.target);
 
         if (b == null) {
-            logger.error("Reveived steal reply for unknown target " + sr.target
-                    + " (selecting random target)");
+            logger.error("Reveived steal reply for unknown target " + sr.target + " (selecting random target)");
             b = workers[selectRandomWorker()];
         }
 
@@ -565,8 +551,7 @@ public class MultiThreadedConstellation {
         SingleThreadedConstellation st = getWorker(am.target);
 
         if (st == null) {
-            logger.error("Failed to locate event target activity " + am.target
-                    + " for remote event (dropping event)");
+            logger.error("Failed to locate event target activity " + am.target + " for remote event (dropping event)");
             return;
         }
 
@@ -585,8 +570,7 @@ public class MultiThreadedConstellation {
             st = getWorker(cid);
 
             if (st == null) {
-                logger.error("Failed to locate event target activity "
-                        + am.target + " for remote event (dropping event)");
+                logger.error("Failed to locate event target activity " + am.target + " for remote event (dropping event)");
                 return;
             }
 

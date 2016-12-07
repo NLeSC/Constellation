@@ -30,7 +30,6 @@ public class Stage1 extends SimpleActivity {
             }
         }
 
-        submit(new Stage2(getParent(), 200,
-                new Data(data.index, 1, data.data)));
+        submit(new Stage2(getParent(), 200, new Data(data.index, 1, data.data)));
     }
 }

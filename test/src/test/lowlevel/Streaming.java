@@ -32,8 +32,7 @@ public class Streaming extends Activity {
     private final int totaldata;
     private int dataSeen;
 
-    public Streaming(ActivityIdentifier root, int length, int index,
-            int totaldata) {
+    public Streaming(ActivityIdentifier root, int length, int index, int totaldata) {
         super(new UnitActivityContext("S", index), true);
         this.root = root;
         this.length = length;
@@ -91,14 +90,13 @@ public class Streaming extends Activity {
         int data = Integer.parseInt(args[index++]);
         int executors = Integer.parseInt(args[index++]);
 
-        System.out.println("Running Streaming with series length " + length
-                + " and " + data + " messages " + executors + " Executors");
+        System.out.println(
+                "Running Streaming with series length " + length + " and " + data + " messages " + executors + " Executors");
 
         Executor[] e = new Executor[executors];
 
         for (int i = 0; i < executors; i++) {
-            e[i] = new SimpleExecutor(new UnitExecutorContext("S"),
-                    StealStrategy.SMALLEST, StealStrategy.BIGGEST);
+            e[i] = new SimpleExecutor(new UnitExecutorContext("S"), StealStrategy.SMALLEST, StealStrategy.BIGGEST);
         }
 
         Constellation c = ConstellationFactory.createConstellation(e);
@@ -106,13 +104,11 @@ public class Streaming extends Activity {
 
         if (c.isMaster()) {
 
-            SingleEventCollector a = new SingleEventCollector(
-                    new UnitActivityContext("S"));
+            SingleEventCollector a = new SingleEventCollector(new UnitActivityContext("S"));
 
             c.submit(a);
 
-            ActivityIdentifier aid = c
-                    .submit(new Streaming(a.identifier(), length, 0, data));
+            ActivityIdentifier aid = c.submit(new Streaming(a.identifier(), length, 0, data));
 
             for (int i = 0; i < data; i++) {
                 c.send(new Event(a.identifier(), aid, i));
@@ -122,13 +118,11 @@ public class Streaming extends Activity {
 
             long end = System.currentTimeMillis();
 
-            double nsPerJob = (1000.0 * 1000.0 * (end - start))
-                    / (data * length);
+            double nsPerJob = (1000.0 * 1000.0 * (end - start)) / (data * length);
 
             String correct = (result == data) ? " (CORRECT)" : " (WRONG!)";
 
-            System.out.println("Series(" + length + ", " + data + ") = "
-                    + result + correct + " total time = " + (end - start)
+            System.out.println("Series(" + length + ", " + data + ") = " + result + correct + " total time = " + (end - start)
                     + " job time = " + nsPerJob + " nsec/job");
         }
 

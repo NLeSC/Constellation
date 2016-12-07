@@ -1,17 +1,15 @@
 package ibis.constellation.context;
 
 /**
- * A <code>UnitExecutorContext</code> represents a single context, associated
- * with an executor, and determines a specific type of activity that can be
- * executed by the executor.
+ * A <code>UnitExecutorContext</code> represents a single context, associated with an executor, and determines a specific type of
+ * activity that can be executed by the executor.
  */
 public final class UnitExecutorContext extends ExecutorContext {
 
     private static final long serialVersionUID = 6134114690113562356L;
 
     /** A default unit executor context. */
-    public static final UnitExecutorContext DEFAULT = new UnitExecutorContext(
-            "DEFAULT");
+    public static final UnitExecutorContext DEFAULT = new UnitExecutorContext("DEFAULT");
 
     private final String name;
     private final int hashCode;

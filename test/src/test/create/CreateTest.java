@@ -18,8 +18,7 @@ public class CreateTest {
             Executor[] e = new Executor[executors];
 
             for (int i = 0; i < executors; i++) {
-                e[i] = new SimpleExecutor(new UnitExecutorContext("DEFAULT"),
-                        StealStrategy.ANY);
+                e[i] = new SimpleExecutor(new UnitExecutorContext("DEFAULT"), StealStrategy.ANY);
             }
 
             Constellation c = ConstellationFactory.createConstellation(e);

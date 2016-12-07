@@ -24,8 +24,7 @@ public abstract class WorkQueue {
         }
     }
 
-    public int steal(ExecutorContext c, StealStrategy s, ActivityRecord[] dst,
-            int off, int len) {
+    public int steal(ExecutorContext c, StealStrategy s, ActivityRecord[] dst, int off, int len) {
 
         for (int i = off; i < off + len; i++) {
             dst[i] = steal(c, s);

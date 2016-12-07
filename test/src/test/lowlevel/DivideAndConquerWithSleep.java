@@ -26,8 +26,7 @@ public class DivideAndConquerWithSleep extends Activity {
 
     private static final long serialVersionUID = 3379531054395374984L;
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(DivideAndConquerWithSleep.class);
+    private static final Logger logger = LoggerFactory.getLogger(DivideAndConquerWithSleep.class);
 
     private final ActivityIdentifier parent;
 
@@ -38,8 +37,7 @@ public class DivideAndConquerWithSleep extends Activity {
     private int merged = 0;
     private long count = 1;
 
-    public DivideAndConquerWithSleep(ActivityIdentifier parent, int branch,
-            int depth, int load) {
+    public DivideAndConquerWithSleep(ActivityIdentifier parent, int branch, int depth, int load) {
         super(new UnitActivityContext("DC", depth), depth > 0);
         this.parent = parent;
         this.branch = branch;
@@ -62,11 +60,9 @@ public class DivideAndConquerWithSleep extends Activity {
 
             finish();
         } else {
-            logger.debug(
-                    "Spawning " + branch + " jobs with depth " + (depth - 1));
+            logger.debug("Spawning " + branch + " jobs with depth " + (depth - 1));
             for (int i = 0; i < branch; i++) {
-                submit(new DivideAndConquerWithSleep(identifier(), branch,
-                        depth - 1, load));
+                submit(new DivideAndConquerWithSleep(identifier(), branch, depth - 1, load));
             }
             suspend();
         }
@@ -89,16 +85,14 @@ public class DivideAndConquerWithSleep extends Activity {
     @Override
     public void cleanup() {
         if (depth > 0) {
-            logger.debug(
-                    "Done with " + branch + " jobs of depth " + (depth - 1));
+            logger.debug("Done with " + branch + " jobs of depth " + (depth - 1));
         }
         send(new Event(identifier(), parent, count));
     }
 
     @Override
     public String toString() {
-        return "DC(" + identifier() + ") " + branch + ", " + depth + ", "
-                + merged + " -> " + count;
+        return "DC(" + identifier() + ") " + branch + ", " + depth + ", " + merged + " -> " + count;
     }
 
     public static void main(String[] args) {
@@ -114,8 +108,7 @@ public class DivideAndConquerWithSleep extends Activity {
         Executor[] e = new Executor[executors];
 
         for (int i = 0; i < executors; i++) {
-            e[i] = new SimpleExecutor(new UnitExecutorContext("DC"),
-                    StealStrategy.SMALLEST, StealStrategy.BIGGEST);
+            e[i] = new SimpleExecutor(new UnitExecutorContext("DC"), StealStrategy.SMALLEST, StealStrategy.BIGGEST);
         }
 
         Constellation c;
@@ -135,37 +128,27 @@ public class DivideAndConquerWithSleep extends Activity {
                 count += Math.pow(branch, i);
             }
 
-            double time = (load * Math.pow(branch, depth))
-                    / (1000 * (nodes * executors));
+            double time = (load * Math.pow(branch, depth)) / (1000 * (nodes * executors));
 
-            logger.info(
-                    "Running D&C with branch factor " + branch + " and depth "
-                            + depth + " load " + load + " (expected jobs: "
-                            + count + ", expected time: " + time + " sec.)");
+            logger.info("Running D&C with branch factor " + branch + " and depth " + depth + " load " + load + " (expected jobs: "
+                    + count + ", expected time: " + time + " sec.)");
 
-            SingleEventCollector a = new SingleEventCollector(
-                    new UnitActivityContext("DC"));
+            SingleEventCollector a = new SingleEventCollector(new UnitActivityContext("DC"));
 
             c.submit(a);
-            c.submit(new DivideAndConquerWithSleep(a.identifier(), branch,
-                    depth, load));
+            c.submit(new DivideAndConquerWithSleep(a.identifier(), branch, depth, load));
 
             long result = (Long) a.waitForEvent().getData();
 
             long end = System.nanoTime();
 
-            double msPerJob = Math.round(((end - start) / 10000.0) * nodes
-                    * executors / Math.pow(branch, depth)) / 100.0;
+            double msPerJob = Math.round(((end - start) / 10000.0) * nodes * executors / Math.pow(branch, depth)) / 100.0;
 
             String correct = (result == count) ? " (CORRECT)" : " (WRONG!)";
 
-            logger.info("D&C(" + branch + ", " + depth + ") = " + result
-                    + correct + " total time = "
-                    + Math.round((end - start) / 1000000.0) / 1000.0
-                    + " sec; leaf job time = " + msPerJob
-                    + " msec/job; overhead = "
-                    + Math.round(100 * 100 * (msPerJob - load) / (load)) / 100.0
-                    + "%");
+            logger.info("D&C(" + branch + ", " + depth + ") = " + result + correct + " total time = "
+                    + Math.round((end - start) / 1000000.0) / 1000.0 + " sec; leaf job time = " + msPerJob
+                    + " msec/job; overhead = " + Math.round(100 * 100 * (msPerJob - load) / (load)) / 100.0 + "%");
 
         }
 

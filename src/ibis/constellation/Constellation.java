@@ -11,19 +11,15 @@ public interface Constellation {
     /**
      * Submit an activity.
      *
-     * The submitted Activity will be inserted into Constellation and executed
-     * if and when a suitable Executor is found. An ActivityIdentifier is
-     * returned that can be used to refer to this submitted Activity at a later
-     * moment in time.
+     * The submitted Activity will be inserted into Constellation and executed if and when a suitable Executor is found. An
+     * ActivityIdentifier is returned that can be used to refer to this submitted Activity at a later moment in time.
      *
-     * It is up to the user to make sure that this constellation instance has a
-     * suitable executor, or, if the contexts don't match, an executor that can
-     * be stolen from.
+     * It is up to the user to make sure that this constellation instance has a suitable executor, or, if the contexts don't
+     * match, an executor that can be stolen from.
      *
      * @param job
      *            the Activity to submit
-     * @return ActivityIdentifier that can be used to refer to the submitted
-     *         Activity.
+     * @return ActivityIdentifier that can be used to refer to the submitted Activity.
      */
     public ActivityIdentifier submit(Activity job);
 
@@ -48,14 +44,11 @@ public interface Constellation {
     /**
      * Activate this Constellation implementation.
      *
-     * Constellation instances start out in in inactive state when they are
-     * created. This allows the application to configure Constellation (for
-     * example, by setting up the desired combination of distributed and local
-     * constellation instances).
+     * Constellation instances start out in in inactive state when they are created. This allows the application to configure
+     * Constellation (for example, by setting up the desired combination of distributed and local constellation instances).
      *
-     * Upon activation, the Constellation instance will activate all
-     * sub-constellations, and activate its own executors, steal pools, event
-     * queues, etc.
+     * Upon activation, the Constellation instance will activate all sub-constellations, and activate its own executors, steal
+     * pools, event queues, etc.
      *
      * @return if the Constellation was activated.
      */
@@ -64,15 +57,13 @@ public interface Constellation {
     /**
      * Terminate Constellation.
      *
-     * When terminating all sub-constellations will be terminated. Termination
-     * may also block until all other running constellation instances in a Pool
-     * have also decided to terminate.
+     * When terminating all sub-constellations will be terminated. Termination may also block until all other running
+     * constellation instances in a Pool have also decided to terminate.
      */
     public void done();
 
     /**
-     * Returns <code>true</code> if this Constellation instance is the master,
-     * <code>false</code> otherwise.
+     * Returns <code>true</code> if this Constellation instance is the master, <code>false</code> otherwise.
      *
      * @return whether this Constellation instance is the master.
      */
@@ -81,16 +72,14 @@ public interface Constellation {
     /**
      * Returns a unique identifier for this Constellation instance.
      *
-     * This identifier can be used to uniquely refer to a running Constellation
-     * instance.
+     * This identifier can be used to uniquely refer to a running Constellation instance.
      *
      * @return a string that uniquely identifies this Constellation instance.
      */
     public String identifier();
 
     /**
-     * Creates a {@link CTimer} with the specified device, thread, and action
-     * name.
+     * Creates a {@link CTimer} with the specified device, thread, and action name.
      *
      * @param device
      *            the device name

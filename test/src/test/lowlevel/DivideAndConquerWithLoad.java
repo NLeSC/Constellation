@@ -26,8 +26,7 @@ public class DivideAndConquerWithLoad extends Activity {
 
     private static final long serialVersionUID = 3379531054395374984L;
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(DivideAndConquerWithLoad.class);
+    private static final Logger logger = LoggerFactory.getLogger(DivideAndConquerWithLoad.class);
 
     private final ActivityIdentifier parent;
 
@@ -38,8 +37,7 @@ public class DivideAndConquerWithLoad extends Activity {
     private long count = 1;
     private int merged = 0;
 
-    public DivideAndConquerWithLoad(ActivityIdentifier parent, int branch,
-            int depth, int load) {
+    public DivideAndConquerWithLoad(ActivityIdentifier parent, int branch, int depth, int load) {
         super(new UnitActivityContext("DC", depth), depth > 0);
         this.parent = parent;
         this.branch = branch;
@@ -65,8 +63,7 @@ public class DivideAndConquerWithLoad extends Activity {
             finish();
         } else {
             for (int i = 0; i < branch; i++) {
-                submit(new DivideAndConquerWithLoad(identifier(), branch,
-                        depth - 1, load));
+                submit(new DivideAndConquerWithLoad(identifier(), branch, depth - 1, load));
             }
             suspend();
         }
@@ -94,8 +91,7 @@ public class DivideAndConquerWithLoad extends Activity {
 
     @Override
     public String toString() {
-        return "DC(" + identifier() + ") " + branch + ", " + depth + ", "
-                + merged + " -> " + count;
+        return "DC(" + identifier() + ") " + branch + ", " + depth + ", " + merged + " -> " + count;
     }
 
     public static void main(String[] args) {
@@ -111,8 +107,7 @@ public class DivideAndConquerWithLoad extends Activity {
         Executor[] e = new Executor[executors];
 
         for (int i = 0; i < executors; i++) {
-            e[i] = new SimpleExecutor(new UnitExecutorContext("DC"),
-                    StealStrategy.SMALLEST, StealStrategy.BIGGEST);
+            e[i] = new SimpleExecutor(new UnitExecutorContext("DC"), StealStrategy.SMALLEST, StealStrategy.BIGGEST);
         }
 
         Constellation c;
@@ -132,36 +127,26 @@ public class DivideAndConquerWithLoad extends Activity {
                 count += Math.pow(branch, i);
             }
 
-            double time = (load * Math.pow(branch, depth))
-                    / (1000 * (nodes * executors));
+            double time = (load * Math.pow(branch, depth)) / (1000 * (nodes * executors));
 
-            logger.info(
-                    "Running D&C with branch factor " + branch + " and depth "
-                            + depth + " load " + load + " (expected jobs: "
-                            + count + ", expected time: " + time + " sec.)");
+            logger.info("Running D&C with branch factor " + branch + " and depth " + depth + " load " + load + " (expected jobs: "
+                    + count + ", expected time: " + time + " sec.)");
 
-            SingleEventCollector a = new SingleEventCollector(
-                    new UnitActivityContext("DC"));
+            SingleEventCollector a = new SingleEventCollector(new UnitActivityContext("DC"));
 
             c.submit(a);
-            c.submit(new DivideAndConquerWithLoad(a.identifier(), branch, depth,
-                    load));
+            c.submit(new DivideAndConquerWithLoad(a.identifier(), branch, depth, load));
 
             long result = (long) a.waitForEvent().getData();
 
             long end = System.nanoTime();
 
-            double msPerJob = Math.round(((end - start) / 10000.0) * nodes
-                    * executors / Math.pow(branch, depth)) / 100.0;
+            double msPerJob = Math.round(((end - start) / 10000.0) * nodes * executors / Math.pow(branch, depth)) / 100.0;
 
             String correct = (result == count) ? " (CORRECT)" : " (WRONG!)";
-            logger.info("D&C(" + branch + ", " + depth + ") = " + result
-                    + correct + " total time = "
-                    + Math.round((end - start) / 1000000.0) / 1000.0
-                    + " sec; leaf job time = " + msPerJob
-                    + " msec/job; overhead = "
-                    + Math.round(100 * 100 * (msPerJob - load) / (load)) / 100.0
-                    + "%");
+            logger.info("D&C(" + branch + ", " + depth + ") = " + result + correct + " total time = "
+                    + Math.round((end - start) / 1000000.0) / 1000.0 + " sec; leaf job time = " + msPerJob
+                    + " msec/job; overhead = " + Math.round(100 * 100 * (msPerJob - load) / (load)) / 100.0 + "%");
         }
 
         c.done();

@@ -1,8 +1,7 @@
 package ibis.constellation;
 
 /**
- * This exception gets thrown when a constellation instance could not be created
- * for some reason.
+ * This exception gets thrown when a constellation instance could not be created for some reason.
  */
 public class ConstellationCreationException extends Exception {
 

@@ -3,14 +3,11 @@ package ibis.constellation;
 import java.io.Serializable;
 
 /**
- * A <code>StealStrategy</code> describes a strategy, to be used by an executor,
- * for stealing activities.
+ * A <code>StealStrategy</code> describes a strategy, to be used by an executor, for stealing activities.
  *
- * Activities can be sorted by their
- * {@link ibis.constellation.context.UnitActivityContext#rank rank}, and an
- * executor can have, for instance, a preference for "big" jobs or "small" jobs,
- * or jobs with a rank within a particular range. The strategies are described
- * by particular opcodes, some of which have additional attributes.
+ * Activities can be sorted by their {@link ibis.constellation.context.UnitActivityContext#rank rank}, and an executor can have,
+ * for instance, a preference for "big" jobs or "small" jobs, or jobs with a rank within a particular range. The strategies are
+ * described by particular opcodes, some of which have additional attributes.
  */
 public final class StealStrategy implements Serializable {
 
@@ -26,8 +23,7 @@ public final class StealStrategy implements Serializable {
     public static final byte _VALUE = 3;
 
     /**
-     * Opcode describing the "steal activity with a rank in a specific range"
-     * strategy.
+     * Opcode describing the "steal activity with a rank in a specific range" strategy.
      */
     public static final byte _RANGE = 4;
 
@@ -58,8 +54,7 @@ public final class StealStrategy implements Serializable {
      * @param opcode
      *            the opcode
      * @exception IllegalArgumentException
-     *                is thrown in case of an unknown opcode or when a opcode is
-     *                specified that requires a value or range.
+     *                is thrown in case of an unknown opcode or when a opcode is specified that requires a value or range.
      */
     public StealStrategy(byte opcode) {
 
@@ -88,8 +83,7 @@ public final class StealStrategy implements Serializable {
      * @param value
      *            the rank value
      * @exception IllegalArgumentException
-     *                is thrown in case of an unknown opcode or when a opcode is
-     *                specified that requires a range or no value.
+     *                is thrown in case of an unknown opcode or when a opcode is specified that requires a range or no value.
      */
     public StealStrategy(byte opcode, long value) {
 
@@ -120,8 +114,8 @@ public final class StealStrategy implements Serializable {
      * @param end
      *            the end value of the range
      * @exception IllegalArgumentException
-     *                is thrown in case of an unknown opcode or when a opcode is
-     *                specified that requires a single value or no value.
+     *                is thrown in case of an unknown opcode or when a opcode is specified that requires a single value or no
+     *                value.
      */
     public StealStrategy(byte opcode, long start, long end) {
 
@@ -162,8 +156,8 @@ public final class StealStrategy implements Serializable {
     }
 
     /**
-     * Returns the strategy opcode of this strategy, one of {@link #_ANY},
-     * {@link #_BIGGEST}, {@link #_RANGE}, {@link #_SMALLEST}, {@link #_VALUE}.
+     * Returns the strategy opcode of this strategy, one of {@link #_ANY}, {@link #_BIGGEST}, {@link #_RANGE}, {@link #_SMALLEST},
+     * {@link #_VALUE}.
      *
      * @return the strategy opcode.
      */
@@ -172,8 +166,7 @@ public final class StealStrategy implements Serializable {
     }
 
     /**
-     * Returns the start of the rank range in case of a {@link #_RANGE}
-     * strategy.
+     * Returns the start of the rank range in case of a {@link #_RANGE} strategy.
      *
      * @return the start of the rank range.
      */

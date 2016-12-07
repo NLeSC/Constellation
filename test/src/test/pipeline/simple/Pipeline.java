@@ -15,8 +15,7 @@ public class Pipeline extends SimpleActivity {
     private final long sleep;
     private final Object data;
 
-    public Pipeline(ActivityIdentifier parent, int index, int current, int last,
-            long sleep, Object data) {
+    public Pipeline(ActivityIdentifier parent, int index, int current, int last, long sleep, Object data) {
 
         super(parent, new UnitActivityContext("X", current));
 
@@ -30,8 +29,7 @@ public class Pipeline extends SimpleActivity {
     @Override
     public void simpleActivity() {
 
-        System.out.println(
-                "RUNNING pipeline " + index + " " + current + " " + last);
+        System.out.println("RUNNING pipeline " + index + " " + current + " " + last);
 
         if (sleep > 0) {
             try {
@@ -48,11 +46,9 @@ public class Pipeline extends SimpleActivity {
             send(new Event(identifier(), getParent(), data));
         } else {
 
-            System.out.println("Submitting pipeline stage: " + index + " "
-                    + (current + 1) + " " + last);
+            System.out.println("Submitting pipeline stage: " + index + " " + (current + 1) + " " + last);
 
-            submit(new Pipeline(getParent(), index, current + 1, last, sleep,
-                    data));
+            submit(new Pipeline(getParent(), index, current + 1, last, sleep, data));
         }
     }
 }
