@@ -14,7 +14,7 @@ public interface ByteBuffers {
 
     /**
      * Handle for obtaining the byte buffers from the object. When called, the object is supposed to add its {@link ByteBuffer}s
-     * to the list. When this method gets called, the object is supposed to be serialized already.
+     * to the list. When this method gets called, the object is supposed to have been serialized already.
      *
      * @param list
      *            the list to add byte buffers to.
