@@ -7,6 +7,9 @@ import java.util.List;
 /**
  * An <code>Event</code> can be used for communication between {@link Activity activities}. A common usage is to notify an
  * activity that certain data is available, or that some processing steps have been finished.
+ * TODO: maybe this should not be a final class, but extensible by the user instead of having a
+ * data field? In that case, it would not have to implement ByteBuffers (the user version could
+ * do that if actually necessary). --Ceriel
  */
 public final class Event implements Serializable, ByteBuffers {
 

@@ -54,6 +54,9 @@
 	<target name="build" depends="clean,compile,copy-external">
 	</target>
 
+	<target name="test" depends="build">
+	</target>
+
 	<target name="bin.zip" depends="build">
 		<delete failonerror="false" file="${zip}" />
 
