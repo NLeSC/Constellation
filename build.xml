@@ -103,10 +103,7 @@
         			</batchtest>
     			</junit>
                 </jacoco:coverage>
-  	</target>
 
-        <target name="report" depends="test">
-                <!-- Step 3: Create coverage report -->
                 <jacoco:report>
 
                         <!-- This task needs the collected execution data and ... -->
@@ -130,8 +127,6 @@
                         <xml destfile="${result.report.dir}/report.xml" />
                 </jacoco:report>
         </target>
-
-
 
 	<target name="bin.zip" depends="build">
 		<delete failonerror="false" file="${zip}" />
