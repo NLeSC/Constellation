@@ -392,6 +392,11 @@ public class Pool {
 
     private boolean doForward(NodeIdentifier dest, byte opcode, Object data) {
         Message m = new Message(opcode, data);
+        synchronized (this) {
+            if (cleanup) {
+                return true;
+            }
+        }
         return comm.sendMessage(dest, m);
     }
 
