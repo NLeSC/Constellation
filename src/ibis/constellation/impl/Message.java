@@ -2,6 +2,8 @@ package ibis.constellation.impl;
 
 import java.io.Serializable;
 
+import ibis.constellation.ConstellationIdentifier;
+
 /**
  * Base class for {@link StealReply}, {@link StealRequest}, and {@link EventMessage} messages.
  */

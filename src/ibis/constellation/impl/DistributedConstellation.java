@@ -11,6 +11,7 @@ import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationCreationException;
+import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Event;
 import ibis.constellation.StealPool;
@@ -377,8 +378,8 @@ public class DistributedConstellation {
         }
 
         @Override
-        public String identifier() {
-            return identifier.toString();
+        public ConstellationIdentifier identifier() {
+            return identifier;
         }
 
         @Override
@@ -442,7 +443,7 @@ public class DistributedConstellation {
             delivery.start();
 
             if (logger.isInfoEnabled()) {
-                logger.info("DistributeConstellation : " + identifier.getId());
+                logger.info("DistributeConstellation : " + identifier);
                 logger.info("               throttle : " + REMOTE_STEAL_THROTTLE);
                 logger.info("         throttle delay : " + REMOTE_STEAL_TIMEOUT);
                 logger.info("               stealStrategy : " + stealName);

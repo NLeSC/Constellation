@@ -12,12 +12,12 @@ import org.slf4j.LoggerFactory;
 
 import ibis.constellation.ByteBufferCache;
 import ibis.constellation.ByteBuffers;
+import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.StealPool;
 import ibis.constellation.extra.CTimer;
 import ibis.constellation.extra.Stats;
 import ibis.constellation.extra.TimeSyncInfo;
-import ibis.constellation.impl.ConstellationIdentifier;
 import ibis.constellation.impl.ConstellationIdentifierFactory;
 import ibis.constellation.impl.DistributedConstellation;
 import ibis.constellation.impl.EventMessage;
@@ -88,7 +88,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     private final IbisIdentifier local;
     private final IbisIdentifier master;
 
-    private long rank = -1;
+    private int rank = -1;
 
     private boolean isMaster;
 
@@ -287,7 +287,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
             if (tmp != null) {
                 try {
-                    rank = Long.parseLong(tmp);
+                    rank = Integer.parseInt(tmp);
                 } catch (Exception e) {
                     logger.error("Failed to parse rank: " + tmp);
                     rank = -1;
@@ -295,7 +295,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             }
 
             if (rank == -1) {
-                rank = ibis.registry().getSequenceNumber("constellation-pool-" + master.toString());
+                rank = (int) ibis.registry().getSequenceNumber("constellation-pool-" + master.toString());
             }
 
             isMaster = local.equals(master);
@@ -308,11 +308,11 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
             cidFactory = new ConstellationIdentifierFactory(rank);
 
-            locationCache.put((int) rank, local);
+            locationCache.put(rank, local);
 
             // Register my rank at the master
             if (!isMaster) {
-                doForward(master, OPCODE_RANK_REGISTER_REQUEST, new RankInfo((int) rank, local));
+                doForward(master, OPCODE_RANK_REGISTER_REQUEST, new RankInfo(rank, local));
                 syncInfo = null;
             } else {
                 syncInfo = new TimeSyncInfo(master.name());
@@ -428,7 +428,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     }
 
     public boolean isLocal(ConstellationIdentifier id) {
-        return rank == id.getId() >> 32;
+        return rank == id.getNodeId();
     }
 
     private SendPort getSendPort(IbisIdentifier id) throws IOException {
@@ -668,7 +668,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     }
 
     private IbisIdentifier translate(ConstellationIdentifier cid) {
-        int rank = (int) ((cid.getId() >> 32) & 0xffffffff);
+        int rank = cid.getNodeId();
         return lookupRank(rank);
     }
 
@@ -817,7 +817,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     }
 
     private void registerRank(ConstellationIdentifier cid, IbisIdentifier id) {
-        int rank = (int) ((cid.getId() >> 32) & 0xffffffff);
+        int rank = cid.getNodeId();
         registerRank(rank, id);
     }
 

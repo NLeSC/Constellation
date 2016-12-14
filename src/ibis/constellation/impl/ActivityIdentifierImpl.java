@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
+import ibis.constellation.ConstellationIdentifier;
 
 /**
  * An <code>ActivityIdentifierImpl</code> uniquely identifies an {@link Activity} instance.
@@ -66,7 +67,7 @@ public abstract class ActivityIdentifierImpl implements Serializable {
     @Override
     public int hashCode() {
         final int PRIME = 31;
-        int result = (int) (CID.getId() ^ (CID.getId() >>> 32));
+        int result = CID.hashCode();
         result = PRIME * result + (int) (AID ^ (AID >>> 32));
         return result;
     }
@@ -92,7 +93,7 @@ public abstract class ActivityIdentifierImpl implements Serializable {
 
     @Override
     public String toString() {
-        return "AID: " + Integer.toHexString((int) (CID.getId() >> 32) & 0xffffffff) + ":"
-                + Integer.toHexString((int) (CID.getId() & 0xffffffff)) + ":" + Long.toHexString(AID);
+        return "AID:" + Integer.toHexString(CID.getNodeId()) + ":" + Integer.toHexString(CID.getLocalId()) + ":"
+                + Long.toHexString(AID);
     }
 }
