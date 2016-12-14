@@ -33,7 +33,7 @@ import org.junit.Test;
  */
 public class StealPoolTest {
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void createStealPoolFail() {
         // Should throw a nullpointerexpection
         String s = null;
@@ -45,10 +45,11 @@ public class StealPoolTest {
         StealPool.merge(new StealPool[1]);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void mergeStealPoolSingle() {
         StealPool a = new StealPool("A");
-        StealPool.merge(a);
+        StealPool res = StealPool.merge(a);
+        assertEquals(a, res);
     }
 
     @Test

@@ -73,8 +73,13 @@ public final class StealPool implements Serializable {
      *
      * @param tag
      *            the tag
+     * @throws IllegalArgumentException
+     *             when a null pointer is provided.
      */
     public StealPool(String tag) {
+        if (tag == null) {
+            throw new IllegalArgumentException("tag of a single-string stealpool cannot be null");
+        }
         this.tag = tag;
         this.set = null;
     }
