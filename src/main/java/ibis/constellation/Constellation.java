@@ -76,7 +76,7 @@ public interface Constellation {
      *
      * @return a string that uniquely identifies this Constellation instance.
      */
-    public String identifier();
+    public ConstellationIdentifier identifier();
 
     /**
      * Creates a {@link CTimer} with the specified device, thread, and action name.

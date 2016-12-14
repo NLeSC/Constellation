@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
+import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Event;
 import ibis.constellation.StealPool;
@@ -97,8 +98,8 @@ public class MultiThreadedConstellation {
         }
 
         @Override
-        public String identifier() {
-            return identifier.toString();
+        public ConstellationIdentifier identifier() {
+            return identifier;
         }
 
         @Override

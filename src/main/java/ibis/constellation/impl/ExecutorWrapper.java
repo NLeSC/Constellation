@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
+import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Event;
 import ibis.constellation.Executor;
@@ -33,7 +34,7 @@ public class ExecutorWrapper implements Constellation {
 
     private final ConstellationIdentifier identifier;
 
-    private final ExecutorBase executor;
+    private final Executor executor;
 
     private final ExecutorContext myContext;
 
@@ -66,7 +67,7 @@ public class ExecutorWrapper implements Constellation {
     private long messagesExternal;
     private final CTimer messagesTimer;
 
-    ExecutorWrapper(SingleThreadedConstellation parent, ExecutorBase executor, ConstellationProperties p,
+    ExecutorWrapper(SingleThreadedConstellation parent, Executor executor, ConstellationProperties p,
             ConstellationIdentifier identifier) {
         this.parent = parent;
         this.identifier = identifier;
@@ -84,7 +85,7 @@ public class ExecutorWrapper implements Constellation {
         restricted = new SmartSortedWorkQueue("ExecutorWrapper(" + identifier + ")-restricted");
         fresh = new SmartSortedWorkQueue("ExecutorWrapper(" + identifier + ")-fresh");
 
-        executor.connect(this);
+        ((ExecutorBase) executor).connect(this);
         myContext = executor.getContext();
 
         localStealStrategy = executor.getLocalStealStrategy();
@@ -325,7 +326,7 @@ public class ExecutorWrapper implements Constellation {
     private void process(ActivityRecord tmp) {
         int evt = 0;
 
-        tmp.getActivity().setExecutor((Executor) executor);
+        tmp.getActivity().setExecutor(executor);
 
         CTimer timer = tmp.isFinishing() ? cleanupTimer : tmp.isRunnable() ? processTimer : initializeTimer;
 
@@ -412,11 +413,7 @@ public class ExecutorWrapper implements Constellation {
     }
 
     @Override
-    public String identifier() {
-        return identifier.toString();
-    }
-
-    ConstellationIdentifier id() {
+    public ConstellationIdentifier identifier() {
         return identifier;
     }
 
