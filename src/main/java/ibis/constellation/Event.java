@@ -61,7 +61,7 @@ public final class Event implements Serializable, ByteBuffers {
         if (getData() != null) {
             s += getData().toString();
         } else {
-            s += " none";
+            s += "none";
         }
         return s;
     }
