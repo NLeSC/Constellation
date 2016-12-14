@@ -40,24 +40,6 @@ public class StealRequestTest {
     }
         
     @Test
-    public void createStealRequest1() {
-
-        ConstellationIdentifier cid = ImplUtil.createConstellationIdentifier(0, 0);
-        
-        ExecutorContext exc = UnitExecutorContext.DEFAULT; 
-        
-        StealStrategy lss = StealStrategy.ANY;
-        StealStrategy css = StealStrategy.BIGGEST;
-        StealStrategy rss = StealStrategy.SMALLEST;
-        
-        StealPool sp = StealPool.WORLD;
-        
-        StealRequest tmp = new StealRequest(cid, exc, lss, css, rss, sp, 42);
-
-        assertEquals(tmp.localStrategy, lss);
-    }
-
-    @Test
     public void createStealRequest2() {
 
         ConstellationIdentifier cid = ImplUtil.createConstellationIdentifier(0, 0);
