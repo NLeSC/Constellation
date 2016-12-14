@@ -62,48 +62,44 @@ public class EventTest {
         
         assertEquals(e.getData(), data);
     }
-    
+
     @Test
-    public void pushDataFail() {
-      
+    public void pushDataNull() {
+
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 0, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 0, 2, false);
         
         Event e = new Event(id1, id2, null);
-     
-        List<ByteBuffer> list = new LinkedList<>();
-        
-        // This should succeed, even if event data is null
-        e.pushByteBuffers(list);
-    }
 
-    @Test
-    public void popDataFail() {
-      
-        ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 0, 1, false);
-        ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 0, 2, false);
-        
-        Event e = new Event(id1, id2, null);
-     
-        List<ByteBuffer> list = new LinkedList<>();
-        
-        // This should succeed, even if event data is null
-        e.popByteBuffers(list);
-    }
+        List<ByteBuffer> listIn = new LinkedList<>();
+        ByteBuffer tmp = ByteBuffer.allocate(1);
+        listIn.add(tmp);
 
+        // This should succeed, even if event data is null
+
+        e.pushByteBuffers(listIn);
+
+        List<ByteBuffer> listOut = new LinkedList<>();
+        e.popByteBuffers(listOut);
+
+        assertEquals(listOut.size(), 0);
+    }
     
+
     @Test
-    public void popDataFailType() {
-      
+    public void popDataWrongType() {
+
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 0, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 0, 2, false);
-        
+
         Event e = new Event(id1, id2, "Hello World");
-     
+
         List<ByteBuffer> list = new LinkedList<>();
-        
+
         // This should succeed, even if event data does not implement ByteBuffers.
         e.popByteBuffers(list);
+
+        assertEquals(list.size(), 0);
     }
     
     @Test
@@ -128,7 +124,38 @@ public class EventTest {
         assertEquals(listIn, listOut);
     }
 
+    @Test
+    public void checkToString() {
+      
+        ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(0, 1, 1, false);
+        ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);
+
+        Event e = new Event(id1, id2, null);
+
+        String result = e.toString();
+        
+        String expected = "source: " + id1.toString() + "; target: " + id2.toString() + "; data = none"; 
+        
+        assertEquals(expected, result);
+    }
     
+    @Test
+    public void checkToStringWithData() {
+
+        ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(0, 1, 1, false);
+        ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);
+
+        Event e = new Event(id1, id2, "Hello World");
+
+        String result = e.toString();
+        
+        String expected = "source: " + id1.toString() + "; target: " + id2.toString() + "; data = Hello World"; 
+        
+        assertEquals(expected, result);
+    }
+
+    
+
     
     
 }
