@@ -55,19 +55,8 @@ public final class Event implements Serializable, ByteBuffers {
 
     @Override
     public String toString() {
-        String s = "source: ";
-        if (getSource() != null) {
-            s += getSource().toString();
-        } else {
-            s += " none";
-        }
-        s += "; target: ";
-        if (getTarget() != null) {
-            s += getTarget().toString();
-        } else {
-            s += " none";
-        }
-
+        String s = "source: " + getSource().toString();
+        s += "; target: " + getTarget().toString();
         s += "; data = ";
         if (getData() != null) {
             s += getData().toString();
