@@ -53,7 +53,7 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
 
     private final ConcurrentHashMap<IbisIdentifier, SendPort> sendports = new ConcurrentHashMap<IbisIdentifier, SendPort>();
 
-    private long rank = -1;
+    private int rank = -1;
 
     private final Pool pool;
 
@@ -95,14 +95,14 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
 
             if (tmp != null) {
                 try {
-                    rank = Long.parseLong(tmp);
+                    rank = Integer.parseInt(tmp);
                 } catch (Exception e) {
                     logger.error("Failed to parse rank: " + tmp);
                 }
             }
 
             if (rank == -1) {
-                rank = ibis.registry().getSequenceNumber("constellation-pool-" + master.toString());
+                rank = (int) ibis.registry().getSequenceNumber("constellation-pool-" + master.toString());
             }
 
             rp = ibis.createReceivePort(portType, "constellation", this);
@@ -346,7 +346,7 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
     }
 
     @Override
-    public long getRank() {
+    public int getRank() {
         return rank;
     }
 

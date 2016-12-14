@@ -25,6 +25,15 @@ import ibis.constellation.impl.ExecutorBase;
  */
 public abstract class Executor extends ExecutorBase implements Serializable {
 
+    private final ExecutorContext context;
+
+    private final StealStrategy localStealStrategy;
+    private final StealStrategy constellationStealStrategy;
+    private final StealStrategy remoteStealStrategy;
+
+    private final StealPool myPool;
+    private final StealPool stealsFrom;
+
     private static final long serialVersionUID = 6808516395963593310L;
 
     /**
@@ -47,7 +56,41 @@ public abstract class Executor extends ExecutorBase implements Serializable {
      */
     protected Executor(StealPool myPool, StealPool stealsFrom, ExecutorContext context, StealStrategy localStealStrategy,
             StealStrategy constellationStealStrategy, StealStrategy remoteStealStrategy) {
-        super(myPool, stealsFrom, context, localStealStrategy, constellationStealStrategy, remoteStealStrategy);
+        if (myPool == null) {
+            this.myPool = StealPool.NONE;
+        } else {
+            this.myPool = myPool;
+        }
+
+        if (stealsFrom == null) {
+            this.stealsFrom = StealPool.NONE;
+        } else {
+            this.stealsFrom = stealsFrom;
+        }
+
+        if (context == null) {
+            this.context = UnitExecutorContext.DEFAULT;
+        } else {
+            this.context = context;
+        }
+
+        if (localStealStrategy == null) {
+            this.localStealStrategy = StealStrategy.ANY;
+        } else {
+            this.localStealStrategy = localStealStrategy;
+        }
+
+        if (constellationStealStrategy == null) {
+            this.constellationStealStrategy = StealStrategy.ANY;
+        } else {
+            this.constellationStealStrategy = constellationStealStrategy;
+        }
+
+        if (remoteStealStrategy == null) {
+            this.remoteStealStrategy = StealStrategy.ANY;
+        } else {
+            this.remoteStealStrategy = remoteStealStrategy;
+        }
     }
 
     /**
@@ -58,6 +101,60 @@ public abstract class Executor extends ExecutorBase implements Serializable {
     protected Executor() {
         this(StealPool.WORLD, StealPool.WORLD, UnitExecutorContext.DEFAULT, StealStrategy.ANY, StealStrategy.ANY,
                 StealStrategy.ANY);
+    }
+
+    /**
+     * Returns the steal pool this executor steals from.
+     *
+     * @return the steal pool this executor steals from
+     */
+    public StealPool stealsFrom() {
+        return stealsFrom;
+    }
+
+    /**
+     * Returns the local steal strategy, which is the strategy used when this executor is stealing from itself.
+     *
+     * @return the local steal strategy
+     */
+    public StealStrategy getLocalStealStrategy() {
+        return localStealStrategy;
+    }
+
+    /**
+     * Returns the steal strategy used when stealing within the current constellation (but from other executors).
+     *
+     * @return the steal strategy for stealing within the current constellation
+     */
+    public StealStrategy getConstellationStealStrategy() {
+        return constellationStealStrategy;
+    }
+
+    /**
+     * Returns the steal strategy used when stealing from other constellation instances.
+     *
+     * @return the remote steal strategy
+     */
+    public StealStrategy getRemoteStealStrategy() {
+        return remoteStealStrategy;
+    }
+
+    /**
+     * Returns the context of this executor.
+     *
+     * @return the executor's context
+     */
+    public ExecutorContext getContext() {
+        return context;
+    }
+
+    /**
+     * Returns the steal pool that this executor belongs to.
+     *
+     * @return the steal pool this executor belongs to.
+     */
+    public StealPool belongsTo() {
+        return myPool;
     }
 
     /**

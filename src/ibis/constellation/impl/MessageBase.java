@@ -2,6 +2,8 @@ package ibis.constellation.impl;
 
 import java.io.Serializable;
 
+import ibis.constellation.ConstellationIdentifier;
+
 public abstract class MessageBase implements Serializable {
 
     /**

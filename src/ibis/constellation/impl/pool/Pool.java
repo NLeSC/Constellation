@@ -9,11 +9,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.StealPool;
 import ibis.constellation.extra.Stats;
 import ibis.constellation.extra.TimeSyncInfo;
-import ibis.constellation.impl.ConstellationIdentifier;
 import ibis.constellation.impl.DistributedConstellation;
 import ibis.constellation.impl.EventMessage;
 import ibis.constellation.impl.MessageBase;
@@ -58,7 +58,7 @@ public class Pool {
     private final NodeIdentifier local;
     private final NodeIdentifier master;
 
-    private long rank = -1;
+    private int rank = -1;
 
     private boolean isMaster;
 
@@ -237,11 +237,11 @@ public class Pool {
         master = comm.getMaster();
         rank = comm.getRank();
         isMaster = local.equals(master);
-        locationCache.put((int) rank, local);
+        locationCache.put(rank, local);
 
         // Register my rank at the master
         if (!isMaster) {
-            doForward(master, OPCODE_RANK_REGISTER_REQUEST, new RankInfo((int) rank, local));
+            doForward(master, OPCODE_RANK_REGISTER_REQUEST, new RankInfo(rank, local));
             syncInfo = null;
         } else {
             syncInfo = new TimeSyncInfo(master.name());
@@ -318,7 +318,7 @@ public class Pool {
     }
 
     public boolean isLocal(ConstellationIdentifier id) {
-        return rank == id.getId() >> 32;
+        return rank == id.getNodeId();
     }
 
     public void terminate() throws IOException {
@@ -377,7 +377,7 @@ public class Pool {
         comm.cleanup();
     }
 
-    public long getRank() {
+    public int getRank() {
         return rank;
     }
 
@@ -386,7 +386,7 @@ public class Pool {
     }
 
     private NodeIdentifier translate(ConstellationIdentifier cid) {
-        int rank = (int) ((cid.getId() >> 32) & 0xffffffff);
+        int rank = cid.getNodeId();
         return lookupRank(rank);
     }
 
@@ -458,7 +458,7 @@ public class Pool {
     }
 
     private void registerRank(ConstellationIdentifier cid, NodeIdentifier id) {
-        int rank = (int) ((cid.getId() >> 32) & 0xffffffff);
+        int rank = cid.getNodeId();
         registerRank(rank, id);
     }
 

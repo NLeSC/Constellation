@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import ibis.constellation.ByteBuffers;
+import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.StealPool;
 import ibis.constellation.context.ExecutorContext;
 

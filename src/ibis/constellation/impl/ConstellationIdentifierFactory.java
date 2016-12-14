@@ -1,21 +1,21 @@
 package ibis.constellation.impl;
 
+import ibis.constellation.ConstellationIdentifier;
+
 public class ConstellationIdentifierFactory {
 
-    private final long rank;
-    private final long mask;
+    private final int rank;
     private int count;
 
-    public ConstellationIdentifierFactory(long rank) {
+    public ConstellationIdentifierFactory(int rank) {
         this.rank = rank;
-        this.mask = rank << 32;
     }
 
     public synchronized ConstellationIdentifier generateConstellationIdentifier() {
-        return new ConstellationIdentifier(mask | count++);
+        return new ConstellationIdentifier(rank, count++);
     }
 
     public boolean isLocal(ConstellationIdentifier cid) {
-        return ((cid.getId() >> 32) & 0xffffffff) == rank;
+        return cid.getNodeId() == rank;
     }
 }

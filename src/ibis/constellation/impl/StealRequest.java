@@ -1,5 +1,6 @@
 package ibis.constellation.impl;
 
+import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.context.ExecutorContext;

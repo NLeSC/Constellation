@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
+import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Event;
 import ibis.constellation.Executor;
@@ -129,7 +130,7 @@ public class SingleThreadedConstellation extends Thread {
             identifier = parent.getConstellationIdentifierFactory().generateConstellationIdentifier();
         } else {
             // We're on our own
-            identifier = new ConstellationIdentifier(0);
+            identifier = new ConstellationIdentifier(0, 0);
         }
 
         stolen = new SmartSortedWorkQueue("ST(" + identifier + ")-stolen");
@@ -143,7 +144,7 @@ public class SingleThreadedConstellation extends Thread {
         String outfile = props.OUTPUT;
 
         if (outfile != null) {
-            String filename = outfile + "." + identifier.getId();
+            String filename = outfile + "." + identifier.getNodeId() + "." + identifier.getLocalId();
 
             try {
                 out = new PrintStream(new BufferedOutputStream(new FileOutputStream(filename)));
@@ -351,8 +352,7 @@ public class SingleThreadedConstellation extends Thread {
         // First steal from the activities that I cannot run myself.
         int offset = wrongContext.steal(context, s, tmp, 0, size);
         if (logger.isDebugEnabled() && !local) {
-            logger.debug(
-                    "Stole " + offset + " jobs from wrongContext of " + identifier.getId() + ", size = " + wrongContext.size());
+            logger.debug("Stole " + offset + " jobs from wrongContext of " + identifier + ", size = " + wrongContext.size());
         }
 
         if (local) {
@@ -769,12 +769,12 @@ public class SingleThreadedConstellation extends Thread {
             }
 
             if (a != null) {
-                if (!parent.handleStealReply(this, new StealReply(wrapper.id(), s.source, s.pool, s.context, a))) {
+                if (!parent.handleStealReply(this, new StealReply(wrapper.identifier(), s.source, s.pool, s.context, a))) {
                     reclaim(a);
                 }
             } else if (!ignoreEmptyStealReplies) {
                 // No result, but we send a reply anyway.
-                parent.handleStealReply(this, new StealReply(wrapper.id(), s.source, s.pool, s.context, a));
+                parent.handleStealReply(this, new StealReply(wrapper.identifier(), s.source, s.pool, s.context, a));
             } else {
                 // No result, and we're not supposed to tell anyone
                 if (logger.isDebugEnabled()) {

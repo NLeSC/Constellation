@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import ibis.constellation.ByteBuffers;
+import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.Event;
 
 public class EventMessage extends MessageBase implements ByteBuffers {

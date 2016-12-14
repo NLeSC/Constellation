@@ -13,7 +13,7 @@ public interface CommunicationLayer {
 
     public NodeIdentifier getMaster();
 
-    public long getRank();
+    public int getRank();
 
     public int getPoolSize();
 
