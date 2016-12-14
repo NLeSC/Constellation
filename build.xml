@@ -1,14 +1,22 @@
-<project name="Constellation" default="build" basedir=".">
+<project name="Constellation" default="build" basedir="." xmlns:jacoco="antlib:org.jacoco.ant">
 
 	<property name="version" value="0.7.0" />
 	<property name="jar" value="constellation-${version}.jar" />
 	<property name="zip" value="constellation-${version}.zip" />
 	<property name="src-zip" value="constellation-${version}-src.zip" />
 
-	<property name="srcdir" value="./src" />
-	<property name="builddir" value="./build" />
 	<property name="distdir" value="./lib" />
 	<property name="javadoc" value="javadoc" />
+
+  	<property name="main.build.dir" value="./build/main"/>
+  	<property name="main.src.dir" value="./src/main/java"/>
+  	<property name="test.build.dir" value="./build/test"/>
+  	<property name="test.src.dir" value="./src/test/java"/>
+
+        <property name="result.dir" location="./target" />
+        <property name="result.classes.dir" location="${result.dir}/classes" />
+        <property name="result.report.dir" location="${result.dir}/site/jacoco" />
+        <property name="result.exec.file" location="${result.dir}/jacoco.exec" />
 
 	<path id="default.classpath">
 		<fileset dir="external">
@@ -19,20 +27,48 @@
 		</fileset>
 	</path>
 
+	<path id="test.classpath">
+		<fileset dir="external">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="lib">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+        <!-- Step 1: Import JaCoCo Ant tasks -->
+        <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+                <classpath path="./external/test/jacoco/lib/jacocoant.jar" />
+        </taskdef>
+        
 	<!-- Compile constellation -->
 	<target name="compile">
 		<mkdir dir="${distdir}" />
-		<mkdir dir="${builddir}" />
+		<mkdir dir="${main.build.dir}" />
 
-		<javac destdir="${builddir}" srcdir="${srcdir}" source="1.7" target="1.7" debug="true" 
+		<javac destdir="${main.build.dir}" srcdir="${main.src.dir}" source="1.7" target="1.7" debug="true" 
                                         includeantruntime="false" includes="**/*.java" classpathref="default.classpath" />
 
-		<jar jarfile="${distdir}/${jar}" basedir="${builddir}" includes="**">
+		<jar jarfile="${distdir}/${jar}" basedir="${main.build.dir}" includes="**">
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 			</manifest>
 		</jar>
 	</target>
+
+	<target name="test-compile" depends="compile">
+		<mkdir dir="${test.build.dir}" />
+		<mkdir dir="${result.classes.dir}" />
+		<mkdir dir="${result.report.dir}" />
+
+		<javac destdir="${test.build.dir}" srcdir="${test.src.dir}" source="1.7" target="1.7" debug="true" includeantruntime="false" includes="**/*.java">
+        		<classpath>
+          			<pathelement location="${distdir}/${jar}"/>
+                                <path refid="test.classpath"/>
+        		</classpath>
+		</javac>
+	</target>
+
 
         <target name="copy-external">
 	        <mkdir dir="lib" />
@@ -54,8 +90,43 @@
 	<target name="build" depends="clean,compile,copy-external">
 	</target>
 
-	<target name="test" depends="build">
-	</target>
+ 	<target name="test" depends="test-compile">
+                <jacoco:coverage destfile="${result.exec.file}">
+    			<junit printsummary="on" haltonfailure="yes" fork="true">
+        			<classpath>
+          				<path refid="test.classpath"/>
+          				<pathelement location="${test.build.dir}"/>
+        			</classpath>
+        			<formatter type="brief" usefile="false" />
+        			<batchtest>
+            				<fileset dir="${test.src.dir}" includes="**/*Test.java" />
+        			</batchtest>
+    			</junit>
+                </jacoco:coverage>
+
+                <jacoco:report>
+
+                        <!-- This task needs the collected execution data and ... -->
+                        <executiondata>
+                                <file file="${result.exec.file}" />
+                        </executiondata>
+
+                        <!-- the class files and optional source files ... -->
+                        <structure name="Constellation Test Coverage">
+                                <classfiles>
+                                        <fileset dir="${main.build.dir}" />
+                                </classfiles>
+                                <sourcefiles encoding="UTF-8">
+                                        <fileset dir="${main.src.dir}" />
+                                </sourcefiles>
+                        </structure>
+
+                        <!-- to produce reports in different formats. -->
+                        <html destdir="${result.report.dir}" />
+                        <csv destfile="${result.report.dir}/report.csv" />
+                        <xml destfile="${result.report.dir}/report.xml" />
+                </jacoco:report>
+        </target>
 
 	<target name="bin.zip" depends="build">
 		<delete failonerror="false" file="${zip}" />
@@ -81,6 +152,7 @@
 		<delete failonerror="false" dir="${builddir}" />
 		<delete failonerror="false" dir="${distdir}" />
 		<delete failonerror="false" dir="${javadoc}" />
+		<delete failonerror="false" dir="${result.dir}" />
 	</target>
 
 	<target name="distclean" depends="clean">
