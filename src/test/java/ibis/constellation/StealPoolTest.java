@@ -44,10 +44,12 @@ public class StealPoolTest {
         StealPool.merge(new StealPool[1]);
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void mergeStealPoolSingle() {
         StealPool a = new StealPool("A");
-        StealPool.merge(a);
+        StealPool res = StealPool.merge(a);
+        
+        assertEquals(res, a);
     }
     
     @Test

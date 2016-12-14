@@ -75,6 +75,11 @@ public final class StealPool implements Serializable {
      *            the tag
      */
     public StealPool(String tag) {
+        
+        if (tag == null) { 
+            throw new NullPointerException("Tag may not be null");
+        }
+        
         this.tag = tag;
         this.set = null;
     }
