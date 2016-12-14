@@ -25,9 +25,9 @@ import java.util.List;
  * @since 1.0
  *
  */
-public class SimpleByteBuffers implements ByteBuffers {
+public class SimpleByteBuffers implements ByteBuffers, java.io.Serializable {
 
-    private List<ByteBuffer> list = new LinkedList<>();
+    private transient List<ByteBuffer> list = new LinkedList<>();
     
     /* (non-Javadoc)
      * @see ibis.constellation.ByteBuffers#pushByteBuffers(java.util.List)

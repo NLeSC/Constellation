@@ -33,7 +33,7 @@ import ibis.constellation.impl.ImplUtil;
  */
 public class EventTest {
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void createEventFail() {
         new Event(null, null, null);
     }
@@ -41,8 +41,8 @@ public class EventTest {
     @Test
     public void createEvent() {
       
-        ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 1, false);
-        ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 2, false);
+        ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 0, 1, false);
+        ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 0, 2, false);
         
         Event e = new Event(id1, id2, null);
         
@@ -53,8 +53,8 @@ public class EventTest {
     @Test
     public void createEventWithData() {
       
-        ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 1, false);
-        ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 2, false);
+        ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 0, 1, false);
+        ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 0, 2, false);
    
         String data = "Hello World";
         
@@ -66,28 +66,28 @@ public class EventTest {
     @Test
     public void pushDataFail() {
       
-        ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 1, false);
-        ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 2, false);
+        ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 0, 1, false);
+        ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 0, 2, false);
         
         Event e = new Event(id1, id2, null);
      
         List<ByteBuffer> list = new LinkedList<>();
         
-        // This will fail silently ???!!!
+        // This should succeed, even if event data is null
         e.pushByteBuffers(list);
     }
 
     @Test
     public void popDataFail() {
       
-        ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 1, false);
-        ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 2, false);
+        ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 0, 1, false);
+        ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 0, 2, false);
         
         Event e = new Event(id1, id2, null);
      
         List<ByteBuffer> list = new LinkedList<>();
         
-        // This will fail silently ???!!!
+        // This should succeed, even if event data is null
         e.popByteBuffers(list);
     }
 
@@ -95,22 +95,22 @@ public class EventTest {
     @Test
     public void popDataFailType() {
       
-        ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 1, false);
-        ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 2, false);
+        ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 0, 1, false);
+        ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 0, 2, false);
         
         Event e = new Event(id1, id2, "Hello World");
      
         List<ByteBuffer> list = new LinkedList<>();
         
-        // This will fail silently ???!!!
+        // This should succeed, even if event data does not implement ByteBuffers.
         e.popByteBuffers(list);
     }
     
     @Test
     public void pushPopData() {
       
-        ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 1, false);
-        ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 2, false);
+        ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 0, 1, false);
+        ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 0, 2, false);
         
         SimpleByteBuffers b = new SimpleByteBuffers();
         
