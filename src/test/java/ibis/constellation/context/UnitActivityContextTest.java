@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ibis.constellation.impl;
+package ibis.constellation.context;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
