@@ -68,9 +68,15 @@ public final class OrActivityContext extends ActivityContext {
         super();
 
         if (unit == null || unit.length < 2) {
-            throw new IllegalArgumentException("Invalid arguments to " + "OrContext: 2 or more contexts required!");
+            throw new IllegalArgumentException("Invalid arguments to OrContext: 2 or more contexts required!");
         }
 
+        for (int i=0;i<unit.length;i++) { 
+            if (unit[i] == null) {
+                throw new IllegalArgumentException("Invalid argument to OrContext: contexts may not contain null!");                           
+            }
+        }
+        
         unitContexts = unit.clone();
 
         if (!ordered) {
