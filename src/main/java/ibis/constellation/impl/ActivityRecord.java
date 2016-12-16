@@ -38,7 +38,7 @@ public class ActivityRecord implements Serializable, ByteBuffers {
         queue = new CircularBuffer<Event>(4);
     }
 
-    void enqueue(Event e) {
+    public void enqueue(Event e) {
 
         if (state >= FINISHING) {
             throw new IllegalStateException(
@@ -48,7 +48,7 @@ public class ActivityRecord implements Serializable, ByteBuffers {
         queue.insertLast(e);
     }
 
-    Event dequeue() {
+    public Event dequeue() {
 
         if (queue.size() == 0) {
             return null;
@@ -57,7 +57,7 @@ public class ActivityRecord implements Serializable, ByteBuffers {
         return queue.removeFirst();
     }
 
-    int pendingEvents() {
+    public int pendingEvents() {
         return queue.size();
     }
 
@@ -65,55 +65,55 @@ public class ActivityRecord implements Serializable, ByteBuffers {
         return (ActivityIdentifierImpl) getActivity().identifier();
     }
 
-    boolean isRunnable() {
+    public boolean isRunnable() {
         return (state == RUNNABLE);
     }
 
-    boolean isFinishing() {
+    public boolean isFinishing() {
         return state == FINISHING;
     }
 
-    boolean isStolen() {
+    public boolean isStolen() {
         return stolen;
     }
 
-    void setStolen(boolean value) {
+    public void setStolen(boolean value) {
         stolen = value;
     }
 
-    boolean isRemote() {
+    public boolean isRemote() {
         return remote;
     }
 
-    void setRemote(boolean value) {
+    public void setRemote(boolean value) {
         remote = value;
     }
 
-    void setRelocated(boolean value) {
+    public void setRelocated(boolean value) {
         relocated = value;
     }
 
-    boolean isRelocated() {
+    public boolean isRelocated() {
         return relocated;
     }
 
-    boolean isRestrictedToLocal() {
+    public boolean isRestrictedToLocal() {
         return getActivity().isRestrictedToLocal();
     }
 
-    boolean isDone() {
+    public boolean isDone() {
         return (state == DONE || state == ERROR);
     }
 
-    boolean isFresh() {
+    public boolean isFresh() {
         return (state == INITIALIZING);
     }
 
-    boolean needsToRun() {
+    public boolean needsToRun() {
         return (state == INITIALIZING || state == RUNNABLE || state == FINISHING);
     }
 
-    boolean setRunnable() {
+    public boolean setRunnable() {
 
         if (state == RUNNABLE || state == INITIALIZING) {
             // it's already runnable
@@ -202,7 +202,7 @@ public class ActivityRecord implements Serializable, ByteBuffers {
 
     }
 
-    void run() {
+    public void run() {
         runStateMachine();
     }
 
@@ -232,7 +232,7 @@ public class ActivityRecord implements Serializable, ByteBuffers {
         return getActivity() + " STATE: " + getStateAsString() + " " + "event queue size = " + queue.size();
     }
 
-    ActivityContext getContext() {
+    public ActivityContext getContext() {
         return getActivity().getContext();
     }
 
