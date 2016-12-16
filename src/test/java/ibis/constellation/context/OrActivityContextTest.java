@@ -417,7 +417,7 @@ public class OrActivityContextTest {
         
         UnitActivityContext a1 = new UnitActivityContext("B");
         UnitActivityContext b1 = new UnitActivityContext("A");
-        UnitActivityContext [] tmp1 = new UnitActivityContext[] { a1, b1 };
+        UnitActivityContext [] tmp1 = new UnitActivityContext[] { b1, a1 };
         OrActivityContext c1 = new OrActivityContext(tmp1, false);
      
         assertTrue(c.equals(c1));
@@ -441,7 +441,32 @@ public class OrActivityContextTest {
         assertFalse(cx1.equals(cx2));
     }
     
+    @Test
+    public void testEquals9() {
+      
+        UnitActivityContext a = new UnitActivityContext("A");
+        UnitActivityContext b = new UnitActivityContext("B");
+        UnitActivityContext [] tmp = new UnitActivityContext[] { a, b };
+        OrActivityContext c1 = new OrActivityContext(tmp, false);
+        
+        UnitActivityContext [] tmp1 = new UnitActivityContext[] { a, b };
+        OrActivityContext c2 = new OrActivityContext(tmp1, true);
+        
+        assertFalse(c1.equals(c2));
+    }
     
-    
+    @Test
+    public void testEquals10() {
+      
+        UnitActivityContext a = new UnitActivityContext("A");
+        UnitActivityContext b = new UnitActivityContext("B");
+        UnitActivityContext [] tmp = new UnitActivityContext[] { a, b };
+        OrActivityContext c1 = new OrActivityContext(tmp, true);
+        
+        UnitActivityContext [] tmp1 = new UnitActivityContext[] { a, b };
+        OrActivityContext c2 = new OrActivityContext(tmp1, false);
+        
+        assertFalse(c1.equals(c2));
+    }
 }
 
