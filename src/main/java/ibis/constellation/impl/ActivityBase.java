@@ -74,7 +74,7 @@ public abstract class ActivityBase implements Serializable {
      *
      * @return whether this activity may receive events.
      */
-    boolean expectsEvents() {
+    public boolean expectsEvents() {
         return willReceiveEvents;
     }
 
@@ -84,7 +84,7 @@ public abstract class ActivityBase implements Serializable {
      * @param id
      *            the activity identifier
      */
-    void initialize(ActivityIdentifierImpl id) {
+    public void initialize(ActivityIdentifierImpl id) {
         this.identifier = id;
     }
 
@@ -94,7 +94,7 @@ public abstract class ActivityBase implements Serializable {
      * @param executor
      *            the executor
      */
-    void setExecutor(Executor executor) {
+    public void setExecutor(Executor executor) {
         this.executor = executor;
     }
 
@@ -154,7 +154,7 @@ public abstract class ActivityBase implements Serializable {
     /**
      * Resets the request state of this activity.
      */
-    void reset() {
+    public void reset() {
         next = REQUEST_UNKNOWN;
     }
 
@@ -163,7 +163,7 @@ public abstract class ActivityBase implements Serializable {
      *
      * @return whether the activity requested to be suspended.
      */
-    boolean mustSuspend() {
+    public boolean mustSuspend() {
         return (next == REQUEST_SUSPEND);
     }
 
@@ -172,7 +172,7 @@ public abstract class ActivityBase implements Serializable {
      *
      * @return whether the activity requested to be finished.
      */
-    boolean mustFinish() {
+    public boolean mustFinish() {
         return (next == REQUEST_FINISH);
     }
 
