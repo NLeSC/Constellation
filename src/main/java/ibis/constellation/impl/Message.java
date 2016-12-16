@@ -50,7 +50,7 @@ public abstract class Message implements Serializable {
      * @param cid
      *            the target.
      */
-    synchronized void setTarget(ConstellationIdentifier cid) {
+    public synchronized void setTarget(ConstellationIdentifier cid) {
         this.target = cid;
     }
 

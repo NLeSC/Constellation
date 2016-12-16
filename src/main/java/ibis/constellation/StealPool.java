@@ -131,6 +131,10 @@ public final class StealPool implements Serializable {
                 }
             }
         }
+        return getStealPoolFromHashSet(tmp);
+    }
+
+    private static StealPool getStealPoolFromHashSet(HashSet<StealPool> tmp) {
 
         if (tmp.size() == 0) {
             // May happen if all StealPools are NONE
@@ -170,7 +174,8 @@ public final class StealPool implements Serializable {
 
         if (set != null) {
             if (other.set != null) {
-                int i = 0, oi = 0;
+                int i = 0;
+                int oi = 0;
                 while (i < set.length && oi < other.set.length) {
                     int cmp = set[i].tag.compareTo(other.set[oi].tag);
                     if (cmp < 0) {

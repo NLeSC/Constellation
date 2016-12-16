@@ -18,16 +18,16 @@ import org.slf4j.LoggerFactory;
  */
 public class ByteBufferCache {
 
-    static final Logger logger = LoggerFactory.getLogger(ByteBufferCache.class);
+    private static final Logger logger = LoggerFactory.getLogger(ByteBufferCache.class);
 
     private static Map<Integer, List<ByteBuffer>> freeList = new HashMap<Integer, List<ByteBuffer>>();
     private static Map<Integer, FreelistFiller> fillers = new HashMap<Integer, FreelistFiller>();
 
     // Background thread creating new bytebuffers as needed.
     private static class FreelistFiller extends Thread {
-        final int sz;
-        final int increment;
-        final int threshold;
+        private final int sz;
+        private final int increment;
+        private final int threshold;
 
         FreelistFiller(int sz, int cnt) {
             this.sz = sz;

@@ -257,10 +257,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         closedPool = properties.CLOSED;
         this.properties = properties;
 
-        if (closedPool) {
-            if (properties.POOLSIZE > 0) {
-                properties.setProperty("ibis.pool.size", "" + properties.POOLSIZE);
-            }
+        if (closedPool && properties.POOLSIZE > 0) {
+            properties.setProperty("ibis.pool.size", "" + properties.POOLSIZE);
         }
 
         try {
@@ -1047,6 +1045,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
         default:
             logger.error("Received unknown message opcode: " + opcode);
+            break;
         }
     }
 

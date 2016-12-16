@@ -98,7 +98,7 @@ public class ExecutorWrapper implements Constellation {
 
     }
 
-    private void cancel(ibis.constellation.ActivityIdentifier activityIdentifier) {
+    private void cancel(ActivityIdentifier activityIdentifier) {
 
         ActivityRecord ar = lookup.remove(activityIdentifier);
 

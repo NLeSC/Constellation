@@ -223,9 +223,9 @@ public class ActivityRecord implements Serializable, ByteBuffers {
             return "done";
         case ERROR:
             return "error";
+        default:
+            return "unknown";
         }
-
-        return "unknown";
     }
 
     @Override
