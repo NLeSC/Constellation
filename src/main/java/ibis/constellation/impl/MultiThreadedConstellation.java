@@ -36,7 +36,7 @@ public class MultiThreadedConstellation {
 
     private int workerCount;
 
-    private final ConstellationIdentifier identifier;
+    private final ConstellationIdentifierImpl identifier;
 
     private final Random random = new Random();
 
@@ -213,7 +213,7 @@ public class MultiThreadedConstellation {
     // delivered.
     // When the message cannot be delivered, the constellation identifier where
     // it should be sent instead is returned.
-    private ConstellationIdentifier deliverLocally(ConstellationIdentifier cid, EventMessage m) {
+    private ConstellationIdentifierImpl deliverLocally(ConstellationIdentifierImpl cid, EventMessage m) {
 
         SingleThreadedConstellation st = getWorker(cid);
 
@@ -231,7 +231,7 @@ public class MultiThreadedConstellation {
 
         if (cidFactory.isLocal(m.target)) {
 
-            ConstellationIdentifier cid = deliverLocally(m.target, m);
+            ConstellationIdentifierImpl cid = deliverLocally(m.target, m);
 
             if (cid != null) {
 
@@ -519,7 +519,7 @@ public class MultiThreadedConstellation {
 
             StealPool p = tmp.belongsTo();
 
-            if (sr.pool.overlap(p) && tmp.wrapper.QUEUED_JOB_LIMIT > 0) {
+            if (sr.pool.overlap(p) && tmp.getWrapper().QUEUED_JOB_LIMIT > 0) {
                 tmp.deliverStealRequest(sr);
                 return;
             }
@@ -558,7 +558,7 @@ public class MultiThreadedConstellation {
             return;
         }
 
-        ConstellationIdentifier cid = st.deliverEventMessage(am);
+        ConstellationIdentifierImpl cid = st.deliverEventMessage(am);
 
         if (cid == null) {
             // Message was delivered -- we're done!

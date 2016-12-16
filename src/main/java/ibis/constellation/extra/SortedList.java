@@ -10,11 +10,11 @@ public class SortedList {
     public static final Logger log = LoggerFactory.getLogger(SortedList.class);
 
     static class Node {
-        Node next;
-        Node prev;
+        private Node next;
+        private Node prev;
 
-        final long rank;
-        final ActivityRecord data;
+        private final long rank;
+        private final ActivityRecord data;
 
         Node(ActivityRecord data, long rank) {
             this.data = data;
@@ -24,13 +24,14 @@ public class SortedList {
 
     private final String name;
 
-    private Node head;
-    private Node tail;
+    private Node head = new Node(null, Long.MIN_VALUE);
+    private Node tail = new Node(null, Long.MAX_VALUE);
     private int size;
 
     public SortedList(String name) {
         this.name = name;
-        head = tail = null;
+        head.next = tail;
+        tail.prev = head;
         size = 0;
     }
 
@@ -38,53 +39,10 @@ public class SortedList {
 
         Node n = new Node(a, rank);
 
-        // Check if the list is empty
-        if (size == 0) {
-            head = tail = n;
-            size = 1;
-            return;
-        }
-
-        // Check if the list contains a single element
-        if (size == 1) {
-
-            if (rank <= head.rank) {
-                n.next = head;
-                head.prev = n;
-                head = n;
-            } else {
-                n.prev = tail;
-                tail.next = n;
-                tail = n;
-            }
-
-            size = 2;
-            return;
-        }
-
-        // Check if the new element goes before/at the head
-        if (rank <= head.rank) {
-            n.next = head;
-            head.prev = n;
-            head = n;
-            size++;
-            return;
-        }
-
-        // Check if the new element goes at/after the tail
-        if (rank >= tail.rank) {
-            n.prev = tail;
-            tail.next = n;
-            tail = n;
-            size++;
-            return;
-        }
-
         Node current = head.next;
 
-        while (current != null) {
-
-            // Check if the new element goes at/before the current
+        for (;;) {
+            // Check if the new element goes at/before the current. Always succeeds for tail
             if (rank <= current.rank) {
 
                 n.prev = current.prev;
@@ -99,14 +57,6 @@ public class SortedList {
 
             current = current.next;
         }
-
-        // When we run out of nodes we insert at the end -- SHOULD NOT HAPPEN!--
-        log.error("Sorted list screwed up!!!");
-
-        n.prev = tail;
-        tail.next = n;
-        tail = n;
-        size++;
     }
 
     public ActivityRecord removeHead() {
@@ -115,19 +65,12 @@ public class SortedList {
             return null;
         }
 
-        ActivityRecord tmp = head.data;
-
-        if (size == 1) {
-            head = tail = null;
-            size = 0;
-            return tmp;
-        }
-
-        head = head.next;
-        head.prev = null;
+        Node v = head.next;
+        v.next.prev = head;
+        head.next = v.next;
         size--;
 
-        return tmp;
+        return v.data;
     }
 
     public ActivityRecord removeTail() {
@@ -136,19 +79,12 @@ public class SortedList {
             return null;
         }
 
-        ActivityRecord tmp = tail.data;
-
-        if (size == 1) {
-            head = tail = null;
-            size = 0;
-            return tmp;
-        }
-
-        tail = tail.prev;
-        tail.next = null;
+        Node v = tail.prev;
+        v.prev.next = tail;
+        tail.prev = v.prev;
         size--;
 
-        return tmp;
+        return v.data;
     }
 
     public int size() {
@@ -157,37 +93,14 @@ public class SortedList {
 
     public boolean removeByReference(ActivityRecord o) {
 
-        Node current = head;
+        Node current = head.next;
 
-        while (current != null) {
+        while (current.data != null) {
 
             if (current.data == o) {
-
                 // Found it
-                if (size == 1) {
-                    head = tail = null;
-                    size = 0;
-                    return true;
-                }
-
-                if (current == head) {
-                    head = head.next;
-                    head.prev = null;
-                    size--;
-                    return true;
-                }
-
-                if (current == tail) {
-                    tail = tail.prev;
-                    tail.next = null;
-                    size--;
-                    return true;
-                }
-
                 current.prev.next = current.next;
                 current.next.prev = current.prev;
-                current.prev = null;
-                current.next = null;
                 size--;
                 return true;
             }
@@ -200,41 +113,24 @@ public class SortedList {
 
     public ActivityRecord removeOneInRange(long start, long end) {
 
-        Node current = head;
+        Node current = head.next;
 
-        while (current != null && current.rank < start) {
+        if (size == 0) {
+            return null;
+        }
+
+        while (current.data != null && current.rank < start) {
             current = current.next;
         }
 
-        if (current == null || current.rank > end) {
+        if (current.data == null || current.rank > end) {
             return null;
         }
 
         // Found it
-        if (size == 1) {
-            head = tail = null;
-            size = 0;
-            return current.data;
-        }
-
-        if (current == head) {
-            head = head.next;
-            head.prev = null;
-            size--;
-            return current.data;
-        }
-
-        if (current == tail) {
-            tail = tail.prev;
-            tail.next = null;
-            size--;
-            return current.data;
-        }
 
         current.prev.next = current.next;
         current.next.prev = current.prev;
-        current.prev = null;
-        current.next = null;
         size--;
 
         return current.data;

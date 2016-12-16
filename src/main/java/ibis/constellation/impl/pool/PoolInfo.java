@@ -15,11 +15,36 @@ class PoolInfo implements Serializable {
 
     private static final Logger logger = LoggerFactory.getLogger(PoolInfo.class);
 
-    final String tag;
+    private final String tag;
 
-    final IbisIdentifier master;
-    final boolean isMaster;
-    final boolean isDummy;
+    private final IbisIdentifier master;
+
+    public ArrayList<IbisIdentifier> getMembers() {
+        return members;
+    }
+
+    public void setMembers(ArrayList<IbisIdentifier> members) {
+        this.members = members;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public IbisIdentifier getMaster() {
+        return master;
+    }
+
+    public boolean isMaster() {
+        return isMaster;
+    }
+
+    public boolean isDummy() {
+        return isDummy;
+    }
+
+    private final boolean isMaster;
+    private final boolean isDummy;
 
     private long timestamp;
     private ArrayList<IbisIdentifier> members;
@@ -68,11 +93,11 @@ class PoolInfo implements Serializable {
         members.add(master);
     }
 
-    synchronized boolean hasMembers() {
+    public synchronized boolean hasMembers() {
         return members.size() != 0;
     }
 
-    synchronized void addMember(IbisIdentifier id) {
+    public synchronized void addMember(IbisIdentifier id) {
         if (logger.isInfoEnabled()) {
             logger.info("Adding " + id + " to pool with tag " + tag);
         }
@@ -80,7 +105,7 @@ class PoolInfo implements Serializable {
         timestamp++;
     }
 
-    synchronized void removeMember(IbisIdentifier id) {
+    public synchronized void removeMember(IbisIdentifier id) {
         if (logger.isInfoEnabled()) {
             logger.info("Removing " + id + " from pool with tag " + tag);
         }
@@ -88,15 +113,15 @@ class PoolInfo implements Serializable {
         timestamp++;
     }
 
-    synchronized int nMembers() {
+    public synchronized int nMembers() {
         return members.size();
     }
 
-    synchronized long currentTimeStamp() {
+    public synchronized long currentTimeStamp() {
         return timestamp;
     }
 
-    synchronized IbisIdentifier selectRandom(Random random) {
+    public synchronized IbisIdentifier selectRandom(Random random) {
         IbisIdentifier id = members.get(random.nextInt(members.size()));
         if (logger.isInfoEnabled()) {
             logger.info("Selecting " + id + " from list of " + members.size() + " members");

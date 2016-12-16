@@ -1,6 +1,5 @@
 package ibis.constellation.impl;
 
-import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.context.ExecutorContext;
@@ -20,8 +19,9 @@ public class StealRequest extends Message {
     // network.
     private transient boolean isLocal;
 
-    public StealRequest(final ConstellationIdentifier source, final ExecutorContext context, final StealStrategy localStrategy,
-            final StealStrategy constellationStrategy, final StealStrategy remoteStrategy, final StealPool pool, final int size) {
+    public StealRequest(final ConstellationIdentifierImpl source, final ExecutorContext context,
+            final StealStrategy localStrategy, final StealStrategy constellationStrategy, final StealStrategy remoteStrategy,
+            final StealPool pool, final int size) {
 
         super(source);
         this.context = context;

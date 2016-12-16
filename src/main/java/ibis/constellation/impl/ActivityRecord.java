@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ibis.constellation.Activity;
-import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.ByteBuffers;
 import ibis.constellation.Event;
 import ibis.constellation.context.ActivityContext;
@@ -62,8 +61,8 @@ public class ActivityRecord implements Serializable, ByteBuffers {
         return queue.size();
     }
 
-    public ActivityIdentifier identifier() {
-        return getActivity().identifier();
+    public ActivityIdentifierImpl identifier() {
+        return (ActivityIdentifierImpl) getActivity().identifier();
     }
 
     boolean isRunnable() {

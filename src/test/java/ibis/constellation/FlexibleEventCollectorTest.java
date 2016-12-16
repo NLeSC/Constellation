@@ -34,18 +34,18 @@ public class FlexibleEventCollectorTest {
 
     class Waiter extends Thread {
 
-        FlexibleEventCollector c;
-        Event[] res;
+        private FlexibleEventCollector c;
+        private Event[] res;
 
         Waiter(FlexibleEventCollector c) {
             this.c = c;
         }
 
-        synchronized void put(Event[] res) {
+        public synchronized void put(Event[] res) {
             this.res = res;
         }
 
-        synchronized Event[] get() {
+        public synchronized Event[] get() {
             return res;
         }
 
@@ -88,7 +88,7 @@ public class FlexibleEventCollectorTest {
 
         String s = c.toString();
 
-        assertEquals("", s);
+        assertEquals("FlexibleEventCollector(AID:-1)", s);
     }
 
     @Test

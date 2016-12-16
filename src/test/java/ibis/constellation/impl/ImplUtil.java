@@ -17,7 +17,6 @@
 package ibis.constellation.impl;
 
 import ibis.constellation.ActivityIdentifier;
-import ibis.constellation.ConstellationIdentifier;
 
 /**
  * @version 1.0
@@ -25,18 +24,18 @@ import ibis.constellation.ConstellationIdentifier;
  *
  */
 public class ImplUtil {
-    
-    public static ConstellationIdentifier createConstellationIdentifier(int nodeId, int localId) {
-        return new ConstellationIdentifier(nodeId, localId);
+
+    public static ConstellationIdentifierImpl createConstellationIdentifier(int nodeId, int localId) {
+        return new ConstellationIdentifierImpl(nodeId, localId);
     }
-    
-    public static ActivityIdentifier createActivityIdentifier(ConstellationIdentifier cid, long aid, boolean expectsEvents) {
+
+    public static ActivityIdentifier createActivityIdentifier(ConstellationIdentifierImpl cid, long aid, boolean expectsEvents) {
         return ActivityIdentifierImpl.createActivityIdentifier(cid, aid, expectsEvents);
     }
-    
+
     public static ActivityIdentifier createActivityIdentifier(int nodeId, int localId, long aid, boolean expectsEvents) {
-        return ActivityIdentifierImpl.createActivityIdentifier(createConstellationIdentifier(nodeId, localId), aid, expectsEvents);
+        return ActivityIdentifierImpl.createActivityIdentifier(createConstellationIdentifier(nodeId, localId), aid,
+                expectsEvents);
     }
-    
-    
+
 }

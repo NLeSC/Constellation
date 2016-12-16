@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
+import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Event;
@@ -23,16 +24,16 @@ import ibis.constellation.extra.WorkQueue;
 
 public class ExecutorWrapper implements Constellation {
 
-    static final Logger logger = LoggerFactory.getLogger(ExecutorWrapper.class);
+    private static final Logger logger = LoggerFactory.getLogger(ExecutorWrapper.class);
 
-    final boolean PROFILE;
-    final boolean PROFILE_COMM;
+    private final boolean PROFILE;
+    private final boolean PROFILE_COMM;
 
     final int QUEUED_JOB_LIMIT;
 
     private final SingleThreadedConstellation parent;
 
-    private final ConstellationIdentifier identifier;
+    private final ConstellationIdentifierImpl identifier;
 
     private final Executor executor;
 
@@ -42,7 +43,7 @@ public class ExecutorWrapper implements Constellation {
     private final StealStrategy constellationStealStrategy;
     private final StealStrategy remoteStealStrategy;
 
-    private HashMap<ibis.constellation.ActivityIdentifier, ActivityRecord> lookup = new HashMap<ibis.constellation.ActivityIdentifier, ActivityRecord>();
+    private HashMap<ActivityIdentifier, ActivityRecord> lookup = new HashMap<ActivityIdentifier, ActivityRecord>();
 
     private final WorkQueue restricted;
     private final WorkQueue fresh;
@@ -67,10 +68,13 @@ public class ExecutorWrapper implements Constellation {
     private long messagesExternal;
     private final CTimer messagesTimer;
 
+    private final ExecutorIdentifierImpl executorIdentifier;
+
     ExecutorWrapper(SingleThreadedConstellation parent, Executor executor, ConstellationProperties p,
-            ConstellationIdentifier identifier) {
+            ConstellationIdentifierImpl identifier) throws ConstellationCreationException {
         this.parent = parent;
         this.identifier = identifier;
+        this.executorIdentifier = new ExecutorIdentifierImpl(identifier.getNodeId(), identifier.getLocalId());
         this.executor = executor;
 
         QUEUED_JOB_LIMIT = p.QUEUED_JOB_LIMIT;
@@ -85,7 +89,9 @@ public class ExecutorWrapper implements Constellation {
         restricted = new SmartSortedWorkQueue("ExecutorWrapper(" + identifier + ")-restricted");
         fresh = new SmartSortedWorkQueue("ExecutorWrapper(" + identifier + ")-fresh");
 
-        ((ExecutorBase) executor).connect(this);
+        if (!executor.connect(this)) {
+            throw new ConstellationCreationException("Executor is already embedded");
+        }
         myContext = executor.getContext();
 
         localStealStrategy = executor.getLocalStealStrategy();
@@ -164,7 +170,7 @@ public class ExecutorWrapper implements Constellation {
         relocated.insertLast(a);
     }
 
-    private synchronized ActivityIdentifier createActivityID(boolean events) {
+    private synchronized ActivityIdentifierImpl createActivityID(boolean events) {
         return ActivityIdentifierImpl.createActivityIdentifier(identifier, activityCounter++, events);
     }
 
@@ -172,7 +178,7 @@ public class ExecutorWrapper implements Constellation {
     public ActivityIdentifier submit(Activity a) {
         // Create an activity identifier and initialize the activity with it.
         ActivityBase base = a;
-        ActivityIdentifier id = createActivityID(base.expectsEvents());
+        ActivityIdentifierImpl id = createActivityID(base.expectsEvents());
         base.initialize(id);
 
         ActivityRecord ar = new ActivityRecord(a);
@@ -413,7 +419,7 @@ public class ExecutorWrapper implements Constellation {
     }
 
     @Override
-    public ConstellationIdentifier identifier() {
+    public ConstellationIdentifierImpl identifier() {
         return identifier;
     }
 
@@ -443,7 +449,7 @@ public class ExecutorWrapper implements Constellation {
         return parent.performActivate();
     }
 
-    boolean processActitivies() {
+    public boolean processActitivies() {
         return parent.processActivities();
     }
 
@@ -477,5 +483,9 @@ public class ExecutorWrapper implements Constellation {
     @Override
     public CTimer getOverallTimer() {
         return parent.getStats().getOverallTimer();
+    }
+
+    public ExecutorIdentifierImpl executorIdentifier() {
+        return executorIdentifier;
     }
 }

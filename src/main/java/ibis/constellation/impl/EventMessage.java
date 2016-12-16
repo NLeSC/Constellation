@@ -4,7 +4,6 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import ibis.constellation.ByteBuffers;
-import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.Event;
 
 public class EventMessage extends Message implements ByteBuffers {
@@ -13,7 +12,7 @@ public class EventMessage extends Message implements ByteBuffers {
 
     public final Event event;
 
-    public EventMessage(final ConstellationIdentifier source, final ConstellationIdentifier target, final Event e) {
+    public EventMessage(final ConstellationIdentifierImpl source, final ConstellationIdentifierImpl target, final Event e) {
         super(source, target);
         this.event = e;
     }

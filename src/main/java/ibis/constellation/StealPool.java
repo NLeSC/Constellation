@@ -121,6 +121,8 @@ public final class StealPool implements Serializable {
                             tmp.add(s3);
                         }
                     }
+                } else if (!s2.equals(NONE)) {
+                    tmp.add(s2);
                 }
             } else {
                 if (s.equals(WORLD)) {
@@ -174,45 +176,42 @@ public final class StealPool implements Serializable {
 
         if (set != null) {
             if (other.set != null) {
-                int i = 0;
-                int oi = 0;
-                while (i < set.length && oi < other.set.length) {
-                    int cmp = set[i].tag.compareTo(other.set[oi].tag);
-                    if (cmp < 0) {
-                        i++;
-                    } else if (cmp > 0) {
-                        oi++;
-                    } else {
-                        return true;
-                    }
-                }
-            } else {
-                for (StealPool element : set) {
-                    int cmp = other.tag.compareTo(element.tag);
-                    if (cmp == 0) {
-                        return true;
-                    }
-                    if (cmp < 0) {
-                        return false;
-                    }
-                }
+                return setOverlap(set, other.set);
             }
-        } else {
-            if (other.set != null) {
-                for (StealPool element : other.set) {
-                    int cmp = tag.compareTo(element.tag);
-                    if (cmp == 0) {
-                        return true;
-                    }
-                    if (cmp < 0) {
-                        return false;
-                    }
-                }
-            } else {
-                return tag.equals(other.tag);
+            return setContains(set, other.tag);
+        }
+        if (other.set != null) {
+            return setContains(other.set, tag);
+        }
+        return tag.equals(other.tag);
+    }
+
+    private static boolean setContains(StealPool[] set, String tag) {
+        for (StealPool s : set) {
+            int cmp = tag.compareTo(s.tag);
+            if (cmp == 0) {
+                return true;
+            }
+            if (cmp < 0) {
+                break;
             }
         }
+        return false;
+    }
 
+    private static boolean setOverlap(StealPool[] set1, StealPool[] set2) {
+        int i = 0;
+        int oi = 0;
+        while (i < set1.length && oi < set2.length) {
+            int cmp = set1[i].tag.compareTo(set2[oi].tag);
+            if (cmp < 0) {
+                i++;
+            } else if (cmp > 0) {
+                oi++;
+            } else {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -292,21 +291,15 @@ public final class StealPool implements Serializable {
         if (this == obj) {
             return true;
         }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
         StealPool other = (StealPool) obj;
-        if (set == null) {
-            if (other.set != null) {
-                return false;
-            }
-            return tag.equals(other.tag);
-        }
-        if (other.set == null) {
+        if ((set == null) != (other.set == null)) {
             return false;
+        }
+        if (set == null) {
+            return tag.equals(other.tag);
         }
         if (other.set.length != set.length) {
             return false;

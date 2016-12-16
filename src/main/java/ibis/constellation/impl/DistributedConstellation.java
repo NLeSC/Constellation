@@ -65,7 +65,7 @@ public class DistributedConstellation {
     private MultiThreadedConstellation subConstellation;
 
     /** Our identification. */
-    private final ConstellationIdentifier identifier;
+    private final ConstellationIdentifierImpl identifier;
 
     /** The communication pool. */
     private final Pool pool;
@@ -541,7 +541,7 @@ public class DistributedConstellation {
      *
      * @return the constellation identifier.
      */
-    ConstellationIdentifier identifier() {
+    ConstellationIdentifierImpl identifier() {
         return identifier;
     }
 
@@ -692,7 +692,7 @@ public class DistributedConstellation {
      */
     boolean handleApplicationMessage(EventMessage m, boolean enqueueOnFail) {
 
-        ConstellationIdentifier target = m.target;
+        ConstellationIdentifierImpl target = m.target;
 
         // Sanity check
         // if (cidFactory.isLocal(target)) {
@@ -734,7 +734,7 @@ public class DistributedConstellation {
     boolean handleStealReply(StealReply m) {
 
         // Handle a steal reply (bottom up)
-        ConstellationIdentifier target = m.target;
+        ConstellationIdentifierImpl target = m.target;
 
         // Sanity check
         assert (!cidFactory.isLocal(target));

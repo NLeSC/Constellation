@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import ibis.constellation.ByteBuffers;
-import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.StealPool;
 import ibis.constellation.context.ExecutorContext;
 
@@ -17,7 +16,7 @@ public class StealReply extends Message implements ByteBuffers {
     private final ExecutorContext context;
     private final ActivityRecord[] work;
 
-    public StealReply(final ConstellationIdentifier source, final ConstellationIdentifier target, final StealPool pool,
+    public StealReply(final ConstellationIdentifierImpl source, final ConstellationIdentifierImpl target, final StealPool pool,
             final ExecutorContext context, final ActivityRecord work) {
 
         super(source, target);
@@ -31,7 +30,7 @@ public class StealReply extends Message implements ByteBuffers {
         this.context = context;
     }
 
-    public StealReply(final ConstellationIdentifier source, final ConstellationIdentifier target, final StealPool pool,
+    public StealReply(final ConstellationIdentifierImpl source, final ConstellationIdentifierImpl target, final StealPool pool,
             final ExecutorContext context, final ActivityRecord[] work) {
         super(source, target);
 
