@@ -29,7 +29,7 @@ public class ExecutorWrapper implements Constellation {
     private final boolean PROFILE;
     private final boolean PROFILE_COMM;
 
-    final int QUEUED_JOB_LIMIT;
+    private final int QUEUED_JOB_LIMIT;
 
     private final SingleThreadedConstellation parent;
 
@@ -161,7 +161,7 @@ public class ExecutorWrapper implements Constellation {
         return null;
     }
 
-    void addPrivateActivity(ActivityRecord a) {
+    public void addPrivateActivity(ActivityRecord a) {
         // add an activity that only I am allowed to run, either because
         // it is relocated, or because we have just obtained it and we don't
         // want anyone else to steal it from us.
@@ -266,7 +266,7 @@ public class ExecutorWrapper implements Constellation {
         }
     }
 
-    boolean queueEvent(Event e) {
+    public boolean queueEvent(Event e) {
 
         ActivityRecord ar = lookup.get(e.getTarget());
 
@@ -354,7 +354,7 @@ public class ExecutorWrapper implements Constellation {
 
     }
 
-    boolean process() {
+    public boolean process() {
 
         ActivityRecord tmp = dequeue();
 
@@ -374,47 +374,47 @@ public class ExecutorWrapper implements Constellation {
         return false;
     }
 
-    CTimer getInitializeTimer() {
+    public CTimer getInitializeTimer() {
         return initializeTimer;
     }
 
-    CTimer getProcessTimer() {
+    public CTimer getProcessTimer() {
         return processTimer;
     }
 
-    CTimer getCleanupTimer() {
+    public CTimer getCleanupTimer() {
         return cleanupTimer;
     }
 
-    long getActivitiesSubmitted() {
+    public long getActivitiesSubmitted() {
         return activitiesSubmitted;
     }
 
-    long getWrongContextSubmitted() {
+    public long getWrongContextSubmitted() {
         return wrongContextSubmitted;
     }
 
-    long getMessagesInternal() {
+    public long getMessagesInternal() {
         return messagesInternal;
     }
 
-    long getMessagesExternal() {
+    public long getMessagesExternal() {
         return messagesExternal;
     }
 
-    CTimer getMessagesTimer() {
+    public CTimer getMessagesTimer() {
         return messagesTimer;
     }
 
-    long getSteals() {
+    public long getSteals() {
         return steals;
     }
 
-    long getStealSuccess() {
+    public long getStealSuccess() {
         return stealSuccess;
     }
 
-    long getStolen() {
+    public long getStolen() {
         return stolenJobs;
     }
 
@@ -453,7 +453,7 @@ public class ExecutorWrapper implements Constellation {
         return parent.processActivities();
     }
 
-    void runExecutor() {
+    public void runExecutor() {
 
         try {
             executor.run();
@@ -462,11 +462,11 @@ public class ExecutorWrapper implements Constellation {
         }
     }
 
-    StealPool belongsTo() {
+    public StealPool belongsTo() {
         return executor.belongsTo();
     }
 
-    StealPool stealsFrom() {
+    public StealPool stealsFrom() {
         return executor.stealsFrom();
     }
 
@@ -487,5 +487,9 @@ public class ExecutorWrapper implements Constellation {
 
     public ExecutorIdentifierImpl executorIdentifier() {
         return executorIdentifier;
+    }
+
+    public int getJobLimit() {
+        return QUEUED_JOB_LIMIT;
     }
 }

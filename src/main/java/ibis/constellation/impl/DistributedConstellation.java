@@ -541,7 +541,7 @@ public class DistributedConstellation {
      *
      * @return the constellation identifier.
      */
-    ConstellationIdentifierImpl identifier() {
+    public ConstellationIdentifierImpl identifier() {
         return identifier;
     }
 
@@ -615,7 +615,7 @@ public class DistributedConstellation {
      * @param sr
      *            the steal request.
      */
-    void handleStealRequest(StealRequest sr) {
+    public void handleStealRequest(StealRequest sr) {
         if (stealStrategy == STEAL_NONE) {
             // drop steal request
             if (logger.isDebugEnabled()) {
@@ -690,7 +690,7 @@ public class DistributedConstellation {
      *            when set, delivery will be retried when it fails.
      * @return <code>true</code> when the message is dealt with, <code>false</code> otherwise.
      */
-    boolean handleApplicationMessage(EventMessage m, boolean enqueueOnFail) {
+    public boolean handleApplicationMessage(EventMessage m, boolean enqueueOnFail) {
 
         ConstellationIdentifierImpl target = m.target;
 
@@ -731,7 +731,7 @@ public class DistributedConstellation {
      *            the steal reply
      * @return <code>false</code> if the work in the message must be reclaimed, <code>true</code> otherwise.
      */
-    boolean handleStealReply(StealReply m) {
+    public boolean handleStealReply(StealReply m) {
 
         // Handle a steal reply (bottom up)
         ConstellationIdentifierImpl target = m.target;
@@ -759,7 +759,7 @@ public class DistributedConstellation {
      *
      * @return the constellation identifier factory.
      */
-    ConstellationIdentifierFactory getConstellationIdentifierFactory() {
+    public ConstellationIdentifierFactory getConstellationIdentifierFactory() {
         return cidFactory;
     }
 
@@ -769,7 +769,7 @@ public class DistributedConstellation {
      * @param c
      *            the underlying multithreaded constellation.
      */
-    synchronized void register(MultiThreadedConstellation c) {
+    public synchronized void register(MultiThreadedConstellation c) {
 
         if (active || subConstellation != null) {
             throw new Error("Cannot register BottomConstellation");
@@ -787,7 +787,7 @@ public class DistributedConstellation {
      * @param belongsTo
      *            the pool to which this constellation belongs.
      */
-    void belongsTo(StealPool belongsTo) {
+    public void belongsTo(StealPool belongsTo) {
 
         assert (belongsTo != null);
 
@@ -812,7 +812,7 @@ public class DistributedConstellation {
      * @param stealsFrom
      *            the pool from which this constellation is stealStrategy.
      */
-    void stealsFrom(StealPool stealsFrom) {
+    public void stealsFrom(StealPool stealsFrom) {
 
         assert (stealsFrom != null);
 

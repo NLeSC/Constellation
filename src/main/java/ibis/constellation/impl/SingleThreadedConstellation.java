@@ -856,7 +856,7 @@ public class SingleThreadedConstellation extends Thread {
         nextStealDeadline = 0;
     }
 
-    synchronized void deliverWrongContext(ActivityRecord a) {
+    public synchronized void deliverWrongContext(ActivityRecord a) {
         // Timo: we should add it to the lookup as well
         lookup.put(a.identifier(), a);
 

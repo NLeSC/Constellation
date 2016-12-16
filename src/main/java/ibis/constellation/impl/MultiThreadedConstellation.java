@@ -161,7 +161,7 @@ public class MultiThreadedConstellation {
 
     private boolean PROFILE;
 
-    synchronized ActivityIdentifier performSubmit(Activity a) {
+    public synchronized ActivityIdentifier performSubmit(Activity a) {
 
         ActivityContext c = a.getContext();
         for (int i = 0; i < workerCount; i++) {
@@ -180,14 +180,14 @@ public class MultiThreadedConstellation {
         // TODO: Or submit anyway to next worker?
     }
 
-    void performSend(Event e) {
+    public void performSend(Event e) {
 
         // Since we don't known where the target activity is located, we simply
         // send the message to it's parent constellation (which may be local).
         handleEventMessage(new EventMessage(identifier, ((ActivityIdentifierImpl) e.getTarget()).getOrigin(), e));
     }
 
-    void performCancel(ActivityIdentifier aid) {
+    public void performCancel(ActivityIdentifier aid) {
         logger.error("INTERNAL ERROR: cancel not implemented!");
     }
 
@@ -225,7 +225,7 @@ public class MultiThreadedConstellation {
         return st.deliverEventMessage(m);
     }
 
-    void handleEventMessage(EventMessage m) {
+    public void handleEventMessage(EventMessage m) {
         // One of our children wishes to send a message to 'm.target',
         // which may be local or remote.
 
@@ -255,7 +255,7 @@ public class MultiThreadedConstellation {
         }
     }
 
-    boolean handleStealReply(SingleThreadedConstellation src, StealReply m) {
+    public boolean handleStealReply(SingleThreadedConstellation src, StealReply m) {
 
         SingleThreadedConstellation b = getWorker(m.target);
 
@@ -272,7 +272,7 @@ public class MultiThreadedConstellation {
         return false;
     }
 
-    ActivityRecord[] handleStealRequest(final SingleThreadedConstellation c, final int stealSize) {
+    public ActivityRecord[] handleStealRequest(final SingleThreadedConstellation c, final int stealSize) {
         // a steal request from below
 
         final ExecutorContext context = c.getContext();
@@ -326,11 +326,11 @@ public class MultiThreadedConstellation {
         return null;
     }
 
-    ConstellationIdentifierFactory getConstellationIdentifierFactory() {
+    public ConstellationIdentifierFactory getConstellationIdentifierFactory() {
         return cidFactory;
     }
 
-    synchronized void register(SingleThreadedConstellation constellation) {
+    public synchronized void register(SingleThreadedConstellation constellation) {
 
         if (active) {
             throw new Error("Cannot register new BottomConstellation while " + "TopConstellation is active!");
@@ -339,7 +339,7 @@ public class MultiThreadedConstellation {
         incomingWorkers.add(constellation);
     }
 
-    synchronized ExecutorContext getContext() {
+    public synchronized ExecutorContext getContext() {
         return myContext;
     }
 
@@ -470,7 +470,7 @@ public class MultiThreadedConstellation {
         }
     }
 
-    void deliverStealRequest(StealRequest sr) {
+    public void deliverStealRequest(StealRequest sr) {
         // steal request delivered by our parent.
 
         if (logger.isDebugEnabled()) {
@@ -519,7 +519,7 @@ public class MultiThreadedConstellation {
 
             StealPool p = tmp.belongsTo();
 
-            if (sr.pool.overlap(p) && tmp.getWrapper().QUEUED_JOB_LIMIT > 0) {
+            if (sr.pool.overlap(p) && tmp.getWrapper().getJobLimit() > 0) {
                 tmp.deliverStealRequest(sr);
                 return;
             }
@@ -531,7 +531,7 @@ public class MultiThreadedConstellation {
         parent.handleStealReply(new StealReply(identifier, sr.source, sr.pool, sr.context, (ActivityRecord) null));
     }
 
-    void deliverStealReply(StealReply sr) {
+    public void deliverStealReply(StealReply sr) {
         // steal reply delivered by our parent
 
         if (logger.isDebugEnabled()) {
@@ -548,7 +548,7 @@ public class MultiThreadedConstellation {
         b.deliverStealReply(sr);
     }
 
-    void deliverEventMessage(EventMessage am) {
+    public void deliverEventMessage(EventMessage am) {
         // event delivered by our parent
 
         SingleThreadedConstellation st = getWorker(am.target);

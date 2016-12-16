@@ -24,7 +24,8 @@ public final class ActivityIdentifierImpl implements ActivityIdentifier, Seriali
     private long AID;
     private boolean expectsEvents;
 
-    static ActivityIdentifierImpl createActivityIdentifier(ConstellationIdentifierImpl cid, long aid, boolean expectsEvents) {
+    public static ActivityIdentifierImpl createActivityIdentifier(ConstellationIdentifierImpl cid, long aid,
+            boolean expectsEvents) {
         ActivityIdentifierImpl id = new ActivityIdentifierImpl();
         id.CID = cid;
         id.AID = aid;
