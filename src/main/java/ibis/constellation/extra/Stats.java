@@ -43,23 +43,12 @@ public class Stats implements java.io.Serializable {
 
         CTimer timer = getTotalMCTimer();
         timer.filterOverall();
-        // System.out.println(timer.extensiveOutput());
-        // printActions(stream, timer);
-        // printDataTransfers(stream);
         printPlotData(stream);
     }
 
-    synchronized void addTimer(CTimer timer) {
+    private synchronized void addTimer(CTimer timer) {
         timers.add(timer);
     }
-
-    // private void printActions(PrintStream stream, CTimer timer) {
-    // List<CTimer> actionTimers = timer.groupByAction();
-    //
-    // for (CTimer t : actionTimers) {
-    // print(stream, t.getAction(), t);
-    // }
-    // }
 
     private synchronized void clean() {
         for (CTimer timer : timers) {
@@ -91,29 +80,10 @@ public class Stats implements java.io.Serializable {
         return temp;
     }
 
-    private void write(CTimer timer, String fileName, boolean perThread) {
-        PrintStream ps = System.out;
-        try {
-            if (fileName != null) {
-                try {
-                    ps = new PrintStream(fileName);
-                } catch (Throwable e) {
-                    System.err.println(e);
-                    ps.println("BEGIN PLOT DATA");
-                    fileName = null; // To prevent closing System.out
-                }
-            } else {
-                ps.println("BEGIN PLOT DATA");
-            }
-            ps.print(timer.gnuPlotData(perThread));
-            if (fileName == null) {
-                ps.println("END PLOT DATA");
-            }
-        } finally {
-            if (fileName != null) {
-                ps.close();
-            }
-        }
+    private void write(CTimer timer, PrintStream ps, boolean perThread) {
+        ps.println("BEGIN PLOT DATA");
+        ps.print(timer.gnuPlotData(perThread));
+        ps.println("END PLOT DATA");
     }
 
     private void printPlotData(PrintStream stream) {
@@ -121,10 +91,10 @@ public class Stats implements java.io.Serializable {
         temp.filterOverall();
         // write(temp, "gantt.data", false);
         // write(temp, "gantt-thread.data", true);
-        write(temp, null, true);
+        write(temp, stream, true);
     }
 
-    void print(PrintStream stream, String kind, CTimer t) {
+    public void print(PrintStream stream, String kind, CTimer t) {
         stream.printf("%-53s %3d %s %s\n", kind, t.nrTimes(), t.averageTime(), t.totalTime());
     }
 

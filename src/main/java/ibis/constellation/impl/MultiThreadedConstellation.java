@@ -32,14 +32,11 @@ public class MultiThreadedConstellation {
 
     private SingleThreadedConstellation[] workers;
 
-    private StealPool belongsTo;
-    private StealPool stealsFrom;
-
     private boolean[][] poolMatrix;
 
     private int workerCount;
 
-    private final ConstellationIdentifier identifier;
+    private final ConstellationIdentifierImpl identifier;
 
     private final Random random = new Random();
 
@@ -60,7 +57,7 @@ public class MultiThreadedConstellation {
         /* Following methods implement the Constellation interface */
 
         @Override
-        public ibis.constellation.ActivityIdentifier submit(Activity a) {
+        public ActivityIdentifier submit(Activity a) {
             return performSubmit(a);
         }
 
@@ -160,7 +157,7 @@ public class MultiThreadedConstellation {
         return stats;
     }
 
-    int next = 0;
+    private int next = 0;
 
     private boolean PROFILE;
 
@@ -216,7 +213,7 @@ public class MultiThreadedConstellation {
     // delivered.
     // When the message cannot be delivered, the constellation identifier where
     // it should be sent instead is returned.
-    private ConstellationIdentifier deliverLocally(ConstellationIdentifier cid, EventMessage m) {
+    private ConstellationIdentifierImpl deliverLocally(ConstellationIdentifierImpl cid, EventMessage m) {
 
         SingleThreadedConstellation st = getWorker(cid);
 
@@ -234,7 +231,7 @@ public class MultiThreadedConstellation {
 
         if (cidFactory.isLocal(m.target)) {
 
-            ConstellationIdentifier cid = deliverLocally(m.target, m);
+            ConstellationIdentifierImpl cid = deliverLocally(m.target, m);
 
             if (cid != null) {
 
@@ -275,7 +272,7 @@ public class MultiThreadedConstellation {
         return false;
     }
 
-    ActivityRecord[] handleStealRequest(SingleThreadedConstellation c, int stealSize) {
+    ActivityRecord[] handleStealRequest(final SingleThreadedConstellation c, final int stealSize) {
         // a steal request from below
 
         final ExecutorContext context = c.getContext();
@@ -290,15 +287,15 @@ public class MultiThreadedConstellation {
         final int rnd = selectRandomWorker();
         final int rank = c.getRank();
 
-        ActivityRecord[] result = new ActivityRecord[localStealSize];
+        final ActivityRecord[] result = new ActivityRecord[localStealSize];
 
         for (int i = 0; i < workerCount; i++) {
 
-            SingleThreadedConstellation tmp = workers[(rnd + i) % workerCount];
+            final SingleThreadedConstellation tmp = workers[(rnd + i) % workerCount];
 
             if (tmp != c && poolMatrix[rank][tmp.getRank()]) {
 
-                int size = tmp.attemptSteal(result, context, c.getConstellationStealStrategy(), pool, c.identifier(),
+                final int size = tmp.attemptSteal(result, context, c.getConstellationStealStrategy(), pool, c.identifier(),
                         localStealSize, true);
 
                 if (size > 0) {
@@ -309,8 +306,8 @@ public class MultiThreadedConstellation {
 
         // If this fails, we do a remote steal followed by an enqueued steal at
         // a random suitable peer.
-        StealRequest sr = new StealRequest(c.identifier(), context, c.getLocalStealStrategy(), c.getConstellationStealStrategy(),
-                c.getRemoteStealStrategy(), pool, stealSize);
+        final StealRequest sr = new StealRequest(c.identifier(), context, c.getLocalStealStrategy(),
+                c.getConstellationStealStrategy(), c.getRemoteStealStrategy(), pool, stealSize);
 
         if (parent != null) {
             parent.handleStealRequest(sr);
@@ -318,7 +315,7 @@ public class MultiThreadedConstellation {
 
         for (int i = 0; i < workerCount; i++) {
 
-            SingleThreadedConstellation tmp = workers[(rnd + i) % workerCount];
+            final SingleThreadedConstellation tmp = workers[(rnd + i) % workerCount];
 
             if (tmp != c && poolMatrix[rank][tmp.getRank()]) {
                 tmp.deliverStealRequest(sr);
@@ -398,6 +395,9 @@ public class MultiThreadedConstellation {
     }
 
     public boolean activate() {
+
+        StealPool stealsFrom;
+        StealPool belongsTo;
 
         synchronized (this) {
             if (active) {
@@ -519,7 +519,7 @@ public class MultiThreadedConstellation {
 
             StealPool p = tmp.belongsTo();
 
-            if (sr.pool.overlap(p) && tmp.wrapper.QUEUED_JOB_LIMIT > 0) {
+            if (sr.pool.overlap(p) && tmp.getWrapper().QUEUED_JOB_LIMIT > 0) {
                 tmp.deliverStealRequest(sr);
                 return;
             }
@@ -558,7 +558,7 @@ public class MultiThreadedConstellation {
             return;
         }
 
-        ConstellationIdentifier cid = st.deliverEventMessage(am);
+        ConstellationIdentifierImpl cid = st.deliverEventMessage(am);
 
         if (cid == null) {
             // Message was delivered -- we're done!

@@ -41,7 +41,7 @@ public abstract class ActivityBase implements Serializable {
     private transient Executor executor;
 
     /** Identification of this activity. */
-    private ActivityIdentifier identifier;
+    private ActivityIdentifierImpl identifier;
 
     /** The context of this activity. */
     private final ActivityContext context;
@@ -66,6 +66,7 @@ public abstract class ActivityBase implements Serializable {
         this.context = context;
         this.restrictToLocal = restrictToLocal;
         this.willReceiveEvents = willReceiveEvents;
+        this.identifier = ActivityIdentifierImpl.createActivityIdentifier(null, -1, false);
     }
 
     /**
@@ -83,7 +84,7 @@ public abstract class ActivityBase implements Serializable {
      * @param id
      *            the activity identifier
      */
-    void initialize(ActivityIdentifier id) {
+    void initialize(ActivityIdentifierImpl id) {
         this.identifier = id;
     }
 
@@ -101,15 +102,17 @@ public abstract class ActivityBase implements Serializable {
      * Returns the activity identifier of this activity. Note that this identifier only exists after the activity has been
      * submitted.
      *
-     * @throws IllegalStateException
-     *             is thrown when the activity has not been submitted yet.
-     * @return the activity identifier.
+     * @return the activity identifier, or a dummy when the activity has not been submitted yet.
      */
     protected ActivityIdentifier identifier() {
         if (identifier == null) {
             throw new IllegalStateException("Activity has not been submitted yet");
         }
 
+        return identifier;
+    }
+
+    public ActivityIdentifierImpl identifierImpl() {
         return identifier;
     }
 

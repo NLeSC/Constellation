@@ -16,13 +16,13 @@
 
 package ibis.constellation;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.junit.Test;
 
 import ibis.constellation.impl.ImplUtil;
 
@@ -37,29 +37,29 @@ public class EventTest {
     public void createEventFail() {
         new Event(null, null, null);
     }
-        
+
     @Test
     public void createEvent() {
-      
+
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 0, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 0, 2, false);
-        
+
         Event e = new Event(id1, id2, null);
-        
+
         assertEquals(e.getSource(), id1);
         assertEquals(e.getTarget(), id2);
     }
-    
+
     @Test
     public void createEventWithData() {
-      
+
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 0, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 0, 2, false);
-   
+
         String data = "Hello World";
-        
+
         Event e = new Event(id1, id2, data);
-        
+
         assertEquals(e.getData(), data);
     }
 
@@ -68,7 +68,7 @@ public class EventTest {
 
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 0, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 0, 2, false);
-        
+
         Event e = new Event(id1, id2, null);
 
         List<ByteBuffer> listIn = new LinkedList<>();
@@ -84,7 +84,6 @@ public class EventTest {
 
         assertEquals(listOut.size(), 0);
     }
-    
 
     @Test
     public void popDataWrongType() {
@@ -101,44 +100,44 @@ public class EventTest {
 
         assertEquals(list.size(), 0);
     }
-    
+
     @Test
     public void pushPopData() {
-      
+
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 0, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 0, 2, false);
-        
+
         SimpleByteBuffers b = new SimpleByteBuffers();
-        
+
         Event e = new Event(id1, id2, b);
-     
+
         List<ByteBuffer> listIn = new LinkedList<>();
         ByteBuffer tmp = ByteBuffer.allocate(1);
         listIn.add(tmp);
-        
+
         e.pushByteBuffers(listIn);
-       
+
         List<ByteBuffer> listOut = new LinkedList<>();
         e.popByteBuffers(listOut);
-        
+
         assertEquals(listIn, listOut);
     }
 
     @Test
     public void checkToString() {
-      
+
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(0, 1, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);
 
         Event e = new Event(id1, id2, null);
 
         String result = e.toString();
-        
-        String expected = "source: " + id1.toString() + "; target: " + id2.toString() + "; data = none"; 
-        
+
+        String expected = "source: " + id1.toString() + "; target: " + id2.toString() + "; data = none";
+
         assertEquals(expected, result);
     }
-    
+
     @Test
     public void checkToStringWithData() {
 
@@ -148,14 +147,10 @@ public class EventTest {
         Event e = new Event(id1, id2, "Hello World");
 
         String result = e.toString();
-        
-        String expected = "source: " + id1.toString() + "; target: " + id2.toString() + "; data = Hello World"; 
-        
+
+        String expected = "source: " + id1.toString() + "; target: " + id2.toString() + "; data = Hello World";
+
         assertEquals(expected, result);
     }
 
-    
-
-    
-    
 }

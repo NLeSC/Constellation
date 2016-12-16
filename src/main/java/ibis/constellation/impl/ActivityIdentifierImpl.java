@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
-import ibis.constellation.ConstellationIdentifier;
 
 /**
  * An <code>ActivityIdentifierImpl</code> uniquely identifies an {@link Activity} instance.
@@ -12,7 +11,7 @@ import ibis.constellation.ConstellationIdentifier;
  * @version 1.0
  * @since 1.0
  */
-public abstract class ActivityIdentifierImpl implements Serializable {
+public final class ActivityIdentifierImpl implements ActivityIdentifier, Serializable {
 
     /* Generated */
     private static final long serialVersionUID = 4785081436543353644L;
@@ -21,16 +20,16 @@ public abstract class ActivityIdentifierImpl implements Serializable {
     // "CID" is the id of the Constellation on which this Activity was
     // created,
     // "AID" is the sequence number of this activity on that executor.
-    private ConstellationIdentifier CID;
+    private ConstellationIdentifierImpl CID;
     private long AID;
     private boolean expectsEvents;
 
-    static ActivityIdentifier createActivityIdentifier(ConstellationIdentifier cid, long aid, boolean expectsEvents) {
-        ActivityIdentifierImpl id = new ActivityIdentifier();
+    static ActivityIdentifierImpl createActivityIdentifier(ConstellationIdentifierImpl cid, long aid, boolean expectsEvents) {
+        ActivityIdentifierImpl id = new ActivityIdentifierImpl();
         id.CID = cid;
         id.AID = aid;
         id.expectsEvents = expectsEvents;
-        return (ActivityIdentifier) id;
+        return id;
     }
 
     /**
@@ -38,7 +37,7 @@ public abstract class ActivityIdentifierImpl implements Serializable {
      *
      * @return whether this activity expects events.
      */
-    boolean expectsEvents() {
+    public boolean expectsEvents() {
         return expectsEvents;
     }
 
@@ -47,7 +46,7 @@ public abstract class ActivityIdentifierImpl implements Serializable {
      *
      * @return the constellation identifier.
      */
-    ConstellationIdentifier getOrigin() {
+    public ConstellationIdentifierImpl getOrigin() {
         return CID;
     }
 
@@ -93,6 +92,9 @@ public abstract class ActivityIdentifierImpl implements Serializable {
 
     @Override
     public String toString() {
+        if (CID == null) {
+            return "AID:-1";
+        }
         return "AID:" + Integer.toHexString(CID.getNodeId()) + ":" + Integer.toHexString(CID.getLocalId()) + ":"
                 + Long.toHexString(AID);
     }

@@ -2,8 +2,6 @@ package ibis.constellation.impl;
 
 import java.io.Serializable;
 
-import ibis.constellation.ConstellationIdentifier;
-
 /**
  * Base class for {@link StealReply}, {@link StealRequest}, and {@link EventMessage} messages.
  */
@@ -13,13 +11,13 @@ public abstract class Message implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /** Source of this message. */
-    public final ConstellationIdentifier source;
+    public final ConstellationIdentifierImpl source;
 
     /**
      * Target of this message. Note that the target is not final, because a message may get another target because of relocated
      * activities, or the target may not yet be known at the time of construction.
      */
-    public ConstellationIdentifier target;
+    public ConstellationIdentifierImpl target;
 
     /**
      * Constructs a message with the specified source and target.
@@ -29,7 +27,7 @@ public abstract class Message implements Serializable {
      * @param target
      *            the target
      */
-    Message(final ConstellationIdentifier source, final ConstellationIdentifier target) {
+    Message(final ConstellationIdentifierImpl source, final ConstellationIdentifierImpl target) {
         this.source = source;
         this.target = target;
     }
@@ -40,7 +38,7 @@ public abstract class Message implements Serializable {
      * @param source
      *            the source.
      */
-    Message(final ConstellationIdentifier source) {
+    Message(final ConstellationIdentifierImpl source) {
         this.source = source;
     }
 
@@ -50,7 +48,7 @@ public abstract class Message implements Serializable {
      * @param cid
      *            the target.
      */
-    synchronized void setTarget(ConstellationIdentifier cid) {
+    public synchronized void setTarget(ConstellationIdentifierImpl cid) {
         this.target = cid;
     }
 

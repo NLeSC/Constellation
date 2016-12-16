@@ -219,17 +219,17 @@ public class ConstellationProperties extends Properties {
         this(System.getProperties());
     }
 
-    /**
-     * Returns true if property <code>name</code> is defined and has a value that is conventionally associated with 'true' (as in
-     * Ant): any of 1, on, true, yes, or nothing.
-     *
-     * @return true if property is defined and set
-     * @param name
-     *            property name
-     */
-    private boolean getBooleanProperty(String name) {
-        return getBooleanProperty(name, false);
-    }
+    //    /**
+    //     * Returns true if property <code>name</code> is defined and has a value that is conventionally associated with 'true' (as in
+    //     * Ant): any of 1, on, true, yes, or nothing.
+    //     *
+    //     * @return true if property is defined and set
+    //     * @param name
+    //     *            property name
+    //     */
+    //    private boolean getBooleanProperty(String name) {
+    //        return getBooleanProperty(name, false);
+    //    }
 
     /**
      * Returns true if property <code>name</code> has a value that is conventionally associated with 'true' (as in Ant): any of 1,
@@ -251,28 +251,28 @@ public class ConstellationProperties extends Properties {
         return defaultValue;
     }
 
-    /**
-     * Returns the integer value of property.
-     *
-     * @return the integer value of property
-     * @param key
-     *            property name
-     * @throws NumberFormatException
-     *             if the property is undefined or not an integer
-     */
-    private int getIntProperty(String key) {
-        String value = getProperty(key);
-
-        if (value == null) {
-            throw new NumberFormatException("property undefined: " + key);
-        }
-
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            throw new NumberFormatException("Integer expected for property " + key + ", not \"" + value + "\"");
-        }
-    }
+    //    /**
+    //     * Returns the integer value of property.
+    //     *
+    //     * @return the integer value of property
+    //     * @param key
+    //     *            property name
+    //     * @throws NumberFormatException
+    //     *             if the property is undefined or not an integer
+    //     */
+    //    private int getIntProperty(String key) {
+    //        String value = getProperty(key);
+    //
+    //        if (value == null) {
+    //            throw new NumberFormatException("property undefined: " + key);
+    //        }
+    //
+    //        try {
+    //            return Integer.parseInt(value);
+    //        } catch (NumberFormatException e) {
+    //            throw new NumberFormatException("Integer expected for property " + key + ", not \"" + value + "\"");
+    //        }
+    //    }
 
     /**
      * Returns the integer value of property.

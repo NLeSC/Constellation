@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import ibis.constellation.context.ExecutorContext;
 import ibis.constellation.context.UnitExecutorContext;
-import ibis.constellation.impl.ExecutorBase;
+import ibis.constellation.impl.ExecutorWrapper;
 
 /**
  * An <code>Executor</code> represents some hardware capable of running {@link Activity activities}. This could be a single core,
@@ -23,7 +23,9 @@ import ibis.constellation.impl.ExecutorBase;
  * <li>a remote steal strategy, which decides which activities to execute when stealing from other constellation instances.</li>
  * </ul>
  */
-public abstract class Executor extends ExecutorBase implements Serializable {
+public abstract class Executor implements Serializable {
+
+    private ExecutorWrapper owner = null;
 
     private final ExecutorContext context;
 
@@ -163,15 +165,66 @@ public abstract class Executor extends ExecutorBase implements Serializable {
      *
      * @return whether the {@link #run()} method should return.
      */
-    @Override
     protected final boolean processActivities() {
-        return super.processActivities();
+        if (owner == null) {
+            throw new UnEmbeddedExecutorException(
+                    "processActivities() called but this executor is not embedded in a constellation instance yet");
+        }
+        return owner.processActitivies();
+    }
+
+    /**
+     * Submits an activity to the current executor.
+     *
+     * @param job
+     *            the activity to submit
+     * @return the activity identifier identifying this activity within constellation
+     */
+    public ActivityIdentifier submit(Activity job) {
+        if (owner == null) {
+            throw new UnEmbeddedExecutorException(
+                    "submit() called but this executor is not embedded in a constellation instance yet");
+        }
+        return owner.submit(job);
+    }
+
+    /**
+     * Sends the specified event. The destination activity is encoded in the event.
+     *
+     * @param e
+     *            the event to send
+     */
+    public void send(Event e) {
+        if (owner == null) {
+            throw new UnEmbeddedExecutorException(
+                    "send() called but this executor is not embedded in a constellation instance yet");
+        }
+        owner.send(e);
+    }
+
+    public synchronized boolean connect(ExecutorWrapper owner) {
+        if (this.owner != null) {
+            return false;
+        }
+        this.owner = owner;
+        return true;
+    }
+
+    /**
+     * Returns the executor identifier of the this executor instance.
+     *
+     * @return the executor identifier, or <code>null</code> if the executor is not embedded in a constellation instance yet.
+     */
+    public ExecutorIdentifier identifier() {
+        if (owner == null) {
+            return null;
+        }
+        return owner.executorIdentifier();
     }
 
     /**
      * This is the main method of this executor. Usually, it repeatedly calls {@link #processActivities()} until it returns
      * <code>true</code>.
      */
-    @Override
     public abstract void run();
 }

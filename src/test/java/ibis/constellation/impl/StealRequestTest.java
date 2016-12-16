@@ -16,16 +16,15 @@
 
 package ibis.constellation.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 import org.junit.Test;
 
-import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.context.ExecutorContext;
 import ibis.constellation.context.UnitExecutorContext;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 /**
  * @version 1.0
@@ -33,25 +32,25 @@ import static org.junit.Assert.assertFalse;
  *
  */
 public class StealRequestTest {
-    
+
     @Test(expected = IllegalArgumentException.class)
     public void createStealRequestNull() {
         new StealRequest(null, null, null, null, null, null, 0);
     }
-        
+
     @Test
     public void createStealRequest2() {
 
-        ConstellationIdentifier cid = ImplUtil.createConstellationIdentifier(0, 0);
-        
-        ExecutorContext exc = UnitExecutorContext.DEFAULT; 
-        
+        ConstellationIdentifierImpl cid = ImplUtil.createConstellationIdentifier(0, 0);
+
+        ExecutorContext exc = UnitExecutorContext.DEFAULT;
+
         StealStrategy lss = StealStrategy.ANY;
         StealStrategy css = StealStrategy.BIGGEST;
         StealStrategy rss = StealStrategy.SMALLEST;
-        
+
         StealPool sp = StealPool.WORLD;
-        
+
         StealRequest tmp = new StealRequest(cid, exc, lss, css, rss, sp, 42);
 
         assertEquals(tmp.constellationStrategy, css);
@@ -60,52 +59,52 @@ public class StealRequestTest {
     @Test
     public void createStealRequest3() {
 
-        ConstellationIdentifier cid = ImplUtil.createConstellationIdentifier(0, 0);
-        
-        ExecutorContext exc = UnitExecutorContext.DEFAULT; 
-        
+        ConstellationIdentifierImpl cid = ImplUtil.createConstellationIdentifier(0, 0);
+
+        ExecutorContext exc = UnitExecutorContext.DEFAULT;
+
         StealStrategy lss = StealStrategy.ANY;
         StealStrategy css = StealStrategy.BIGGEST;
         StealStrategy rss = StealStrategy.SMALLEST;
-        
+
         StealPool sp = StealPool.WORLD;
-        
+
         StealRequest tmp = new StealRequest(cid, exc, lss, css, rss, sp, 42);
 
-        assertEquals(tmp.remoteStrategy, rss);        
+        assertEquals(tmp.remoteStrategy, rss);
     }
 
     @Test
     public void createStealRequest4() {
 
-        ConstellationIdentifier cid = ImplUtil.createConstellationIdentifier(0, 0);
-        
-        ExecutorContext exc = UnitExecutorContext.DEFAULT; 
-        
+        ConstellationIdentifierImpl cid = ImplUtil.createConstellationIdentifier(0, 0);
+
+        ExecutorContext exc = UnitExecutorContext.DEFAULT;
+
         StealStrategy lss = StealStrategy.ANY;
         StealStrategy css = StealStrategy.BIGGEST;
         StealStrategy rss = StealStrategy.SMALLEST;
-        
+
         StealPool sp = StealPool.WORLD;
-        
+
         StealRequest tmp = new StealRequest(cid, exc, lss, css, rss, sp, 42);
 
-        assertEquals(tmp.context, exc);        
+        assertEquals(tmp.context, exc);
     }
 
     @Test
     public void createStealRequest5() {
 
-        ConstellationIdentifier cid = ImplUtil.createConstellationIdentifier(0, 0);
-        
-        ExecutorContext exc = UnitExecutorContext.DEFAULT; 
-        
+        ConstellationIdentifierImpl cid = ImplUtil.createConstellationIdentifier(0, 0);
+
+        ExecutorContext exc = UnitExecutorContext.DEFAULT;
+
         StealStrategy lss = StealStrategy.ANY;
         StealStrategy css = StealStrategy.BIGGEST;
         StealStrategy rss = StealStrategy.SMALLEST;
-        
+
         StealPool sp = StealPool.WORLD;
-        
+
         StealRequest tmp = new StealRequest(cid, exc, lss, css, rss, sp, 42);
 
         assertEquals(tmp.pool, sp);
@@ -114,16 +113,16 @@ public class StealRequestTest {
     @Test
     public void createStealRequest6() {
 
-        ConstellationIdentifier cid = ImplUtil.createConstellationIdentifier(0, 0);
-        
-        ExecutorContext exc = UnitExecutorContext.DEFAULT; 
-        
+        ConstellationIdentifierImpl cid = ImplUtil.createConstellationIdentifier(0, 0);
+
+        ExecutorContext exc = UnitExecutorContext.DEFAULT;
+
         StealStrategy lss = StealStrategy.ANY;
         StealStrategy css = StealStrategy.BIGGEST;
         StealStrategy rss = StealStrategy.SMALLEST;
-        
+
         StealPool sp = StealPool.WORLD;
-        
+
         StealRequest tmp = new StealRequest(cid, exc, lss, css, rss, sp, 42);
 
         assertEquals(tmp.source, cid);
@@ -132,61 +131,60 @@ public class StealRequestTest {
     @Test
     public void setTarget() {
 
-        ConstellationIdentifier cid = ImplUtil.createConstellationIdentifier(0, 0);
-        
-        ExecutorContext exc = UnitExecutorContext.DEFAULT; 
-        
+        ConstellationIdentifierImpl cid = ImplUtil.createConstellationIdentifier(0, 0);
+
+        ExecutorContext exc = UnitExecutorContext.DEFAULT;
+
         StealStrategy lss = StealStrategy.ANY;
         StealStrategy css = StealStrategy.BIGGEST;
         StealStrategy rss = StealStrategy.SMALLEST;
-        
+
         StealPool sp = StealPool.WORLD;
-        
+
         StealRequest tmp = new StealRequest(cid, exc, lss, css, rss, sp, 42);
 
-        ConstellationIdentifier target = ImplUtil.createConstellationIdentifier(1, 1);
-        
+        ConstellationIdentifierImpl target = ImplUtil.createConstellationIdentifier(1, 1);
+
         tmp.setTarget(target);
-        
+
         assertEquals(target, tmp.target);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void setTargetNull() {
 
-        ConstellationIdentifier cid = ImplUtil.createConstellationIdentifier(0, 0);
-        
-        ExecutorContext exc = UnitExecutorContext.DEFAULT; 
-        
+        ConstellationIdentifierImpl cid = ImplUtil.createConstellationIdentifier(0, 0);
+
+        ExecutorContext exc = UnitExecutorContext.DEFAULT;
+
         StealStrategy lss = StealStrategy.ANY;
         StealStrategy css = StealStrategy.BIGGEST;
         StealStrategy rss = StealStrategy.SMALLEST;
-        
+
         StealPool sp = StealPool.WORLD;
-        
+
         StealRequest tmp = new StealRequest(cid, exc, lss, css, rss, sp, 42);
 
         tmp.setTarget(null);
     }
-    
-    
+
     @Test
     public void setRemote() {
 
-        ConstellationIdentifier cid = ImplUtil.createConstellationIdentifier(0, 0);
-        
-        ExecutorContext exc = UnitExecutorContext.DEFAULT; 
-        
+        ConstellationIdentifierImpl cid = ImplUtil.createConstellationIdentifier(0, 0);
+
+        ExecutorContext exc = UnitExecutorContext.DEFAULT;
+
         StealStrategy lss = StealStrategy.ANY;
         StealStrategy css = StealStrategy.BIGGEST;
         StealStrategy rss = StealStrategy.SMALLEST;
-        
+
         StealPool sp = StealPool.WORLD;
-        
+
         StealRequest tmp = new StealRequest(cid, exc, lss, css, rss, sp, 42);
 
         tmp.setRemote();
-        
+
         assertFalse(tmp.isLocal());
     }
 }

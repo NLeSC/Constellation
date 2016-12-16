@@ -31,44 +31,43 @@ import ibis.constellation.impl.ImplUtil;
  *
  */
 public class FlexibleEventCollectorTest {
-    
-    class Waiter extends Thread { 
-        
-        FlexibleEventCollector c;
-        Event [] res;
-        
-        
-        Waiter(FlexibleEventCollector c) { 
+
+    class Waiter extends Thread {
+
+        private FlexibleEventCollector c;
+        private Event[] res;
+
+        Waiter(FlexibleEventCollector c) {
             this.c = c;
         }
-        
-        synchronized void put(Event [] res) {
+
+        public synchronized void put(Event[] res) {
             this.res = res;
         }
-        
-        synchronized Event [] get() {
+
+        public synchronized Event[] get() {
             return res;
-        }   
-        
-        public void run() { 
+        }
+
+        @Override
+        public void run() {
             res = c.waitForEvents();
         }
     }
-    
-    public void sleep(int seconds) { 
-        try { 
-            Thread.sleep(1000*seconds);
+
+    public void sleep(int seconds) {
+        try {
+            Thread.sleep(1000 * seconds);
         } catch (Exception e) {
             // ignored
         }
     }
-    
 
     @Test
     public void testCreate() {
 
         ActivityContext a = new UnitActivityContext("TEST");
-        
+
         FlexibleEventCollector c = new FlexibleEventCollector(a);
 
         assertEquals(a, c.getContext());
@@ -88,12 +87,10 @@ public class FlexibleEventCollectorTest {
         FlexibleEventCollector c = new FlexibleEventCollector();
 
         String s = c.toString();
-        
-        assertEquals("", s);
+
+        assertEquals("FlexibleEventCollector(AID:-1)", s);
     }
 
-    
-    
     @Test
     public void addEvent() {
 
@@ -101,15 +98,15 @@ public class FlexibleEventCollectorTest {
 
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(0, 1, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);
-        
+
         Event e = new Event(id1, id2, null);
-        
+
         c.process(e);
-        Event [] res = c.waitForEvents();
-        
-        assertArrayEquals(res, new Event[]{e});        
+        Event[] res = c.waitForEvents();
+
+        assertArrayEquals(res, new Event[] { e });
     }
-    
+
     @Test
     public void addEventMultiThreaded() {
 
@@ -117,29 +114,27 @@ public class FlexibleEventCollectorTest {
 
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(0, 1, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);
-        
+
         Waiter w = new Waiter(c);
         w.start();
-        
+
         // Give thread time to start.
         sleep(1);
-        
+
         Event e = new Event(id1, id2, null);
-        
+
         c.process(e);
-        
+
         // Finish thread
-        try { 
+        try {
             w.join();
         } catch (Exception ex) {
             // ignored
         }
-        
-        Event [] res = w.get();
-        
-        assertArrayEquals(res, new Event[]{e});        
+
+        Event[] res = w.get();
+
+        assertArrayEquals(res, new Event[] { e });
     }
-    
-    
-    
+
 }
