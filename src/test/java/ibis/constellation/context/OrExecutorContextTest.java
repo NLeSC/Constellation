@@ -51,7 +51,7 @@ public class OrExecutorContextTest {
     public void testToContainsNull() {
         UnitExecutorContext [] tmp = new UnitExecutorContext[] { new UnitExecutorContext("A"), null,  
                                                                  new UnitExecutorContext("B") };
-        OrExecutorContext c = new OrExecutorContext(tmp, true);
+        new OrExecutorContext(tmp, true);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -63,7 +63,7 @@ public class OrExecutorContextTest {
     public void testToContainsNull3() {
         UnitExecutorContext [] tmp = new UnitExecutorContext[] { new UnitExecutorContext("A"), null,  
                                                                  new UnitExecutorContext("B") };
-        OrExecutorContext c = new OrExecutorContext(tmp, false);
+        new OrExecutorContext(tmp, false);
     }
     
     @Test

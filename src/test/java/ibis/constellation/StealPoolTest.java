@@ -19,6 +19,7 @@ package ibis.constellation;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -109,7 +110,7 @@ public class StealPoolTest {
         
         StealPool [] tmp = new StealPool[] { a, b };
                 
-        assertEquals(tmp, res.set());
+        assertArrayEquals(tmp, res.set());
     }
 
     @Test
@@ -125,7 +126,7 @@ public class StealPoolTest {
         
         StealPool [] tmp = new StealPool[] { a, b, c };
                 
-        assertEquals(tmp, s2.set());
+        assertArrayEquals(tmp, s2.set());
     }
     
     @Test
@@ -197,7 +198,7 @@ public class StealPoolTest {
         
         StealPool [] res = new StealPool [] { p };
         
-        assertEquals(p.set(), res);
+        assertArrayEquals(p.set(), res);
     }
        
     @Test

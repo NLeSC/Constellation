@@ -16,18 +16,17 @@
 
 package ibis.constellation.impl;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.StealPool;
-import ibis.constellation.StealStrategy;
 import ibis.constellation.context.ExecutorContext;
 import ibis.constellation.context.UnitExecutorContext;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @version 1.0

@@ -21,8 +21,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
-
 import org.junit.Test;
 
 import ibis.constellation.StealStrategy;
@@ -55,7 +53,7 @@ public class OrActivityContextTest {
     public void testToContainsNull() {
         UnitActivityContext [] tmp = new UnitActivityContext[] { new UnitActivityContext("A"), null,  
                                                                  new UnitActivityContext("B") };
-        OrActivityContext c = new OrActivityContext(tmp, true);
+        new OrActivityContext(tmp, true);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -68,7 +66,7 @@ public class OrActivityContextTest {
     public void testToContainsNull3() {
         UnitActivityContext [] tmp = new UnitActivityContext[] { new UnitActivityContext("A"), null,  
                                                                  new UnitActivityContext("B") };
-        OrActivityContext c = new OrActivityContext(tmp, false);
+        new OrActivityContext(tmp, false);
     }
     
     @Test
