@@ -22,13 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import ibis.constellation.ActivityIdentifier;
-import ibis.constellation.Event;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.context.ExecutorContext;
-import ibis.constellation.context.OrExecutorContext;
-import ibis.constellation.context.UnitActivityContext;
-import ibis.constellation.context.UnitExecutorContext;
 
 /**
  * @version 1.0

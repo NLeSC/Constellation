@@ -26,9 +26,15 @@ public final class OrExecutorContext extends ExecutorContext {
         super();
 
         if (contexts == null || contexts.length < 2) {
-            throw new IllegalArgumentException("Invalid arguments to " + "OrContext: 2 or more contexts required!");
+            throw new IllegalArgumentException("Invalid arguments to OrContext: 2 or more contexts required!");
         }
-
+        
+        for (int i=0;i<contexts.length;i++) { 
+            if (contexts[i] == null) {
+                throw new IllegalArgumentException("Invalid arguments to OrContext: contexts contain null!");
+            }
+        }
+        
         unitContexts = contexts.clone();
         this.ordered = ordered;
     }
