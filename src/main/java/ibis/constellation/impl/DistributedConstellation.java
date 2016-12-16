@@ -65,7 +65,7 @@ public class DistributedConstellation {
     private MultiThreadedConstellation subConstellation;
 
     /** Our identification. */
-    private final ConstellationIdentifier identifier;
+    private final ConstellationIdentifierImpl identifier;
 
     /** The communication pool. */
     private final Pool pool;
@@ -75,9 +75,6 @@ public class DistributedConstellation {
 
     /** Separate thread for delivering delayed event messages. */
     private final DeliveryThread delivery;
-
-    /** Collected executor context of sub-constellation. */
-    private ExecutorContext myContext;
 
     /** The constellation facade. */
     private final Facade facade = new Facade();
@@ -93,10 +90,10 @@ public class DistributedConstellation {
     private class PendingSteal {
 
         /** The steal pool tag. */
-        final String pool;
+        public final String pool;
 
         /** Deadlines for different unit executor contexts. */
-        final HashMap<String, Long> deadlines = new HashMap<String, Long>();
+        public final HashMap<String, Long> deadlines = new HashMap<String, Long>();
 
         /**
          * Constructs a <code>PendingSteal</code> object with the specified steal pool tag.
@@ -122,7 +119,7 @@ public class DistributedConstellation {
          *            whether to set or reset the deadline
          * @return whether there was a deadline for this unit executor context.
          */
-        boolean setPending(UnitExecutorContext c, boolean value) {
+        public boolean setPending(UnitExecutorContext c, boolean value) {
 
             if (!value) {
                 // Reset the pending value for this context. We don't care if
@@ -209,7 +206,7 @@ public class DistributedConstellation {
          * @param m
          *            the event message to append.
          */
-        synchronized void enqueue(EventMessage m) {
+        private synchronized void enqueue(EventMessage m) {
             incoming.addLast(m);
 
             // reset the deadline when new messages have been added.
@@ -437,8 +434,6 @@ public class DistributedConstellation {
             identifier = cidFactory.generateConstellationIdentifier();
             stats = new Stats(identifier.toString());
 
-            myContext = UnitExecutorContext.DEFAULT;
-
             delivery = new DeliveryThread();
             delivery.start();
 
@@ -447,7 +442,7 @@ public class DistributedConstellation {
                 logger.info("               throttle : " + REMOTE_STEAL_THROTTLE);
                 logger.info("         throttle delay : " + REMOTE_STEAL_TIMEOUT);
                 logger.info("               stealStrategy : " + stealName);
-                logger.info("Starting DistributedConstellation " + identifier + " / " + myContext);
+                logger.info("Starting DistributedConstellation " + identifier);
             }
         } catch (PoolCreationFailedException e) {
             throw new ConstellationCreationException("could not create DistributedConstellation", e);
@@ -544,7 +539,7 @@ public class DistributedConstellation {
      *
      * @return the constellation identifier.
      */
-    ConstellationIdentifier identifier() {
+    ConstellationIdentifierImpl identifier() {
         return identifier;
     }
 
@@ -613,7 +608,7 @@ public class DistributedConstellation {
     /**
      * Deals with a steal request from the sub-constellation below.
      *
-     * The action taken depends on the steal strategy, steal pool, et cetera.
+     * The action taken depends on the steal strategy, steal pool, etc.
      *
      * @param sr
      *            the steal request.
@@ -695,7 +690,7 @@ public class DistributedConstellation {
      */
     boolean handleApplicationMessage(EventMessage m, boolean enqueueOnFail) {
 
-        ConstellationIdentifier target = m.target;
+        ConstellationIdentifierImpl target = m.target;
 
         // Sanity check
         // if (cidFactory.isLocal(target)) {
@@ -737,7 +732,7 @@ public class DistributedConstellation {
     boolean handleStealReply(StealReply m) {
 
         // Handle a steal reply (bottom up)
-        ConstellationIdentifier target = m.target;
+        ConstellationIdentifierImpl target = m.target;
 
         // Sanity check
         assert (!cidFactory.isLocal(target));

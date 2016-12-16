@@ -61,8 +61,9 @@ public class SmartSortedWorkQueue extends WorkQueue {
         ActivityRecord a = null;
 
         switch (s.getStrategy()) {
-        case StealStrategy._BIGGEST:
-        case StealStrategy._ANY:
+        //        case StealStrategy._BIGGEST:
+        //        case StealStrategy._ANY:
+        default:
             a = tmp.removeTail();
             break;
 
@@ -109,8 +110,9 @@ public class SmartSortedWorkQueue extends WorkQueue {
         ActivityRecord a = null;
 
         switch (s.getStrategy()) {
-        case StealStrategy._BIGGEST:
-        case StealStrategy._ANY:
+        //        case StealStrategy._BIGGEST:
+        //        case StealStrategy._ANY:
+        default:
             a = tmp.removeTail();
             break;
 

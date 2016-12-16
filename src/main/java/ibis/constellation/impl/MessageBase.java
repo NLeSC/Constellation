@@ -2,29 +2,27 @@ package ibis.constellation.impl;
 
 import java.io.Serializable;
 
-import ibis.constellation.ConstellationIdentifier;
-
 public abstract class MessageBase implements Serializable {
 
     /**
      *
      */
     private static final long serialVersionUID = 1L;
-    public final ConstellationIdentifier source;
-    public ConstellationIdentifier target;
+    public final ConstellationIdentifierImpl source;
+    public ConstellationIdentifierImpl target;
 
     private transient boolean stale = false;
 
-    protected MessageBase(final ConstellationIdentifier source, final ConstellationIdentifier target) {
+    protected MessageBase(final ConstellationIdentifierImpl source, final ConstellationIdentifierImpl target) {
         this.source = source;
         this.target = target;
     }
 
-    protected MessageBase(final ConstellationIdentifier source) {
+    protected MessageBase(final ConstellationIdentifierImpl source) {
         this.source = source;
     }
 
-    public synchronized void setTarget(ConstellationIdentifier cid) {
+    public synchronized void setTarget(ConstellationIdentifierImpl cid) {
         this.target = cid;
     }
 

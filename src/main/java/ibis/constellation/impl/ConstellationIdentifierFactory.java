@@ -1,7 +1,5 @@
 package ibis.constellation.impl;
 
-import ibis.constellation.ConstellationIdentifier;
-
 public class ConstellationIdentifierFactory {
 
     private final int rank;
@@ -11,11 +9,11 @@ public class ConstellationIdentifierFactory {
         this.rank = rank;
     }
 
-    public synchronized ConstellationIdentifier generateConstellationIdentifier() {
-        return new ConstellationIdentifier(rank, count++);
+    public synchronized ConstellationIdentifierImpl generateConstellationIdentifier() {
+        return new ConstellationIdentifierImpl(rank, count++);
     }
 
-    public boolean isLocal(ConstellationIdentifier cid) {
+    public boolean isLocal(ConstellationIdentifierImpl cid) {
         return cid.getNodeId() == rank;
     }
 }

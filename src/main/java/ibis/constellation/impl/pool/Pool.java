@@ -9,11 +9,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.StealPool;
 import ibis.constellation.extra.Stats;
 import ibis.constellation.extra.TimeSyncInfo;
+import ibis.constellation.impl.ConstellationIdentifierImpl;
 import ibis.constellation.impl.DistributedConstellation;
 import ibis.constellation.impl.EventMessage;
 import ibis.constellation.impl.MessageBase;
@@ -226,10 +226,8 @@ public class Pool {
         closedPool = properties.CLOSED;
         this.properties = properties;
 
-        if (closedPool) {
-            if (properties.POOLSIZE > 0) {
-                properties.setProperty("ibis.pool.size", "" + properties.POOLSIZE);
-            }
+        if (closedPool && properties.POOLSIZE > 0) {
+            properties.setProperty("ibis.pool.size", "" + properties.POOLSIZE);
         }
 
         comm = new CommunicationLayerImpl(properties, this);
@@ -317,7 +315,7 @@ public class Pool {
         }
     }
 
-    public boolean isLocal(ConstellationIdentifier id) {
+    public boolean isLocal(ConstellationIdentifierImpl id) {
         return rank == id.getNodeId();
     }
 
@@ -385,7 +383,7 @@ public class Pool {
         return isMaster;
     }
 
-    private NodeIdentifier translate(ConstellationIdentifier cid) {
+    private NodeIdentifier translate(ConstellationIdentifierImpl cid) {
         int rank = cid.getNodeId();
         return lookupRank(rank);
     }
@@ -414,7 +412,7 @@ public class Pool {
 
     private boolean forward(MessageBase m, byte opcode) {
 
-        ConstellationIdentifier target = m.target;
+        ConstellationIdentifierImpl target = m.target;
 
         if (logger.isTraceEnabled()) {
             logger.trace("POOL FORWARD Message from " + m.source + " to " + m.target + " " + m);
@@ -457,7 +455,7 @@ public class Pool {
         }
     }
 
-    private void registerRank(ConstellationIdentifier cid, NodeIdentifier id) {
+    private void registerRank(ConstellationIdentifierImpl cid, NodeIdentifier id) {
         int rank = cid.getNodeId();
         registerRank(rank, id);
     }
@@ -648,6 +646,7 @@ public class Pool {
 
         default:
             logger.error("Received unknown message opcode: " + opcode);
+            break;
         }
     }
 
@@ -797,7 +796,7 @@ public class Pool {
 
                     // Sanity checks
                     if (info != null) {
-                        if (!info.isDummy) {
+                        if (!info.isDummy()) {
                             logger.error("INTERNAL ERROR: Removed non-dummy PoolInfo!");
                         }
                     } else {
@@ -859,15 +858,15 @@ public class Pool {
     private void performUpdate(PoolInfo info) {
 
         synchronized (pools) {
-            PoolInfo tmp = pools.get(info.tag);
+            PoolInfo tmp = pools.get(info.getTag());
 
             if (tmp == null) {
-                logger.warn("Received spurious pool update! " + info.tag);
+                logger.warn("Received spurious pool update! " + info.getTag());
                 return;
             }
 
             if (info.currentTimeStamp() > tmp.currentTimeStamp()) {
-                pools.put(info.tag, info);
+                pools.put(info.getTag(), info);
             }
         }
     }
@@ -883,14 +882,14 @@ public class Pool {
         synchronized (pools) {
             tmp = pools.get(tag);
 
-            if (tmp == null || tmp.isDummy) {
+            if (tmp == null || tmp.isDummy()) {
                 logger.warn("Cannot request update for " + tag + ": unknown pool!");
                 return;
             }
 
         }
 
-        requestUpdate(tmp.master, tag, tmp.currentTimeStamp());
+        requestUpdate(tmp.getMaster(), tag, tmp.currentTimeStamp());
     }
 
     public static String getString(int opcode, String readOrWrite) {

@@ -99,9 +99,10 @@ public final class UnitActivityContext extends ActivityContext {
 
         case StealStrategy._RANGE:
             return (rank >= s.getStartOfRange() && rank <= s.getEndOfRange());
-        }
 
-        return false;
+        default:
+            return false;
+        }
     }
 
     private boolean satisfiedBy(OrExecutorContext offer, StealStrategy s) {

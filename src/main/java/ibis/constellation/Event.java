@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.List;
 
+import ibis.constellation.impl.IdChecker;
+
 /**
  * An <code>Event</code> can be used for communication between {@link Activity activities}. A common usage is to notify an
  * activity that certain data is available, or that some processing steps have been finished. The data of an event may implement
@@ -37,17 +39,13 @@ public final class Event implements Serializable, ByteBuffers {
      *             constellation). It is also thrown if the data is not null and not serializable.
      */
     public Event(ActivityIdentifier source, ActivityIdentifier target, Object data) {
-        if (source == null) {
-            throw new IllegalArgumentException("null provided for source of event");
-        }
-        if (target == null) {
-            throw new IllegalArgumentException("null provided for target of event");
-        }
+        IdChecker.checkActivityIdentifier(source, "source identifier of event");
+        IdChecker.checkActivityIdentifier(target, "target identifier of event");
+
         if (data != null && !(data instanceof Serializable)) {
             throw new IllegalArgumentException("data of event is not serializable");
         }
-        source.checkActivityIdentifier();
-        target.checkActivityIdentifier();
+
         this.source = source;
         this.target = target;
         this.data = data;
@@ -61,7 +59,7 @@ public final class Event implements Serializable, ByteBuffers {
         if (getData() != null) {
             s += getData().toString();
         } else {
-            s += " none";
+            s += "none";
         }
         return s;
     }

@@ -16,17 +16,17 @@ public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
 
         private static final long serialVersionUID = 1L;
 
-        String node;
-        String device;
-        String thread;
-        String action;
+        public String node;
+        public String device;
+        public String thread;
+        public String action;
 
-        long queued;
-        long submitted;
-        long start;
-        long end;
+        public long queued;
+        public long submitted;
+        public long start;
+        public long end;
 
-        long nrBytes;
+        public long nrBytes;
 
         public TimerEvent(String node, String device, String thread, String action, long queued, long submitted, long start,
                 long end) {
@@ -92,15 +92,15 @@ public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
             end = 0;
         }
 
-        boolean isEmptyEvent() {
+        public boolean isEmptyEvent() {
             return queued == 0 && submitted == 0 && start == 0 && end == 0;
         }
 
-        boolean isOverallEvent() {
+        public boolean isOverallEvent() {
             return device.equals("java") && thread.equals("main") && action.equals("overall");
         }
 
-        boolean hasDataTransfers() {
+        public boolean hasDataTransfers() {
             return nrBytes > 0;
         }
 
@@ -114,7 +114,7 @@ public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
             return String.format("%4.3f MB/s", getRate());
         }
 
-        String toDataTransferString() {
+        public String toDataTransferString() {
             return String.format(
                     "%-8s  |  %-14s  |  start: %-6s  |  " + "end: %-6s  |  duration: %-6s  | nrBytes: %4.3f MB  |  "
                             + "rate: %13s\n",
@@ -143,11 +143,9 @@ public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
     private final String action;
 
     public String getAction() {
-        if (action == null) {
-            if (events.size() > 0) {
-                TimerEvent event = events.get(0);
-                return event.getAction();
-            }
+        if (action == null && events.size() > 0) {
+            TimerEvent event = events.get(0);
+            return event.getAction();
         }
         return action;
     }
@@ -246,25 +244,25 @@ public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
         return groupBy(f);
     }
 
-    List<CTimer> groupByDevice() {
-        Function<TimerEvent, String> f = new Function<TimerEvent, String>() {
-            @Override
-            public String apply(TimerEvent event) {
-                return event.getDevice();
-            }
-        };
-        return groupBy(f);
-    }
-
-    List<CTimer> groupByNode() {
-        Function<TimerEvent, String> f = new Function<TimerEvent, String>() {
-            @Override
-            public String apply(TimerEvent event) {
-                return event.getNode();
-            }
-        };
-        return groupBy(f);
-    }
+    //    List<CTimer> groupByDevice() {
+    //        Function<TimerEvent, String> f = new Function<TimerEvent, String>() {
+    //            @Override
+    //            public String apply(TimerEvent event) {
+    //                return event.getDevice();
+    //            }
+    //        };
+    //        return groupBy(f);
+    //    }
+    //
+    //    List<CTimer> groupByNode() {
+    //        Function<TimerEvent, String> f = new Function<TimerEvent, String>() {
+    //            @Override
+    //            public String apply(TimerEvent event) {
+    //                return event.getNode();
+    //            }
+    //        };
+    //        return groupBy(f);
+    //    }
 
     private <T> List<CTimer> groupBy(Function<TimerEvent, T> f) {
         Multimap<T, TimerEvent> index = Multimaps.index(events, f);

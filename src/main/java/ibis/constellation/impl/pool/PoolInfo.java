@@ -15,11 +15,35 @@ class PoolInfo implements Serializable {
 
     private static final Logger logger = LoggerFactory.getLogger(PoolInfo.class);
 
-    final String tag;
+    private final String tag;
 
-    final NodeIdentifier master;
-    final boolean isMaster;
-    final boolean isDummy;
+    private final NodeIdentifier master;
+    private final boolean isMaster;
+    private final boolean isDummy;
+
+    public ArrayList<NodeIdentifier> getMembers() {
+        return members;
+    }
+
+    public void setMembers(ArrayList<NodeIdentifier> members) {
+        this.members = members;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public NodeIdentifier getMaster() {
+        return master;
+    }
+
+    public boolean isMaster() {
+        return isMaster;
+    }
+
+    public boolean isDummy() {
+        return isDummy;
+    }
 
     private long timestamp;
     private ArrayList<NodeIdentifier> members;
@@ -68,11 +92,11 @@ class PoolInfo implements Serializable {
         members.add(master);
     }
 
-    synchronized boolean hasMembers() {
+    public synchronized boolean hasMembers() {
         return members.size() != 0;
     }
 
-    synchronized void addMember(NodeIdentifier id) {
+    public synchronized void addMember(NodeIdentifier id) {
         if (logger.isInfoEnabled()) {
             logger.info("Adding " + id + " to pool with tag " + tag);
         }
@@ -80,7 +104,7 @@ class PoolInfo implements Serializable {
         timestamp++;
     }
 
-    synchronized void removeMember(NodeIdentifier id) {
+    public synchronized void removeMember(NodeIdentifier id) {
         if (logger.isInfoEnabled()) {
             logger.info("Removing " + id + " from pool with tag " + tag);
         }
@@ -88,15 +112,15 @@ class PoolInfo implements Serializable {
         timestamp++;
     }
 
-    synchronized int nMembers() {
+    public synchronized int nMembers() {
         return members.size();
     }
 
-    synchronized long currentTimeStamp() {
+    public synchronized long currentTimeStamp() {
         return timestamp;
     }
 
-    synchronized NodeIdentifier selectRandom(Random random) {
+    public synchronized NodeIdentifier selectRandom(Random random) {
         NodeIdentifier id = members.get(random.nextInt(members.size()));
         if (logger.isInfoEnabled()) {
             logger.info("Selecting " + id + " from list of " + members.size() + " members");
