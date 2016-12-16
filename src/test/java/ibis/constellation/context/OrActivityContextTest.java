@@ -69,6 +69,18 @@ public class OrActivityContextTest {
         new OrActivityContext(tmp, false);
     }
     
+    @Test(expected = IllegalArgumentException.class)
+    public void testDoubles1() {
+        UnitActivityContext [] tmp = new UnitActivityContext[] { new UnitActivityContext("A", 1), new UnitActivityContext("A", 1) }; 
+        new OrActivityContext(tmp, false);
+    }
+
+    @Test
+    public void testDoubles2() {
+        UnitActivityContext [] tmp = new UnitActivityContext[] { new UnitActivityContext("A", 1), new UnitActivityContext("A", 1) }; 
+        OrActivityContext c = new OrActivityContext(tmp, true);
+        assertArrayEquals(tmp, c.getContexts());
+    }
     @Test
     public void testToOK() {
         UnitActivityContext [] tmp = new UnitActivityContext[] { new UnitActivityContext("A"), new UnitActivityContext("B") };
@@ -96,7 +108,7 @@ public class OrActivityContextTest {
 
     @Test
     public void testOrder3() {
-        UnitActivityContext [] tmp = new UnitActivityContext[] { new UnitActivityContext("A", 1), new UnitActivityContext("A", 1) }; 
+        UnitActivityContext [] tmp = new UnitActivityContext[] { new UnitActivityContext("A", 1), new UnitActivityContext("B", 1) }; 
         OrActivityContext c = new OrActivityContext(tmp, false);
         assertArrayEquals(tmp, c.getContexts());
     }
