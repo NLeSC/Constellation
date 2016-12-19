@@ -2,6 +2,7 @@ package ibis.constellation.context;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 
 import ibis.constellation.StealStrategy;
 
@@ -15,6 +16,8 @@ public final class OrActivityContext extends ActivityContext {
 
     private final UnitActivityContext[] unitContexts;
 
+    private final boolean ordered;
+    
     private final int hashCode;
 
     private static class UnitActivityContextSorter implements Comparator<UnitActivityContext> {
@@ -68,16 +71,37 @@ public final class OrActivityContext extends ActivityContext {
         super();
 
         if (unit == null || unit.length < 2) {
-            throw new IllegalArgumentException("Invalid arguments to " + "OrContext: 2 or more contexts required!");
+            throw new IllegalArgumentException("Invalid arguments to OrContext: 2 or more contexts required!");
         }
 
-        unitContexts = unit.clone();
+        for (int i=0;i<unit.length;i++) { 
+            if (unit[i] == null) {
+                throw new IllegalArgumentException("Invalid argument to OrContext: contexts may not contain null!");                           
+            }
+        }
+        
+        this.ordered = ordered;
+        
+        if (ordered) {
+            unitContexts = unit.clone();
+        } else {
+            // When the OrContext is unordered, the order of the elements is unimportant. 
+            // We therefore remove double values and sort it get a uniform order. 
+            HashSet<UnitActivityContext> tmp = new HashSet<>();
 
-        if (!ordered) {
-            // When the OrContext is unordered, the order of the elements is
-            // unimportant. We therefore sort it to get a uniform order,
-            // regardless of the user defined order.
-            Arrays.sort(unitContexts, new UnitActivityContextSorter());
+            for (int i=0;i<unit.length;i++) { 
+                tmp.add(unit[i]);
+            }
+            
+            if (tmp.size() < 2) { 
+                throw new IllegalArgumentException("Invalid argument to OrContext: not enough unique contexts!");                           
+            }
+            
+            unitContexts = new UnitActivityContext[tmp.size()];
+            
+            tmp.toArray(unitContexts);
+            
+            Arrays.sort(unitContexts, new UnitActivityContextSorter()); 
         }
 
         hashCode = generateHash(unitContexts);
@@ -172,18 +196,12 @@ public final class OrActivityContext extends ActivityContext {
         if (hashCode != other.hashCode) {
             return false;
         }
-
-        if (unitContexts.length != other.unitContexts.length) {
+        
+        if (ordered != other.ordered) {
             return false;
         }
-
-        for (int i = 0; i < unitContexts.length; i++) {
-            if (!other.contains(unitContexts[i])) {
-                return false;
-            }
-        }
-
-        return true;
+        
+        return Arrays.equals(unitContexts, other.unitContexts);
     }
 
     @Override
