@@ -17,7 +17,7 @@ import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Event;
-import ibis.constellation.Executor;
+import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.context.ActivityContext;
@@ -116,11 +116,11 @@ public class SingleThreadedConstellation extends Thread {
 
     private final boolean PROFILE;
 
-    SingleThreadedConstellation(Executor executor, ConstellationProperties p) throws ConstellationCreationException {
+    SingleThreadedConstellation(ConstellationConfiguration executor, ConstellationProperties p) throws ConstellationCreationException {
         this(null, executor, p);
     }
 
-    public SingleThreadedConstellation(MultiThreadedConstellation parent, Executor executor, ConstellationProperties props)
+    public SingleThreadedConstellation(MultiThreadedConstellation parent, ConstellationConfiguration config, ConstellationProperties props)
             throws ConstellationCreationException {
 
         PROFILE_STEALS = props.PROFILE_STEAL;
@@ -196,7 +196,7 @@ public class SingleThreadedConstellation extends Thread {
 
         stealTimer = stats.getTimer("java", identifier().toString(), "steal");
 
-        wrapper = new ExecutorWrapper(this, executor, props, identifier);
+        wrapper = new ExecutorWrapper(this, props, identifier, config);
 
         myPool = wrapper.belongsTo();
         stealPool = wrapper.stealsFrom();
@@ -239,7 +239,7 @@ public class SingleThreadedConstellation extends Thread {
         return identifier;
     }
 
-    public ActivityIdentifier performSubmit(Activity a) {
+    public ActivityIdentifier performSubmit(Activity activity) {
         /*
          * This method is called by MultiThreadedConstellation, in case the user
          * calls submit() on a constellation instance. The
@@ -247,19 +247,17 @@ public class SingleThreadedConstellation extends Thread {
          * SingleThreadedConstellation, and the activity should be submitted to
          * its wrapper, because this executor may not be able to steal.
          */
-        return wrapper.submit(a);
+        return wrapper.submit(activity);
     }
 
     public ActivityIdentifierImpl doSubmit(ActivityRecord ar, ActivityContext c, ActivityIdentifierImpl id) {
 
-        ActivityBase a = ar.getActivity();
-
         if (c.satisfiedBy(wrapper.getContext(), StealStrategy.ANY)) {
 
             synchronized (this) {
-                lookup.put(a.identifierImpl(), ar);
+                lookup.put(ar.identifier(), ar);
 
-                if (a.isRestrictedToLocal()) {
+                if (ar.isRestrictedToLocal()) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Submit job to restricted, length was " + restricted.size());
                     }
@@ -809,7 +807,7 @@ public class SingleThreadedConstellation extends Thread {
 
             synchronized (this) {
                 boolean wake = havePendingRequests;
-
+                
                 while (!wake) {
 
                     try {
@@ -819,7 +817,7 @@ public class SingleThreadedConstellation extends Thread {
                     }
 
                     wake = havePendingRequests;
-
+                    
                     if (!wake) {
                         pauseTime = deadline - System.currentTimeMillis();
                         wake = (pauseTime <= 0);
@@ -827,7 +825,7 @@ public class SingleThreadedConstellation extends Thread {
                 }
             }
         }
-
+        
         return havePendingRequests;
     }
 
@@ -877,6 +875,13 @@ public class SingleThreadedConstellation extends Thread {
     public boolean processActivities() {
 
         if (havePendingRequests) {
+      
+            synchronized (this) { 
+                if (done) {
+                    return getDone();
+                }
+            }
+            
             processEvents();
         }
 
@@ -919,8 +924,7 @@ public class SingleThreadedConstellation extends Thread {
             while (!more && !havePendingRequests) {
                 // Our executor has run out of work. See if we can find some.
 
-                // Check if there is any matching work in one of the local
-                // queues...
+                // Check if there is any matching work in one of the local queues...
                 more = pushWorkToExecutor(wrapper.getLocalStealStrategy());
 
                 // If no work was found we send a steal request to our parent.
@@ -928,7 +932,9 @@ public class SingleThreadedConstellation extends Thread {
                     if (parent == null) {
                         break;
                     }
+                    
                     long nextDeadline = stealAllowed();
+                    
                     if (nextDeadline == 0) {
 
                         if (logger.isTraceEnabled()) {

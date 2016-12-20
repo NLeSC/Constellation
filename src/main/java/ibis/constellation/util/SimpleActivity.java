@@ -1,5 +1,9 @@
-package ibis.constellation;
+package ibis.constellation.util;
 
+import ibis.constellation.Activity;
+import ibis.constellation.ActivityIdentifier;
+import ibis.constellation.Constellation;
+import ibis.constellation.Event;
 import ibis.constellation.context.ActivityContext;
 
 /**
@@ -25,7 +29,7 @@ public abstract class SimpleActivity extends Activity {
      *            the context that specifies which executors can actually execute this activity.
      */
     protected SimpleActivity(ActivityIdentifier parent, ActivityContext context) {
-        this(parent, context, false);
+        this(parent, context, true);
     }
 
     /**
@@ -38,9 +42,9 @@ public abstract class SimpleActivity extends Activity {
      * @param restrictToLocal
      *            when set, specifies that this activity can only be executed by a local executor.
      */
-    protected SimpleActivity(ActivityIdentifier parent, ActivityContext context, boolean restictToLocal) {
-        super(context, restictToLocal, false);
-        setParent(parent);
+    protected SimpleActivity(ActivityIdentifier parent, ActivityContext context, boolean mayBeStolen) {
+        super(context, mayBeStolen, false);
+        this.parent = parent;
     }
 
     /**
@@ -49,18 +53,19 @@ public abstract class SimpleActivity extends Activity {
      * This version of {@link Activity#initialize()} calls {@link #simpleActivity()} and then {@link Activity#finish()}.
      */
     @Override
-    public void initialize() {
-        simpleActivity();
-        finish();
+    public int initialize(Constellation c) {
+        simpleActivity(c);
+        return FINISH;
     }
 
     @Override
-    public final void cleanup() {
+    public final int process(Constellation c, Event e) {
         // not used
+        return FINISH;
     }
 
     @Override
-    public final void process(Event e) {
+    public final void cleanup(Constellation c) {
         // not used
     }
 
@@ -68,7 +73,7 @@ public abstract class SimpleActivity extends Activity {
      * This method, to be implemented by the activity, is called once, after which the activity will {@link #finish()}.
      *
      */
-    public abstract void simpleActivity();
+    public abstract void simpleActivity(Constellation c);
 
     /**
      * Returns the activity identifier of the parent (as set by {@link #setParent(ActivityIdentifier)}, so it may be
@@ -86,7 +91,7 @@ public abstract class SimpleActivity extends Activity {
      * @param parent
      *            the parent activity identifier.
      */
-    public void setParent(ActivityIdentifier parent) {
-        this.parent = parent;
-    }
+//    public void setParent(ActivityIdentifier parent) {
+//        this.parent = parent;
+//    }
 }

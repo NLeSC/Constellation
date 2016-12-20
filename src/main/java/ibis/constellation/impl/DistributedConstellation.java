@@ -331,8 +331,8 @@ public class DistributedConstellation {
     private class Facade implements Constellation {
 
         @Override
-        public ActivityIdentifier submit(Activity a) {
-            return subConstellation.performSubmit(a);
+        public ActivityIdentifier submit(Activity activity) {
+            return subConstellation.performSubmit(activity);
         }
 
         @Override

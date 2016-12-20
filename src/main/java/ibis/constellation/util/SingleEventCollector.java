@@ -1,8 +1,12 @@
-package ibis.constellation;
+package ibis.constellation.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ibis.constellation.Activity;
+import ibis.constellation.ActivityIdentifier;
+import ibis.constellation.Constellation;
+import ibis.constellation.Event;
 import ibis.constellation.context.ActivityContext;
 import ibis.constellation.context.UnitActivityContext;
 
@@ -20,7 +24,7 @@ public class SingleEventCollector extends Activity {
     private static final long serialVersionUID = -538414301465754654L;
 
     private Event event;
-
+    
     /**
      * Constructs a <code>SingleEventCollector</code> with the specified activity context. Note: this is an activity that will
      * receive events (see {@link Activity#Activity(ActivityContext, boolean)}).
@@ -29,7 +33,7 @@ public class SingleEventCollector extends Activity {
      *            the activity context of this event collector
      */
     public SingleEventCollector(ActivityContext c) {
-        super(c, true, true);
+        super(c, false, true);
     }
 
     /**
@@ -39,17 +43,17 @@ public class SingleEventCollector extends Activity {
     public SingleEventCollector() {
         this(UnitActivityContext.DEFAULT);
     }
-
+    
     @Override
-    public void initialize() {
+    public int initialize(Constellation c) {
         if (logger.isDebugEnabled()) {
             logger.debug("Single event collector " + identifier() + " started.");
         }
-        suspend();
+        return SUSPEND;
     }
 
     @Override
-    public synchronized void process(Event e) {
+    public synchronized int process(Constellation c, Event e) {
 
         if (logger.isDebugEnabled()) {
             logger.debug("Single event collector " + identifier() + " got result!");
@@ -57,11 +61,11 @@ public class SingleEventCollector extends Activity {
 
         event = e;
         notifyAll();
-        finish();
+        return FINISH;
     }
 
     @Override
-    public void cleanup() {
+    public void cleanup(Constellation c) {
         // empty
     }
 

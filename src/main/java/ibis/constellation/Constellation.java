@@ -1,5 +1,7 @@
 package ibis.constellation;
 
+import ibis.constellation.context.ActivityContext;
+
 /**
  * Main interface to Constellation.
  *
@@ -21,7 +23,7 @@ public interface Constellation {
      *            the Activity to submit
      * @return ActivityIdentifier that can be used to refer to the submitted Activity.
      */
-    public ActivityIdentifier submit(Activity job);
+    public ActivityIdentifier submit(Activity activity);
 
     /**
      * Send an event.
@@ -30,16 +32,6 @@ public interface Constellation {
      *            the Event to send.
      */
     public void send(Event e);
-
-    // /**
-    // * Cancel an Activity.
-    // *
-    // * Todo: figure out and describe semantics of this.
-    // *
-    // * @param activity
-    // * activity to be cancelled
-    // */
-    // public void cancel(ActivityIdentifier activity);
 
     /**
      * Activate this Constellation implementation.

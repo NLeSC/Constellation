@@ -1,7 +1,11 @@
-package ibis.constellation;
+package ibis.constellation.util;
 
 import java.util.ArrayList;
 
+import ibis.constellation.Activity;
+import ibis.constellation.ActivityIdentifier;
+import ibis.constellation.Constellation;
+import ibis.constellation.Event;
 import ibis.constellation.context.ActivityContext;
 import ibis.constellation.context.UnitActivityContext;
 
@@ -17,7 +21,7 @@ public class FlexibleEventCollector extends Activity {
 
     private final ArrayList<Event> events = new ArrayList<Event>();
     private boolean waiting = false;
-
+    
     /**
      * Constructs a <code>FlexibleEventCollector</code> with the specified activity context. Note: this is an activity that will
      * receive events (see {@link Activity#Activity(ActivityContext, boolean)}).
@@ -26,23 +30,23 @@ public class FlexibleEventCollector extends Activity {
      *            the activity context
      */
     public FlexibleEventCollector(ActivityContext c) {
-        super(c, true);
+        super(c, false, true);
     }
 
     /**
      * Constructs a <code>FlexibleEventCollector</code> with the default activity context.
      */
     public FlexibleEventCollector() {
-        super(UnitActivityContext.DEFAULT, true);
+        super(UnitActivityContext.DEFAULT, false ,true);
     }
 
     @Override
-    public void initialize() {
-        suspend();
+    public int initialize(Constellation c) {
+        return SUSPEND;
     }
 
     @Override
-    public synchronized void process(Event e) {
+    public synchronized int process(Constellation c, Event e) {
 
         events.add(e);
 
@@ -50,11 +54,11 @@ public class FlexibleEventCollector extends Activity {
             notifyAll();
         }
 
-        suspend();
+        return SUSPEND;
     }
 
     @Override
-    public void cleanup() {
+    public void cleanup(Constellation c) {
         // empty
     }
 

@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import ibis.constellation.Activity;
 import ibis.constellation.ByteBuffers;
+import ibis.constellation.Constellation;
 import ibis.constellation.Event;
 import ibis.constellation.context.ActivityContext;
 import ibis.constellation.extra.CircularBuffer;
@@ -26,6 +27,12 @@ public class ActivityRecord implements Serializable, ByteBuffers {
     private static final int ERROR = Integer.MAX_VALUE;
 
     private final Activity activity;
+    private final ActivityIdentifierImpl identifier;
+    private final ActivityContext context;
+
+    private final boolean mayBeStolen;
+    private final boolean expectsEvents;
+    
     private final CircularBuffer<Event> queue;
     private int state = INITIALIZING;
 
@@ -33,16 +40,25 @@ public class ActivityRecord implements Serializable, ByteBuffers {
     private boolean relocated = false;
     private boolean remote = false;
 
-    ActivityRecord(Activity activity) {
+    ActivityRecord(Activity activity, ActivityIdentifierImpl id) {
         this.activity = activity;
-        queue = new CircularBuffer<Event>(4);
+        this.identifier = id;
+        this.context = activity.getContext();
+        this.mayBeStolen = activity.mayBeStolen();
+        this.expectsEvents = activity.expectsEvents();
+
+        if (expectsEvents) { 
+            queue = new CircularBuffer<Event>(4);
+        } else { 
+            queue = null;
+        }
     }
 
     public void enqueue(Event e) {
 
         if (state >= FINISHING) {
             throw new IllegalStateException(
-                    "Cannot deliver an event to a finished activity! " + getActivity() + " (event from " + e.getSource() + ")");
+                    "Cannot deliver an event to a finished activity! " + activity + " (event from " + e.getSource() + ")");
         }
 
         queue.insertLast(e);
@@ -62,7 +78,7 @@ public class ActivityRecord implements Serializable, ByteBuffers {
     }
 
     public ActivityIdentifierImpl identifier() {
-        return (ActivityIdentifierImpl) getActivity().identifier();
+        return identifier;
     }
 
     public boolean isRunnable() {
@@ -98,7 +114,7 @@ public class ActivityRecord implements Serializable, ByteBuffers {
     }
 
     public boolean isRestrictedToLocal() {
-        return getActivity().isRestrictedToLocal();
+        return !mayBeStolen;
     }
 
     public boolean isDone() {
@@ -130,27 +146,27 @@ public class ActivityRecord implements Serializable, ByteBuffers {
         throw new IllegalStateException("INTERNAL ERROR: activity cannot be made runnable!");
     }
 
-    private final void runStateMachine() {
+    private final void runStateMachine(Constellation c) {
         try {
+            int nextState;
+            
             switch (state) {
 
             case INITIALIZING:
+                nextState = activity.initialize(c);
 
-                getActivity().initialize();
-
-                if (getActivity().mustSuspend()) {
+                if (nextState == Activity.SUSPEND) {
                     if (pendingEvents() > 0) {
                         state = RUNNABLE;
                     } else {
                         state = SUSPENDED;
                     }
-                } else if (getActivity().mustFinish()) {
+                } else if (nextState == Activity.FINISH) {
+                    // TODO: handle pending event here ?? Exception or warning ? 
                     state = FINISHING;
                 } else {
                     throw new IllegalStateException("ActivityBase did not suspend or finish!");
                 }
-
-                getActivity().reset();
                 break;
 
             case RUNNABLE:
@@ -161,27 +177,26 @@ public class ActivityRecord implements Serializable, ByteBuffers {
                     throw new IllegalStateException("INTERNAL ERROR: Runnable activity has no pending events!");
                 }
 
-                getActivity().process(e);
+                nextState = activity.process(c, e);
 
-                if (getActivity().mustSuspend()) {
+                if (nextState == Activity.SUSPEND) {
                     // We only suspend the job if there are no pending events.
                     if (pendingEvents() > 0) {
                         state = RUNNABLE;
                     } else {
                         state = SUSPENDED;
                     }
-                } else if (getActivity().mustFinish()) {
+                } else if (nextState == Activity.FINISH) {
+                    // TODO: handle pending event here ?? Exception or warning ? 
                     state = FINISHING;
                 } else {
                     throw new IllegalStateException("ActivityBase did not suspend or finish!");
                 }
 
-                getActivity().reset();
                 break;
 
             case FINISHING:
-                getActivity().cleanup();
-
+                activity.cleanup(c);
                 state = DONE;
                 break;
 
@@ -202,8 +217,8 @@ public class ActivityRecord implements Serializable, ByteBuffers {
 
     }
 
-    public void run() {
-        runStateMachine();
+    public void run(Constellation c) {
+        runStateMachine(c);
     }
 
     private String getStateAsString() {
@@ -229,11 +244,11 @@ public class ActivityRecord implements Serializable, ByteBuffers {
 
     @Override
     public String toString() {
-        return getActivity() + " STATE: " + getStateAsString() + " " + "event queue size = " + queue.size();
+        return activity + " STATE: " + getStateAsString() + " " + "event queue size = " + queue.size();
     }
 
     public ActivityContext getContext() {
-        return getActivity().getContext();
+        return context;
     }
 
     @Override
@@ -241,8 +256,8 @@ public class ActivityRecord implements Serializable, ByteBuffers {
         if (queue != null) {
             queue.pushByteBuffers(list);
         }
-        if (getActivity() != null && getActivity() instanceof ByteBuffers) {
-            ((ByteBuffers) getActivity()).pushByteBuffers(list);
+        if (activity != null && activity instanceof ByteBuffers) {
+            ((ByteBuffers) activity).pushByteBuffers(list);
         }
     }
 
@@ -251,12 +266,12 @@ public class ActivityRecord implements Serializable, ByteBuffers {
         if (queue != null) {
             queue.popByteBuffers(list);
         }
-        if (getActivity() != null && getActivity() instanceof ByteBuffers) {
-            ((ByteBuffers) getActivity()).popByteBuffers(list);
+        if (activity != null && activity instanceof ByteBuffers) {
+            ((ByteBuffers) activity).popByteBuffers(list);
         }
     }
 
-    public ActivityBase getActivity() {
-        return activity;
-    }
+//    public Activity getActivity() {
+//        return activity;
+//    }
 }

@@ -1,8 +1,12 @@
-package ibis.constellation;
+package ibis.constellation.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ibis.constellation.Activity;
+import ibis.constellation.ActivityIdentifier;
+import ibis.constellation.Constellation;
+import ibis.constellation.Event;
 import ibis.constellation.context.ActivityContext;
 import ibis.constellation.context.UnitActivityContext;
 
@@ -21,7 +25,7 @@ public class MultiEventCollector extends Activity {
 
     private final Event[] events;
     private int count;
-
+    
     /**
      * Constructs a <code>MultiEventCollector</code> with the specified activity context and event count. Note: this is an
      * activity that will receive events (see {@link Activity#Activity(ActivityContext, boolean)}).
@@ -32,7 +36,7 @@ public class MultiEventCollector extends Activity {
      *            the number of events to be collected
      */
     public MultiEventCollector(ActivityContext c, int events) {
-        super(c, true, true);
+        super(c, false, true);
         this.events = new Event[events];
     }
 
@@ -46,14 +50,14 @@ public class MultiEventCollector extends Activity {
     public MultiEventCollector(int events) {
         this(UnitActivityContext.DEFAULT, events);
     }
-
+    
     @Override
-    public void initialize() {
-        suspend();
+    public int initialize(Constellation c) {
+        return SUSPEND;
     }
-
+    
     @Override
-    public synchronized void process(Event e) {
+    public synchronized int process(Constellation c, Event e) {
 
         if (logger.isDebugEnabled()) {
             logger.debug("MultiEventCollector: received event " + count + " of " + events.length);
@@ -63,14 +67,14 @@ public class MultiEventCollector extends Activity {
 
         if (count == events.length) {
             notifyAll();
-            finish();
+            return FINISH;
         } else {
-            suspend();
+            return SUSPEND;
         }
     }
 
     @Override
-    public void cleanup() {
+    public void cleanup(Constellation c) {
         // empty
     }
 

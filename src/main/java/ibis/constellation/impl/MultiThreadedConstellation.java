@@ -15,7 +15,6 @@ import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Event;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.context.ActivityContext;
 import ibis.constellation.context.ExecutorContext;
 import ibis.constellation.context.OrExecutorContext;
 import ibis.constellation.context.UnitExecutorContext;
@@ -57,8 +56,8 @@ public class MultiThreadedConstellation {
         /* Following methods implement the Constellation interface */
 
         @Override
-        public ActivityIdentifier submit(Activity a) {
-            return performSubmit(a);
+        public ActivityIdentifier submit(Activity activity) {
+            return performSubmit(activity);
         }
 
         @Override
@@ -161,19 +160,18 @@ public class MultiThreadedConstellation {
 
     private boolean PROFILE;
 
-    public synchronized ActivityIdentifier performSubmit(Activity a) {
+    public synchronized ActivityIdentifier performSubmit(Activity activity) {
 
-        ActivityContext c = a.getContext();
         for (int i = 0; i < workerCount; i++) {
             // Round robin submit (for testing)
             int index = next++;
             next = next % workerCount;
             SingleThreadedConstellation e = workers[index];
-            if (c.satisfiedBy(e.getContext(), StealStrategy.ANY)) {
-                return e.performSubmit(a);
+            if (activity.getContext().satisfiedBy(e.getContext(), StealStrategy.ANY)) {
+                return e.performSubmit(activity);
             }
             if (e.belongsTo().isWorld()) {
-                return e.performSubmit(a);
+                return e.performSubmit(activity);
             }
         }
         throw new Error("submit: no suitable executor found");

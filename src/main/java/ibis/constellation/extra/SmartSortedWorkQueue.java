@@ -136,7 +136,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
         }
 
         // Remove entry for this ActivityRecord from all lists....
-        OrActivityContext cntx = (OrActivityContext) a.getActivity().getContext();
+        OrActivityContext cntx = (OrActivityContext) a.getContext();
 
         for (int i = 0; i < cntx.size(); i++) {
 
@@ -198,7 +198,7 @@ public class SmartSortedWorkQueue extends WorkQueue {
     @Override
     public synchronized void enqueue(ActivityRecord a) {
 
-        ActivityContext c = a.getActivity().getContext();
+        ActivityContext c = a.getContext();
 
         if (c instanceof UnitActivityContext) {
             enqueueUnit((UnitActivityContext) c, a);

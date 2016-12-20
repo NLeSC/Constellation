@@ -49,6 +49,11 @@ public abstract class Message implements Serializable {
      *            the target.
      */
     public synchronized void setTarget(ConstellationIdentifierImpl cid) {
+        
+        if (cid == null) { 
+            new IllegalArgumentException("ConstellationIdentifier is null");
+        }
+        
         this.target = cid;
     }
 

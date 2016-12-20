@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package ibis.constellation;
+package ibis.constellation.util;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import ibis.constellation.ActivityIdentifier;
+import ibis.constellation.Constellation;
+import ibis.constellation.Event;
 import ibis.constellation.context.ActivityContext;
 import ibis.constellation.context.UnitActivityContext;
 import ibis.constellation.impl.ImplUtil;
@@ -88,7 +91,7 @@ public class FlexibleEventCollectorTest {
 
         String s = c.toString();
 
-        assertEquals("FlexibleEventCollector(AID:-1)", s);
+        assertEquals("FlexibleEventCollector(null)", s);
     }
 
     @Test
@@ -99,9 +102,11 @@ public class FlexibleEventCollectorTest {
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(0, 1, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);
 
+        Constellation con = ImplUtil.createFakeConstellation();
+        
         Event e = new Event(id1, id2, null);
 
-        c.process(e);
+        c.process(con, e);
         Event[] res = c.waitForEvents();
 
         assertArrayEquals(res, new Event[] { e });
@@ -115,6 +120,8 @@ public class FlexibleEventCollectorTest {
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(0, 1, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);
 
+        Constellation con = ImplUtil.createFakeConstellation();
+        
         Waiter w = new Waiter(c);
         w.start();
 
@@ -123,7 +130,7 @@ public class FlexibleEventCollectorTest {
 
         Event e = new Event(id1, id2, null);
 
-        c.process(e);
+        c.process(con, e);
 
         // Finish thread
         try {

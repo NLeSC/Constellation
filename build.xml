@@ -1,6 +1,6 @@
 <project name="Constellation" default="build" basedir="." xmlns:jacoco="antlib:org.jacoco.ant">
 
-	<property name="version" value="0.7.0" />
+	<property name="version" value="2.0.0" />
 	<property name="jar" value="constellation-${version}.jar" />
 	<property name="zip" value="constellation-${version}.zip" />
 	<property name="src-zip" value="constellation-${version}-src.zip" />
@@ -10,8 +10,12 @@
 
   	<property name="main.build.dir" value="./build/main"/>
   	<property name="main.src.dir" value="./src/main/java"/>
-  	<property name="test.build.dir" value="./build/test"/>
-  	<property name="test.src.dir" value="./src/test/java"/>
+
+  	<property name="unittest.build.dir" value="./build/test"/>
+  	<property name="unittest.src.dir" value="./src/test/java"/>
+
+  	<property name="integrationtest.build.dir" value="./build/integrationTest"/>
+  	<property name="integrationtest.src.dir" value="./src/integrationTests/java"/>
 
         <property name="result.dir" location="./target" />
         <property name="result.classes.dir" location="${result.dir}/classes" />
@@ -56,12 +60,12 @@
 		</jar>
 	</target>
 
-	<target name="test-compile" depends="compile">
-		<mkdir dir="${test.build.dir}" />
+	<target name="unittest-compile" depends="compile">
+		<mkdir dir="${unittest.build.dir}" />
 		<mkdir dir="${result.classes.dir}" />
 		<mkdir dir="${result.report.dir}" />
 
-		<javac destdir="${test.build.dir}" srcdir="${test.src.dir}" source="1.7" target="1.7" debug="true" includeantruntime="false" includes="**/*.java">
+		<javac destdir="${unittest.build.dir}" srcdir="${unittest.src.dir}" source="1.7" target="1.7" debug="true" includeantruntime="false" includes="**/*.java">
         		<classpath>
           			<pathelement location="${distdir}/${jar}"/>
                                 <path refid="test.classpath"/>
@@ -69,6 +73,18 @@
 		</javac>
 	</target>
 
+	<target name="integrationtest-compile" depends="compile">
+		<mkdir dir="${integrationtest.build.dir}" />
+		<mkdir dir="${result.classes.dir}" />
+		<mkdir dir="${result.report.dir}" />
+
+		<javac destdir="${integrationtest.build.dir}" srcdir="${integrationtest.src.dir}" source="1.7" target="1.7" debug="true" includeantruntime="false" includes="**/*.java">
+        		<classpath>
+          			<pathelement location="${distdir}/${jar}"/>
+                                <path refid="test.classpath"/>
+        		</classpath>
+		</javac>
+	</target>
 
         <target name="copy-external">
 	        <mkdir dir="lib" />
@@ -90,20 +106,37 @@
 	<target name="build" depends="clean,compile,copy-external">
 	</target>
 
- 	<target name="test" depends="test-compile">
+ 	<target name="unittest" depends="unittest-compile">
                 <jacoco:coverage destfile="${result.exec.file}">
     			<junit printsummary="on" haltonfailure="no" fork="true">
         			<classpath>
           				<path refid="test.classpath"/>
-          				<pathelement location="${test.build.dir}"/>
+          				<pathelement location="${unittest.build.dir}"/>
         			</classpath>
         			<formatter type="brief" usefile="false" />
         			<batchtest>
-            				<fileset dir="${test.src.dir}" includes="**/*Test.java" />
+            				<fileset dir="${unittest.src.dir}" includes="**/*Test.java" />
         			</batchtest>
     			</junit>
                 </jacoco:coverage>
+	</target>
 
+ 	<target name="integrationtest" depends="integrationtest-compile">
+                <jacoco:coverage destfile="${result.exec.file}">
+    			<junit printsummary="on" haltonfailure="no" fork="true">
+        			<classpath>
+          				<path refid="test.classpath"/>
+          				<pathelement location="${integrationtest.build.dir}"/>
+        			</classpath>
+        			<formatter type="brief" usefile="false" />
+        			<batchtest>
+            				<fileset dir="${integrationtest.src.dir}" includes="**/*Test.java" />
+        			</batchtest>
+    			</junit>
+                </jacoco:coverage>
+	</target>
+	
+ 	<target name="test" depends="unittest,integrationtest">
                 <jacoco:report>
 
                         <!-- This task needs the collected execution data and ... -->

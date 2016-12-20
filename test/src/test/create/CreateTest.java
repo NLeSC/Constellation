@@ -1,10 +1,8 @@
 package test.create;
 
 import ibis.constellation.Constellation;
+import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationFactory;
-import ibis.constellation.Executor;
-import ibis.constellation.SimpleExecutor;
-import ibis.constellation.StealStrategy;
 import ibis.constellation.context.UnitExecutorContext;
 
 public class CreateTest {
@@ -15,13 +13,8 @@ public class CreateTest {
         try {
             int executors = Integer.parseInt(args[0]);
 
-            Executor[] e = new Executor[executors];
-
-            for (int i = 0; i < executors; i++) {
-                e[i] = new SimpleExecutor(new UnitExecutorContext("DEFAULT"), StealStrategy.ANY);
-            }
-
-            Constellation c = ConstellationFactory.createConstellation(e);
+            ConstellationConfiguration config = new ConstellationConfiguration(new UnitExecutorContext("DEFAULT"));
+            Constellation c = ConstellationFactory.createConstellation(config, executors);
             c.activate();
             c.done();
         } catch (Exception e) {

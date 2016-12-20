@@ -33,7 +33,8 @@ import ibis.constellation.context.UnitExecutorContext;
  *
  */
 public class StealReplyTest {
-
+    
+  
     @Test
     public void testStealReplySource() {
 
@@ -44,8 +45,8 @@ public class StealReplyTest {
 
         StealPool sp = StealPool.WORLD;
 
-        ActivityRecord work = new ActivityRecord(null);
-
+        ActivityRecord work = ImplUtil.createActivityRecord();
+        
         StealReply tmp = new StealReply(src, dst, sp, exc, work);
 
         assertEquals(src, tmp.source);
@@ -61,8 +62,8 @@ public class StealReplyTest {
 
         StealPool sp = StealPool.WORLD;
 
-        ActivityRecord work = new ActivityRecord(null);
-
+        ActivityRecord work = ImplUtil.createActivityRecord();
+        
         StealReply tmp = new StealReply(src, dst, sp, exc, work);
 
         assertEquals(dst, tmp.target);
@@ -78,8 +79,8 @@ public class StealReplyTest {
 
         StealPool sp = StealPool.WORLD;
 
-        ActivityRecord work = new ActivityRecord(null);
-
+        ActivityRecord work = ImplUtil.createActivityRecord();
+        
         StealReply tmp = new StealReply(src, dst, sp, exc, work);
 
         assertEquals(exc, tmp.getContext());
@@ -95,8 +96,8 @@ public class StealReplyTest {
 
         StealPool sp = StealPool.WORLD;
 
-        ActivityRecord work = new ActivityRecord(null);
-
+        ActivityRecord work = ImplUtil.createActivityRecord();
+        
         StealReply tmp = new StealReply(src, dst, sp, exc, work);
 
         assertEquals(sp, tmp.getPool());
@@ -112,8 +113,8 @@ public class StealReplyTest {
 
         StealPool sp = StealPool.WORLD;
 
-        ActivityRecord work = new ActivityRecord(null);
-
+        ActivityRecord work = ImplUtil.createActivityRecord();
+        
         StealReply tmp = new StealReply(src, dst, sp, exc, work);
 
         assertArrayEquals(new ActivityRecord[] { work }, tmp.getWork());
@@ -129,8 +130,8 @@ public class StealReplyTest {
 
         StealPool sp = StealPool.WORLD;
 
-        ActivityRecord work = new ActivityRecord(null);
-
+        ActivityRecord work = ImplUtil.createActivityRecord();
+        
         StealReply tmp = new StealReply(src, dst, sp, exc, work);
 
         assertEquals(1, tmp.getSize());
@@ -161,7 +162,7 @@ public class StealReplyTest {
 
         StealPool sp = StealPool.WORLD;
 
-        ActivityRecord[] work = new ActivityRecord[] { new ActivityRecord(null), new ActivityRecord(null) };
+        ActivityRecord[] work = new ActivityRecord[] { ImplUtil.createActivityRecord(), ImplUtil.createActivityRecord() };
 
         StealReply tmp = new StealReply(src, dst, sp, exc, work);
 
@@ -206,9 +207,11 @@ public class StealReplyTest {
 
         ExecutorContext exc = UnitExecutorContext.DEFAULT;
 
+        ActivityRecord work = ImplUtil.createActivityRecord();
+        
         StealPool sp = StealPool.WORLD;
 
-        StealReply tmp = new StealReply(src, dst, sp, exc, new ActivityRecord(null));
+        StealReply tmp = new StealReply(src, dst, sp, exc, work);
 
         assertFalse(tmp.isEmpty());
     }
