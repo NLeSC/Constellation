@@ -49,6 +49,7 @@ public class StealPoolTest {
     public void mergeStealPoolSingle() {
         StealPool a = new StealPool("A");
         StealPool res = StealPool.merge(a);
+
         assertEquals(a, res);
     }
 

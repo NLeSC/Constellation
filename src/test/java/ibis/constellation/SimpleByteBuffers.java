@@ -27,6 +27,8 @@ import java.util.List;
  */
 public class SimpleByteBuffers implements ByteBuffers, java.io.Serializable {
 
+    private static final long serialVersionUID = 1648161292787435935L;
+   
     private transient List<ByteBuffer> list = new LinkedList<>();
     
     /* (non-Javadoc)
