@@ -52,12 +52,12 @@ public class DivideAndConquerCleanTest {
 
 			long end = System.nanoTime();
 
-			double msPerJob = Math.round(((end - start) / 10000.0) * executors * nodes / Math.pow(branch, depth)) / 100.0;
+			double nsPerJob = Math.round(((end - start) / count) * (executors*nodes));
 
 			String correct = (result == count) ? " (CORRECT)" : " (WRONG!)";
 						
 			logger.info("D&C(" + branch + ", " + depth + ") = " + result + correct + " total time = "
-					+ Math.round((end - start) / 1000000.0) / 1000.0 + " sec; leaf job time = " + msPerJob + " msec/job");
+					+ Math.round((end - start) / 1000000.0) / 1000.0 + " sec; leaf job time = " + nsPerJob + " nsec/job");
 			
 			assertEquals(result, count);
 		}
@@ -67,6 +67,18 @@ public class DivideAndConquerCleanTest {
 	
 	@Test
 	public void fibOnOne() throws Exception {
-		runTest(2, 5, 1, 1);
+		runTest(2, 21, 1, 1);
 	}
+	
+	@Test
+	public void fibOnTwo() throws Exception {
+		runTest(2, 21, 1, 2);
+	}
+	
+	@Test
+	public void fibOnFour() throws Exception {
+		runTest(2, 21, 1, 4);
+	}
+	
+	
 }
