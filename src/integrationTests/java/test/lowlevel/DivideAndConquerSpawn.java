@@ -10,7 +10,7 @@ import ibis.constellation.context.UnitActivityContext;
 import ibis.constellation.context.UnitExecutorContext;
 import ibis.constellation.util.SingleEventCollector;
 
-public class DivideAndConquerSpawnTest extends Activity {
+public class DivideAndConquerSpawn extends Activity {
 
     /*
      * This is the Constellation equivalent of the SpawnOverhead test in Satin
@@ -32,7 +32,7 @@ public class DivideAndConquerSpawnTest extends Activity {
 
     private long start;
 
-    public DivideAndConquerSpawnTest(ActivityIdentifier parent, boolean spawn) {
+    public DivideAndConquerSpawn(ActivityIdentifier parent, boolean spawn) {
         super(new UnitActivityContext("DC"), spawn);
         this.parent = parent;
         this.spawn = spawn;
@@ -40,7 +40,7 @@ public class DivideAndConquerSpawnTest extends Activity {
 
     private void spawnAll(Constellation c) {
         for (int i = 0; i < SPAWNS_PER_SYNC; i++) {
-            c.submit(new DivideAndConquerSpawnTest(identifier(), false));
+            c.submit(new DivideAndConquerSpawn(identifier(), false));
         }
     }
 
@@ -115,7 +115,7 @@ public class DivideAndConquerSpawnTest extends Activity {
             SingleEventCollector a = new SingleEventCollector(new UnitActivityContext("DC"));
 
             c.submit(a);
-            c.submit(new DivideAndConquerSpawnTest(a.identifier(), true));
+            c.submit(new DivideAndConquerSpawn(a.identifier(), true));
 
             a.waitForEvent();
 

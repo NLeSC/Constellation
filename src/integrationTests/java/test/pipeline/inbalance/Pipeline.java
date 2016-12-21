@@ -7,7 +7,7 @@ import ibis.constellation.util.MultiEventCollector;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.context.UnitExecutorContext;
 
-public class PipelineTest {
+public class Pipeline {
 
     public static void main(String[] args) {
 

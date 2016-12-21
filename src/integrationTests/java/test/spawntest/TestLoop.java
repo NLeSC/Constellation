@@ -36,7 +36,7 @@ public class TestLoop extends Activity {
         
         for (int i = 0; i < concurrent; i++) {
             pending++;
-            c.submit(new SingleTest(identifier(), spawns));
+            c.submit(new Single(identifier(), spawns));
         }
 
         return SUSPEND;
@@ -54,7 +54,7 @@ public class TestLoop extends Activity {
 
         if (pending < count) {
             pending++;
-            c.submit(new SingleTest(identifier(), spawns));
+            c.submit(new Single(identifier(), spawns));
         }
 
         return SUSPEND;

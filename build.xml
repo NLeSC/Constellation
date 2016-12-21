@@ -124,7 +124,7 @@
 	</target>
 
  	<target name="integrationtest" depends="integrationtest-compile">
-	        <jacoco:coverage destfile="${result.exec.file}"> 
+<!--	        <jacoco:coverage destfile="${result.exec.file}">  -->
     			<junit printsummary="on" haltonfailure="no" fork="true">
         			<classpath>
           				<path refid="test.classpath"/>
@@ -135,7 +135,7 @@
             				<fileset dir="${integrationtest.src.dir}" includes="**/*Test.java" />
         			</batchtest>
     			</junit>
-                </jacoco:coverage>
+<!--                </jacoco:coverage> -->
 	</target>
 	
  	<target name="test" depends="unittest,integrationtest">

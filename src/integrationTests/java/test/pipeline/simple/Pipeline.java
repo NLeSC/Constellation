@@ -30,7 +30,7 @@ public class Pipeline extends SimpleActivity {
     @Override
     public void simpleActivity(Constellation c) {
 
-        System.out.println("RUNNING pipeline " + index + " " + current + " " + last);
+        //System.out.println("RUNNING pipeline " + index + " " + current + " " + last);
 
         if (sleep > 0) {
             try {
@@ -42,12 +42,12 @@ public class Pipeline extends SimpleActivity {
 
         if (current == last) {
 
-            System.out.println("Sending pipeline reply");
+            //System.out.println("Sending pipeline reply");
 
             c.send(new Event(identifier(), getParent(), data));
         } else {
 
-            System.out.println("Submitting pipeline stage: " + index + " " + (current + 1) + " " + last);
+            //System.out.println("Submitting pipeline stage: " + index + " " + (current + 1) + " " + last);
 
             c.submit(new Pipeline(getParent(), index, current + 1, last, sleep, data));
         }

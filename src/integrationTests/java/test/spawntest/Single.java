@@ -6,7 +6,7 @@ import ibis.constellation.Constellation;
 import ibis.constellation.Event;
 import ibis.constellation.context.UnitActivityContext;
 
-public class SingleTest extends Activity {
+public class Single extends Activity {
 
     private static final long serialVersionUID = 5970093414747228592L;
 
@@ -15,7 +15,7 @@ public class SingleTest extends Activity {
     private final int spawns;
     private int replies;
 
-    public SingleTest(ActivityIdentifier parent, int spawns) {
+    public Single(ActivityIdentifier parent, int spawns) {
         super(new UnitActivityContext("TEST", 2), false, true);
         this.parent = parent;
         this.spawns = spawns;

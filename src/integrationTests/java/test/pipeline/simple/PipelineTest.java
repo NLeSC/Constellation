@@ -1,7 +1,12 @@
 package test.pipeline.simple;
 
+import java.util.Properties;
+
+import org.junit.Test;
+
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationConfiguration;
+import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationFactory;
 import ibis.constellation.util.MultiEventCollector;
 import ibis.constellation.StealStrategy;
@@ -10,57 +15,58 @@ import ibis.constellation.context.UnitExecutorContext;
 
 public class PipelineTest {
 
-    public static void main(String[] args) {
+	// default values
+	private static int NODES = 1;
+	private static int RANK = 0;
+	private static int EXECUTORS = 4;
+	private static int JOBS = 1000;
+	private static int SLEEP = 1;
+	private static int DATA = 1024;
 
-        // Simple test that creates, starts and stops a set of constellation
-        // instances.
-        // When the lot is running, it deploys a series of jobs.
+	@Test
+	public void test() throws ConstellationCreationException {
 
-        int nodes = Integer.parseInt(args[0]);
-        int rank = Integer.parseInt(args[1]);
-        int executors = Integer.parseInt(args[2]);
+		Properties p = new Properties();
+		p.put("ibis.constellation.distributed", "false");
 
-        int jobs = Integer.parseInt(args[3]);
-        long sleep = Long.parseLong(args[4]);
-        int data = Integer.parseInt(args[5]);
+        int nodes = NODES;
+        int rank = RANK;
+        int executors = EXECUTORS;
+        int jobs = JOBS;
+        long sleep = SLEEP;
+        int data = DATA;
 
-        try {
+        ConstellationConfiguration config = 
+        		new ConstellationConfiguration(new UnitExecutorContext("X"), StealStrategy.BIGGEST, StealStrategy.SMALLEST);
             
-            ConstellationConfiguration config = 
-                    new ConstellationConfiguration(new UnitExecutorContext("X"), StealStrategy.BIGGEST, StealStrategy.SMALLEST);
-            
-            Constellation c = ConstellationFactory.createConstellation(config, executors);
-            c.activate();
+        Constellation c = ConstellationFactory.createConstellation(p, config, executors);
+        c.activate();
 
-            if (rank == 0) {
+        if (rank == 0) {
 
-                long start = System.currentTimeMillis();
+        	long start = System.currentTimeMillis();
 
-                MultiEventCollector me = new MultiEventCollector(new UnitActivityContext("X"), jobs);
+        	MultiEventCollector me = new MultiEventCollector(new UnitActivityContext("X"), jobs);
 
-                c.submit(me);
+        	c.submit(me);
 
-                for (int i = 0; i < jobs; i++) {
+        	for (int i = 0; i < jobs; i++) {
 
-                    System.out.println("SUBMIT " + i);
+        		//System.out.println("SUBMIT " + i);
 
-                    c.submit(new Pipeline(me.identifier(), i, 0, nodes * executors - 1, sleep, new byte[data]));
-                }
+        		c.submit(new Pipeline(me.identifier(), i, 0, nodes * executors - 1, sleep, new byte[data]));
+        	}
 
-                System.out.println("SUBMIT DONE");
+        	//System.out.println("SUBMIT DONE");
 
-                me.waitForEvents();
+        	me.waitForEvents();
 
-                long end = System.currentTimeMillis();
+        	long end = System.currentTimeMillis();
 
-                System.out.println("Total processing time: " + (end - start) + " ms.");
+        	System.out.println("Total processing time: " + (end - start) + " ms.");
 
-            }
-
-            c.done();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-    }
 
+        c.done();
+    }
 }
