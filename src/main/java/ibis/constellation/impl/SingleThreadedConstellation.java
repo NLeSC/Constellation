@@ -22,11 +22,10 @@ import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.context.ActivityContext;
 import ibis.constellation.context.ExecutorContext;
-import ibis.constellation.extra.CTimer;
-import ibis.constellation.extra.CircularBuffer;
-import ibis.constellation.extra.SmartSortedWorkQueue;
-import ibis.constellation.extra.Stats;
-import ibis.constellation.extra.WorkQueue;
+import ibis.constellation.impl.util.CircularBuffer;
+import ibis.constellation.impl.util.SmartSortedWorkQueue;
+import ibis.constellation.impl.util.Stats;
+import ibis.constellation.impl.util.WorkQueue;
 
 public class SingleThreadedConstellation extends Thread {
 
@@ -104,7 +103,7 @@ public class SingleThreadedConstellation extends Thread {
     private boolean done = false;
 
     private final Stats stats;
-    private final CTimer stealTimer;
+    private final TimerImpl stealTimer;
 
     private final boolean ignoreEmptyStealReplies;
 
@@ -1049,7 +1048,7 @@ public class SingleThreadedConstellation extends Thread {
         out.flush();
     }
 
-    public CTimer getTimer(String standardDevice, String standardThread, String standardAction) {
+    public TimerImpl getTimer(String standardDevice, String standardThread, String standardAction) {
         return stats.getTimer(standardDevice, standardThread, standardAction);
     }
 

@@ -18,10 +18,9 @@ import ibis.constellation.StealPool;
 import ibis.constellation.context.ExecutorContext;
 import ibis.constellation.context.OrExecutorContext;
 import ibis.constellation.context.UnitExecutorContext;
-import ibis.constellation.extra.CTimer;
-import ibis.constellation.extra.Stats;
 import ibis.constellation.impl.pool.Pool;
 import ibis.constellation.impl.pool.PoolCreationFailedException;
+import ibis.constellation.impl.util.Stats;
 
 /**
  * A <code>DistributedConstellation</code> sits between the communication pool and the underlying sub-constellation, which is a
@@ -380,17 +379,17 @@ public class DistributedConstellation {
         }
 
         @Override
-        public CTimer getTimer(String standardDevice, String standardThread, String standardAction) {
+        public TimerImpl getTimer(String standardDevice, String standardThread, String standardAction) {
             return stats.getTimer(standardDevice, standardThread, standardAction);
         }
 
         @Override
-        public CTimer getTimer() {
+        public TimerImpl getTimer() {
             return stats.getTimer();
         }
 
         @Override
-        public CTimer getOverallTimer() {
+        public TimerImpl getOverallTimer() {
             return stats.getOverallTimer();
         }
     }

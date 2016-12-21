@@ -23,18 +23,12 @@
         <property name="result.exec.file" location="${result.dir}/jacoco.exec" />
 
 	<path id="default.classpath">
-		<fileset dir="external">
-			<include name="*.jar" />
-		</fileset>
 		<fileset dir="lib">
 			<include name="*.jar" />
 		</fileset>
 	</path>
 
 	<path id="test.classpath">
-		<fileset dir="external">
-			<include name="**/*.jar" />
-		</fileset>
 		<fileset dir="lib">
 			<include name="**/*.jar" />
 		</fileset>
@@ -65,6 +59,10 @@
 		<mkdir dir="${result.classes.dir}" />
 		<mkdir dir="${result.report.dir}" />
 
+	        <copy todir="${unittest.build.dir}">
+		        <file file="log4j.properties"/>
+		</copy>
+
 		<javac destdir="${unittest.build.dir}" srcdir="${unittest.src.dir}" source="1.7" target="1.7" debug="true" includeantruntime="false" includes="**/*.java">
         		<classpath>
           			<pathelement location="${distdir}/${jar}"/>
@@ -77,6 +75,10 @@
 		<mkdir dir="${integrationtest.build.dir}" />
 		<mkdir dir="${result.classes.dir}" />
 		<mkdir dir="${result.report.dir}" />
+
+	        <copy todir="${integrationtest.build.dir}">
+		        <file file="log4j.properties"/>
+		</copy>
 
 		<javac destdir="${integrationtest.build.dir}" srcdir="${integrationtest.src.dir}" source="1.7" target="1.7" debug="true" includeantruntime="false" includes="**/*.java">
         		<classpath>
@@ -122,7 +124,7 @@
 	</target>
 
  	<target name="integrationtest" depends="integrationtest-compile">
-                <jacoco:coverage destfile="${result.exec.file}">
+	        <jacoco:coverage destfile="${result.exec.file}"> 
     			<junit printsummary="on" haltonfailure="no" fork="true">
         			<classpath>
           				<path refid="test.classpath"/>

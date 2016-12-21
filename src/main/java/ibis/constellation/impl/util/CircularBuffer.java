@@ -1,4 +1,4 @@
-package ibis.constellation.extra;
+package ibis.constellation.impl.util;
 
 import java.io.Serializable;
 import java.nio.ByteBuffer;

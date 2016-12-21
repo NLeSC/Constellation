@@ -1,4 +1,4 @@
-package ibis.constellation.extra;
+package ibis.constellation.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,9 +8,9 @@ import com.google.common.base.Function;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
-import ibis.util.Timer;
+import ibis.constellation.impl.util.TimeSyncInfo;
 
-public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
+public class TimerImpl implements java.io.Serializable, ibis.constellation.Timer {
 
     private static class TimerEvent implements java.io.Serializable {
 
@@ -118,7 +118,7 @@ public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
             return String.format(
                     "%-8s  |  %-14s  |  start: %-6s  |  " + "end: %-6s  |  duration: %-6s  | nrBytes: %4.3f MB  |  "
                             + "rate: %13s\n",
-                    node, action, Timer.format(start / 1000.0), Timer.format(end / 1000.0), Timer.format((end - start) / 1000.0),
+                    node, action, ibis.util.Timer.format(start / 1000.0), ibis.util.Timer.format(end / 1000.0), ibis.util.Timer.format((end - start) / 1000.0),
                     nrBytes / 1024.0 / 1024.0, getRateString());
         }
 
@@ -128,8 +128,8 @@ public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
                     "%-8s  |  %-10s  |  %-22s  | " + "%-14s  |  queued: %-6s  |  submitted: %-6s  |  "
                             + "start: %-6s  |  end: %-6s\n",
                     node, device, thread, // queueIndex,
-                    action, Timer.format(queued / 1000.0), Timer.format(submitted / 1000.0), Timer.format(start / 1000.0),
-                    Timer.format(end / 1000.0));
+                    action, ibis.util.Timer.format(queued / 1000.0), ibis.util.Timer.format(submitted / 1000.0), ibis.util.Timer.format(start / 1000.0),
+                    ibis.util.Timer.format(end / 1000.0));
         }
     }
 
@@ -154,11 +154,11 @@ public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
         return hostId;
     }
 
-    public CTimer(String nodeId) {
+    public TimerImpl(String nodeId) {
         this(nodeId, null, null, null);
     }
 
-    public CTimer(String nodeId, String standardDevice, String standardThread, String standardAction) {
+    public TimerImpl(String nodeId, String standardDevice, String standardThread, String standardAction) {
         this.events = new ArrayList<TimerEvent>();
         this.hostId = nodeId;
         this.device = standardDevice;
@@ -234,7 +234,7 @@ public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
         this.events = filtered;
     }
 
-    public List<CTimer> groupByAction() {
+    public List<TimerImpl> groupByAction() {
         Function<TimerEvent, String> f = new Function<TimerEvent, String>() {
             @Override
             public String apply(TimerEvent event) {
@@ -264,11 +264,11 @@ public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
     //        return groupBy(f);
     //    }
 
-    private <T> List<CTimer> groupBy(Function<TimerEvent, T> f) {
+    private <T> List<TimerImpl> groupBy(Function<TimerEvent, T> f) {
         Multimap<T, TimerEvent> index = Multimaps.index(events, f);
-        ArrayList<CTimer> timers = new ArrayList<CTimer>();
+        ArrayList<TimerImpl> timers = new ArrayList<TimerImpl>();
         for (T t : index.keySet()) {
-            CTimer timer = new CTimer(hostId);
+            TimerImpl timer = new TimerImpl(hostId);
             timer.events.addAll(index.get(t));
             // Collections.sort(timer.events);
             timers.add(timer);
@@ -276,7 +276,7 @@ public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
         return timers;
     }
 
-    public void add(CTimer mcTimer) {
+    public void add(TimerImpl mcTimer) {
         this.events.addAll(mcTimer.events);
     }
 
@@ -314,11 +314,11 @@ public class CTimer implements java.io.Serializable, ibis.constellation.CTimer {
     }
 
     public String averageTime() {
-        return Timer.format(averageTimeVal());
+        return ibis.util.Timer.format(averageTimeVal());
     }
 
     public String totalTime() {
-        return Timer.format(totalTimeVal());
+        return ibis.util.Timer.format(totalTimeVal());
     }
 
     public long getMinimumTime() {

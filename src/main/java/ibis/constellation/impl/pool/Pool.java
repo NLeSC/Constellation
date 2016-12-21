@@ -15,9 +15,7 @@ import ibis.constellation.ByteBuffers;
 import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.StealPool;
-import ibis.constellation.extra.CTimer;
-import ibis.constellation.extra.Stats;
-import ibis.constellation.extra.TimeSyncInfo;
+import ibis.constellation.impl.TimerImpl;
 import ibis.constellation.impl.ConstellationIdentifierFactory;
 import ibis.constellation.impl.ConstellationIdentifierImpl;
 import ibis.constellation.impl.DistributedConstellation;
@@ -25,6 +23,8 @@ import ibis.constellation.impl.EventMessage;
 import ibis.constellation.impl.Message;
 import ibis.constellation.impl.StealReply;
 import ibis.constellation.impl.StealRequest;
+import ibis.constellation.impl.util.Stats;
+import ibis.constellation.impl.util.TimeSyncInfo;
 import ibis.ipl.Ibis;
 import ibis.ipl.IbisCapabilities;
 import ibis.ipl.IbisFactory;
@@ -97,7 +97,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
     private final boolean closedPool;
 
-    private final CTimer communicationTimer;
+    private final TimerImpl communicationTimer;
 
     private final HashMap<IbisIdentifier, Long> times = new HashMap<IbisIdentifier, Long>();
     private final TimeSyncInfo syncInfo;

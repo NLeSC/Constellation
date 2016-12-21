@@ -15,7 +15,7 @@ package ibis.constellation;
  * {@link Activity#process(Event)}. In the end, the timing events will be written to a file specified with the
  * {@link ConstellationProperties#OUTPUT} property, or to <code>System.out</code>.
  */
-public interface CTimer {
+public interface Timer {
 
     /**
      * Starts a timer event.

@@ -18,7 +18,7 @@ package ibis.constellation.impl;
 
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
-import ibis.constellation.CTimer;
+import ibis.constellation.Timer;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.Event;
@@ -59,17 +59,17 @@ public class FakeConstellation implements Constellation {
     }
 
     @Override
-    public CTimer getTimer(String device, String thread, String action) {
+    public Timer getTimer(String device, String thread, String action) {
         return null;
     }
 
     @Override
-    public CTimer getTimer() {
+    public Timer getTimer() {
         return null;
     }
 
     @Override
-    public CTimer getOverallTimer() {
+    public Timer getOverallTimer() {
         // TODO Auto-generated method stub
         return null;
     }

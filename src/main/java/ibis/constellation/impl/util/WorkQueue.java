@@ -1,4 +1,4 @@
-package ibis.constellation.extra;
+package ibis.constellation.impl.util;
 
 import ibis.constellation.StealStrategy;
 import ibis.constellation.context.ExecutorContext;

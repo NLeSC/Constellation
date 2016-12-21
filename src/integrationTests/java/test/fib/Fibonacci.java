@@ -96,14 +96,10 @@ public class Fibonacci extends Activity {
 
         int executors = Integer.parseInt(args[index++]);
 
-        ConstellationConfiguration[] e = new ConstellationConfiguration[executors];
-
-        for (int i = 0; i < executors; i++) {
-            e[i] = new ConstellationConfiguration(new UnitExecutorContext("DEFAULT"), StealStrategy.SMALLEST, 
+        ConstellationConfiguration e = new ConstellationConfiguration(new UnitExecutorContext("DEFAULT"), StealStrategy.SMALLEST, 
                     StealStrategy.BIGGEST, StealStrategy.BIGGEST);
-        }
-
-        Constellation c = ConstellationFactory.createConstellation(e);
+        
+        Constellation c = ConstellationFactory.createConstellation(e, executors);
         c.activate();
 
         int input = Integer.parseInt(args[index++]);
@@ -114,8 +110,8 @@ public class Fibonacci extends Activity {
 
             SingleEventCollector a = new SingleEventCollector(new UnitActivityContext("DEFAULT"));
 
-            ActivityIdentifier aid = c.submit(a);
-            c.submit(new Fibonacci(aid, input, true));
+            c.submit(a);
+            c.submit(new Fibonacci(a.identifier(), input, true));
 
             int result = (Integer) a.waitForEvent().getData();
 
@@ -129,4 +125,8 @@ public class Fibonacci extends Activity {
             c.done();
         }
     }
+    
+   
+    
+    
 }

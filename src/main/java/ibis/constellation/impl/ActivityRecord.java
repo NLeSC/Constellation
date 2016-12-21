@@ -12,7 +12,7 @@ import ibis.constellation.ByteBuffers;
 import ibis.constellation.Constellation;
 import ibis.constellation.Event;
 import ibis.constellation.context.ActivityContext;
-import ibis.constellation.extra.CircularBuffer;
+import ibis.constellation.impl.util.CircularBuffer;
 
 public class ActivityRecord implements Serializable, ByteBuffers {
 

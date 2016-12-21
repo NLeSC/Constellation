@@ -3,7 +3,6 @@ package ibis.constellation.util;
 import java.util.ArrayList;
 
 import ibis.constellation.Activity;
-import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.Event;
 import ibis.constellation.context.ActivityContext;

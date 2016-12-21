@@ -17,10 +17,9 @@ import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.context.ExecutorContext;
 import ibis.constellation.context.UnitExecutorContext;
-import ibis.constellation.extra.CTimer;
-import ibis.constellation.extra.CircularBuffer;
-import ibis.constellation.extra.SmartSortedWorkQueue;
-import ibis.constellation.extra.WorkQueue;
+import ibis.constellation.impl.util.CircularBuffer;
+import ibis.constellation.impl.util.SmartSortedWorkQueue;
+import ibis.constellation.impl.util.WorkQueue;
 
 public class ExecutorWrapper implements Constellation {
 
@@ -54,9 +53,9 @@ public class ExecutorWrapper implements Constellation {
 
     private long activityCounter = 0;
 
-    private final CTimer initializeTimer;
-    private final CTimer cleanupTimer;
-    private final CTimer processTimer;
+    private final TimerImpl initializeTimer;
+    private final TimerImpl cleanupTimer;
+    private final TimerImpl processTimer;
 
     private long activitiesSubmitted;
     private long wrongContextSubmitted;
@@ -67,7 +66,7 @@ public class ExecutorWrapper implements Constellation {
 
     private long messagesInternal;
     private long messagesExternal;
-    private final CTimer messagesTimer;
+    private final TimerImpl messagesTimer;
 
     ExecutorWrapper(SingleThreadedConstellation parent, ConstellationProperties p, ConstellationIdentifierImpl identifier, 
                     ConstellationConfiguration config) throws ConstellationCreationException {
@@ -361,7 +360,7 @@ public class ExecutorWrapper implements Constellation {
 
         //tmp.getActivity().setExecutor(executor);
 
-        CTimer timer = tmp.isFinishing() ? cleanupTimer : tmp.isRunnable() ? processTimer : initializeTimer;
+        TimerImpl timer = tmp.isFinishing() ? cleanupTimer : tmp.isRunnable() ? processTimer : initializeTimer;
 
         if (PROFILE) {
             evt = timer.start();
@@ -401,15 +400,15 @@ public class ExecutorWrapper implements Constellation {
         return false;
     }
 
-    public CTimer getInitializeTimer() {
+    public TimerImpl getInitializeTimer() {
         return initializeTimer;
     }
 
-    public CTimer getProcessTimer() {
+    public TimerImpl getProcessTimer() {
         return processTimer;
     }
 
-    public CTimer getCleanupTimer() {
+    public TimerImpl getCleanupTimer() {
         return cleanupTimer;
     }
 
@@ -429,7 +428,7 @@ public class ExecutorWrapper implements Constellation {
         return messagesExternal;
     }
 
-    public CTimer getMessagesTimer() {
+    public TimerImpl getMessagesTimer() {
         return messagesTimer;
     }
 
@@ -494,17 +493,17 @@ public class ExecutorWrapper implements Constellation {
     }
     
     @Override
-    public CTimer getTimer(String standardDevice, String standardThread, String standardAction) {
+    public TimerImpl getTimer(String standardDevice, String standardThread, String standardAction) {
         return parent.getStats().getTimer(standardDevice, standardThread, standardAction);
     }
 
     @Override
-    public CTimer getTimer() {
+    public TimerImpl getTimer() {
         return parent.getStats().getTimer();
     }
 
     @Override
-    public CTimer getOverallTimer() {
+    public TimerImpl getOverallTimer() {
         return parent.getStats().getOverallTimer();
     }
 

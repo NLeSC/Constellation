@@ -1,25 +1,27 @@
-package ibis.constellation.extra;
+package ibis.constellation.impl.util;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import ibis.constellation.impl.TimerImpl;
+
 public class Stats implements java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private List<CTimer> timers;
+    private List<TimerImpl> timers;
 
     private final String hostId;
 
     private transient TimeSyncInfo syncInfo;
 
-    private CTimer overallTimer;
+    private TimerImpl overallTimer;
 
     // This is the public interface to the rest of the framework.
     public Stats(String hostId) {
         this.hostId = hostId;
-        timers = new ArrayList<CTimer>();
+        timers = new ArrayList<TimerImpl>();
     }
 
     public void setSyncInfo(TimeSyncInfo syncInfo) {
@@ -41,29 +43,29 @@ public class Stats implements java.io.Serializable {
 
         normalize(syncInfo);
 
-        CTimer timer = getTotalMCTimer();
+        TimerImpl timer = getTotalMCTimer();
         timer.filterOverall();
         printPlotData(stream);
     }
 
-    private synchronized void addTimer(CTimer timer) {
+    private synchronized void addTimer(TimerImpl timer) {
         timers.add(timer);
     }
 
     private synchronized void clean() {
-        for (CTimer timer : timers) {
+        for (TimerImpl timer : timers) {
             timer.clean();
         }
     }
 
     private void normalize(TimeSyncInfo timeSyncInfo) {
         clean();
-        CTimer timer = getTotalMCTimer();
+        TimerImpl timer = getTotalMCTimer();
 
         normalizeTimer(timer, timeSyncInfo);
     }
 
-    private void normalizeTimer(CTimer timer, TimeSyncInfo timeSyncInfo) {
+    private void normalizeTimer(TimerImpl timer, TimeSyncInfo timeSyncInfo) {
         if (timeSyncInfo != null) {
             timer.equalize(timeSyncInfo);
         }
@@ -72,45 +74,45 @@ public class Stats implements java.io.Serializable {
         timer.normalize(min);
     }
 
-    private synchronized CTimer getTotalMCTimer() {
-        CTimer temp = new CTimer(hostId);
-        for (CTimer t : timers) {
+    private synchronized TimerImpl getTotalMCTimer() {
+        TimerImpl temp = new TimerImpl(hostId);
+        for (TimerImpl t : timers) {
             temp.add(t);
         }
         return temp;
     }
 
-    private void write(CTimer timer, PrintStream ps, boolean perThread) {
+    private void write(TimerImpl timer, PrintStream ps, boolean perThread) {
         ps.println("BEGIN PLOT DATA");
         ps.print(timer.gnuPlotData(perThread));
         ps.println("END PLOT DATA");
     }
 
     private void printPlotData(PrintStream stream) {
-        CTimer temp = getTotalMCTimer();
+        TimerImpl temp = getTotalMCTimer();
         temp.filterOverall();
         // write(temp, "gantt.data", false);
         // write(temp, "gantt-thread.data", true);
         write(temp, stream, true);
     }
 
-    public void print(PrintStream stream, String kind, CTimer t) {
+    public void print(PrintStream stream, String kind, TimerImpl t) {
         stream.printf("%-53s %3d %s %s\n", kind, t.nrTimes(), t.averageTime(), t.totalTime());
     }
 
-    public CTimer getTimer() {
-        CTimer timer = new CTimer(hostId);
+    public TimerImpl getTimer() {
+        TimerImpl timer = new TimerImpl(hostId);
         addTimer(timer);
         return timer;
     }
 
-    public CTimer getTimer(String standardDevice, String standardThread, String standardAction) {
-        CTimer timer = new CTimer(hostId, standardDevice, standardThread, standardAction);
+    public TimerImpl getTimer(String standardDevice, String standardThread, String standardAction) {
+        TimerImpl timer = new TimerImpl(hostId, standardDevice, standardThread, standardAction);
         addTimer(timer);
         return timer;
     }
 
-    public synchronized CTimer getOverallTimer() {
+    public synchronized TimerImpl getOverallTimer() {
         if (overallTimer == null) {
             overallTimer = getTimer("java", "main", "overall");
         }

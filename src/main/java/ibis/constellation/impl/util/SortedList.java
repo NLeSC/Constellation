@@ -1,4 +1,4 @@
-package ibis.constellation.extra;
+package ibis.constellation.impl.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
