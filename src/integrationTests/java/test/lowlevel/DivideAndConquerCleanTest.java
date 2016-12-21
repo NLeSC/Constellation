@@ -3,6 +3,8 @@ package test.lowlevel;
 import java.util.Properties;
 
 import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,8 +55,11 @@ public class DivideAndConquerCleanTest {
 			double msPerJob = Math.round(((end - start) / 10000.0) * executors * nodes / Math.pow(branch, depth)) / 100.0;
 
 			String correct = (result == count) ? " (CORRECT)" : " (WRONG!)";
+						
 			logger.info("D&C(" + branch + ", " + depth + ") = " + result + correct + " total time = "
 					+ Math.round((end - start) / 1000000.0) / 1000.0 + " sec; leaf job time = " + msPerJob + " msec/job");
+			
+			assertEquals(result, count);
 		}
 
 		c.done();
