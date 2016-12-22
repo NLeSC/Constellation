@@ -29,6 +29,9 @@
 	</path>
 
 	<path id="test.classpath">
+		<fileset dir="external">
+			<include name="**/*.jar" />
+		</fileset>
 		<fileset dir="lib">
 			<include name="**/*.jar" />
 		</fileset>
