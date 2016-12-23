@@ -6,15 +6,16 @@
 	<property name="src-zip" value="constellation-${version}-src.zip" />
 
 	<property name="distdir" value="./lib" />
+	<property name="builddir" value="./build" />
 	<property name="javadoc" value="javadoc" />
 
-  	<property name="main.build.dir" value="./build/main"/>
+  	<property name="main.build.dir" value="${buildir}/main"/>
   	<property name="main.src.dir" value="./src/main/java"/>
 
-  	<property name="unittest.build.dir" value="./build/test"/>
+  	<property name="unittest.build.dir" value="${builddir}/test"/>
   	<property name="unittest.src.dir" value="./src/test/java"/>
 
-  	<property name="integrationtest.build.dir" value="./build/integrationTest"/>
+  	<property name="integrationtest.build.dir" value="${builddir}/integrationTest"/>
   	<property name="integrationtest.src.dir" value="./src/integrationTests/java"/>
 
         <property name="result.dir" location="./target" />

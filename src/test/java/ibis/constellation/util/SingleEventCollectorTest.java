@@ -34,28 +34,28 @@ import ibis.constellation.impl.ImplUtil;
  * @since 1.0
  *
  */
-public class FlexibleEventCollectorTest {
+public class SingleEventCollectorTest {
 
     class Waiter extends Thread {
 
-        private FlexibleEventCollector c;
-        private Event[] res;
+        private SingleEventCollector c;
+        private Event res;
 
-        Waiter(FlexibleEventCollector c) {
+        Waiter(SingleEventCollector c) {
             this.c = c;
         }
 
-        public synchronized void put(Event[] res) {
+        public synchronized void put(Event res) {
             this.res = res;
         }
 
-        public synchronized Event[] get() {
+        public synchronized Event get() {
             return res;
         }
 
         @Override
         public void run() {
-            put(c.waitForEvents());
+            put(c.waitForEvent());
         }
     }
 
@@ -72,7 +72,7 @@ public class FlexibleEventCollectorTest {
 
         ActivityContext a = new UnitActivityContext("TEST");
 
-        FlexibleEventCollector c = new FlexibleEventCollector(a);
+        SingleEventCollector c = new SingleEventCollector(a);
 
         assertEquals(a, c.getContext());
     }
@@ -80,7 +80,7 @@ public class FlexibleEventCollectorTest {
     @Test
     public void testCreates() {
 
-        FlexibleEventCollector c = new FlexibleEventCollector();
+        SingleEventCollector c = new SingleEventCollector();
 
         assertEquals(UnitActivityContext.DEFAULT, c.getContext());
     }
@@ -90,7 +90,7 @@ public class FlexibleEventCollectorTest {
 
         Constellation c = ImplUtil.createFakeConstellation();
         
-        FlexibleEventCollector e = new FlexibleEventCollector();
+        SingleEventCollector e = new SingleEventCollector();
         
         int result = e.initialize(c);
         
@@ -102,7 +102,7 @@ public class FlexibleEventCollectorTest {
 
         Constellation c = ImplUtil.createFakeConstellation();
         
-        FlexibleEventCollector e = new FlexibleEventCollector();
+        SingleEventCollector e = new SingleEventCollector();
         
         e.cleanup(c);
         
@@ -112,17 +112,17 @@ public class FlexibleEventCollectorTest {
     @Test
     public void testToString() {
 
-        FlexibleEventCollector c = new FlexibleEventCollector();
+        SingleEventCollector c = new SingleEventCollector();
 
         String s = c.toString();
 
-        assertEquals("FlexibleEventCollector(null)", s);
+        assertEquals("SingleEventCollector(null)", s);
     }
 
     @Test
     public void addEvent() {
 
-        FlexibleEventCollector c = new FlexibleEventCollector();
+        SingleEventCollector c = new SingleEventCollector();
 
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(0, 1, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);
@@ -132,15 +132,15 @@ public class FlexibleEventCollectorTest {
         Event e = new Event(id1, id2, null);
 
         c.process(con, e);
-        Event[] res = c.waitForEvents();
+        Event res = c.waitForEvent();
 
-        assertArrayEquals(res, new Event[] { e });
+        assertEquals(res, e);
     }
 
     @Test
     public void addEventMultiThreaded() {
 
-        FlexibleEventCollector c = new FlexibleEventCollector();
+        SingleEventCollector c = new SingleEventCollector();
 
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(0, 1, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);
@@ -164,9 +164,9 @@ public class FlexibleEventCollectorTest {
             // ignored
         }
 
-        Event[] res = w.get();
+        Event res = w.get();
 
-        assertArrayEquals(res, new Event[] { e });
+        assertEquals(res, e );
     }
 
 }

@@ -14,52 +14,52 @@ import ibis.constellation.util.SingleEventCollector;
 
 public class FibonacciTest {
 
-	private void runFib(int executors, int input) throws Exception { 
-		 Properties p = new Properties();
-	     p.put("ibis.constellation.distributed", "false");
+    private void runFib(int executors, int input) throws Exception { 
+        Properties p = new Properties();
+        p.put("ibis.constellation.distributed", "false");
 
-	     long start = System.currentTimeMillis();
+        long start = System.currentTimeMillis();
 
-	     ConstellationConfiguration e = new ConstellationConfiguration(new UnitExecutorContext("DEFAULT"), StealStrategy.SMALLEST, 
-	                    StealStrategy.BIGGEST);
-	        
-	     Constellation c = ConstellationFactory.createConstellation(p, e, executors);
-	     c.activate();
+        ConstellationConfiguration e = new ConstellationConfiguration(new UnitExecutorContext("DEFAULT"), StealStrategy.SMALLEST, 
+                StealStrategy.BIGGEST);
 
-	     if (c.isMaster()) {
+        Constellation c = ConstellationFactory.createConstellation(p, e, executors);
+        c.activate();
 
-	    	 System.out.println("Starting as master!");
+        if (c.isMaster()) {
 
-	    	 SingleEventCollector a = new SingleEventCollector(new UnitActivityContext("DEFAULT"));
+            System.out.println("Starting as master!");
 
-	    	 c.submit(a);
-	    	 c.submit(new Fibonacci(a.identifier(), input, true));
+            SingleEventCollector a = new SingleEventCollector(new UnitActivityContext("DEFAULT"));
 
-	    	 int result = (Integer) a.waitForEvent().getData();
+            c.submit(a);
+            c.submit(new Fibonacci(a.identifier(), input, true));
 
-	    	 c.done();
+            int result = (Integer) a.waitForEvent().getData();
 
-	    	 long end = System.currentTimeMillis();
+            c.done();
 
-	    	 System.out.println("FIB: Fib(" + input + ") on " + executors + " threads = " + result + " (" + (end - start) + ")");
-	     } else {
-	    	 System.out.println("Starting as slave!");
-	    	 c.done();
-	     }
-	}
-	
-	@Test
-	public void fibOnOne() throws Exception {
-		runFib(1, 34);
-	}
-	
-	@Test
-	public void fibOnFour() throws Exception {
-		runFib(4, 34);
-	}
+            long end = System.currentTimeMillis();
 
-	@Test
-	public void fibOnEight() throws Exception {
-		runFib(8, 34);
-	}
+            System.out.println("FIB: Fib(" + input + ") on " + executors + " threads = " + result + " (" + (end - start) + ")");
+        } else {
+            System.out.println("Starting as slave!");
+            c.done();
+        }
+    }
+
+    @Test
+    public void fibOnOne() throws Exception {
+        runFib(1, 34);
+    }
+
+    @Test
+    public void fibOnFour() throws Exception {
+        runFib(4, 34);
+    }
+
+    @Test
+    public void fibOnEight() throws Exception {
+        runFib(8, 34);
+    }
 }
