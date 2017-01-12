@@ -9,7 +9,7 @@
 	<property name="builddir" value="./build" />
 	<property name="javadoc" value="javadoc" />
 
-  	<property name="main.build.dir" value="${buildir}/main"/>
+  	<property name="main.build.dir" value="${builddir}/main"/>
   	<property name="main.src.dir" value="./src/main/java"/>
 
   	<property name="unittest.build.dir" value="${builddir}/test"/>
