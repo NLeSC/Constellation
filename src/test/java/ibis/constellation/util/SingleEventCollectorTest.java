@@ -16,8 +16,9 @@
 
 package ibis.constellation.util;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -89,11 +90,11 @@ public class SingleEventCollectorTest {
     public void testInitialize() {
 
         Constellation c = ImplUtil.createFakeConstellation();
-        
+
         SingleEventCollector e = new SingleEventCollector();
-        
+
         int result = e.initialize(c);
-        
+
         assertEquals(Activity.SUSPEND, result);
     }
 
@@ -101,14 +102,14 @@ public class SingleEventCollectorTest {
     public void testCleanup() {
 
         Constellation c = ImplUtil.createFakeConstellation();
-        
+
         SingleEventCollector e = new SingleEventCollector();
-        
+
         e.cleanup(c);
-        
+
         // TODO: nothing to test for ? 
     }
-    
+
     @Test
     public void testToString() {
 
@@ -128,10 +129,15 @@ public class SingleEventCollectorTest {
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);
 
         Constellation con = ImplUtil.createFakeConstellation();
-        
+
         Event e = new Event(id1, id2, null);
 
+        assertFalse(c.isFinished());
+
         c.process(con, e);
+
+        assertTrue(c.isFinished());
+
         Event res = c.waitForEvent();
 
         assertEquals(res, e);
@@ -146,7 +152,7 @@ public class SingleEventCollectorTest {
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);
 
         Constellation con = ImplUtil.createFakeConstellation();
-        
+
         Waiter w = new Waiter(c);
         w.start();
 
@@ -154,6 +160,8 @@ public class SingleEventCollectorTest {
         sleep(1);
 
         Event e = new Event(id1, id2, null);
+
+        assertFalse(c.isFinished());
 
         c.process(con, e);
 
@@ -164,9 +172,11 @@ public class SingleEventCollectorTest {
             // ignored
         }
 
+        assertTrue(c.isFinished());
+
         Event res = w.get();
 
-        assertEquals(res, e );
+        assertEquals(res, e);
     }
 
 }

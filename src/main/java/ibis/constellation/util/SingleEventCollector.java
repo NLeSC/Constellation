@@ -23,7 +23,7 @@ public class SingleEventCollector extends Activity {
     private static final long serialVersionUID = -538414301465754654L;
 
     private Event event;
-    
+
     /**
      * Constructs a <code>SingleEventCollector</code> with the specified activity context. Note: this is an activity that will
      * receive events (see {@link Activity#Activity(ActivityContext, boolean)}).
@@ -42,7 +42,7 @@ public class SingleEventCollector extends Activity {
     public SingleEventCollector() {
         this(UnitActivityContext.DEFAULT);
     }
-    
+
     @Override
     public int initialize(Constellation c) {
         if (logger.isDebugEnabled()) {
@@ -88,5 +88,14 @@ public class SingleEventCollector extends Activity {
         }
 
         return event;
+    }
+
+    /**
+     * This method returns whether the event collector is finished, without blocking.
+     * 
+     * @return whether the event collector is finished.
+     */
+    public synchronized boolean isFinished() {
+        return event != null;
     }
 }
