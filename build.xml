@@ -44,7 +44,7 @@
         </taskdef>
         
 	<!-- Compile constellation -->
-	<target name="compile">
+	<target name="compile" depends="clean">
 		<mkdir dir="${distdir}" />
 		<mkdir dir="${main.build.dir}" />
 
