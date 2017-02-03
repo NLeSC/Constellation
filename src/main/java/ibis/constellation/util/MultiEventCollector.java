@@ -23,7 +23,7 @@ public class MultiEventCollector extends Activity {
 
     private final Event[] events;
     private int count;
-    
+
     /**
      * Constructs a <code>MultiEventCollector</code> with the specified activity context and event count. Note: this is an
      * activity that will receive events (see {@link Activity#Activity(ActivityContext, boolean)}).
@@ -37,12 +37,12 @@ public class MultiEventCollector extends Activity {
         super(c, false, true);
         this.events = new Event[events];
     }
-    
+
     @Override
     public int initialize(Constellation c) {
         return SUSPEND;
     }
-    
+
     @Override
     public synchronized int process(Constellation c, Event e) {
 
@@ -86,5 +86,14 @@ public class MultiEventCollector extends Activity {
         }
 
         return events;
+    }
+
+    /**
+     * This method returns whether the event collector is finished, without blocking.
+     * 
+     * @return whether the event collector is finished.
+     */
+    public synchronized boolean isFinished() {
+        return count == events.length;
     }
 }

@@ -18,6 +18,8 @@ package ibis.constellation.util;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -86,7 +88,7 @@ public class MultiEventCollectorTest {
         MultiEventCollector e = new MultiEventCollector(a, 1);
         
         int result = e.initialize(c);
-        
+
         assertEquals(Activity.SUSPEND, result);
     }
 
@@ -100,11 +102,10 @@ public class MultiEventCollectorTest {
         MultiEventCollector e = new MultiEventCollector(a, 1);
         
         e.cleanup(c);
-        
+
         // TODO: nothing to test for ? 
     }
-    
-    
+
     @Test
     public void testToString() {
 
@@ -128,10 +129,12 @@ public class MultiEventCollectorTest {
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);
 
         Constellation con = ImplUtil.createFakeConstellation();
-        
+
         Event e = new Event(id1, id2, null);
 
+        assertFalse(c.isFinished());
         c.process(con, e);
+        assertTrue(c.isFinished());
         Event[] res = c.waitForEvents();
 
         assertArrayEquals(res, new Event[] { e });
@@ -148,21 +151,25 @@ public class MultiEventCollectorTest {
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);
 
         Constellation con = ImplUtil.createFakeConstellation();
-        
+
         Event e = new Event(id1, id2, null);
         Event e2 = new Event(id2, id1, null);
 
+        assertFalse(c.isFinished());
         c.process(con, e);
+        assertFalse(c.isFinished());
         c.process(con, e2);
+        assertFalse(c.isFinished());
         c.process(con, e);
+        assertFalse(c.isFinished());
         c.process(con, e2);
-        
+        assertTrue(c.isFinished());
+
         Event[] res = c.waitForEvents();
 
         assertArrayEquals(res, new Event[] { e, e2, e, e2 });
     }
 
-    
     @Test
     public void addEventMultiThreaded() {
 
@@ -174,7 +181,7 @@ public class MultiEventCollectorTest {
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);
 
         Constellation con = ImplUtil.createFakeConstellation();
-        
+
         Waiter w = new Waiter(c);
         w.start();
 
@@ -183,7 +190,9 @@ public class MultiEventCollectorTest {
 
         Event e = new Event(id1, id2, null);
 
+        assertFalse(c.isFinished());
         c.process(con, e);
+        assertTrue(c.isFinished());
 
         // Finish thread
         try {
@@ -197,6 +206,4 @@ public class MultiEventCollectorTest {
         assertArrayEquals(res, new Event[] { e });
     }
 
-
-    
 }
