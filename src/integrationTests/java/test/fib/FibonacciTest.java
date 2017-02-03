@@ -8,8 +8,7 @@ import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationFactory;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.context.UnitActivityContext;
-import ibis.constellation.context.UnitExecutorContext;
+import ibis.constellation.Context;
 import ibis.constellation.util.SingleEventCollector;
 
 public class FibonacciTest {
@@ -20,8 +19,8 @@ public class FibonacciTest {
 
         long start = System.currentTimeMillis();
 
-        ConstellationConfiguration e = new ConstellationConfiguration(new UnitExecutorContext("DEFAULT"), StealStrategy.SMALLEST, 
-                StealStrategy.BIGGEST);
+        ConstellationConfiguration e = new ConstellationConfiguration(new Context("fib"), 
+                StealStrategy.SMALLEST, StealStrategy.BIGGEST);
 
         Constellation c = ConstellationFactory.createConstellation(p, e, executors);
         c.activate();
@@ -30,7 +29,7 @@ public class FibonacciTest {
 
             System.out.println("Starting as master!");
 
-            SingleEventCollector a = new SingleEventCollector(new UnitActivityContext("DEFAULT"));
+            SingleEventCollector a = new SingleEventCollector(new Context("fib"));
 
             c.submit(a);
             c.submit(new Fibonacci(a.identifier(), input, true));

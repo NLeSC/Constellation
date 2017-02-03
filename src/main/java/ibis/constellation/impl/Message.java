@@ -51,7 +51,7 @@ public abstract class Message implements Serializable {
     public synchronized void setTarget(ConstellationIdentifierImpl cid) {
         
         if (cid == null) { 
-            new IllegalArgumentException("ConstellationIdentifier is null");
+            throw new IllegalArgumentException("ConstellationIdentifier is null");
         }
         
         this.target = cid;

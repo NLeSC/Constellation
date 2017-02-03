@@ -4,7 +4,7 @@ import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.Event;
-import ibis.constellation.context.UnitActivityContext;
+import ibis.constellation.Context;
 
 public class TestLoop extends Activity {
 
@@ -23,7 +23,7 @@ public class TestLoop extends Activity {
     private long end;
 
     public TestLoop(ActivityIdentifier parent, long count, int concurrent, int spawns) {
-        super(new UnitActivityContext("TEST", 3), true, true);
+        super(new Context("TEST", 3, 3), true, true);
         this.parent = parent;
         this.count = count;
         this.concurrent = concurrent;

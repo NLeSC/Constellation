@@ -14,10 +14,10 @@ import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Event;
+import ibis.constellation.OrContext;
+import ibis.constellation.Context;
 import ibis.constellation.StealPool;
-import ibis.constellation.context.ExecutorContext;
-import ibis.constellation.context.OrExecutorContext;
-import ibis.constellation.context.UnitExecutorContext;
+import ibis.constellation.AbstractContext;
 import ibis.constellation.impl.pool.Pool;
 import ibis.constellation.impl.pool.PoolCreationFailedException;
 import ibis.constellation.impl.util.Stats;
@@ -118,7 +118,7 @@ public class DistributedConstellation {
          *            whether to set or reset the deadline
          * @return whether there was a deadline for this unit executor context.
          */
-        public boolean setPending(UnitExecutorContext c, boolean value) {
+        public boolean setPending(Context c, boolean value) {
 
             if (!value) {
                 // Reset the pending value for this context. We don't care if
@@ -495,7 +495,7 @@ public class DistributedConstellation {
      *            value to set the pending flag to.
      * @return whether there already is a pending steal.
      */
-    private synchronized boolean setPendingSteal(StealPool pool, ExecutorContext context, boolean value) {
+    private synchronized boolean setPendingSteal(StealPool pool, AbstractContext context, boolean value) {
 
         String poolTag = pool.getTag();
         PendingSteal tmp = stealThrottle.get(poolTag);
@@ -518,18 +518,13 @@ public class DistributedConstellation {
 
         boolean result = true;
 
-        if (context instanceof OrExecutorContext) {
-
-            OrExecutorContext ow = (OrExecutorContext) context;
-
-            for (int i = 0; i < ow.size(); i++) {
-                UnitExecutorContext uw = ow.get(i);
-                boolean r = tmp.setPending(uw, value);
+        if (context instanceof OrContext) {
+            for (Context c : (OrContext) context) { 
+                boolean r = tmp.setPending(c, value);
                 result = result && r;
             }
-
         } else {
-            result = tmp.setPending((UnitExecutorContext) context, value);
+            result = tmp.setPending((Context) context, value);
         }
 
         return result;

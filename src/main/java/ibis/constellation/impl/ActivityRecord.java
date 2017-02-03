@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 import ibis.constellation.Activity;
 import ibis.constellation.ByteBuffers;
 import ibis.constellation.Constellation;
+import ibis.constellation.AbstractContext;
 import ibis.constellation.Event;
-import ibis.constellation.context.ActivityContext;
 import ibis.constellation.impl.util.CircularBuffer;
 
 public class ActivityRecord implements Serializable, ByteBuffers {
@@ -28,7 +28,8 @@ public class ActivityRecord implements Serializable, ByteBuffers {
 
     private final Activity activity;
     private final ActivityIdentifierImpl identifier;
-    private final ActivityContext context;
+  
+    private final AbstractContext context;
 
     private final boolean mayBeStolen;
     private final boolean expectsEvents;
@@ -244,10 +245,10 @@ public class ActivityRecord implements Serializable, ByteBuffers {
 
     @Override
     public String toString() {
-        return activity + " STATE: " + getStateAsString() + " " + "event queue size = " + queue.size();
+        return activity + " STATE: " + getStateAsString() + " " + "event queue size = " + (queue == null ? 0 : queue.size());
     }
 
-    public ActivityContext getContext() {
+    public AbstractContext getContext() {
         return context;
     }
 

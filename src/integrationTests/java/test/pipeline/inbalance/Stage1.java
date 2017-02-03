@@ -3,7 +3,7 @@ package test.pipeline.inbalance;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.util.SimpleActivity;
-import ibis.constellation.context.UnitActivityContext;
+import ibis.constellation.Context;
 
 public class Stage1 extends SimpleActivity {
 
@@ -14,7 +14,7 @@ public class Stage1 extends SimpleActivity {
 
     public Stage1(ActivityIdentifier parent, long sleep, Data data) {
 
-        super(parent, new UnitActivityContext("A", data.index));
+        super(parent, new Context("A", data.index));
 
         this.sleep = sleep;
         this.data = data;

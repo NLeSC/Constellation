@@ -30,10 +30,9 @@ import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationFactory;
+import ibis.constellation.AbstractContext;
 import ibis.constellation.Event;
-import ibis.constellation.context.ActivityContext;
-import ibis.constellation.context.UnitActivityContext;
-import ibis.constellation.context.UnitExecutorContext;
+import ibis.constellation.Context;
 import ibis.constellation.impl.ImplUtil;
 
 /**
@@ -49,11 +48,11 @@ public class SimpleActivityTest {
         
         boolean hasRun = false;
         
-        public FakeActivity(ActivityIdentifier parent, ActivityContext context) {
+        public FakeActivity(ActivityIdentifier parent, AbstractContext context) {
             super(parent, context);
         } 
         
-        public FakeActivity(ActivityIdentifier parent, ActivityContext context, boolean mayBeStolen) {
+        public FakeActivity(ActivityIdentifier parent, AbstractContext context, boolean mayBeStolen) {
             super(parent, context, mayBeStolen);
         }
 
@@ -74,7 +73,9 @@ public class SimpleActivityTest {
         Properties p = new Properties();
         p.put("ibis.constellation.distributed", "false");
 
-        ConstellationConfiguration e = new ConstellationConfiguration(new UnitExecutorContext("A"));
+        Context a = new Context("A", 0, 0);
+        
+        ConstellationConfiguration e = new ConstellationConfiguration(a);
         
         return ConstellationFactory.createConstellation(p, e, 1);
     }
@@ -93,14 +94,14 @@ public class SimpleActivityTest {
     @Test
     public void testGetParent() { 
         ActivityIdentifier p = ImplUtil.createActivityIdentifier(0,  0,  0, false);
-        ActivityContext c = new UnitActivityContext("A");
+        Context c = new Context("A", 0, 0);
         SimpleActivity s = new FakeActivity(p, c);
         assertEquals(p, s.getParent());
     }
 
     @Test
     public void testGetParentNull() { 
-        ActivityContext c = new UnitActivityContext("A");
+        Context c = new Context("A", 0, 0);
         FakeActivity a = new FakeActivity(null, c);
         assertNull(a.getParent());
     }
@@ -108,7 +109,7 @@ public class SimpleActivityTest {
     @Test
     public void testGetContex() { 
         ActivityIdentifier p = ImplUtil.createActivityIdentifier(0,  0,  0, false);
-        ActivityContext c = new UnitActivityContext("A");
+        Context c = new Context("A", 0, 0);
         SimpleActivity s = new FakeActivity(p, c);
         assertEquals(c, s.getContext());
     }
@@ -117,8 +118,7 @@ public class SimpleActivityTest {
     public void testGetIdentifier() { 
         ActivityIdentifier p = ImplUtil.createActivityIdentifier(0,  0,  0, false);
         ActivityIdentifier a = ImplUtil.createActivityIdentifier(0,  0,  1, false);
-        ActivityContext c = new UnitActivityContext("A");
-        
+        Context c = new Context("A", 0, 0);
         SimpleActivity s = new FakeActivity(p, c);
         s.setIdentifier(a);
         
@@ -129,8 +129,8 @@ public class SimpleActivityTest {
     public void testInitialize() { 
         ActivityIdentifier p = ImplUtil.createActivityIdentifier(0,  0,  0, false);
         ActivityIdentifier a = ImplUtil.createActivityIdentifier(0,  0,  1, false);
-        ActivityContext c = new UnitActivityContext("A");
-        
+        Context c = new Context("A", 0, 0);
+         
         Constellation co = ImplUtil.createFakeConstellation();
         
         FakeActivity s = new FakeActivity(p, c);
@@ -146,7 +146,7 @@ public class SimpleActivityTest {
     public void testProcess() { 
         ActivityIdentifier p = ImplUtil.createActivityIdentifier(0,  0,  0, false);
         ActivityIdentifier a = ImplUtil.createActivityIdentifier(0,  0,  1, false);
-        ActivityContext c = new UnitActivityContext("A");
+        Context c = new Context("A", 0, 0);
         
         Constellation co = ImplUtil.createFakeConstellation();
         
@@ -166,7 +166,7 @@ public class SimpleActivityTest {
     public void testCleanup() { 
         ActivityIdentifier p = ImplUtil.createActivityIdentifier(0,  0,  0, false);
         ActivityIdentifier a = ImplUtil.createActivityIdentifier(0,  0,  1, false);
-        ActivityContext c = new UnitActivityContext("A");
+        Context c = new Context("A", 0, 0);
         
         Constellation co = ImplUtil.createFakeConstellation();
         
@@ -187,7 +187,7 @@ public class SimpleActivityTest {
         Constellation c = createConstellation();
         c.activate();
 
-        FakeActivity a = new FakeActivity(null, new UnitActivityContext("A"));
+        FakeActivity a = new FakeActivity(null, new Context("A", 0, 0));
         
         ActivityIdentifier id = c.submit(a);
         

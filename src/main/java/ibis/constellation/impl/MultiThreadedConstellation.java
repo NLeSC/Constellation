@@ -2,6 +2,7 @@ package ibis.constellation.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
 
 import org.slf4j.Logger;
@@ -12,12 +13,12 @@ import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
+import ibis.constellation.AbstractContext;
 import ibis.constellation.Event;
+import ibis.constellation.OrContext;
+import ibis.constellation.Context;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.context.ExecutorContext;
-import ibis.constellation.context.OrExecutorContext;
-import ibis.constellation.context.UnitExecutorContext;
 import ibis.constellation.impl.util.Stats;
 
 public class MultiThreadedConstellation {
@@ -40,7 +41,7 @@ public class MultiThreadedConstellation {
 
     private boolean active = false;
 
-    private ExecutorContext myContext;
+    private AbstractContext myContext;
 
     private final ConstellationIdentifierFactory cidFactory;
 
@@ -134,8 +135,7 @@ public class MultiThreadedConstellation {
         PROFILE = properties.PROFILE;
 
         incomingWorkers = new ArrayList<SingleThreadedConstellation>();
-        myContext = UnitExecutorContext.DEFAULT;
-
+      
         localStealSize = properties.STEAL_SIZE;
 
         if (logger.isInfoEnabled()) {
@@ -166,7 +166,8 @@ public class MultiThreadedConstellation {
             int index = next++;
             next = next % workerCount;
             SingleThreadedConstellation e = workers[index];
-            if (activity.getContext().satisfiedBy(e.getContext(), StealStrategy.ANY)) {
+            
+            if (ContextMatch.match(e.getContext(), activity.getContext())) { 
                 return e.performSubmit(activity);
             }
             if (e.belongsTo().isWorld()) {
@@ -272,7 +273,7 @@ public class MultiThreadedConstellation {
     public ActivityRecord[] handleStealRequest(final SingleThreadedConstellation c, final int stealSize) {
         // a steal request from below
 
-        final ExecutorContext context = c.getContext();
+        final AbstractContext context = c.getContext();
         final StealPool pool = c.stealsFrom();
 
         if (logger.isTraceEnabled()) {
@@ -336,54 +337,36 @@ public class MultiThreadedConstellation {
         incomingWorkers.add(constellation);
     }
 
-    public synchronized ExecutorContext getContext() {
+    public synchronized AbstractContext getContext() {
         return myContext;
     }
 
-    private ExecutorContext mergeContext() {
+    private AbstractContext mergeContext() {
 
         // We should now combine all contexts of our workers into one
-        HashMap<String, UnitExecutorContext> map = new HashMap<String, UnitExecutorContext>();
-
+        HashSet<Context> map = new HashSet<>();
+        
         for (int i = 0; i < workerCount; i++) {
 
-            ExecutorContext tmp = workers[i].getContext();
+            AbstractContext tmp = workers[i].getContext();
 
-            if (tmp instanceof UnitExecutorContext) {
+            if (tmp instanceof Context) {
+                map.add((Context)tmp);
+            } else { 
+                OrContext o = (OrContext) tmp;
 
-                UnitExecutorContext u = (UnitExecutorContext) tmp;
-
-                String name = u.getName();
-
-                if (!map.containsKey(name)) {
-                    map.put(name, u);
-                }
-            } else {
-                assert (tmp instanceof OrExecutorContext);
-                OrExecutorContext o = (OrExecutorContext) tmp;
-
-                for (int j = 0; j < o.size(); j++) {
-                    UnitExecutorContext u = o.get(j);
-
-                    if (u != null) {
-                        String name = u.getName();
-
-                        if (!map.containsKey(name)) {
-                            map.put(name, u);
-                        }
-                    }
+                for (Context r : o) { 
+                    map.add((Context)tmp);
                 }
             }
         }
 
-        if (map.size() == 0) {
-            // should not happen ?
-            return UnitExecutorContext.DEFAULT;
-        } else if (map.size() == 1) {
-            return map.values().iterator().next();
+        assert(map.size() > 0);
+        
+        if (map.size() == 1) {
+            return map.iterator().next();
         } else {
-            UnitExecutorContext[] contexts = map.values().toArray(new UnitExecutorContext[map.size()]);
-            return new OrExecutorContext(contexts, false);
+            return new OrContext(map.toArray(new Context[map.size()]));
         }
     }
 

@@ -9,7 +9,7 @@
 	<property name="builddir" value="./build" />
 	<property name="javadoc" value="javadoc" />
 
-  	<property name="main.build.dir" value="${buildir}/main"/>
+  	<property name="main.build.dir" value="${builddir}/main"/>
   	<property name="main.src.dir" value="./src/main/java"/>
 
   	<property name="unittest.build.dir" value="${builddir}/test"/>
@@ -37,7 +37,17 @@
 			<include name="**/*.jar" />
 		</fileset>
 	</path>
-
+	
+<!--
+	<path id="test.classpath">
+		<fileset dir="external">
+			<include name="**/*.jar" />
+		<fileset dir="lib">
+		</fileset>
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+-->
         <!-- Step 1: Import JaCoCo Ant tasks -->
         <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
                 <classpath path="./external/test/jacoco/lib/jacocoant.jar" />
@@ -142,7 +152,7 @@
 <!--                </jacoco:coverage> -->
 	</target>
 	
- 	<target name="test" depends="unittest,integrationtest">
+ 	<target name="report">
                 <jacoco:report>
 
                         <!-- This task needs the collected execution data and ... -->
@@ -166,6 +176,10 @@
                         <xml destfile="${result.report.dir}/report.xml" />
                 </jacoco:report>
         </target>
+
+ 	<target name="test" depends="unittest,integrationtest,report">
+        </target>
+
 
 	<target name="bin.zip" depends="build">
 		<delete failonerror="false" file="${zip}" />

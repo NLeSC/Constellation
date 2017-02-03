@@ -16,8 +16,6 @@
 
 package ibis.constellation;
 
-import ibis.constellation.context.ExecutorContext;
-
 /**
  * @version 1.0
  * @since 1.0
@@ -25,60 +23,78 @@ import ibis.constellation.context.ExecutorContext;
  */
 public class ConstellationConfiguration {
 
-    private ExecutorContext context = null;
+    private AbstractContext context = null;
 
-    private StealPool belongsTo = StealPool.WORLD;
-    private StealPool stealsFrom = StealPool.WORLD;
+    private StealPool belongsTo;
+    private StealPool stealsFrom;
     
-    private StealStrategy localStealStrategy = StealStrategy.ANY;
-    private StealStrategy constellationStealStrategy = StealStrategy.ANY;
-    private StealStrategy remoteStealStrategy = StealStrategy.ANY;
+    private StealStrategy localStealStrategy;
+    private StealStrategy constellationStealStrategy;
+    private StealStrategy remoteStealStrategy;
     
-    public ConstellationConfiguration(ExecutorContext context, StealPool belongsTo, StealPool stealsFrom, 
+    public ConstellationConfiguration(AbstractContext context, StealPool belongsTo, StealPool stealsFrom, 
             StealStrategy localStealStrategy, StealStrategy constellationStealStrategy, StealStrategy remoteStealStrategy) {  
         super();
-        this.context = context;
-        this.localStealStrategy = localStealStrategy;
-        this.constellationStealStrategy = constellationStealStrategy;
-        this.remoteStealStrategy = remoteStealStrategy;
-        this.belongsTo = belongsTo;
-        this.stealsFrom = stealsFrom;
-    }
+        
+        if (context == null) { 
+            throw new IllegalArgumentException("Context may not be null");
+        } else { 
+            this.context = context;
+        }
+        
+        if (localStealStrategy == null) { 
+            throw new IllegalArgumentException("Local steal strategy may not be null");
+        } else { 
+            this.localStealStrategy = localStealStrategy;
+        }
+        
+        if (constellationStealStrategy == null) { 
+            throw new IllegalArgumentException("Constellation steal strategy may not be null");
+        } else { 
+            this.constellationStealStrategy = constellationStealStrategy;
+        }
+           
+        if (remoteStealStrategy == null) { 
+            throw new IllegalArgumentException("Remote steal strategy may not be null");
+        } else { 
+            this.remoteStealStrategy = remoteStealStrategy;
+        }
 
-    public ConstellationConfiguration(ExecutorContext context, StealStrategy localStealStrategy, 
-            StealStrategy constellationStealStrategy, StealStrategy remoteStealStrategy) {  
-        super();
-        this.context = context;
-        this.localStealStrategy = localStealStrategy;
-        this.constellationStealStrategy = constellationStealStrategy;
-        this.remoteStealStrategy = remoteStealStrategy;
-    }
- 
-    public ConstellationConfiguration(ExecutorContext context, StealStrategy stealStrategy) { 
-        super();
-        this.context = context;
-        this.localStealStrategy = stealStrategy;
-        this.constellationStealStrategy = stealStrategy;
-        this.remoteStealStrategy = stealStrategy;
-    }
- 
-    public ConstellationConfiguration(ExecutorContext context, StealStrategy localStealStrategy, StealStrategy remoteStealStrategy) { 
-        super();
-        this.context = context;
-        this.localStealStrategy = localStealStrategy;
-        this.constellationStealStrategy = remoteStealStrategy;
-        this.remoteStealStrategy = remoteStealStrategy;
+        if (belongsTo == null) { 
+            throw new IllegalArgumentException("Steal pool this Constellation belongs to may not be null");
+        } else { 
+            this.belongsTo = belongsTo;
+        }
+        
+        if (stealsFrom == null) { 
+            throw new IllegalArgumentException("Steal pool this Constellation steals from may not be null");
+        } else { 
+            this.stealsFrom = stealsFrom;
+        }
     }
     
-    public ConstellationConfiguration(ExecutorContext context) { 
-        this.context = context;
+    public ConstellationConfiguration(AbstractContext context, StealStrategy localStealStrategy, StealStrategy constellationStealStrategy,
+            StealStrategy remoteStealStrategy) {  
+        this(context, StealPool.WORLD, StealPool.WORLD, localStealStrategy, constellationStealStrategy, remoteStealStrategy);
+    }
+ 
+    public ConstellationConfiguration(AbstractContext context, StealStrategy stealStrategy) { 
+        this(context, StealPool.WORLD, StealPool.WORLD, stealStrategy, stealStrategy, stealStrategy);
+    }
+ 
+    public ConstellationConfiguration(AbstractContext context, StealStrategy localStealStrategy, StealStrategy remoteStealStrategy) { 
+        this(context, StealPool.WORLD, StealPool.WORLD, localStealStrategy, remoteStealStrategy, remoteStealStrategy);
     }
     
-    public ExecutorContext getContext() {
+    public ConstellationConfiguration(AbstractContext context) { 
+        this(context, StealStrategy.SMALLEST);
+    }
+    
+    public AbstractContext getContext() {
         return context;
     }
     
-    public void setContext(ExecutorContext context) {
+    public void setContext(AbstractContext context) {
         this.context = context;
     }
     

@@ -9,10 +9,9 @@ import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationFactory;
+import ibis.constellation.Context;
 import ibis.constellation.util.SingleEventCollector;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.context.UnitActivityContext;
-import ibis.constellation.context.UnitExecutorContext;
 
 public class SpawnTest {
 
@@ -27,7 +26,7 @@ public class SpawnTest {
 		Properties p = new Properties();
 		p.put("ibis.constellation.distributed", "false");
 
-		ConstellationConfiguration config = new ConstellationConfiguration(new UnitExecutorContext("TEST"),
+		ConstellationConfiguration config = new ConstellationConfiguration(new Context("TEST", 0, Long.MAX_VALUE),
 				StealStrategy.SMALLEST, StealStrategy.BIGGEST);
 
 		Constellation c = ConstellationFactory.createConstellation(p, config);
@@ -36,7 +35,7 @@ public class SpawnTest {
 
 		if (c.isMaster()) {
 			for (int i = 0; i < REPEAT; i++) {
-				SingleEventCollector a = new SingleEventCollector(new UnitActivityContext("TEST"));
+				SingleEventCollector a = new SingleEventCollector(new Context("TEST", 0, 0));
 				ActivityIdentifier id = c.submit(a);
 				c.submit(new TestLoop(id, COUNT, CONCURRENT, SPAWNS_PER_SYNC));
 				a.waitForEvent();

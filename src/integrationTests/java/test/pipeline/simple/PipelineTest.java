@@ -9,9 +9,8 @@ import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationFactory;
 import ibis.constellation.util.MultiEventCollector;
+import ibis.constellation.Context;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.context.UnitActivityContext;
-import ibis.constellation.context.UnitExecutorContext;
 
 public class PipelineTest {
 
@@ -37,7 +36,7 @@ public class PipelineTest {
         int data = DATA;
 
         ConstellationConfiguration config = 
-        		new ConstellationConfiguration(new UnitExecutorContext("X"), StealStrategy.BIGGEST, StealStrategy.SMALLEST);
+        		new ConstellationConfiguration(new Context("X"), StealStrategy.BIGGEST, StealStrategy.SMALLEST);
             
         Constellation c = ConstellationFactory.createConstellation(p, config, executors);
         c.activate();
@@ -46,7 +45,7 @@ public class PipelineTest {
 
         	long start = System.currentTimeMillis();
 
-        	MultiEventCollector me = new MultiEventCollector(new UnitActivityContext("X"), jobs);
+        	MultiEventCollector me = new MultiEventCollector(new Context("X"), jobs);
 
         	c.submit(me);
 

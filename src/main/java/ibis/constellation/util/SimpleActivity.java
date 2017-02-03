@@ -3,8 +3,8 @@ package ibis.constellation.util;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
+import ibis.constellation.AbstractContext;
 import ibis.constellation.Event;
-import ibis.constellation.context.ActivityContext;
 
 /**
  * A <code>SimpleActivity</code> is an activity that only requires a single invocation of its {@link #simpleActivity()} method. In
@@ -28,7 +28,7 @@ public abstract class SimpleActivity extends Activity {
      * @param context
      *            the context that specifies which executors can actually execute this activity.
      */
-    protected SimpleActivity(ActivityIdentifier parent, ActivityContext context) {
+    protected SimpleActivity(ActivityIdentifier parent, AbstractContext context) {
         this(parent, context, true);
     }
 
@@ -42,7 +42,7 @@ public abstract class SimpleActivity extends Activity {
      * @param restrictToLocal
      *            when set, specifies that this activity can only be executed by a local executor.
      */
-    protected SimpleActivity(ActivityIdentifier parent, ActivityContext context, boolean mayBeStolen) {
+    protected SimpleActivity(ActivityIdentifier parent, AbstractContext context, boolean mayBeStolen) {
         super(context, mayBeStolen, false);
         this.parent = parent;
     }

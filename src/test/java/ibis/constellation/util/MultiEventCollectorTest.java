@@ -25,8 +25,7 @@ import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.Event;
-import ibis.constellation.context.ActivityContext;
-import ibis.constellation.context.UnitActivityContext;
+import ibis.constellation.Context;
 import ibis.constellation.impl.ImplUtil;
 
 /**
@@ -70,7 +69,7 @@ public class MultiEventCollectorTest {
     @Test
     public void testCreate() {
 
-        ActivityContext a = new UnitActivityContext("TEST");
+        Context a = new Context("TEST", 0, 0);
 
         MultiEventCollector c = new MultiEventCollector(a, 1);
 
@@ -78,19 +77,13 @@ public class MultiEventCollectorTest {
     }
 
     @Test
-    public void testCreates() {
-
-        MultiEventCollector c = new MultiEventCollector(1);
-
-        assertEquals(UnitActivityContext.DEFAULT, c.getContext());
-    }
-
-    @Test
     public void testInitialize() {
 
         Constellation c = ImplUtil.createFakeConstellation();
+
+        Context a = new Context("TEST", 0, 0);
         
-        MultiEventCollector e = new MultiEventCollector(1);
+        MultiEventCollector e = new MultiEventCollector(a, 1);
         
         int result = e.initialize(c);
         
@@ -102,7 +95,9 @@ public class MultiEventCollectorTest {
 
         Constellation c = ImplUtil.createFakeConstellation();
         
-        MultiEventCollector e = new MultiEventCollector(1);
+        Context a = new Context("TEST", 0, 0);
+        
+        MultiEventCollector e = new MultiEventCollector(a, 1);
         
         e.cleanup(c);
         
@@ -113,7 +108,9 @@ public class MultiEventCollectorTest {
     @Test
     public void testToString() {
 
-        MultiEventCollector c = new MultiEventCollector(1);
+        Context a = new Context("TEST", 0, 0);
+
+        MultiEventCollector c = new MultiEventCollector(a, 1);
 
         String s = c.toString();
 
@@ -123,7 +120,9 @@ public class MultiEventCollectorTest {
     @Test
     public void addEvent() {
 
-        MultiEventCollector c = new MultiEventCollector(1);
+        Context a = new Context("TEST", 0, 0);
+        
+        MultiEventCollector c = new MultiEventCollector(a, 1);
 
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(0, 1, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);
@@ -141,7 +140,9 @@ public class MultiEventCollectorTest {
     @Test
     public void addMultipleEvent() {
 
-        MultiEventCollector c = new MultiEventCollector(4);
+        Context a = new Context("TEST", 0, 0);
+        
+        MultiEventCollector c = new MultiEventCollector(a, 4);
 
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(0, 1, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);
@@ -165,7 +166,9 @@ public class MultiEventCollectorTest {
     @Test
     public void addEventMultiThreaded() {
 
-        MultiEventCollector c = new MultiEventCollector(1);
+        Context a = new Context("TEST", 0, 0);
+
+        MultiEventCollector c = new MultiEventCollector(a, 1);
 
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(0, 1, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);

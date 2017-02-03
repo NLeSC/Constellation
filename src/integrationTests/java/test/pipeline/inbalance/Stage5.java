@@ -4,7 +4,7 @@ import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.Event;
-import ibis.constellation.context.UnitActivityContext;
+import ibis.constellation.Context;
 
 public class Stage5 extends Activity {
 
@@ -18,7 +18,7 @@ public class Stage5 extends Activity {
 
     public Stage5(ActivityIdentifier parent, int index, long sleep) {
 
-        super(new UnitActivityContext("E", index), true);
+        super(new Context("E", index), true);
 
         this.parent = parent;
         this.sleep = sleep;

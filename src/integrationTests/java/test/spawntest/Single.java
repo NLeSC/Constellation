@@ -4,7 +4,7 @@ import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.Event;
-import ibis.constellation.context.UnitActivityContext;
+import ibis.constellation.Context;
 
 public class Single extends Activity {
 
@@ -16,7 +16,7 @@ public class Single extends Activity {
     private int replies;
 
     public Single(ActivityIdentifier parent, int spawns) {
-        super(new UnitActivityContext("TEST", 2), false, true);
+        super(new Context("TEST", 2, 2), false, true);
         this.parent = parent;
         this.spawns = spawns;
     }

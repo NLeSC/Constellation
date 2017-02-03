@@ -2,8 +2,6 @@ package ibis.constellation;
 
 import java.io.Serializable;
 
-import ibis.constellation.context.ActivityContext;
-
 /**
  * In Constellation, a program consists of a collection of loosely coupled activities, which may communicate using {@link Event
  * Events}. Each <code>Activity</code> represents an action that is to be performed by the application, i.e. run a task or 
@@ -37,7 +35,7 @@ public abstract class Activity implements Serializable {
     public static final int FINISH  = 0;
     public static final int SUSPEND = 1;
     
-    private final ActivityContext context;
+    private final AbstractContext context;
     private final boolean mayBeStolen;
     private final boolean expectsEvents;
 
@@ -54,7 +52,12 @@ public abstract class Activity implements Serializable {
      * @param expectsEvents
      *          if this Activity expects events
      */
-    public Activity(ActivityContext context, boolean mayBeStolen, boolean expectsEvents) {
+    public Activity(AbstractContext context, boolean mayBeStolen, boolean expectsEvents) {
+        
+        if (context == null) { 
+            throw new IllegalArgumentException("Activity must have a context");
+        }
+        
         this.context = context;
         this.mayBeStolen = mayBeStolen;
         this.expectsEvents = expectsEvents;
@@ -69,7 +72,7 @@ public abstract class Activity implements Serializable {
      * @param expectsEvents
      *          if this Activity expects events
      */
-    public Activity(ActivityContext context, boolean expectsEvents) {
+    public Activity(AbstractContext context, boolean expectsEvents) {
         this(context, true, expectsEvents);
     }
 
@@ -107,7 +110,7 @@ public abstract class Activity implements Serializable {
      * @return
      *          the {@link ActivityContext} of this Activity.
      */
-    public ActivityContext getContext() {
+    public AbstractContext getContext() {
         return context;
     }
 

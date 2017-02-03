@@ -6,10 +6,9 @@ import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationFactory;
 import ibis.constellation.Event;
+import ibis.constellation.Context;
 import ibis.constellation.util.SingleEventCollector;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.context.UnitActivityContext;
-import ibis.constellation.context.UnitExecutorContext;
 
 public class Streaming extends Activity {
 
@@ -32,7 +31,7 @@ public class Streaming extends Activity {
     private int dataSeen;
 
     public Streaming(ActivityIdentifier root, int length, int index, int totaldata) {
-        super(new UnitActivityContext("S", index), true);
+        super(new Context("S", index), true);
         this.root = root;
         this.length = length;
         this.index = index;
@@ -93,7 +92,7 @@ public class Streaming extends Activity {
         System.out.println(
                 "Running Streaming with series length " + length + " and " + data + " messages " + executors + " Executors");
 
-        ConstellationConfiguration config = new ConstellationConfiguration(new UnitExecutorContext("S"), StealStrategy.SMALLEST,
+        ConstellationConfiguration config = new ConstellationConfiguration(new Context("S"), StealStrategy.SMALLEST,
                 StealStrategy.BIGGEST, StealStrategy.BIGGEST);
         
         Constellation c = ConstellationFactory.createConstellation(config, executors);
@@ -101,7 +100,7 @@ public class Streaming extends Activity {
 
         if (c.isMaster()) {
 
-            SingleEventCollector a = new SingleEventCollector(new UnitActivityContext("S"));
+            SingleEventCollector a = new SingleEventCollector(new Context("S"));
 
             c.submit(a);
 

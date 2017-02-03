@@ -16,14 +16,13 @@ import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationProperties;
+import ibis.constellation.AbstractContext;
 import ibis.constellation.Event;
 import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.context.ActivityContext;
-import ibis.constellation.context.ExecutorContext;
 import ibis.constellation.impl.util.CircularBuffer;
-import ibis.constellation.impl.util.SmartSortedWorkQueue;
+import ibis.constellation.impl.util.SimpleWorkQueue;
 import ibis.constellation.impl.util.Stats;
 import ibis.constellation.impl.util.WorkQueue;
 
@@ -115,13 +114,22 @@ public class SingleThreadedConstellation extends Thread {
 
     private final boolean PROFILE;
 
-    SingleThreadedConstellation(ConstellationConfiguration executor, ConstellationProperties p) throws ConstellationCreationException {
+    SingleThreadedConstellation(ConstellationConfiguration executor, ConstellationProperties p) 
+            throws ConstellationCreationException {
         this(null, executor, p);
     }
 
-    public SingleThreadedConstellation(MultiThreadedConstellation parent, ConstellationConfiguration config, ConstellationProperties props)
-            throws ConstellationCreationException {
+    public SingleThreadedConstellation(MultiThreadedConstellation parent, ConstellationConfiguration config, 
+            ConstellationProperties props) throws ConstellationCreationException {
+        
+        if (config == null) { 
+            throw new IllegalArgumentException("SingleThreadedConstellation expects ConstellationConfiguration");
+        }
 
+        if (props == null) { 
+            throw new IllegalArgumentException("SingleThreadedConstellation expects ConstellationProperties");
+        }
+        
         PROFILE_STEALS = props.PROFILE_STEAL;
         PRINT_STATISTICS = props.PRINT_STATISTICS;
         PROFILE = props.PROFILE;
@@ -140,11 +148,11 @@ public class SingleThreadedConstellation extends Thread {
             identifier = new ConstellationIdentifierImpl(0, 0);
         }
 
-        stolen = new SmartSortedWorkQueue("ST(" + identifier + ")-stolen");
-        restricted = new SmartSortedWorkQueue("ST(" + identifier + ")-restricted");
-        fresh = new SmartSortedWorkQueue("ST(" + identifier + ")-fresh");
-        wrongContext = new SmartSortedWorkQueue("ST(" + identifier + ")-wrong");
-        restrictedWrongContext = new SmartSortedWorkQueue("ST(" + identifier + ")-restrictedwrong");
+        stolen = new SimpleWorkQueue("ST(" + identifier + ")-stolen");
+        restricted = new SimpleWorkQueue("ST(" + identifier + ")-restricted");
+        fresh = new SimpleWorkQueue("ST(" + identifier + ")-fresh");
+        wrongContext = new SimpleWorkQueue("ST(" + identifier + ")-wrong");
+        restrictedWrongContext = new SimpleWorkQueue("ST(" + identifier + ")-restrictedwrong");
 
         super.setName(identifier().toString());
 
@@ -218,7 +226,7 @@ public class SingleThreadedConstellation extends Thread {
         return stealPool;
     }
 
-    public ExecutorContext getContext() {
+    public AbstractContext getContext() {
         return wrapper.getContext();
     }
 
@@ -249,9 +257,9 @@ public class SingleThreadedConstellation extends Thread {
         return wrapper.submit(activity);
     }
 
-    public ActivityIdentifierImpl doSubmit(ActivityRecord ar, ActivityContext c, ActivityIdentifierImpl id) {
-
-        if (c.satisfiedBy(wrapper.getContext(), StealStrategy.ANY)) {
+    public ActivityIdentifierImpl doSubmit(ActivityRecord ar, AbstractContext c, ActivityIdentifierImpl id) {
+        
+        if (ContextMatch.match(c, wrapper.getContext())) {
 
             synchronized (this) {
                 lookup.put(ar.identifier(), ar);
@@ -324,7 +332,7 @@ public class SingleThreadedConstellation extends Thread {
         return result;
     }
 
-    public ActivityRecord[] attemptSteal(ExecutorContext context, StealStrategy s, StealPool pool,
+    public ActivityRecord[] attemptSteal(AbstractContext context, StealStrategy s, StealPool pool,
             ConstellationIdentifierImpl source, int size, boolean local) {
 
         ActivityRecord[] result = new ActivityRecord[size];
@@ -338,7 +346,7 @@ public class SingleThreadedConstellation extends Thread {
         return trim(result, count);
     }
 
-    public synchronized int attemptSteal(ActivityRecord[] tmp, ExecutorContext context, StealStrategy s, StealPool pool,
+    public synchronized int attemptSteal(ActivityRecord[] tmp, AbstractContext context, StealStrategy s, StealPool pool,
             ConstellationIdentifierImpl src, int size, boolean local) {
 
         // attempted steal request from parent. Expects an immediate reply
@@ -356,6 +364,7 @@ public class SingleThreadedConstellation extends Thread {
 
         // First steal from the activities that I cannot run myself.
         int offset = wrongContext.steal(context, s, tmp, 0, size);
+        
         if (logger.isDebugEnabled() && !local) {
             logger.debug("Stole " + offset + " jobs from wrongContext of " + identifier + ", size = " + wrongContext.size());
         }
@@ -654,8 +663,8 @@ public class SingleThreadedConstellation extends Thread {
             notifyAll();
             return true;
         }
-        if (logger.isDebugEnabled()) {
-            logger.debug("getDone returns false");
+        if (logger.isTraceEnabled()) {
+            logger.trace("getDone returns false");
         }
         return false;
     }
@@ -702,6 +711,12 @@ public class SingleThreadedConstellation extends Thread {
         }
     }
 
+    /** 
+     * Reclaim is used to re-insert activities into the queue whenever a steal reply failed to be sent. 
+     *
+     * @param a 
+     *          the ActivityRecords to reclaim
+     */
     public void reclaim(ActivityRecord[] a) {
 
         if (a == null) {
@@ -712,21 +727,19 @@ public class SingleThreadedConstellation extends Thread {
 
             if (ar != null) {
 
-                ActivityContext c = ar.getContext();
+                AbstractContext c = ar.getContext();
 
                 if (ar.isRelocated()) {
-                    // We should unset the relocation flag if an activity is
-                    // returned.
+                    // We should unset the relocation flag if an activity is returned.
                     ar.setRelocated(false);
                     relocated.remove(ar);
                 } else if (ar.isStolen()) {
-                    // We should unset the stolen flag if an activity is
-                    // returned.
+                    // We should unset the stolen flag if an activity is returned.
                     ar.setStolen(false);
                     exportedActivities.remove(ar.identifier());
                 }
 
-                if (c.satisfiedBy(wrapper.getContext(), StealStrategy.ANY)) {
+                if (ContextMatch.match(c, wrapper.getContext())) {
 
                     synchronized (this) {
                         lookup.put(ar.identifier(), ar);
