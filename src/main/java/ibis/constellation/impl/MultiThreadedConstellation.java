@@ -356,7 +356,7 @@ public class MultiThreadedConstellation {
                 OrContext o = (OrContext) tmp;
 
                 for (Context r : o) { 
-                    map.add((Context)tmp);
+                    map.add((Context)r);
                 }
             }
         }
