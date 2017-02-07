@@ -16,7 +16,6 @@
 
 package ibis.constellation;
 
-import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -25,16 +24,16 @@ import java.util.Iterator;
  *
  */
 public class OrContext extends AbstractContext implements Iterable<Context> {
-    
+
     /* Generated */
     private static final long serialVersionUID = 9000504548592658255L;
 
-    private final Context [] contexts;
-    
+    private final Context[] contexts;
+
     private class MyIterator implements Iterator<Context> {
 
-        int index = 0;
-        
+        private int index = 0;
+
         @Override
         public boolean hasNext() {
             return index < contexts.length;
@@ -43,61 +42,63 @@ public class OrContext extends AbstractContext implements Iterable<Context> {
         @Override
         public Context next() {
             return contexts[index++];
-        } 
-        
+        }
+
         @Override
         public void remove() {
+            throw new UnsupportedOperationException("remove() not supported by this Iterator");
         }
     }
-    
-    public OrContext(Context ... contexts) { 
+
+    public OrContext(Context... contexts) {
         super();
-        
-        if (contexts == null || contexts.length < 2) { 
+
+        if (contexts == null || contexts.length < 2) {
             throw new IllegalArgumentException("OrContext requires at least 2 RangeContexts");
         }
-        
-        for (int i=0;i<contexts.length;i++) { 
-            if (contexts[i] == null) { 
+
+        for (Context context : contexts) {
+            if (context == null) {
                 throw new IllegalArgumentException("OrContext does not allow sparse arguments");
             }
         }
-        
+
         //System.err.println("Created ORCONTEXT " + Arrays.toString(contexts));
-        
+
         // FIXME: do more checks!?
         this.contexts = contexts.clone();
     }
 
-    public int size() { 
+    public int size() {
         return contexts.length;
     }
-    
-    public Context get(int index) { 
-        
-        if (index < 0 || index >= contexts.length) { 
+
+    public Context get(int index) {
+
+        if (index < 0 || index >= contexts.length) {
             throw new IllegalArgumentException("Index " + index + " out of range!");
         }
-        
+
         return contexts[index];
     }
-    
-    public String toString() { 
-        
+
+    @Override
+    public String toString() {
+
         StringBuilder sb = new StringBuilder("OrContext(");
-        
-        for (int i=0;i<contexts.length;i++) { 
+
+        for (int i = 0; i < contexts.length; i++) {
             sb.append(contexts[i].toString());
-            
-            if (i < contexts.length-1) { 
+
+            if (i < contexts.length - 1) {
                 sb.append(", ");
             }
         }
-        
+
         sb.append(")");
         return sb.toString();
     }
-    
+
     @Override
     public Iterator<Context> iterator() {
         return new MyIterator();

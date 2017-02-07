@@ -1,24 +1,23 @@
 package ibis.constellation.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ibis.constellation.AbstractContext;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
+import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
-import ibis.constellation.AbstractContext;
+import ibis.constellation.Context;
 import ibis.constellation.Event;
 import ibis.constellation.OrContext;
-import ibis.constellation.Context;
 import ibis.constellation.StealPool;
-import ibis.constellation.StealStrategy;
 import ibis.constellation.impl.util.Stats;
 
 public class MultiThreadedConstellation {
@@ -114,11 +113,12 @@ public class MultiThreadedConstellation {
         }
     }
 
-    public MultiThreadedConstellation(ConstellationProperties p) {
+    public MultiThreadedConstellation(ConstellationProperties p) throws ConstellationCreationException {
         this(null, p);
     }
 
-    public MultiThreadedConstellation(DistributedConstellation parent, ConstellationProperties properties) {
+    public MultiThreadedConstellation(DistributedConstellation parent, ConstellationProperties properties)
+            throws ConstellationCreationException {
 
         this.parent = parent;
 
@@ -135,7 +135,7 @@ public class MultiThreadedConstellation {
         PROFILE = properties.PROFILE;
 
         incomingWorkers = new ArrayList<SingleThreadedConstellation>();
-      
+
         localStealSize = properties.STEAL_SIZE;
 
         if (logger.isInfoEnabled()) {
@@ -166,16 +166,24 @@ public class MultiThreadedConstellation {
             int index = next++;
             next = next % workerCount;
             SingleThreadedConstellation e = workers[index];
-            
-            if (ContextMatch.match(e.getContext(), activity.getContext())) { 
+
+            if (ContextMatch.match(e.getContext(), activity.getContext())) {
                 return e.performSubmit(activity);
             }
             if (e.belongsTo().isWorld()) {
                 return e.performSubmit(activity);
             }
         }
-        throw new Error("submit: no suitable executor found");
-        // TODO: Or submit anyway to next worker?
+        if (logger.isInfoEnabled()) {
+            logger.info("No local executor for this activity: " + activity.identifier().toString());
+        }
+
+        // throw new Error("submit: no suitable executor found");
+
+        int i = next++;
+        next = next % workerCount;
+        return workers[i].performSubmit(activity);
+
     }
 
     public void performSend(Event e) {
@@ -328,10 +336,11 @@ public class MultiThreadedConstellation {
         return cidFactory;
     }
 
-    public synchronized void register(SingleThreadedConstellation constellation) {
+    public synchronized void register(SingleThreadedConstellation constellation) throws ConstellationCreationException {
 
         if (active) {
-            throw new Error("Cannot register new BottomConstellation while " + "TopConstellation is active!");
+            throw new ConstellationCreationException(
+                    "Cannot register new BottomConstellation while " + "TopConstellation is active!");
         }
 
         incomingWorkers.add(constellation);
@@ -345,24 +354,24 @@ public class MultiThreadedConstellation {
 
         // We should now combine all contexts of our workers into one
         HashSet<Context> map = new HashSet<>();
-        
+
         for (int i = 0; i < workerCount; i++) {
 
             AbstractContext tmp = workers[i].getContext();
 
             if (tmp instanceof Context) {
-                map.add((Context)tmp);
-            } else { 
+                map.add((Context) tmp);
+            } else {
                 OrContext o = (OrContext) tmp;
 
-                for (Context r : o) { 
-                    map.add((Context)r);
+                for (Context r : o) {
+                    map.add(r);
                 }
             }
         }
 
-        assert(map.size() > 0);
-        
+        assert (map.size() > 0);
+
         if (map.size() == 1) {
             return map.iterator().next();
         } else {
