@@ -1,2 +1,0 @@
-java -classpath '..:../lib/*:lib/*' -Dibis.constellation.steal.size=10 -Dibis.constellation.distributed=false test.lowlevel.DivideAndConquerWithLoad 4 7 2 1 4
-
