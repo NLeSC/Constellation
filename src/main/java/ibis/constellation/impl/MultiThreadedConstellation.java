@@ -451,7 +451,7 @@ public class MultiThreadedConstellation {
             }
         }
 
-        if (PROFILE) {
+        if (PROFILE && parent == null) {
             if (logger.isInfoEnabled()) {
                 logger.info("Printing statistics");
             }
