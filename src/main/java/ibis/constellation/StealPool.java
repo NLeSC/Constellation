@@ -6,9 +6,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Random;
 
-import ibis.constellation.context.ActivityContext;
-import ibis.constellation.context.ExecutorContext;
-
 /**
  * A <code>StealPool</code> is one of the mechanisms to determine the activities that are to be executed by an {@link Executor}.
  * Each executor has two steal pools associated with it: the one it belongs to and the one it can steal from. In addition, an

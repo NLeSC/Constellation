@@ -9,10 +9,9 @@ import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationFactory;
 import ibis.constellation.Event;
+import ibis.constellation.Context;
 import ibis.constellation.util.SingleEventCollector;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.context.UnitActivityContext;
-import ibis.constellation.context.UnitExecutorContext;
 
 public class DivideAndConquerClean extends Activity {
 
@@ -35,7 +34,7 @@ public class DivideAndConquerClean extends Activity {
     private long count = 1;
 
     public DivideAndConquerClean(ActivityIdentifier parent, int branch, int depth) {
-        super(new UnitActivityContext("DC", depth), depth > 0);
+        super(new Context("DC", depth), depth > 0);
         this.parent = parent;
         this.branch = branch;
         this.depth = depth;
@@ -88,7 +87,7 @@ public class DivideAndConquerClean extends Activity {
 
         long start = System.nanoTime();
 
-        ConstellationConfiguration config = new ConstellationConfiguration(new UnitExecutorContext("DC"), 
+        ConstellationConfiguration config = new ConstellationConfiguration(new Context("DC"), 
                     StealStrategy.SMALLEST, StealStrategy.BIGGEST, StealStrategy.BIGGEST);
        
         Constellation c = ConstellationFactory.createConstellation(config, executors);
@@ -104,7 +103,7 @@ public class DivideAndConquerClean extends Activity {
 
             logger.info("Running D&C with branch factor " + branch + " and depth " + depth + " (expected jobs: " + count + ")");
 
-            SingleEventCollector a = new SingleEventCollector(new UnitActivityContext("DC"));
+            SingleEventCollector a = new SingleEventCollector(new Context("DC"));
 
             c.submit(a);
             c.submit(new DivideAndConquerClean(a.identifier(), branch, depth));

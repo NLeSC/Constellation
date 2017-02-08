@@ -8,10 +8,9 @@ import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationFactory;
 import ibis.constellation.Event;
+import ibis.constellation.Context;
 import ibis.constellation.util.SingleEventCollector;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.context.UnitActivityContext;
-import ibis.constellation.context.UnitExecutorContext;
 
 public class DivideAndConquerWithChecks extends Activity {
 
@@ -38,7 +37,7 @@ public class DivideAndConquerWithChecks extends Activity {
     private ActivityIdentifier[] received;
 
     public DivideAndConquerWithChecks(ActivityIdentifier parent, int branch, int depth) {
-        super(new UnitActivityContext("DC", depth), true);
+        super(new Context("DC", depth), true);
         this.parent = parent;
         this.branch = branch;
         this.depth = depth;
@@ -122,7 +121,7 @@ public class DivideAndConquerWithChecks extends Activity {
 
         long start = System.currentTimeMillis();
 
-        ConstellationConfiguration config = new ConstellationConfiguration(new UnitExecutorContext("DC"), StealStrategy.SMALLEST,
+        ConstellationConfiguration config = new ConstellationConfiguration(new Context("DC"), StealStrategy.SMALLEST,
                 StealStrategy.BIGGEST, StealStrategy.BIGGEST);
                 
         Constellation c = ConstellationFactory.createConstellation(config);
@@ -145,7 +144,7 @@ public class DivideAndConquerWithChecks extends Activity {
             System.out.println(
                     "Running D&C with branch factor " + branch + " and depth " + depth + " (expected jobs: " + count + ")");
 
-            SingleEventCollector a = new SingleEventCollector(new UnitActivityContext("DC"));
+            SingleEventCollector a = new SingleEventCollector(new Context("DC"));
 
             c.submit(a);
             c.submit(new DivideAndConquerWithChecks(a.identifier(), branch, depth));

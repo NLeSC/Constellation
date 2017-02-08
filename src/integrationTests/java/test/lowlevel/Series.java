@@ -6,10 +6,9 @@ import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationFactory;
 import ibis.constellation.Event;
+import ibis.constellation.Context;
 import ibis.constellation.util.SingleEventCollector;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.context.UnitActivityContext;
-import ibis.constellation.context.UnitExecutorContext;
 
 public class Series extends Activity {
 
@@ -28,7 +27,7 @@ public class Series extends Activity {
     private final int count;
 
     public Series(ActivityIdentifier root, int length, int count) {
-        super(new UnitActivityContext("S", count), false);
+        super(new Context("S", count), false);
         this.root = root;
         this.length = length;
         this.count = count;
@@ -75,13 +74,13 @@ public class Series extends Activity {
 
         System.out.println("Running Series with length " + length);
 
-        ConstellationConfiguration config = new ConstellationConfiguration(new UnitExecutorContext("S"));
+        ConstellationConfiguration config = new ConstellationConfiguration(new Context("S"));
         
         Constellation c = ConstellationFactory.createConstellation(config);
         c.activate();
 
         if (c.isMaster()) {
-            SingleEventCollector a = new SingleEventCollector(new UnitActivityContext("S"));
+            SingleEventCollector a = new SingleEventCollector(new Context("S"));
             c.submit(a);
             c.submit(new Series(a.identifier(), length, 0));
 

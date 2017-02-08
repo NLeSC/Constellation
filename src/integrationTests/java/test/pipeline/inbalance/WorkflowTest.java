@@ -9,9 +9,8 @@ import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationFactory;
 import ibis.constellation.util.MultiEventCollector;
+import ibis.constellation.Context;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.context.UnitActivityContext;
-import ibis.constellation.context.UnitExecutorContext;
 
 public class WorkflowTest {
 
@@ -32,11 +31,11 @@ public class WorkflowTest {
 		p.put("ibis.constellation.distributed", "false");
 		
 		ConstellationConfiguration [] config = new ConstellationConfiguration[] { 
-				new ConstellationConfiguration(new UnitExecutorContext("MASTER"), StealStrategy.SMALLEST), 
-				new ConstellationConfiguration(new UnitExecutorContext("A"), StealStrategy.SMALLEST), 
-				new ConstellationConfiguration(new UnitExecutorContext("B"), StealStrategy.SMALLEST),
-				new ConstellationConfiguration(new UnitExecutorContext("X"), StealStrategy.SMALLEST),
-				new ConstellationConfiguration(new UnitExecutorContext("E"), StealStrategy.SMALLEST) };
+				new ConstellationConfiguration(new Context("MASTER"), StealStrategy.SMALLEST), 
+				new ConstellationConfiguration(new Context("A"), StealStrategy.SMALLEST), 
+				new ConstellationConfiguration(new Context("B"), StealStrategy.SMALLEST),
+				new ConstellationConfiguration(new Context("X"), StealStrategy.SMALLEST),
+				new ConstellationConfiguration(new Context("E"), StealStrategy.SMALLEST) };
 
 		Constellation c = ConstellationFactory.createConstellation(p, config);
 		c.activate();
@@ -47,7 +46,7 @@ public class WorkflowTest {
 
 			long start = System.currentTimeMillis();
 
-			MultiEventCollector me = new MultiEventCollector(new UnitActivityContext("MASTER"), jobs);
+			MultiEventCollector me = new MultiEventCollector(new Context("MASTER"), jobs);
 			c.submit(me);
 
 			for (int i = 0; i < jobs; i++) {

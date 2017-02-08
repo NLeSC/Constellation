@@ -11,14 +11,13 @@ import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
+import ibis.constellation.AbstractContext;
 import ibis.constellation.Event;
 import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.context.ExecutorContext;
-import ibis.constellation.context.UnitExecutorContext;
 import ibis.constellation.impl.util.CircularBuffer;
-import ibis.constellation.impl.util.SmartSortedWorkQueue;
+import ibis.constellation.impl.util.SimpleWorkQueue;
 import ibis.constellation.impl.util.WorkQueue;
 
 public class ExecutorWrapper implements Constellation {
@@ -34,7 +33,7 @@ public class ExecutorWrapper implements Constellation {
 
     private final ConstellationIdentifierImpl identifier;
 
-    private final ExecutorContext myContext;
+    private final AbstractContext myContext;
 
     private final StealStrategy localStealStrategy;
     private final StealStrategy constellationStealStrategy;
@@ -73,42 +72,13 @@ public class ExecutorWrapper implements Constellation {
 
         this.parent = parent;
         this.identifier = identifier;
-      
-        if (config.getContext() == null) {
-            this.myContext = UnitExecutorContext.DEFAULT;
-        } else {
-            this.myContext = config.getContext();
-        }
+        this.myContext = config.getContext();
         
-        if (config.getBelongsToPool() == null) {
-            this.myPool = StealPool.NONE;
-        } else {
-            this.myPool = config.getBelongsToPool();
-        }
-
-        if (config.getStealsFrom() == null) {
-            this.stealsFrom = StealPool.NONE;
-        } else {
-            this.stealsFrom = config.getStealsFrom();
-        }
-
-        if (config.getLocalStealStrategy() == null) {
-            this.localStealStrategy = StealStrategy.ANY;
-        } else {
-            this.localStealStrategy = config.getLocalStealStrategy();
-        }
-
-        if (config.getConstellationStealStrategy() == null) {
-            this.constellationStealStrategy = StealStrategy.ANY;
-        } else {
-            this.constellationStealStrategy = config.getConstellationStealStrategy();
-        }
-
-        if (config.getRemoteStealStrategy() == null) {
-            this.remoteStealStrategy = StealStrategy.ANY;
-        } else {
-            this.remoteStealStrategy = config.getRemoteStealStrategy();
-        }
+        this.myPool = config.getBelongsToPool();
+        this.stealsFrom = config.getStealsFrom();
+        this.localStealStrategy = config.getLocalStealStrategy();
+        this.constellationStealStrategy = config.getConstellationStealStrategy();
+        this.remoteStealStrategy = config.getRemoteStealStrategy();
         
         QUEUED_JOB_LIMIT = p.QUEUED_JOB_LIMIT;
 
@@ -119,8 +89,8 @@ public class ExecutorWrapper implements Constellation {
             logger.info("Executor set job limit to " + QUEUED_JOB_LIMIT);
         }
 
-        restricted = new SmartSortedWorkQueue("ExecutorWrapper(" + identifier + ")-restricted");
-        fresh = new SmartSortedWorkQueue("ExecutorWrapper(" + identifier + ")-fresh");
+        restricted = new SimpleWorkQueue("ExecutorWrapper(" + identifier + ")-restricted");
+        fresh = new SimpleWorkQueue("ExecutorWrapper(" + identifier + ")-fresh");
 
         messagesTimer = parent.getTimer("java", parent.identifier().toString(), "message sending");
         initializeTimer = parent.getTimer("java", parent.identifier().toString(), "initialize");
@@ -220,7 +190,7 @@ public class ExecutorWrapper implements Constellation {
             return parent.doSubmit(ar, activity.getContext(), id);
         }
 
-        if (activity.getContext().satisfiedBy(myContext, StealStrategy.ANY)) {
+        if (ContextMatch.match(myContext, activity.getContext())) {
 
             lookup.put((ActivityIdentifier)id, ar);
 
@@ -314,7 +284,7 @@ public class ExecutorWrapper implements Constellation {
         return false;
     }
 
-    protected ActivityRecord[] steal(ExecutorContext context, StealStrategy s, boolean allowRestricted, int count,
+    protected ActivityRecord[] steal(AbstractContext context, StealStrategy s, boolean allowRestricted, int count,
             ConstellationIdentifier source) {
 
         steals++;
@@ -552,7 +522,7 @@ public class ExecutorWrapper implements Constellation {
      *
      * @return the executor's context
      */
-    public ExecutorContext getContext() {
+    public AbstractContext getContext() {
         return myContext;
     }
 

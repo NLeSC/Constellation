@@ -4,7 +4,7 @@ import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.Event;
 import ibis.constellation.util.SimpleActivity;
-import ibis.constellation.context.UnitActivityContext;
+import ibis.constellation.Context;
 
 public class Pipeline extends SimpleActivity {
 
@@ -18,7 +18,7 @@ public class Pipeline extends SimpleActivity {
 
     public Pipeline(ActivityIdentifier parent, int index, int current, int last, long sleep, Object data) {
 
-        super(parent, new UnitActivityContext("X", current));
+        super(parent, new Context("X", current));
 
         this.index = index;
         this.current = current;

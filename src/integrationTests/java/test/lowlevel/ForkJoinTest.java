@@ -7,8 +7,7 @@ import org.junit.Test;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationFactory;
-import ibis.constellation.context.UnitActivityContext;
-import ibis.constellation.context.UnitExecutorContext;
+import ibis.constellation.Context;
 import ibis.constellation.util.SingleEventCollector;
 
 import static org.junit.Assert.assertEquals;
@@ -20,7 +19,7 @@ public class ForkJoinTest {
 		Properties p = new Properties();
 	    p.put("ibis.constellation.distributed", "false");
 
-		ConstellationConfiguration config = new ConstellationConfiguration(new UnitExecutorContext("DC")); 
+		ConstellationConfiguration config = new ConstellationConfiguration(new Context("DC")); 
 				
 		Constellation c = ConstellationFactory.createConstellation(p, config, executors);
 		c.activate();
@@ -33,7 +32,7 @@ public class ForkJoinTest {
         	
     		long start = System.nanoTime();
 
-            SingleEventCollector a = new SingleEventCollector(new UnitActivityContext("DC"));
+            SingleEventCollector a = new SingleEventCollector(new Context("DC"));
 
             c.submit(a);
             c.submit(new ForkJoin(a.identifier(), branch, repeat, true));

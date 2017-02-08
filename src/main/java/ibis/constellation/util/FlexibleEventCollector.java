@@ -4,9 +4,8 @@ import java.util.ArrayList;
 
 import ibis.constellation.Activity;
 import ibis.constellation.Constellation;
+import ibis.constellation.AbstractContext;
 import ibis.constellation.Event;
-import ibis.constellation.context.ActivityContext;
-import ibis.constellation.context.UnitActivityContext;
 
 /**
  * A <code>FlexibleEventCollector</code> is an {@link Activity} that just waits for events, indefinitely, and collects them. It
@@ -28,16 +27,10 @@ public class FlexibleEventCollector extends Activity {
      * @param c
      *            the activity context
      */
-    public FlexibleEventCollector(ActivityContext c) {
+    public FlexibleEventCollector(AbstractContext c) {
         super(c, false, true);
     }
 
-    /**
-     * Constructs a <code>FlexibleEventCollector</code> with the default activity context.
-     */
-    public FlexibleEventCollector() {
-        super(UnitActivityContext.DEFAULT, false ,true);
-    }
 
     @Override
     public int initialize(Constellation c) {

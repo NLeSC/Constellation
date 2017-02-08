@@ -4,7 +4,7 @@ import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.Event;
-import ibis.constellation.context.UnitActivityContext;
+import ibis.constellation.Context;
 
 public class ForkJoin extends Activity {
 
@@ -29,7 +29,7 @@ public class ForkJoin extends Activity {
     private long start;
 
     public ForkJoin(ActivityIdentifier parent) {
-        super(new UnitActivityContext("DC"), false);
+        super(new Context("DC"), false);
         this.parent = parent;
         this.spawn = false;
         this.branch = 0;
@@ -37,7 +37,7 @@ public class ForkJoin extends Activity {
     }
     
     public ForkJoin(ActivityIdentifier parent, int branch, int repeat, boolean spawn) {
-        super(new UnitActivityContext("DC"), spawn);
+        super(new Context("DC"), spawn);
         this.parent = parent;
         this.spawn = spawn;
         this.branch = branch;

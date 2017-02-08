@@ -10,10 +10,9 @@ import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationFactory;
 import ibis.constellation.Event;
+import ibis.constellation.Context;
 import ibis.constellation.util.SingleEventCollector;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.context.UnitActivityContext;
-import ibis.constellation.context.UnitExecutorContext;
 
 public class DivideAndConquerWithLoad extends Activity {
 
@@ -37,7 +36,7 @@ public class DivideAndConquerWithLoad extends Activity {
     private int merged = 0;
 
     public DivideAndConquerWithLoad(ActivityIdentifier parent, int branch, int depth, int load) {
-        super(new UnitActivityContext("DC", depth), depth > 0);
+        super(new Context("DC", depth), depth > 0);
         this.parent = parent;
         this.branch = branch;
         this.depth = depth;
@@ -103,7 +102,7 @@ public class DivideAndConquerWithLoad extends Activity {
         int nodes = Integer.parseInt(args[3]);
         int executors = Integer.parseInt(args[4]);
 
-        ConstellationConfiguration config = new ConstellationConfiguration(new UnitExecutorContext("DC"), StealStrategy.SMALLEST,
+        ConstellationConfiguration config = new ConstellationConfiguration(new Context("DC"), StealStrategy.SMALLEST,
                 StealStrategy.BIGGEST, StealStrategy.BIGGEST);
         
         Constellation c;
@@ -128,7 +127,7 @@ public class DivideAndConquerWithLoad extends Activity {
             logger.info("Running D&C with branch factor " + branch + " and depth " + depth + " load " + load + " (expected jobs: "
                     + count + ", expected time: " + time + " sec.)");
 
-            SingleEventCollector a = new SingleEventCollector(new UnitActivityContext("DC"));
+            SingleEventCollector a = new SingleEventCollector(new Context("DC"));
             ActivityIdentifier id = c.submit(a);
             c.submit(new DivideAndConquerWithLoad(id, branch, depth, load));
 

@@ -3,15 +3,15 @@ package test.spawntest;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.Event;
+import ibis.constellation.Context;
 import ibis.constellation.util.SimpleActivity;
-import ibis.constellation.context.UnitActivityContext;
 
 public class Dummy extends SimpleActivity {
 
     private static final long serialVersionUID = 5970093414747228592L;
 
     public Dummy(ActivityIdentifier parent) {
-        super(parent, new UnitActivityContext("TEST", 1));
+        super(parent, new Context("TEST", 1, 1));
     }
 
     @Override

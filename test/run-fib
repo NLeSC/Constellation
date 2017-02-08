@@ -1,2 +1,0 @@
-java -classpath '..:../lib/*:lib/*' -Dibis.constellation.distributed=false test.fib.Fibonacci 4 34
-

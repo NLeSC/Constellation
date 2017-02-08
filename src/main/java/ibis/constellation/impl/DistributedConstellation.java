@@ -7,17 +7,17 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ibis.constellation.AbstractContext;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
+import ibis.constellation.Context;
 import ibis.constellation.Event;
+import ibis.constellation.OrContext;
 import ibis.constellation.StealPool;
-import ibis.constellation.context.ExecutorContext;
-import ibis.constellation.context.OrExecutorContext;
-import ibis.constellation.context.UnitExecutorContext;
 import ibis.constellation.impl.pool.Pool;
 import ibis.constellation.impl.pool.PoolCreationFailedException;
 import ibis.constellation.impl.util.Stats;
@@ -118,7 +118,7 @@ public class DistributedConstellation {
          *            whether to set or reset the deadline
          * @return whether there was a deadline for this unit executor context.
          */
-        public boolean setPending(UnitExecutorContext c, boolean value) {
+        public boolean setPending(Context c, boolean value) {
 
             if (!value) {
                 // Reset the pending value for this context. We don't care if
@@ -495,7 +495,7 @@ public class DistributedConstellation {
      *            value to set the pending flag to.
      * @return whether there already is a pending steal.
      */
-    private synchronized boolean setPendingSteal(StealPool pool, ExecutorContext context, boolean value) {
+    private synchronized boolean setPendingSteal(StealPool pool, AbstractContext context, boolean value) {
 
         String poolTag = pool.getTag();
         PendingSteal tmp = stealThrottle.get(poolTag);
@@ -518,18 +518,13 @@ public class DistributedConstellation {
 
         boolean result = true;
 
-        if (context instanceof OrExecutorContext) {
-
-            OrExecutorContext ow = (OrExecutorContext) context;
-
-            for (int i = 0; i < ow.size(); i++) {
-                UnitExecutorContext uw = ow.get(i);
-                boolean r = tmp.setPending(uw, value);
+        if (context instanceof OrContext) {
+            for (Context c : (OrContext) context) {
+                boolean r = tmp.setPending(c, value);
                 result = result && r;
             }
-
         } else {
-            result = tmp.setPending((UnitExecutorContext) context, value);
+            result = tmp.setPending((Context) context, value);
         }
 
         return result;
@@ -606,6 +601,31 @@ public class DistributedConstellation {
         subConstellation.deliverEventMessage(re);
     }
 
+    private boolean dropSteal(StealRequest sr) {
+        if (stealStrategy == STEAL_NONE) {
+            // drop steal request
+            if (logger.isDebugEnabled()) {
+                logger.debug("D STEAL REQUEST swizzled from " + sr.source);
+            }
+            return true;
+        }
+
+        if (pool.isTerminated()) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("D STEAL REQUEST from " + sr.source + " not sent, pool is terminated");
+            }
+            return true;
+        }
+
+        if (stealStrategy == STEAL_MASTER && pool.isMaster()) {
+            // Master does not steal from itself!
+            return true;
+        }
+
+        return (stealStrategy == STEAL_POOL && (sr.pool == null || sr.pool.isNone()));
+        // Stealing from nobody is easy!
+    }
+
     /**
      * Deals with a steal request from the sub-constellation below.
      *
@@ -615,28 +635,8 @@ public class DistributedConstellation {
      *            the steal request.
      */
     public void handleStealRequest(StealRequest sr) {
-        if (stealStrategy == STEAL_NONE) {
-            // drop steal request
-            if (logger.isDebugEnabled()) {
-                logger.debug("D STEAL REQUEST swizzled from " + sr.source);
-            }
-            return;
-        }
 
-        if (pool.isTerminated()) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("D STEAL REQUEST from " + sr.source + " not sent, pool is terminated");
-            }
-            return;
-        }
-
-        if (stealStrategy == STEAL_MASTER && pool.isMaster()) {
-            // Master does not steal from itself!
-            return;
-        }
-
-        if (stealStrategy == STEAL_POOL && (sr.pool == null || sr.pool.isNone())) {
-            // Stealing from nobody is easy!
+        if (dropSteal(sr)) {
             return;
         }
 
@@ -768,10 +768,10 @@ public class DistributedConstellation {
      * @param c
      *            the underlying multithreaded constellation.
      */
-    public synchronized void register(MultiThreadedConstellation c) {
+    public synchronized void register(MultiThreadedConstellation c) throws ConstellationCreationException {
 
         if (active || subConstellation != null) {
-            throw new Error("Cannot register BottomConstellation");
+            throw new ConstellationCreationException("Cannot register underlying MultiThreadedConstellation");
         }
 
         subConstellation = c;

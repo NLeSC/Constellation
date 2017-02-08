@@ -9,13 +9,11 @@ import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationFactory;
+import ibis.constellation.AbstractContext;
 import ibis.constellation.Event;
+import ibis.constellation.Context;
 import ibis.constellation.util.SingleEventCollector;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.context.ActivityContext;
-import ibis.constellation.context.ExecutorContext;
-import ibis.constellation.context.UnitActivityContext;
-import ibis.constellation.context.UnitExecutorContext;
 
 public class DivideAndConquerWithLoadAndContext extends Activity {
 
@@ -38,7 +36,7 @@ public class DivideAndConquerWithLoadAndContext extends Activity {
     private long count = 1;
     private int merged = 0;
 
-    public DivideAndConquerWithLoadAndContext(ActivityContext c, ActivityIdentifier parent, int branch, int depth, int load) {
+    public DivideAndConquerWithLoadAndContext(AbstractContext c, ActivityIdentifier parent, int branch, int depth, int load) {
         super(c, depth > 0);
         this.parent = parent;
         this.branch = branch;
@@ -65,8 +63,8 @@ public class DivideAndConquerWithLoadAndContext extends Activity {
             return FINISH;
         } else {
 
-            ActivityContext even = new UnitActivityContext("Even", depth - 1);
-            ActivityContext odd = new UnitActivityContext("Odd", depth - 1);
+            AbstractContext even = new Context("Even", depth - 1);
+            AbstractContext odd = new Context("Odd", depth - 1);
 
             for (int i = 0; i < branch; i++) {
 
@@ -116,8 +114,8 @@ public class DivideAndConquerWithLoadAndContext extends Activity {
         int executors = Integer.parseInt(args[4]);
         int rank = Integer.parseInt(args[5]);
 
-        ExecutorContext even = new UnitExecutorContext("Even");
-        ExecutorContext odd = new UnitExecutorContext("Odd");
+        AbstractContext even = new Context("Even");
+        AbstractContext odd = new Context("Odd");
 
         ConstellationConfiguration [] e = new ConstellationConfiguration[executors];
 
@@ -154,10 +152,10 @@ public class DivideAndConquerWithLoadAndContext extends Activity {
             logger.info("Running D&C with even/odd context and branch factor " + branch + " and depth " + depth + " load " + load
                     + " (expected jobs: " + count + ", expected time: " + time + " sec.)");
 
-            SingleEventCollector a = new SingleEventCollector(new UnitActivityContext((rank % 2) == 0 ? "Even" : "Odd"));
+            SingleEventCollector a = new SingleEventCollector(new Context((rank % 2) == 0 ? "Even" : "Odd"));
 
             c.submit(a);
-            c.submit(new DivideAndConquerWithLoadAndContext(new UnitActivityContext("Even", depth), a.identifier(), branch, depth,
+            c.submit(new DivideAndConquerWithLoadAndContext(new Context("Even", depth), a.identifier(), branch, depth,
                     load));
 
             long result = (Long) a.waitForEvent().getData();

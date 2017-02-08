@@ -4,7 +4,7 @@ import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.Event;
 import ibis.constellation.util.SimpleActivity;
-import ibis.constellation.context.UnitActivityContext;
+import ibis.constellation.Context;
 
 public class Stage3 extends SimpleActivity {
 
@@ -15,7 +15,7 @@ public class Stage3 extends SimpleActivity {
 
     public Stage3(ActivityIdentifier target, long sleep, Data data) {
 
-        super(target, new UnitActivityContext("X", data.index));
+        super(target, new Context("X", data.index));
 
         this.sleep = sleep;
         this.data = data;

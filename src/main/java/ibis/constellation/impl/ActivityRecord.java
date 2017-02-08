@@ -7,11 +7,11 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ibis.constellation.AbstractContext;
 import ibis.constellation.Activity;
 import ibis.constellation.ByteBuffers;
 import ibis.constellation.Constellation;
 import ibis.constellation.Event;
-import ibis.constellation.context.ActivityContext;
 import ibis.constellation.impl.util.CircularBuffer;
 
 public class ActivityRecord implements Serializable, ByteBuffers {
@@ -28,11 +28,11 @@ public class ActivityRecord implements Serializable, ByteBuffers {
 
     private final Activity activity;
     private final ActivityIdentifierImpl identifier;
-    private final ActivityContext context;
+
+    private final AbstractContext context;
 
     private final boolean mayBeStolen;
-    private final boolean expectsEvents;
-    
+
     private final CircularBuffer<Event> queue;
     private int state = INITIALIZING;
 
@@ -45,11 +45,10 @@ public class ActivityRecord implements Serializable, ByteBuffers {
         this.identifier = id;
         this.context = activity.getContext();
         this.mayBeStolen = activity.mayBeStolen();
-        this.expectsEvents = activity.expectsEvents();
 
-        if (expectsEvents) { 
+        if (activity.expectsEvents()) {
             queue = new CircularBuffer<Event>(4);
-        } else { 
+        } else {
             queue = null;
         }
     }
@@ -149,7 +148,7 @@ public class ActivityRecord implements Serializable, ByteBuffers {
     private final void runStateMachine(Constellation c) {
         try {
             int nextState;
-            
+
             switch (state) {
 
             case INITIALIZING:
@@ -162,7 +161,7 @@ public class ActivityRecord implements Serializable, ByteBuffers {
                         state = SUSPENDED;
                     }
                 } else if (nextState == Activity.FINISH) {
-                    // TODO: handle pending event here ?? Exception or warning ? 
+                    // TODO: handle pending event here ?? Exception or warning ?
                     state = FINISHING;
                 } else {
                     throw new IllegalStateException("ActivityBase did not suspend or finish!");
@@ -187,7 +186,7 @@ public class ActivityRecord implements Serializable, ByteBuffers {
                         state = SUSPENDED;
                     }
                 } else if (nextState == Activity.FINISH) {
-                    // TODO: handle pending event here ?? Exception or warning ? 
+                    // TODO: handle pending event here ?? Exception or warning ?
                     state = FINISHING;
                 } else {
                     throw new IllegalStateException("ActivityBase did not suspend or finish!");
@@ -244,10 +243,10 @@ public class ActivityRecord implements Serializable, ByteBuffers {
 
     @Override
     public String toString() {
-        return activity + " STATE: " + getStateAsString() + " " + "event queue size = " + queue.size();
+        return activity + " STATE: " + getStateAsString() + " " + "event queue size = " + (queue == null ? 0 : queue.size());
     }
 
-    public ActivityContext getContext() {
+    public AbstractContext getContext() {
         return context;
     }
 
@@ -271,7 +270,7 @@ public class ActivityRecord implements Serializable, ByteBuffers {
         }
     }
 
-//    public Activity getActivity() {
-//        return activity;
-//    }
+    //    public Activity getActivity() {
+    //        return activity;
+    //    }
 }

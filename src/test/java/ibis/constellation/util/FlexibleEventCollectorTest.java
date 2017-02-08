@@ -25,8 +25,7 @@ import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.Event;
-import ibis.constellation.context.ActivityContext;
-import ibis.constellation.context.UnitActivityContext;
+import ibis.constellation.Context;
 import ibis.constellation.impl.ImplUtil;
 
 /**
@@ -70,7 +69,7 @@ public class FlexibleEventCollectorTest {
     @Test
     public void testCreate() {
 
-        ActivityContext a = new UnitActivityContext("TEST");
+        Context a = new Context("TEST", 0, 0);
 
         FlexibleEventCollector c = new FlexibleEventCollector(a);
 
@@ -78,19 +77,13 @@ public class FlexibleEventCollectorTest {
     }
 
     @Test
-    public void testCreates() {
-
-        FlexibleEventCollector c = new FlexibleEventCollector();
-
-        assertEquals(UnitActivityContext.DEFAULT, c.getContext());
-    }
-
-    @Test
     public void testInitialize() {
 
+        Context a = new Context("TEST", 0, 0);
+        
         Constellation c = ImplUtil.createFakeConstellation();
         
-        FlexibleEventCollector e = new FlexibleEventCollector();
+        FlexibleEventCollector e = new FlexibleEventCollector(a);
         
         int result = e.initialize(c);
         
@@ -100,9 +93,11 @@ public class FlexibleEventCollectorTest {
     @Test
     public void testCleanup() {
 
+        Context a = new Context("TEST", 0, 0);
+        
         Constellation c = ImplUtil.createFakeConstellation();
         
-        FlexibleEventCollector e = new FlexibleEventCollector();
+        FlexibleEventCollector e = new FlexibleEventCollector(a);
         
         e.cleanup(c);
         
@@ -112,7 +107,9 @@ public class FlexibleEventCollectorTest {
     @Test
     public void testToString() {
 
-        FlexibleEventCollector c = new FlexibleEventCollector();
+        Context a = new Context("TEST", 0, 0);
+        
+        FlexibleEventCollector c = new FlexibleEventCollector(a);
 
         String s = c.toString();
 
@@ -122,7 +119,9 @@ public class FlexibleEventCollectorTest {
     @Test
     public void addEvent() {
 
-        FlexibleEventCollector c = new FlexibleEventCollector();
+        Context a = new Context("TEST", 0, 0);
+        
+        FlexibleEventCollector c = new FlexibleEventCollector(a);
 
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(0, 1, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);
@@ -140,7 +139,9 @@ public class FlexibleEventCollectorTest {
     @Test
     public void addEventMultiThreaded() {
 
-        FlexibleEventCollector c = new FlexibleEventCollector();
+        Context a = new Context("TEST", 0, 0);
+        
+        FlexibleEventCollector c = new FlexibleEventCollector(a);
 
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(0, 1, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);

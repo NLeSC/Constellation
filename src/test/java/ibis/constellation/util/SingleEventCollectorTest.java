@@ -26,8 +26,7 @@ import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.Event;
-import ibis.constellation.context.ActivityContext;
-import ibis.constellation.context.UnitActivityContext;
+import ibis.constellation.Context;
 import ibis.constellation.impl.ImplUtil;
 
 /**
@@ -71,7 +70,7 @@ public class SingleEventCollectorTest {
     @Test
     public void testCreate() {
 
-        ActivityContext a = new UnitActivityContext("TEST");
+        Context a = new Context("TEST", 0, 0);
 
         SingleEventCollector c = new SingleEventCollector(a);
 
@@ -79,19 +78,13 @@ public class SingleEventCollectorTest {
     }
 
     @Test
-    public void testCreates() {
-
-        SingleEventCollector c = new SingleEventCollector();
-
-        assertEquals(UnitActivityContext.DEFAULT, c.getContext());
-    }
-
-    @Test
     public void testInitialize() {
 
         Constellation c = ImplUtil.createFakeConstellation();
-
-        SingleEventCollector e = new SingleEventCollector();
+     
+        Context a = new Context("TEST", 0, 0);
+        
+        SingleEventCollector e = new SingleEventCollector(a);
 
         int result = e.initialize(c);
 
@@ -102,9 +95,11 @@ public class SingleEventCollectorTest {
     public void testCleanup() {
 
         Constellation c = ImplUtil.createFakeConstellation();
-
-        SingleEventCollector e = new SingleEventCollector();
-
+        
+        Context a = new Context("TEST", 0, 0);
+        
+        SingleEventCollector e = new SingleEventCollector(a);
+        
         e.cleanup(c);
 
         // TODO: nothing to test for ? 
@@ -113,7 +108,9 @@ public class SingleEventCollectorTest {
     @Test
     public void testToString() {
 
-        SingleEventCollector c = new SingleEventCollector();
+        Context a = new Context("TEST", 0, 0);
+
+        SingleEventCollector c = new SingleEventCollector(a);
 
         String s = c.toString();
 
@@ -123,7 +120,9 @@ public class SingleEventCollectorTest {
     @Test
     public void addEvent() {
 
-        SingleEventCollector c = new SingleEventCollector();
+        Context a = new Context("TEST", 0, 0);
+        
+        SingleEventCollector c = new SingleEventCollector(a);
 
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(0, 1, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);
@@ -146,7 +145,9 @@ public class SingleEventCollectorTest {
     @Test
     public void addEventMultiThreaded() {
 
-        SingleEventCollector c = new SingleEventCollector();
+        Context a = new Context("TEST", 0, 0);
+        
+        SingleEventCollector c = new SingleEventCollector(a);
 
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(0, 1, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);
