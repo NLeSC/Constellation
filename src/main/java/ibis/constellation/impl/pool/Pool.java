@@ -15,7 +15,6 @@ import ibis.constellation.ByteBuffers;
 import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.StealPool;
-import ibis.constellation.impl.TimerImpl;
 import ibis.constellation.impl.ConstellationIdentifierFactory;
 import ibis.constellation.impl.ConstellationIdentifierImpl;
 import ibis.constellation.impl.DistributedConstellation;
@@ -23,6 +22,7 @@ import ibis.constellation.impl.EventMessage;
 import ibis.constellation.impl.Message;
 import ibis.constellation.impl.StealReply;
 import ibis.constellation.impl.StealRequest;
+import ibis.constellation.impl.TimerImpl;
 import ibis.constellation.impl.util.Stats;
 import ibis.constellation.impl.util.TimeSyncInfo;
 import ibis.ipl.Ibis;
@@ -194,8 +194,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             long sleep = deadline - System.currentTimeMillis();
 
             while (sleep > 0) {
-                if (logger.isInfoEnabled()) {
-                    logger.info("PoolUpdater sleeping " + sleep + " ms");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("PoolUpdater sleeping " + sleep + " ms");
                 }
                 try {
                     synchronized (this) {
@@ -222,8 +222,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
                 long now = System.currentTimeMillis();
 
                 if (now >= deadline) {
-                    if (logger.isInfoEnabled()) {
-                        logger.info("PoolUpdater requesting updates");
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("PoolUpdater requesting updates");
                     }
 
                     sendUpdateRequests();
@@ -710,8 +710,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
                     wm.flush();
                     ArrayList<ByteBuffer> list = new ArrayList<ByteBuffer>();
                     ((ByteBuffers) data).pushByteBuffers(list);
-                    if (logger.isInfoEnabled()) {
-                        logger.info("Writing " + list.size() + " bytebuffers");
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Writing " + list.size() + " bytebuffers");
                     }
                     wm.writeInt(list.size());
                     for (ByteBuffer b : list) {
@@ -783,8 +783,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             return false;
         }
 
-        if (logger.isInfoEnabled() && opcode == OPCODE_EVENT_MESSAGE) {
-            logger.info("Sending " + m + " to " + id);
+        if (logger.isDebugEnabled() && opcode == OPCODE_EVENT_MESSAGE) {
+            logger.debug("Sending " + m + " to " + id);
         }
 
         return doForward(id, opcode, m);
@@ -841,8 +841,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         IbisIdentifier tmp = locationCache.get(info.rank);
 
         if (tmp == null) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Location lookup for rank " + rank + " returned null! Dropping reply");
+            if (logger.isDebugEnabled()) {
+                logger.debug("Location lookup for rank " + rank + " returned null! Dropping reply");
             }
             // Timo: drop reply, sender will retry automatically, and does not
             // handle null replies well.
@@ -872,8 +872,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         int timerEvent = -1;
         byte opcode = rm.readByte();
 
-        if (logger.isInfoEnabled()) {
-            logger.info(getString(opcode, "Got") + " from " + source.name());
+        if (logger.isDebugEnabled()) {
+            logger.debug(getString(opcode, "Got") + " from " + source.name());
         }
 
         if (communicationTimer != null && (opcode == OPCODE_STEAL_REPLY || opcode == OPCODE_EVENT_MESSAGE)) {
@@ -899,8 +899,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
                 int nByteBuffers = rm.readInt();
                 ArrayList<ByteBuffer> l = new ArrayList<ByteBuffer>();
                 if (nByteBuffers > 0) {
-                    if (logger.isInfoEnabled()) {
-                        logger.info("Reading " + nByteBuffers + " bytebuffers");
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Reading " + nByteBuffers + " bytebuffers");
                     }
                     for (int i = 0; i < nByteBuffers; i++) {
                         int capacity = rm.readInt();
@@ -1091,8 +1091,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
         PoolInfo tmp = null;
 
-        if (logger.isInfoEnabled()) {
-            logger.info("Processing register request " + request.tag + " from " + request.source);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Processing register request " + request.tag + " from " + request.source);
         }
 
         synchronized (pools) {
@@ -1127,7 +1127,9 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             }
             doForward(request.source, OPCODE_POOL_UPDATE_REPLY, tmp);
         } else {
-            logger.info("No updates found for pool " + request.tag + " / " + request.timestamp);
+            if (logger.isDebugEnabled()) {
+                logger.debug("No updates found for pool " + request.tag + " / " + request.timestamp);
+            }
         }
     }
 
@@ -1140,8 +1142,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     }
 
     private void requestUpdate(IbisIdentifier master, String tag, long timestamp) {
-        if (logger.isInfoEnabled()) {
-            logger.info("Sending update request for pool " + tag + " to " + master + " for timestamp " + timestamp);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Sending update request for pool " + tag + " to " + master + " for timestamp " + timestamp);
         }
 
         doForward(master, OPCODE_POOL_UPDATE_REQUEST, new PoolUpdateRequest(local, tag, timestamp));

@@ -471,7 +471,7 @@ public class MultiThreadedConstellation {
         // steal request delivered by our parent.
 
         if (logger.isDebugEnabled()) {
-            logger.info("M REMOTE STEAL REQUEST from child " + sr.source + " context " + sr.context + " pool " + sr.pool);
+            logger.debug("M REMOTE STEAL REQUEST from child " + sr.source + " context " + sr.context + " pool " + sr.pool);
         }
 
         final int rnd = selectRandomWorker();
@@ -532,7 +532,7 @@ public class MultiThreadedConstellation {
         // steal reply delivered by our parent
 
         if (logger.isDebugEnabled()) {
-            logger.info("M receive STEAL reply from " + sr.source);
+            logger.debug("M receive STEAL reply from " + sr.source);
         }
 
         SingleThreadedConstellation b = getWorker(sr.target);

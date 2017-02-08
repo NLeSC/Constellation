@@ -465,16 +465,16 @@ public class DistributedConstellation {
             logger.warn("Failed to terminate pool!", e);
         }
 
-        logger.info("Pool terminated");
+        logger.debug("Pool terminated");
         subConstellation.done();
-        logger.info("Subconstellation done");
+        logger.debug("Subconstellation done");
 
         pool.handleStats();
-        logger.info("HandleStats done");
+        logger.debug("HandleStats done");
 
         if (PROFILE && pool.isMaster()) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Printing statistics");
+            if (logger.isDebugEnabled()) {
+                logger.debug("Printing statistics");
             }
             stats.printStats(System.out);
         }
@@ -706,15 +706,15 @@ public class DistributedConstellation {
         }
 
         if (enqueueOnFail) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Failed to forward message to remote constellation " + target + " (will retry!)");
+            if (logger.isDebugEnabled()) {
+                logger.debug("Failed to forward message to remote constellation " + target + " (will retry!)");
             }
             delivery.enqueue(m);
             return true;
         }
 
-        if (logger.isInfoEnabled()) {
-            logger.info("Failed to forward message to remote constellation " + target + " (may retry)");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Failed to forward message to remote constellation " + target + " (may retry)");
         }
         return false;
     }
@@ -742,10 +742,10 @@ public class DistributedConstellation {
             // If the send fails we reclaim the work.
 
             if (!m.isEmpty()) {
-                logger.info("Failed to deliver steal reply to " + target + " (reclaiming work and dropping reply)");
+                logger.debug("Failed to deliver steal reply to " + target + " (reclaiming work and dropping reply)");
                 return false;
             } else {
-                logger.info("Failed to deliver empty steal reply to " + target + " (dropping reply)");
+                logger.debug("Failed to deliver empty steal reply to " + target + " (dropping reply)");
             }
         }
 
