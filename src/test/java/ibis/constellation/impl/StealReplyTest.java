@@ -23,9 +23,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import ibis.constellation.Context;
 import ibis.constellation.StealPool;
-import ibis.constellation.context.ExecutorContext;
-import ibis.constellation.context.UnitExecutorContext;
 
 /**
  * @version 1.0
@@ -33,19 +32,20 @@ import ibis.constellation.context.UnitExecutorContext;
  *
  */
 public class StealReplyTest {
-
+    
+  
     @Test
     public void testStealReplySource() {
 
         ConstellationIdentifierImpl src = ImplUtil.createConstellationIdentifier(0, 0);
         ConstellationIdentifierImpl dst = ImplUtil.createConstellationIdentifier(1, 1);
 
-        ExecutorContext exc = UnitExecutorContext.DEFAULT;
-
+        Context exc = new Context("DEFAULT",  0,  0);
+        
         StealPool sp = StealPool.WORLD;
 
-        ActivityRecord work = new ActivityRecord(null);
-
+        ActivityRecord work = ImplUtil.createActivityRecord();
+        
         StealReply tmp = new StealReply(src, dst, sp, exc, work);
 
         assertEquals(src, tmp.source);
@@ -57,12 +57,12 @@ public class StealReplyTest {
         ConstellationIdentifierImpl src = ImplUtil.createConstellationIdentifier(0, 0);
         ConstellationIdentifierImpl dst = ImplUtil.createConstellationIdentifier(1, 1);
 
-        ExecutorContext exc = UnitExecutorContext.DEFAULT;
-
+        Context exc = new Context("DEFAULT",  0,  0);
+        
         StealPool sp = StealPool.WORLD;
 
-        ActivityRecord work = new ActivityRecord(null);
-
+        ActivityRecord work = ImplUtil.createActivityRecord();
+        
         StealReply tmp = new StealReply(src, dst, sp, exc, work);
 
         assertEquals(dst, tmp.target);
@@ -74,12 +74,12 @@ public class StealReplyTest {
         ConstellationIdentifierImpl src = ImplUtil.createConstellationIdentifier(0, 0);
         ConstellationIdentifierImpl dst = ImplUtil.createConstellationIdentifier(1, 1);
 
-        ExecutorContext exc = UnitExecutorContext.DEFAULT;
-
+        Context exc = new Context("DEFAULT",  0,  0);
+        
         StealPool sp = StealPool.WORLD;
 
-        ActivityRecord work = new ActivityRecord(null);
-
+        ActivityRecord work = ImplUtil.createActivityRecord();
+        
         StealReply tmp = new StealReply(src, dst, sp, exc, work);
 
         assertEquals(exc, tmp.getContext());
@@ -91,12 +91,12 @@ public class StealReplyTest {
         ConstellationIdentifierImpl src = ImplUtil.createConstellationIdentifier(0, 0);
         ConstellationIdentifierImpl dst = ImplUtil.createConstellationIdentifier(1, 1);
 
-        ExecutorContext exc = UnitExecutorContext.DEFAULT;
-
+        Context exc = new Context("DEFAULT",  0,  0);
+        
         StealPool sp = StealPool.WORLD;
 
-        ActivityRecord work = new ActivityRecord(null);
-
+        ActivityRecord work = ImplUtil.createActivityRecord();
+        
         StealReply tmp = new StealReply(src, dst, sp, exc, work);
 
         assertEquals(sp, tmp.getPool());
@@ -108,12 +108,12 @@ public class StealReplyTest {
         ConstellationIdentifierImpl src = ImplUtil.createConstellationIdentifier(0, 0);
         ConstellationIdentifierImpl dst = ImplUtil.createConstellationIdentifier(1, 1);
 
-        ExecutorContext exc = UnitExecutorContext.DEFAULT;
-
+        Context exc = new Context("DEFAULT",  0,  0);
+        
         StealPool sp = StealPool.WORLD;
 
-        ActivityRecord work = new ActivityRecord(null);
-
+        ActivityRecord work = ImplUtil.createActivityRecord();
+        
         StealReply tmp = new StealReply(src, dst, sp, exc, work);
 
         assertArrayEquals(new ActivityRecord[] { work }, tmp.getWork());
@@ -124,13 +124,13 @@ public class StealReplyTest {
 
         ConstellationIdentifierImpl src = ImplUtil.createConstellationIdentifier(0, 0);
         ConstellationIdentifierImpl dst = ImplUtil.createConstellationIdentifier(1, 1);
-
-        ExecutorContext exc = UnitExecutorContext.DEFAULT;
-
+        
+        Context exc = new Context("DEFAULT",  0,  0);
+        
         StealPool sp = StealPool.WORLD;
 
-        ActivityRecord work = new ActivityRecord(null);
-
+        ActivityRecord work = ImplUtil.createActivityRecord();
+        
         StealReply tmp = new StealReply(src, dst, sp, exc, work);
 
         assertEquals(1, tmp.getSize());
@@ -142,8 +142,8 @@ public class StealReplyTest {
         ConstellationIdentifierImpl src = ImplUtil.createConstellationIdentifier(0, 0);
         ConstellationIdentifierImpl dst = ImplUtil.createConstellationIdentifier(1, 1);
 
-        ExecutorContext exc = UnitExecutorContext.DEFAULT;
-
+        Context exc = new Context("DEFAULT",  0,  0);
+        
         StealPool sp = StealPool.WORLD;
 
         StealReply tmp = new StealReply(src, dst, sp, exc, (ActivityRecord) null);
@@ -157,11 +157,11 @@ public class StealReplyTest {
         ConstellationIdentifierImpl src = ImplUtil.createConstellationIdentifier(0, 0);
         ConstellationIdentifierImpl dst = ImplUtil.createConstellationIdentifier(1, 1);
 
-        ExecutorContext exc = UnitExecutorContext.DEFAULT;
-
+        Context exc = new Context("DEFAULT",  0,  0);
+        
         StealPool sp = StealPool.WORLD;
 
-        ActivityRecord[] work = new ActivityRecord[] { new ActivityRecord(null), new ActivityRecord(null) };
+        ActivityRecord[] work = new ActivityRecord[] { ImplUtil.createActivityRecord(), ImplUtil.createActivityRecord() };
 
         StealReply tmp = new StealReply(src, dst, sp, exc, work);
 
@@ -173,9 +173,9 @@ public class StealReplyTest {
 
         ConstellationIdentifierImpl src = ImplUtil.createConstellationIdentifier(0, 0);
         ConstellationIdentifierImpl dst = ImplUtil.createConstellationIdentifier(1, 1);
-
-        ExecutorContext exc = UnitExecutorContext.DEFAULT;
-
+        
+        Context exc = new Context("DEFAULT",  0,  0);
+        
         StealPool sp = StealPool.WORLD;
 
         StealReply tmp = new StealReply(src, dst, sp, exc, (ActivityRecord) null);
@@ -189,8 +189,8 @@ public class StealReplyTest {
         ConstellationIdentifierImpl src = ImplUtil.createConstellationIdentifier(0, 0);
         ConstellationIdentifierImpl dst = ImplUtil.createConstellationIdentifier(1, 1);
 
-        ExecutorContext exc = UnitExecutorContext.DEFAULT;
-
+        Context exc = new Context("DEFAULT",  0,  0);
+        
         StealPool sp = StealPool.WORLD;
 
         StealReply tmp = new StealReply(src, dst, sp, exc, new ActivityRecord[0]);
@@ -204,11 +204,13 @@ public class StealReplyTest {
         ConstellationIdentifierImpl src = ImplUtil.createConstellationIdentifier(0, 0);
         ConstellationIdentifierImpl dst = ImplUtil.createConstellationIdentifier(1, 1);
 
-        ExecutorContext exc = UnitExecutorContext.DEFAULT;
-
+        Context exc = new Context("DEFAULT",  0,  0);
+        
+        ActivityRecord work = ImplUtil.createActivityRecord();
+        
         StealPool sp = StealPool.WORLD;
 
-        StealReply tmp = new StealReply(src, dst, sp, exc, new ActivityRecord(null));
+        StealReply tmp = new StealReply(src, dst, sp, exc, work);
 
         assertFalse(tmp.isEmpty());
     }

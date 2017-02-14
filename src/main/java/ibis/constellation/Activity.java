@@ -2,171 +2,184 @@ package ibis.constellation;
 
 import java.io.Serializable;
 
-import ibis.constellation.context.ActivityContext;
-import ibis.constellation.impl.ActivityBase;
-
 /**
- * In Constellation, a program consists of a collection of loosely coupled activities, which communicate using {@link Event
- * Events}. Each <code>Activity</code> represents an action that is to be performed by the application, i.e. process some
- * <code>Events</code>, or run a task.
+ * In Constellation, a program consists of a collection of loosely coupled activities, which may communicate using {@link Event
+ * Events}. Each <code>Activity</code> represents an action that is to be performed by the application, i.e. run a task or 
+ * process some <code>Events</code>.
  *
- * This class is the base class for all application activities.
+ * This class is the base class for all application activities. Applications should extend this class and implement the 
+ * {@link initialize}, {@link process} and {@link cleanup} methods. 
+ * 
+ * After creating an Activity, it can be submitted to Constellation using {@link Constellation.submit}. During this submit, a 
+ * globally unique {@link ActivityIdentifier} will be assigned to the Activity. Using {@link setIdentifier} this identifier will 
+ * be stored in the Activity. Use the {@link identifier} method to retrieve it.
+ * 
+ * The Activity will be scheduled to run on a Constellation that matches the {@link ActivityContext}. When it starts running, 
+ * {@link initialize} will be invoked once. This method may perform any processing that is needed, but should not block 
+ * indefinitely as this may result in deadlocks. When finished, the method should either return {@link FINISH} of {@LINK SUSPEND}.
+ * 
+ * By returning {@link FINISH} the Activity indicates it no further processing is needed. By returning {@link SUSPEND} the 
+ * Activity indicates it expects an {@link Event}. The Activity is then suspend by Constellation, until the {@Event} arrives. 
+ * 
+ * Upon arrival of the {@link Event}, the {@link process} method will be invoked. After processing the event, {@link process} can 
+ * indicate if more events are expected (by returning {@link SUSPEND} or if the Activity is done (by returning {@FINISH}.
+ * 
+ * After {@link FINISH} is returned by either {@link initialize} of {@link process}, the {@link cleanup} method is invoked. After
+ * this method returns, the Activity is finished and will nore receive any more processingtime.  
+ * 
  */
-public abstract class Activity extends ActivityBase implements Serializable {
+public abstract class Activity implements Serializable {
 
     private static final long serialVersionUID = -83331265534440970L;
+    
+    public static final int FINISH  = 0;
+    public static final int SUSPEND = 1;
+    
+    private final AbstractContext context;
+    private final boolean mayBeStolen;
+    private final boolean expectsEvents;
 
+    private ActivityIdentifier identifier;
+ 
     /**
-     * Initializes this <code>Activity</code> with the specified parameters.
-     *
+     * Create an Activity with a specified context, and indicate if this Activity may be stolen by other Constellations, and 
+     * if it expects to receive Events.
+     * 
      * @param context
-     *            the context that specifies which executors can actually execute this activity.
-     * @param restrictToLocal
-     *            when set, specifies that this activity can only be executed by a local executor.
-     * @param willReceiveEvents
-     *            when set, specifies that this activity can receive events.
+     *          the context in which this activity should be run.
+     * @param mayBeStolen
+     *          if this activity ban be stolen by other Constellations
+     * @param expectsEvents
+     *          if this Activity expects events
      */
-    protected Activity(ActivityContext context, boolean restrictToLocal, boolean willReceiveEvents) {
-        super(context, restrictToLocal, willReceiveEvents);
+    public Activity(AbstractContext context, boolean mayBeStolen, boolean expectsEvents) {
+        
+        if (context == null) { 
+            throw new IllegalArgumentException("Activity must have a context");
+        }
+        
+        this.context = context;
+        this.mayBeStolen = mayBeStolen;
+        this.expectsEvents = expectsEvents;
+    }
+     
+    /**
+     * Create an Activity with a specified context, and specify if it expects to receive Events. When using this constructor, it 
+     * is assumed that this Activity is allowed to be stolen by other Constellations.
+     * 
+     * @param context
+     *          the context in which this activity should be run.
+     * @param expectsEvents
+     *          if this Activity expects events
+     */
+    public Activity(AbstractContext context, boolean expectsEvents) {
+        this(context, true, expectsEvents);
     }
 
     /**
-     * Initializes this <code>Activity</code> with the specified parameters. This version calls
-     * {@link Activity#Activity(ActivityContext, boolean, boolean)}, with <code>false</code> for the <code>restrictToLocal</code>
-     * parameter.
-     *
-     * @param context
-     *            the context that specifies which executors can actually execute this activity.
-     * @param willReceiveEvents
-     *            when set, specifies that this activity can receive events.
+     * This is a callback method used by the Constellation to assign a globally unique {@link ActivityIdentifier} to this 
+     * Activity. This method may only be invoked once, since the identifier may not change once set. Any subsequent invocation
+     * will result in an {@link IllegalStateException}.
+     * 
+     * @param identifier
+     *          the globally unique {@link ActivityIdentifier} 
      */
-    protected Activity(ActivityContext context, boolean willReceiveEvents) {
-        this(context, false, willReceiveEvents);
+    public void setIdentifier(ActivityIdentifier identifier) {
+       
+        if (this.identifier != null) { 
+            throw new IllegalStateException("Activity identifier already set!");
+        }
+        
+        this.identifier = identifier;
     }
-
+    
     /**
-     * Returns the activity identifier of this activity.
-     *
-     * @return the activity identifier
-     * @exception IllegalStateException
-     *                is thrown when the activity is not initialized yet.
+     * Returns the globally unique {@link ActivityIdentifier} assigned to this Activity, or <code>null</code> if this Activity 
+     * has not been submitted yet.
+     * 
+     * @return
+     *          the globally unique {@link ActivityIdentifier} of this Activity or <code>null</code>.
      */
-    @Override
     public ActivityIdentifier identifier() {
-        return super.identifier();
+        return identifier;
+    }
+
+    /** 
+     * Returns the {@link ActivityContext} of this Activity.
+     * 
+     * @return
+     *          the {@link ActivityContext} of this Activity.
+     */
+    public AbstractContext getContext() {
+        return context;
     }
 
     /**
-     * Returns the executor of this activity.
-     *
-     * @return the executor
-     * @exception IllegalStateException
-     *                is thrown when the activity is not initialized yet.
+     * Returns if this Activity may be stolen by another {@link Constellation}. 
+     * 
+     * @return
+     *          if this Activity may be stolen by another {@link Constellation}.
      */
-    @Override
-    public Executor getExecutor() throws IllegalStateException {
-        return super.getExecutor();
+    public boolean mayBeStolen() {
+        return mayBeStolen;
+    }
+ 
+    /**
+     * Returns if this Activity expects {@link Event}s. 
+     * 
+     * @return
+     *          if this Activity expects {@link Event}s.
+     */
+    public boolean expectsEvents() {
+        return expectsEvents;
     }
 
     /**
-     * Submits an activity using the executor of the current activity.
+     * The implementation of this method should perform the initial processing when the activity is first activated. It may 
+     * perform as much processing as needed, but should not block for a prolonged period, as this may result in deadlocks. 
+     * 
+     * When finished, it should return either {@link #SUSPEND} or {@link #FINISH}, depending on what the activity is to do next:
+     * {@link #sSUSPEND} when it wants to wait for events, and {@link #FINISH} when it is done.
      *
-     * @param job
-     *            the activity to be submitted
-     * @exception IllegalStateException
-     *                is thrown when the activity is not initialized yet.
-     * @return the activity identifier of the submitted activity
-     */
-    public ActivityIdentifier submit(Activity job) throws IllegalStateException {
-        return getExecutor().submit(job);
-    }
+     * Note that this method does not throw checked exceptions. It can, however, throw runtime exceptions or errors, and the 
+     * {@link Constellation} running this Activity will deal with that.
+     * 
+     * @param constellation 
+     *          the {@link Constellation} on which the Activity is running
+     * 
+     * @return
+     *          either {@link FINISH} if this Activity is done or {@link SUSPEND} if this Activity expects events. 
+     */    
+    public abstract int initialize(Constellation constellation);
 
     /**
-     * Sends an event using the executor of the current activity.
-     *
-     * Note that if the destination cannot be found, no exception will result, since the implementation is probably asynchronous.
-     *
-     * @param e
-     *            the event to be sent
-     * @exception IllegalStateException
-     *                is thrown when the activity is not initialized yet.
-     */
-    public void send(Event e) throws IllegalStateException {
-        getExecutor().send(e);
-    }
-
-    /**
-     * Returns the context of this activity.
-     *
-     * @return the activity context.
-     */
-    @Override
-    public ActivityContext getContext() {
-        return super.getContext();
-    }
-
-    /**
-     * Requests that the current activity will be suspended. Usually called from {@link #initialize()} or {@link #process(Event)}.
-     *
-     * @exception IllegalStateException
-     *                is thrown when the activity already requested to be finished.
-     */
-    @Override
-    public void suspend() throws IllegalStateException {
-        super.suspend();
-    }
-
-    /**
-     * Requests that the current activity will be finished. Usually called from {@link #initialize()} or {@link #process(Event)}.
-     *
-     * @exception IllegalStateException
-     *                is thrown when the activity already requested to be suspended.
-     */
-    @Override
-    public void finish() throws IllegalStateException {
-        super.finish();
-    }
-
-    /**
-     * This method, to be implemented by the activity, should perform the initial processing when the activity is first activated.
-     * In the end, it should call {@link #suspend()} or {@link #finish()}, depending on what the activity is to do next:
-     * {@link #suspend()} when it expects events it wants to wait for, and {@link #finish()} when it is done.
-     *
-     * Note that this method does not throw checked exceptions. It can, however, throw runtime exceptions or errors, and
-     * constellation should deal with that.
-     */
-    @Override
-    public abstract void initialize();
-
-    /**
-     * This method, to be implemented by the activity, is called when the activity should handle the specified event. In the end,
-     * it should call {@link #suspend()} or {@link #finish()}, depending on what the activity is to do next: {@link #suspend()}
-     * when it expects other events, and {@link #finish()} when it is done.
+     * The implementation of this method is called when an event is received for this activity. After the event is processed it
+     * must return {@link #SUSPEND} or {@link #FINISH}, depending on what the activity is to do next: 
+     * {@link #SUSPEND} when it expects other events, and {@link #FINISH} when it is done.
      *
      * This method is invoked once at a time, even if more events arrive more or less simultaneously.
      *
-     * Note that this method does not throw checked exceptions. It can, however, throw runtime exceptions or errors, and
-     * constellation should deal with that.
+     * Note that this method does not throw checked exceptions. It can, however, throw runtime exceptions or errors, and the 
+     * {@link Constellation} running this Activity will deal with that.
      *
-     * @param e
-     *            the event.
-     *
+     * @param constellation 
+     *          the {@link Constellation} on which the Activity is running
+     * @param event 
+     *          the {@link Event} to process.
+     * @return
+     *          either {@link FINISH} if this Activity is done or {@link SUSPEND} if this Activity expects events. 
      */
-    @Override
-    public abstract void process(Event e);
+    public abstract int process(Constellation constellation, Event event);
 
     /**
-     * This method, to be implemented by the activity, is called when the activity is actually finished. It allows the activity,
-     * for instance, to send events to its parent activity, and to otherwise cleanup.
+     * The implementation of this method is called when the activity is finished. It allows the activity to perform cleanup, and,
+     * for example, send events to its parent activity.
      *
-     * Note that this method does not throw checked exceptions. It can, however, throw runtime exceptions or errors, and
-     * constellation should deal with that.
+     * Note that this method does not throw checked exceptions. It can, however, throw runtime exceptions or errors, and the 
+     * {@link Constellation} running this Activity will deal with that.
+     * 
+     * @param constellation 
+     *          the {@link Constellation} on which the Activity is running
      */
-    @Override
-    public abstract void cleanup();
-
-    // /**
-    // * Todo never called???
-    // */
-    // public abstract void cancel();
+    public abstract void cleanup(Constellation constellation);
 }

@@ -1,26 +1,24 @@
 package ibis.constellation.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ibis.constellation.AbstractContext;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
+import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
+import ibis.constellation.Context;
 import ibis.constellation.Event;
+import ibis.constellation.OrContext;
 import ibis.constellation.StealPool;
-import ibis.constellation.StealStrategy;
-import ibis.constellation.context.ActivityContext;
-import ibis.constellation.context.ExecutorContext;
-import ibis.constellation.context.OrExecutorContext;
-import ibis.constellation.context.UnitExecutorContext;
-import ibis.constellation.extra.CTimer;
-import ibis.constellation.extra.Stats;
+import ibis.constellation.impl.util.Stats;
 
 public class MultiThreadedConstellation {
 
@@ -42,7 +40,7 @@ public class MultiThreadedConstellation {
 
     private boolean active = false;
 
-    private ExecutorContext myContext;
+    private AbstractContext myContext;
 
     private final ConstellationIdentifierFactory cidFactory;
 
@@ -57,8 +55,8 @@ public class MultiThreadedConstellation {
         /* Following methods implement the Constellation interface */
 
         @Override
-        public ActivityIdentifier submit(Activity a) {
-            return performSubmit(a);
+        public ActivityIdentifier submit(Activity activity) {
+            return performSubmit(activity);
         }
 
         @Override
@@ -100,26 +98,27 @@ public class MultiThreadedConstellation {
         }
 
         @Override
-        public CTimer getTimer(String standardDevice, String standardThread, String standardAction) {
+        public TimerImpl getTimer(String standardDevice, String standardThread, String standardAction) {
             return stats.getTimer(standardDevice, standardThread, standardAction);
         }
 
         @Override
-        public CTimer getTimer() {
+        public TimerImpl getTimer() {
             return stats.getTimer();
         }
 
         @Override
-        public CTimer getOverallTimer() {
+        public TimerImpl getOverallTimer() {
             return stats.getOverallTimer();
         }
     }
 
-    public MultiThreadedConstellation(ConstellationProperties p) {
+    public MultiThreadedConstellation(ConstellationProperties p) throws ConstellationCreationException {
         this(null, p);
     }
 
-    public MultiThreadedConstellation(DistributedConstellation parent, ConstellationProperties properties) {
+    public MultiThreadedConstellation(DistributedConstellation parent, ConstellationProperties properties)
+            throws ConstellationCreationException {
 
         this.parent = parent;
 
@@ -136,7 +135,6 @@ public class MultiThreadedConstellation {
         PROFILE = properties.PROFILE;
 
         incomingWorkers = new ArrayList<SingleThreadedConstellation>();
-        myContext = UnitExecutorContext.DEFAULT;
 
         localStealSize = properties.STEAL_SIZE;
 
@@ -161,23 +159,31 @@ public class MultiThreadedConstellation {
 
     private boolean PROFILE;
 
-    public synchronized ActivityIdentifier performSubmit(Activity a) {
+    public synchronized ActivityIdentifier performSubmit(Activity activity) {
 
-        ActivityContext c = a.getContext();
         for (int i = 0; i < workerCount; i++) {
             // Round robin submit (for testing)
             int index = next++;
             next = next % workerCount;
             SingleThreadedConstellation e = workers[index];
-            if (c.satisfiedBy(e.getContext(), StealStrategy.ANY)) {
-                return e.performSubmit(a);
+
+            if (ContextMatch.match(e.getContext(), activity.getContext())) {
+                return e.performSubmit(activity);
             }
             if (e.belongsTo().isWorld()) {
-                return e.performSubmit(a);
+                return e.performSubmit(activity);
             }
         }
-        throw new Error("submit: no suitable executor found");
-        // TODO: Or submit anyway to next worker?
+        if (logger.isInfoEnabled()) {
+            logger.info("No local executor for this activity: " + activity.identifier().toString());
+        }
+
+        // throw new Error("submit: no suitable executor found");
+
+        int i = next++;
+        next = next % workerCount;
+        return workers[i].performSubmit(activity);
+
     }
 
     public void performSend(Event e) {
@@ -275,7 +281,7 @@ public class MultiThreadedConstellation {
     public ActivityRecord[] handleStealRequest(final SingleThreadedConstellation c, final int stealSize) {
         // a steal request from below
 
-        final ExecutorContext context = c.getContext();
+        final AbstractContext context = c.getContext();
         final StealPool pool = c.stealsFrom();
 
         if (logger.isTraceEnabled()) {
@@ -330,63 +336,46 @@ public class MultiThreadedConstellation {
         return cidFactory;
     }
 
-    public synchronized void register(SingleThreadedConstellation constellation) {
+    public synchronized void register(SingleThreadedConstellation constellation) throws ConstellationCreationException {
 
         if (active) {
-            throw new Error("Cannot register new BottomConstellation while " + "TopConstellation is active!");
+            throw new ConstellationCreationException(
+                    "Cannot register new BottomConstellation while " + "TopConstellation is active!");
         }
 
         incomingWorkers.add(constellation);
     }
 
-    public synchronized ExecutorContext getContext() {
+    public synchronized AbstractContext getContext() {
         return myContext;
     }
 
-    private ExecutorContext mergeContext() {
+    private AbstractContext mergeContext() {
 
         // We should now combine all contexts of our workers into one
-        HashMap<String, UnitExecutorContext> map = new HashMap<String, UnitExecutorContext>();
+        HashSet<Context> map = new HashSet<>();
 
         for (int i = 0; i < workerCount; i++) {
 
-            ExecutorContext tmp = workers[i].getContext();
+            AbstractContext tmp = workers[i].getContext();
 
-            if (tmp instanceof UnitExecutorContext) {
-
-                UnitExecutorContext u = (UnitExecutorContext) tmp;
-
-                String name = u.getName();
-
-                if (!map.containsKey(name)) {
-                    map.put(name, u);
-                }
+            if (tmp instanceof Context) {
+                map.add((Context) tmp);
             } else {
-                assert (tmp instanceof OrExecutorContext);
-                OrExecutorContext o = (OrExecutorContext) tmp;
+                OrContext o = (OrContext) tmp;
 
-                for (int j = 0; j < o.size(); j++) {
-                    UnitExecutorContext u = o.get(j);
-
-                    if (u != null) {
-                        String name = u.getName();
-
-                        if (!map.containsKey(name)) {
-                            map.put(name, u);
-                        }
-                    }
+                for (Context r : o) {
+                    map.add(r);
                 }
             }
         }
 
-        if (map.size() == 0) {
-            // should not happen ?
-            return UnitExecutorContext.DEFAULT;
-        } else if (map.size() == 1) {
-            return map.values().iterator().next();
+        assert (map.size() > 0);
+
+        if (map.size() == 1) {
+            return map.iterator().next();
         } else {
-            UnitExecutorContext[] contexts = map.values().toArray(new UnitExecutorContext[map.size()]);
-            return new OrExecutorContext(contexts, false);
+            return new OrContext(map.toArray(new Context[map.size()]));
         }
     }
 
@@ -462,7 +451,7 @@ public class MultiThreadedConstellation {
             }
         }
 
-        if (PROFILE) {
+        if (PROFILE && parent == null) {
             if (logger.isInfoEnabled()) {
                 logger.info("Printing statistics");
             }
@@ -474,7 +463,7 @@ public class MultiThreadedConstellation {
         // steal request delivered by our parent.
 
         if (logger.isDebugEnabled()) {
-            logger.info("M REMOTE STEAL REQUEST from child " + sr.source + " context " + sr.context + " pool " + sr.pool);
+            logger.debug("M REMOTE STEAL REQUEST from child " + sr.source + " context " + sr.context + " pool " + sr.pool);
         }
 
         final int rnd = selectRandomWorker();
@@ -535,7 +524,7 @@ public class MultiThreadedConstellation {
         // steal reply delivered by our parent
 
         if (logger.isDebugEnabled()) {
-            logger.info("M receive STEAL reply from " + sr.source);
+            logger.debug("M receive STEAL reply from " + sr.source);
         }
 
         SingleThreadedConstellation b = getWorker(sr.target);

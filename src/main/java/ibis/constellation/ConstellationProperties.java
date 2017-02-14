@@ -68,7 +68,7 @@ public class ConstellationProperties extends Properties {
 
     /**
      * The "profile.communication" property is a boolean property indicating whether constellation should provide some timing
-     * information on steql or event messages. The default is "false". Note: the overhead for this profiler can be large.
+     * information on steal or event messages. The default is "false". Note: the overhead for this profiler can be large.
      */
     public static final String S_PROFILE_COMMUNICATION = S_PREFIX + "profile.communication";
 
@@ -76,7 +76,7 @@ public class ConstellationProperties extends Properties {
 
     /**
      * The "profile.steal" property is a boolean property indicating whether constellation should provide some timing information
-     * on steqls. The default is "false". Note: the overhead for this profiler can be large.
+     * on steals. The default is "false". Note: the overhead for this profiler can be large.
      */
     public static final String S_PROFILE_STEAL = S_PREFIX + "profile.steal";
 

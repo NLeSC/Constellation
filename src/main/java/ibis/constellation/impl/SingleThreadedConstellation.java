@@ -16,17 +16,15 @@ import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationProperties;
+import ibis.constellation.AbstractContext;
 import ibis.constellation.Event;
-import ibis.constellation.Executor;
+import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.context.ActivityContext;
-import ibis.constellation.context.ExecutorContext;
-import ibis.constellation.extra.CTimer;
-import ibis.constellation.extra.CircularBuffer;
-import ibis.constellation.extra.SmartSortedWorkQueue;
-import ibis.constellation.extra.Stats;
-import ibis.constellation.extra.WorkQueue;
+import ibis.constellation.impl.util.CircularBuffer;
+import ibis.constellation.impl.util.SimpleWorkQueue;
+import ibis.constellation.impl.util.Stats;
+import ibis.constellation.impl.util.WorkQueue;
 
 public class SingleThreadedConstellation extends Thread {
 
@@ -104,7 +102,7 @@ public class SingleThreadedConstellation extends Thread {
     private boolean done = false;
 
     private final Stats stats;
-    private final CTimer stealTimer;
+    private final TimerImpl stealTimer;
 
     private final boolean ignoreEmptyStealReplies;
 
@@ -116,13 +114,22 @@ public class SingleThreadedConstellation extends Thread {
 
     private final boolean PROFILE;
 
-    SingleThreadedConstellation(Executor executor, ConstellationProperties p) throws ConstellationCreationException {
+    SingleThreadedConstellation(ConstellationConfiguration executor, ConstellationProperties p) 
+            throws ConstellationCreationException {
         this(null, executor, p);
     }
 
-    public SingleThreadedConstellation(MultiThreadedConstellation parent, Executor executor, ConstellationProperties props)
-            throws ConstellationCreationException {
+    public SingleThreadedConstellation(MultiThreadedConstellation parent, ConstellationConfiguration config, 
+            ConstellationProperties props) throws ConstellationCreationException {
+        
+        if (config == null) { 
+            throw new IllegalArgumentException("SingleThreadedConstellation expects ConstellationConfiguration");
+        }
 
+        if (props == null) { 
+            throw new IllegalArgumentException("SingleThreadedConstellation expects ConstellationProperties");
+        }
+        
         PROFILE_STEALS = props.PROFILE_STEAL;
         PRINT_STATISTICS = props.PRINT_STATISTICS;
         PROFILE = props.PROFILE;
@@ -141,11 +148,11 @@ public class SingleThreadedConstellation extends Thread {
             identifier = new ConstellationIdentifierImpl(0, 0);
         }
 
-        stolen = new SmartSortedWorkQueue("ST(" + identifier + ")-stolen");
-        restricted = new SmartSortedWorkQueue("ST(" + identifier + ")-restricted");
-        fresh = new SmartSortedWorkQueue("ST(" + identifier + ")-fresh");
-        wrongContext = new SmartSortedWorkQueue("ST(" + identifier + ")-wrong");
-        restrictedWrongContext = new SmartSortedWorkQueue("ST(" + identifier + ")-restrictedwrong");
+        stolen = new SimpleWorkQueue("ST(" + identifier + ")-stolen");
+        restricted = new SimpleWorkQueue("ST(" + identifier + ")-restricted");
+        fresh = new SimpleWorkQueue("ST(" + identifier + ")-fresh");
+        wrongContext = new SimpleWorkQueue("ST(" + identifier + ")-wrong");
+        restrictedWrongContext = new SimpleWorkQueue("ST(" + identifier + ")-restrictedwrong");
 
         super.setName(identifier().toString());
 
@@ -196,7 +203,7 @@ public class SingleThreadedConstellation extends Thread {
 
         stealTimer = stats.getTimer("java", identifier().toString(), "steal");
 
-        wrapper = new ExecutorWrapper(this, executor, props, identifier);
+        wrapper = new ExecutorWrapper(this, props, identifier, config);
 
         myPool = wrapper.belongsTo();
         stealPool = wrapper.stealsFrom();
@@ -219,7 +226,7 @@ public class SingleThreadedConstellation extends Thread {
         return stealPool;
     }
 
-    public ExecutorContext getContext() {
+    public AbstractContext getContext() {
         return wrapper.getContext();
     }
 
@@ -239,7 +246,7 @@ public class SingleThreadedConstellation extends Thread {
         return identifier;
     }
 
-    public ActivityIdentifier performSubmit(Activity a) {
+    public ActivityIdentifier performSubmit(Activity activity) {
         /*
          * This method is called by MultiThreadedConstellation, in case the user
          * calls submit() on a constellation instance. The
@@ -247,19 +254,17 @@ public class SingleThreadedConstellation extends Thread {
          * SingleThreadedConstellation, and the activity should be submitted to
          * its wrapper, because this executor may not be able to steal.
          */
-        return wrapper.submit(a);
+        return wrapper.submit(activity);
     }
 
-    public ActivityIdentifierImpl doSubmit(ActivityRecord ar, ActivityContext c, ActivityIdentifierImpl id) {
-
-        ActivityBase a = ar.getActivity();
-
-        if (c.satisfiedBy(wrapper.getContext(), StealStrategy.ANY)) {
+    public ActivityIdentifierImpl doSubmit(ActivityRecord ar, AbstractContext c, ActivityIdentifierImpl id) {
+        
+        if (ContextMatch.match(c, wrapper.getContext())) {
 
             synchronized (this) {
-                lookup.put(a.identifierImpl(), ar);
+                lookup.put(ar.identifier(), ar);
 
-                if (a.isRestrictedToLocal()) {
+                if (ar.isRestrictedToLocal()) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Submit job to restricted, length was " + restricted.size());
                     }
@@ -327,7 +332,7 @@ public class SingleThreadedConstellation extends Thread {
         return result;
     }
 
-    public ActivityRecord[] attemptSteal(ExecutorContext context, StealStrategy s, StealPool pool,
+    public ActivityRecord[] attemptSteal(AbstractContext context, StealStrategy s, StealPool pool,
             ConstellationIdentifierImpl source, int size, boolean local) {
 
         ActivityRecord[] result = new ActivityRecord[size];
@@ -341,7 +346,7 @@ public class SingleThreadedConstellation extends Thread {
         return trim(result, count);
     }
 
-    public synchronized int attemptSteal(ActivityRecord[] tmp, ExecutorContext context, StealStrategy s, StealPool pool,
+    public synchronized int attemptSteal(ActivityRecord[] tmp, AbstractContext context, StealStrategy s, StealPool pool,
             ConstellationIdentifierImpl src, int size, boolean local) {
 
         // attempted steal request from parent. Expects an immediate reply
@@ -359,6 +364,7 @@ public class SingleThreadedConstellation extends Thread {
 
         // First steal from the activities that I cannot run myself.
         int offset = wrongContext.steal(context, s, tmp, 0, size);
+        
         if (logger.isDebugEnabled() && !local) {
             logger.debug("Stole " + offset + " jobs from wrongContext of " + identifier + ", size = " + wrongContext.size());
         }
@@ -657,8 +663,8 @@ public class SingleThreadedConstellation extends Thread {
             notifyAll();
             return true;
         }
-        if (logger.isDebugEnabled()) {
-            logger.debug("getDone returns false");
+        if (logger.isTraceEnabled()) {
+            logger.trace("getDone returns false");
         }
         return false;
     }
@@ -705,6 +711,12 @@ public class SingleThreadedConstellation extends Thread {
         }
     }
 
+    /** 
+     * Reclaim is used to re-insert activities into the queue whenever a steal reply failed to be sent. 
+     *
+     * @param a 
+     *          the ActivityRecords to reclaim
+     */
     public void reclaim(ActivityRecord[] a) {
 
         if (a == null) {
@@ -715,21 +727,19 @@ public class SingleThreadedConstellation extends Thread {
 
             if (ar != null) {
 
-                ActivityContext c = ar.getContext();
+                AbstractContext c = ar.getContext();
 
                 if (ar.isRelocated()) {
-                    // We should unset the relocation flag if an activity is
-                    // returned.
+                    // We should unset the relocation flag if an activity is returned.
                     ar.setRelocated(false);
                     relocated.remove(ar);
                 } else if (ar.isStolen()) {
-                    // We should unset the stolen flag if an activity is
-                    // returned.
+                    // We should unset the stolen flag if an activity is returned.
                     ar.setStolen(false);
                     exportedActivities.remove(ar.identifier());
                 }
 
-                if (c.satisfiedBy(wrapper.getContext(), StealStrategy.ANY)) {
+                if (ContextMatch.match(c, wrapper.getContext())) {
 
                     synchronized (this) {
                         lookup.put(ar.identifier(), ar);
@@ -809,7 +819,7 @@ public class SingleThreadedConstellation extends Thread {
 
             synchronized (this) {
                 boolean wake = havePendingRequests;
-
+                
                 while (!wake) {
 
                     try {
@@ -819,7 +829,7 @@ public class SingleThreadedConstellation extends Thread {
                     }
 
                     wake = havePendingRequests;
-
+                    
                     if (!wake) {
                         pauseTime = deadline - System.currentTimeMillis();
                         wake = (pauseTime <= 0);
@@ -827,7 +837,7 @@ public class SingleThreadedConstellation extends Thread {
                 }
             }
         }
-
+        
         return havePendingRequests;
     }
 
@@ -877,6 +887,13 @@ public class SingleThreadedConstellation extends Thread {
     public boolean processActivities() {
 
         if (havePendingRequests) {
+      
+            synchronized (this) { 
+                if (done) {
+                    return getDone();
+                }
+            }
+            
             processEvents();
         }
 
@@ -919,8 +936,7 @@ public class SingleThreadedConstellation extends Thread {
             while (!more && !havePendingRequests) {
                 // Our executor has run out of work. See if we can find some.
 
-                // Check if there is any matching work in one of the local
-                // queues...
+                // Check if there is any matching work in one of the local queues...
                 more = pushWorkToExecutor(wrapper.getLocalStealStrategy());
 
                 // If no work was found we send a steal request to our parent.
@@ -928,7 +944,9 @@ public class SingleThreadedConstellation extends Thread {
                     if (parent == null) {
                         break;
                     }
+                    
                     long nextDeadline = stealAllowed();
+                    
                     if (nextDeadline == 0) {
 
                         if (logger.isTraceEnabled()) {
@@ -1043,7 +1061,7 @@ public class SingleThreadedConstellation extends Thread {
         out.flush();
     }
 
-    public CTimer getTimer(String standardDevice, String standardThread, String standardAction) {
+    public TimerImpl getTimer(String standardDevice, String standardThread, String standardAction) {
         return stats.getTimer(standardDevice, standardThread, standardAction);
     }
 

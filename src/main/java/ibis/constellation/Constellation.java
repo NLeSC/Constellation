@@ -21,7 +21,7 @@ public interface Constellation {
      *            the Activity to submit
      * @return ActivityIdentifier that can be used to refer to the submitted Activity.
      */
-    public ActivityIdentifier submit(Activity job);
+    public ActivityIdentifier submit(Activity activity);
 
     /**
      * Send an event.
@@ -30,16 +30,6 @@ public interface Constellation {
      *            the Event to send.
      */
     public void send(Event e);
-
-    // /**
-    // * Cancel an Activity.
-    // *
-    // * Todo: figure out and describe semantics of this.
-    // *
-    // * @param activity
-    // * activity to be cancelled
-    // */
-    // public void cancel(ActivityIdentifier activity);
 
     /**
      * Activate this Constellation implementation.
@@ -79,7 +69,7 @@ public interface Constellation {
     public ConstellationIdentifier identifier();
 
     /**
-     * Creates a {@link CTimer} with the specified device, thread, and action name.
+     * Creates a {@link Timer} with the specified device, thread, and action name.
      *
      * @param device
      *            the device name
@@ -89,14 +79,14 @@ public interface Constellation {
      *            the action name
      * @return the CTimer object
      */
-    public CTimer getTimer(String device, String thread, String action);
+    public Timer getTimer(String device, String thread, String action);
 
     /**
-     * Creates a {@link CTimer} without device, thread, or action name.
+     * Creates a {@link Timer} without device, thread, or action name.
      *
      * @return the CTimer object
      */
-    public CTimer getTimer();
+    public Timer getTimer();
 
     /**
      * Returns the overall timer.
@@ -105,5 +95,5 @@ public interface Constellation {
      *
      * @return the overall timer.
      */
-    public CTimer getOverallTimer();
+    public Timer getOverallTimer();
 }

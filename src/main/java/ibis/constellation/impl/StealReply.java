@@ -6,18 +6,18 @@ import java.util.List;
 
 import ibis.constellation.ByteBuffers;
 import ibis.constellation.StealPool;
-import ibis.constellation.context.ExecutorContext;
+import ibis.constellation.AbstractContext;
 
 public class StealReply extends MessageBase implements ByteBuffers {
 
     private static final long serialVersionUID = 2655647847327367590L;
 
     private final StealPool pool;
-    private final ExecutorContext context;
+    private final AbstractContext context;
     private final ActivityRecord[] work;
 
     public StealReply(final ConstellationIdentifierImpl source, final ConstellationIdentifierImpl target, final StealPool pool,
-            final ExecutorContext context, final ActivityRecord work) {
+            final AbstractContext context, final ActivityRecord work) {
 
         super(source, target);
 
@@ -31,7 +31,7 @@ public class StealReply extends MessageBase implements ByteBuffers {
     }
 
     public StealReply(final ConstellationIdentifierImpl source, final ConstellationIdentifierImpl target, final StealPool pool,
-            final ExecutorContext context, final ActivityRecord[] work) {
+            final AbstractContext context, final ActivityRecord[] work) {
         super(source, target);
 
         this.pool = pool;
@@ -47,7 +47,7 @@ public class StealReply extends MessageBase implements ByteBuffers {
         return pool;
     }
 
-    public ExecutorContext getContext() {
+    public AbstractContext getContext() {
         return context;
     }
 

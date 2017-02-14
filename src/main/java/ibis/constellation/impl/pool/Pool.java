@@ -11,8 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.StealPool;
-import ibis.constellation.extra.Stats;
-import ibis.constellation.extra.TimeSyncInfo;
+import ibis.constellation.impl.ConstellationIdentifierFactory;
 import ibis.constellation.impl.ConstellationIdentifierImpl;
 import ibis.constellation.impl.DistributedConstellation;
 import ibis.constellation.impl.EventMessage;
@@ -23,6 +22,9 @@ import ibis.constellation.impl.pool.communication.CommunicationLayer;
 import ibis.constellation.impl.pool.communication.Message;
 import ibis.constellation.impl.pool.communication.NodeIdentifier;
 import ibis.constellation.impl.pool.communication.ibis.CommunicationLayerImpl;
+import ibis.constellation.impl.TimerImpl;
+import ibis.constellation.impl.util.Stats;
+import ibis.constellation.impl.util.TimeSyncInfo;
 
 public class Pool {
 
@@ -67,6 +69,7 @@ public class Pool {
     private final boolean closedPool;
 
     private final HashMap<NodeIdentifier, Long> times = new HashMap<NodeIdentifier, Long>();
+
     private final TimeSyncInfo syncInfo;
 
     class PoolUpdater extends Thread {
@@ -161,8 +164,8 @@ public class Pool {
             long sleep = deadline - System.currentTimeMillis();
 
             while (sleep > 0) {
-                if (logger.isInfoEnabled()) {
-                    logger.info("PoolUpdater sleeping " + sleep + " ms");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("PoolUpdater sleeping " + sleep + " ms");
                 }
                 try {
                     synchronized (this) {
@@ -189,8 +192,8 @@ public class Pool {
                 long now = System.currentTimeMillis();
 
                 if (now >= deadline) {
-                    if (logger.isInfoEnabled()) {
-                        logger.info("PoolUpdater requesting updates");
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("PoolUpdater requesting updates");
                     }
 
                     sendUpdateRequests();
@@ -422,13 +425,13 @@ public class Pool {
 
         if (id == null) {
             if (logger.isInfoEnabled()) {
-                logger.info("POOL failed to translate " + target + " to an IbisIdentifier");
+                logger.info("POOL failed to translate " + target + " to a NodeIdentifier");
             }
             return false;
         }
 
-        if (logger.isInfoEnabled() && opcode == OPCODE_EVENT_MESSAGE) {
-            logger.info("Sending " + m + " to " + id);
+        if (logger.isDebugEnabled() && opcode == OPCODE_EVENT_MESSAGE) {
+            logger.debug("Sending " + m + " to " + id);
         }
 
         return doForward(id, opcode, m);
@@ -470,7 +473,7 @@ public class Pool {
             return tmp;
         }
 
-        // Forward a request to the master for the 'IbisID' of 'rank'
+        // Forward a request to the master for the id of rank
         doForward(master, OPCODE_RANK_LOOKUP_REQUEST, new RankInfo(rank, local));
 
         return null;
@@ -481,8 +484,8 @@ public class Pool {
         NodeIdentifier tmp = locationCache.get(info.rank);
 
         if (tmp == null) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Location lookup for rank " + rank + " returned null! Dropping reply");
+            if (logger.isDebugEnabled()) {
+                logger.debug("Location lookup for rank " + rank + " returned null! Dropping reply");
             }
             // Timo: drop reply, sender will retry automatically, and does not
             // handle null replies well.
@@ -509,8 +512,8 @@ public class Pool {
 
         byte opcode = rm.opcode;
 
-        if (logger.isInfoEnabled()) {
-            logger.info(getString(opcode, "Got") + " from " + source.name());
+        if (logger.isDebugEnabled()) {
+            logger.debug(getString(opcode, "Got") + " from " + source.name());
         }
 
         if (opcode == OPCODE_NOTHING) {
@@ -691,8 +694,8 @@ public class Pool {
 
         PoolInfo tmp = null;
 
-        if (logger.isInfoEnabled()) {
-            logger.info("Processing register request " + request.tag + " from " + request.source);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Processing register request " + request.tag + " from " + request.source);
         }
 
         synchronized (pools) {
@@ -727,7 +730,9 @@ public class Pool {
             }
             doForward(request.source, OPCODE_POOL_UPDATE_REPLY, tmp);
         } else {
-            logger.info("No updates found for pool " + request.tag + " / " + request.timestamp);
+            if (logger.isDebugEnabled()) {
+                logger.debug("No updates found for pool " + request.tag + " / " + request.timestamp);
+            }
         }
     }
 
@@ -740,8 +745,8 @@ public class Pool {
     }
 
     private void requestUpdate(NodeIdentifier master, String tag, long timestamp) {
-        if (logger.isInfoEnabled()) {
-            logger.info("Sending update request for pool " + tag + " to " + master + " for timestamp " + timestamp);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Sending update request for pool " + tag + " to " + master + " for timestamp " + timestamp);
         }
 
         doForward(master, OPCODE_POOL_UPDATE_REQUEST, new PoolUpdateRequest(local, tag, timestamp));

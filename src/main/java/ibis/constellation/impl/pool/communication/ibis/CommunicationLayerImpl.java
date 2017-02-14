@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import ibis.constellation.ByteBufferCache;
 import ibis.constellation.ByteBuffers;
 import ibis.constellation.ConstellationProperties;
-import ibis.constellation.extra.CTimer;
+import ibis.constellation.impl.TimerImpl;
 import ibis.constellation.impl.pool.Pool;
 import ibis.constellation.impl.pool.PoolCreationFailedException;
 import ibis.constellation.impl.pool.communication.CommunicationLayer;
@@ -63,7 +63,7 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
 
     private final ConstellationProperties properties;
 
-    private CTimer communicationTimer;
+    private TimerImpl communicationTimer;
 
     public CommunicationLayerImpl(final ConstellationProperties properties, Pool pool) throws PoolCreationFailedException {
 
@@ -255,8 +255,8 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
                     wm.flush();
                     ArrayList<ByteBuffer> list = new ArrayList<ByteBuffer>();
                     ((ByteBuffers) m.contents).pushByteBuffers(list);
-                    if (logger.isInfoEnabled()) {
-                        logger.info("Writing " + list.size() + " bytebuffers");
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Writing " + list.size() + " bytebuffers");
                     }
                     wm.writeInt(list.size());
                     for (ByteBuffer b : list) {
@@ -312,8 +312,8 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
                     int nByteBuffers = rm.readInt();
                     ArrayList<ByteBuffer> l = new ArrayList<ByteBuffer>();
                     if (nByteBuffers > 0) {
-                        if (logger.isInfoEnabled()) {
-                            logger.info("Reading " + nByteBuffers + " bytebuffers");
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("Reading " + nByteBuffers + " bytebuffers");
                         }
                         for (int i = 0; i < nByteBuffers; i++) {
                             int capacity = rm.readInt();

@@ -21,10 +21,9 @@ import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
+import ibis.constellation.Context;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.context.ExecutorContext;
-import ibis.constellation.context.UnitExecutorContext;
 
 /**
  * @version 1.0
@@ -43,9 +42,9 @@ public class StealRequestTest {
 
         ConstellationIdentifierImpl cid = ImplUtil.createConstellationIdentifier(0, 0);
 
-        ExecutorContext exc = UnitExecutorContext.DEFAULT;
-
-        StealStrategy lss = StealStrategy.ANY;
+        Context exc = new Context("DEFAULT",  0,  0);
+        
+        StealStrategy lss = StealStrategy.SMALLEST;
         StealStrategy css = StealStrategy.BIGGEST;
         StealStrategy rss = StealStrategy.SMALLEST;
 
@@ -61,9 +60,9 @@ public class StealRequestTest {
 
         ConstellationIdentifierImpl cid = ImplUtil.createConstellationIdentifier(0, 0);
 
-        ExecutorContext exc = UnitExecutorContext.DEFAULT;
-
-        StealStrategy lss = StealStrategy.ANY;
+        Context exc = new Context("DEFAULT",  0,  0);
+        
+        StealStrategy lss = StealStrategy.SMALLEST;
         StealStrategy css = StealStrategy.BIGGEST;
         StealStrategy rss = StealStrategy.SMALLEST;
 
@@ -79,9 +78,9 @@ public class StealRequestTest {
 
         ConstellationIdentifierImpl cid = ImplUtil.createConstellationIdentifier(0, 0);
 
-        ExecutorContext exc = UnitExecutorContext.DEFAULT;
-
-        StealStrategy lss = StealStrategy.ANY;
+        Context exc = new Context("DEFAULT",  0,  0);
+        
+        StealStrategy lss = StealStrategy.SMALLEST;
         StealStrategy css = StealStrategy.BIGGEST;
         StealStrategy rss = StealStrategy.SMALLEST;
 
@@ -97,9 +96,9 @@ public class StealRequestTest {
 
         ConstellationIdentifierImpl cid = ImplUtil.createConstellationIdentifier(0, 0);
 
-        ExecutorContext exc = UnitExecutorContext.DEFAULT;
-
-        StealStrategy lss = StealStrategy.ANY;
+        Context exc = new Context("DEFAULT",  0,  0);
+        
+        StealStrategy lss = StealStrategy.SMALLEST;
         StealStrategy css = StealStrategy.BIGGEST;
         StealStrategy rss = StealStrategy.SMALLEST;
 
@@ -115,9 +114,9 @@ public class StealRequestTest {
 
         ConstellationIdentifierImpl cid = ImplUtil.createConstellationIdentifier(0, 0);
 
-        ExecutorContext exc = UnitExecutorContext.DEFAULT;
-
-        StealStrategy lss = StealStrategy.ANY;
+        Context exc = new Context("DEFAULT",  0,  0);
+        
+        StealStrategy lss = StealStrategy.SMALLEST;
         StealStrategy css = StealStrategy.BIGGEST;
         StealStrategy rss = StealStrategy.SMALLEST;
 
@@ -133,9 +132,9 @@ public class StealRequestTest {
 
         ConstellationIdentifierImpl cid = ImplUtil.createConstellationIdentifier(0, 0);
 
-        ExecutorContext exc = UnitExecutorContext.DEFAULT;
-
-        StealStrategy lss = StealStrategy.ANY;
+        Context exc = new Context("DEFAULT",  0,  0);
+        
+        StealStrategy lss = StealStrategy.SMALLEST;
         StealStrategy css = StealStrategy.BIGGEST;
         StealStrategy rss = StealStrategy.SMALLEST;
 
@@ -155,9 +154,9 @@ public class StealRequestTest {
 
         ConstellationIdentifierImpl cid = ImplUtil.createConstellationIdentifier(0, 0);
 
-        ExecutorContext exc = UnitExecutorContext.DEFAULT;
-
-        StealStrategy lss = StealStrategy.ANY;
+        Context exc = new Context("DEFAULT",  0,  0);
+        
+        StealStrategy lss = StealStrategy.SMALLEST;
         StealStrategy css = StealStrategy.BIGGEST;
         StealStrategy rss = StealStrategy.SMALLEST;
 
@@ -173,9 +172,9 @@ public class StealRequestTest {
 
         ConstellationIdentifierImpl cid = ImplUtil.createConstellationIdentifier(0, 0);
 
-        ExecutorContext exc = UnitExecutorContext.DEFAULT;
-
-        StealStrategy lss = StealStrategy.ANY;
+        Context exc = new Context("DEFAULT",  0,  0);
+        
+        StealStrategy lss = StealStrategy.SMALLEST;
         StealStrategy css = StealStrategy.BIGGEST;
         StealStrategy rss = StealStrategy.SMALLEST;
 
