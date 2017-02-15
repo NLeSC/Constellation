@@ -5,15 +5,15 @@ import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ibis.constellation.AbstractContext;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
+import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
-import ibis.constellation.AbstractContext;
 import ibis.constellation.Event;
-import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.impl.util.CircularBuffer;
@@ -41,7 +41,7 @@ public class ExecutorWrapper implements Constellation {
 
     private final StealPool myPool;
     private final StealPool stealsFrom;
-    
+
     private HashMap<ActivityIdentifier, ActivityRecord> lookup = new HashMap<ActivityIdentifier, ActivityRecord>();
 
     private final WorkQueue restricted;
@@ -67,19 +67,19 @@ public class ExecutorWrapper implements Constellation {
     private long messagesExternal;
     private final TimerImpl messagesTimer;
 
-    ExecutorWrapper(SingleThreadedConstellation parent, ConstellationProperties p, ConstellationIdentifierImpl identifier, 
-                    ConstellationConfiguration config) throws ConstellationCreationException {
+    ExecutorWrapper(SingleThreadedConstellation parent, ConstellationProperties p, ConstellationIdentifierImpl identifier,
+            ConstellationConfiguration config) throws ConstellationCreationException {
 
         this.parent = parent;
         this.identifier = identifier;
         this.myContext = config.getContext();
-        
+
         this.myPool = config.getBelongsToPool();
         this.stealsFrom = config.getStealsFrom();
         this.localStealStrategy = config.getLocalStealStrategy();
         this.constellationStealStrategy = config.getConstellationStealStrategy();
         this.remoteStealStrategy = config.getRemoteStealStrategy();
-        
+
         QUEUED_JOB_LIMIT = p.QUEUED_JOB_LIMIT;
 
         PROFILE = p.PROFILE;
@@ -172,12 +172,12 @@ public class ExecutorWrapper implements Constellation {
     public ActivityIdentifier submit(Activity activity) {
         // Create an activity identifier and initialize the activity with it.
         //ActivityBase base = a;
-        
+
         ActivityIdentifierImpl id = createActivityID(activity.expectsEvents());
         //base.initialize(id);
 
         activity.setIdentifier(id);
-        
+
         ActivityRecord ar = new ActivityRecord(activity, id);
         //ActivityContext c = context;
 
@@ -187,12 +187,16 @@ public class ExecutorWrapper implements Constellation {
             // If we have too much work on our hands we push it to our
             // parent. Added bonus is that others can access it without
             // interrupting me.
-            return parent.doSubmit(ar, activity.getContext(), id);
+            // But we keep restricted jobs anyway, if we can execute them. We might be the only executor that can execute them,
+            // and maybe we cannot steal ... --Ceriel
+            if (!ContextMatch.match(myContext, activity.getContext()) || !ar.isRestrictedToLocal()) {
+                return parent.doSubmit(ar, activity.getContext(), id);
+            }
         }
 
         if (ContextMatch.match(myContext, activity.getContext())) {
 
-            lookup.put((ActivityIdentifier)id, ar);
+            lookup.put((ActivityIdentifier) id, ar);
 
             if (ar.isRestrictedToLocal()) {
                 if (logger.isDebugEnabled()) {
@@ -335,7 +339,7 @@ public class ExecutorWrapper implements Constellation {
         if (PROFILE) {
             evt = timer.start();
         }
-        
+
         tmp.run(this);
 
         if (PROFILE) {
@@ -434,7 +438,7 @@ public class ExecutorWrapper implements Constellation {
     }
 
     public void runExecutor() {
-        
+
         if (logger.isInfoEnabled()) {
             StringBuilder sb = new StringBuilder("\nStarting Executor: " + identifier() + "\n");
 
@@ -451,7 +455,7 @@ public class ExecutorWrapper implements Constellation {
 
         boolean done = false;
 
-        try { 
+        try {
             while (!done) {
                 done = parent.processActivities();
             }
@@ -461,7 +465,7 @@ public class ExecutorWrapper implements Constellation {
 
         logger.info("Executor done!");
     }
-    
+
     @Override
     public TimerImpl getTimer(String standardDevice, String standardThread, String standardAction) {
         return parent.getStats().getTimer(standardDevice, standardThread, standardAction);
@@ -480,7 +484,7 @@ public class ExecutorWrapper implements Constellation {
     public int getJobLimit() {
         return QUEUED_JOB_LIMIT;
     }
-    
+
     /**
      * Returns the steal pool this executor steals from.
      *
