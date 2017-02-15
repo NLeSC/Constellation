@@ -204,11 +204,23 @@ public class ConstellationProperties extends Properties {
         if (logger.isInfoEnabled()) {
             logger.info("MASTER = " + MASTER);
             logger.info("CLOSED = " + CLOSED);
+            if (CLOSED) {
+                logger.info("POOLSIZE = " + POOLSIZE);
+            }
             logger.info("DISTRIBUTED = " + DISTRIBUTED);
+            logger.info("PROFILE = " + PROFILE);
+            logger.info("PROFILE_COMMUNICATION = " + PROFILE_COMMUNICATION);
+            logger.info("PROFILE_STEAL = " + PROFILE_STEAL);
+            logger.info("PRINT_STATISTICS = " + PRINT_STATISTICS);
+            logger.info("OUTPUT = " + OUTPUT);
+            logger.info("REMOTESTEAL_THROTTLE = " + REMOTESTEAL_THROTTLE);
             logger.info("STEAL_DELAY = " + STEAL_DELAY);
+            logger.info("STEAL_IGNORE_EMPTY_REPLIES = " + STEAL_IGNORE_EMPTY_REPLIES);
             logger.info("STEAL_SIZE = " + STEAL_SIZE);
             logger.info("REMOTESTEAL_SIZE = " + REMOTESTEAL_SIZE);
             logger.info("STEALSTRATEGY = " + STEALSTRATEGY);
+            logger.info("REMOTESTEAL_TIMEOUT = " + REMOTESTEAL_TIMEOUT);
+            logger.info("QUEUED_JOB_LIMIT = " + QUEUED_JOB_LIMIT);
         }
     }
 
