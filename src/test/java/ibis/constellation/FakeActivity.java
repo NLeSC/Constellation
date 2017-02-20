@@ -16,6 +16,10 @@
 
 package ibis.constellation;
 
+import ibis.constellation.Activity;
+import ibis.constellation.Constellation;
+import ibis.constellation.Event;
+
 /**
  * @version 1.0
  * @since 1.0
@@ -24,18 +28,18 @@ package ibis.constellation;
 public class FakeActivity extends Activity {
 
     private static final long serialVersionUID = -4021583343422065387L;
-
-    protected boolean initialized = false;
-    protected boolean gotEvent = false;
-    protected boolean clean = false;
-
+   
+    boolean initialized = false;
+    boolean gotEvent = false;
+    boolean clean = false;
+    
     /**
-     *
+     * 
      */
     public FakeActivity() {
         super(new Context("DEFAULT", 0, 0), true);
     }
-
+    
     @Override
     public int initialize(Constellation constellation) {
         initialized = true;

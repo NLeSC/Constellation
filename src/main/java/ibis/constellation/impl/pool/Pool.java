@@ -1234,21 +1234,12 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
             IbisIdentifier id = null;
 
-            // First try to find a master for the pool, without being a candidate.
-            // I'm not a member, after all.
-            int count = 0;
-            while (count < 5 && id == null) {
+            // TODO: will repeat for ever if pool master does not exist...
+            while (id == null) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Searching master for POOL " + electTag);
                 }
                 id = reg.getElectionResult(electTag, 1000);
-                count++;
-            }
-
-            // ... but sometimes, no-one is a member, for instance, StealPool.WORLD as a pool to steal
-            // from usually just means: steal from anybody, but it might not have members per se.
-            if (id == null) {
-                id = reg.elect(electTag);
             }
 
             boolean master = id.equals(ibis.identifier());

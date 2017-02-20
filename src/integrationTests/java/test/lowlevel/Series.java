@@ -5,9 +5,10 @@ import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationFactory;
-import ibis.constellation.Context;
 import ibis.constellation.Event;
+import ibis.constellation.Context;
 import ibis.constellation.util.SingleEventCollector;
+import ibis.constellation.StealStrategy;
 
 public class Series extends Activity {
 
@@ -74,7 +75,7 @@ public class Series extends Activity {
         System.out.println("Running Series with length " + length);
 
         ConstellationConfiguration config = new ConstellationConfiguration(new Context("S"));
-
+        
         Constellation c = ConstellationFactory.createConstellation(config);
         c.activate();
 
