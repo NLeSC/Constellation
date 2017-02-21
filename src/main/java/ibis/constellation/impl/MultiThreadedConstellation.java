@@ -176,8 +176,18 @@ public class MultiThreadedConstellation {
                 return e.performSubmit(a);
             }
         }
-        throw new Error("submit: no suitable executor found");
-        // TODO: Or submit anyway to next worker?
+        if (logger.isInfoEnabled()) {
+            logger.info("No local executor for this activity (no identifier yet)");
+        }
+
+        if (parent == null) {
+            throw new Error("submit: no suitable executor found");
+        }
+
+        int i = next++;
+        next = next % workerCount;
+        return workers[i].performSubmit(activity);
+
     }
 
     public void performSend(Event e) {
@@ -396,8 +406,8 @@ public class MultiThreadedConstellation {
 
     public boolean activate() {
 
-        StealPool stealsFrom;
-        StealPool belongsTo;
+        StealPool[] stealsFrom;
+        StealPool[] belongsTo;
 
         synchronized (this) {
             if (active) {
@@ -411,25 +421,23 @@ public class MultiThreadedConstellation {
             // No workers may be added after this point
             incomingWorkers = null;
 
-            StealPool[] workerStealsFrom = new StealPool[workerCount];
-            StealPool[] workerBelongsTo = new StealPool[workerCount];
+            stealsFrom = new StealPool[workerCount];
+            belongsTo = new StealPool[workerCount];
 
             poolMatrix = new boolean[workerCount][workerCount];
 
             for (int i = 0; i < workerCount; i++) {
                 workers[i].setRank(i);
-                workerBelongsTo[i] = workers[i].belongsTo();
-                workerStealsFrom[i] = workers[i].stealsFrom();
+                belongsTo[i] = workers[i].belongsTo();
+                stealsFrom[i] = workers[i].stealsFrom();
             }
 
             for (int i = 0; i < workerCount; i++) {
                 for (int j = 0; j < workerCount; j++) {
-                    poolMatrix[i][j] = workerStealsFrom[i].overlap(workerBelongsTo[j]);
+                    poolMatrix[i][j] = stealsFrom[i].overlap(belongsTo[j]);
                 }
             }
 
-            belongsTo = StealPool.merge(workerBelongsTo);
-            stealsFrom = StealPool.merge(workerStealsFrom);
             myContext = mergeContext();
         }
 
