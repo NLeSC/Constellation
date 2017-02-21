@@ -17,6 +17,7 @@ hs_err_pid*
 /build-eclipse
 /.settings
 /.editorconfig
+/.eclipse-pmd
 
 # build results
 /build

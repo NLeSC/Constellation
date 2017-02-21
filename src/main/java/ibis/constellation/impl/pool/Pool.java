@@ -1219,6 +1219,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
     public void followPool(String tag) {
 
+        // logger.info("Searching for pool " + tag);
+
         try {
             // Simple case: we own the pool or already follow it.
             synchronized (pools) {

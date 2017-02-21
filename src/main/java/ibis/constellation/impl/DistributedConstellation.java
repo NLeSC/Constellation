@@ -784,22 +784,30 @@ public class DistributedConstellation {
      * layer, allowing this layer to build a picture of which pool is running where.
      *
      * @param belongsTo
-     *            the pool to which this constellation belongs.
+     *            the pools to which this constellation belongs.
      */
-    public void belongsTo(StealPool belongsTo) {
+    public void belongsTo(StealPool[] belongsTo) {
 
         assert (belongsTo != null);
 
-        if (belongsTo.isNone()) {
-            // We don't belong to any pool. As a result, no one can steal from
-            // us.
-            return;
+        boolean worldDone = false;
+        boolean notNone = false;
+        for (StealPool p : belongsTo) {
+            StealPool[] set = p.set();
+            for (StealPool element : set) {
+                if (!element.isNone()) {
+                    pool.registerWithPool(element.getTag());
+                    if (element.isWorld()) {
+                        worldDone = true;
+                    }
+                    notNone = true;
+                }
+            }
+        }
+        if (notNone && !worldDone) {
+            pool.registerWithPool(StealPool.WORLD.getTag());
         }
 
-        StealPool[] set = belongsTo.set();
-        for (StealPool element : set) {
-            pool.registerWithPool(element.getTag());
-        }
     }
 
     /**
@@ -809,22 +817,22 @@ public class DistributedConstellation {
      * layer, allowing this layer to build a picture of which nodes we are interested in when stealStrategy.
      *
      * @param stealsFrom
-     *            the pool from which this constellation is stealStrategy.
+     *            the pools from which this constellation is stealStrategy.
      */
-    public void stealsFrom(StealPool stealsFrom) {
+    public void stealsFrom(StealPool[] stealsFrom) {
 
         assert (stealsFrom != null);
 
-        if (stealsFrom.isNone()) {
-            // We don't belong to any pool. As a result, no one can steal from
-            // us.
-            return;
-        }
+        // logger.info("stealsFrom.length = " + stealsFrom.length);
 
-        StealPool[] set = stealsFrom.set();
-
-        for (StealPool element : set) {
-            pool.followPool(element.getTag());
+        for (StealPool s : stealsFrom) {
+            StealPool[] set = s.set();
+            for (StealPool element : set) {
+                // logger.info("Tag: " + element.getTag());
+                if (!element.isNone()) {
+                    pool.followPool(element.getTag());
+                }
+            }
         }
     }
 
