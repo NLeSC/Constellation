@@ -3,17 +3,18 @@ package test.lowlevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ibis.constellation.AbstractContext;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationFactory;
-import ibis.constellation.AbstractContext;
-import ibis.constellation.Event;
 import ibis.constellation.Context;
-import ibis.constellation.util.SingleEventCollector;
+import ibis.constellation.Event;
+import ibis.constellation.NoSuitableExecutorException;
 import ibis.constellation.StealStrategy;
+import ibis.constellation.util.SingleEventCollector;
 
 public class DivideAndConquerWithLoadAndContext extends Activity {
 
@@ -43,10 +44,10 @@ public class DivideAndConquerWithLoadAndContext extends Activity {
         this.depth = depth;
         this.load = load;
     }
-    
+
     @Override
     public int initialize(Constellation c) {
-        
+
         logger.debug("Initialize " + identifier() + ", depth = " + depth);
         if (depth == 0) {
 
@@ -66,13 +67,18 @@ public class DivideAndConquerWithLoadAndContext extends Activity {
             AbstractContext even = new Context("Even", depth - 1);
             AbstractContext odd = new Context("Odd", depth - 1);
 
-            for (int i = 0; i < branch; i++) {
+            try {
+                for (int i = 0; i < branch; i++) {
 
-                if (i % 2 == 0) {
-                    c.submit(new DivideAndConquerWithLoadAndContext(even, identifier(), branch, depth - 1, load));
-                } else {
-                    c.submit(new DivideAndConquerWithLoadAndContext(odd, identifier(), branch, depth - 1, load));
+                    if (i % 2 == 0) {
+                        c.submit(new DivideAndConquerWithLoadAndContext(even, identifier(), branch, depth - 1, load));
+                    } else {
+                        c.submit(new DivideAndConquerWithLoadAndContext(odd, identifier(), branch, depth - 1, load));
+                    }
                 }
+            } catch (Throwable e) {
+                System.err.println("Should not happen: " + e);
+                e.printStackTrace(System.err);
             }
             return SUSPEND;
         }
@@ -117,7 +123,7 @@ public class DivideAndConquerWithLoadAndContext extends Activity {
         AbstractContext even = new Context("Even");
         AbstractContext odd = new Context("Odd");
 
-        ConstellationConfiguration [] e = new ConstellationConfiguration[executors];
+        ConstellationConfiguration[] e = new ConstellationConfiguration[executors];
 
         for (int i = 0; i < executors; i++) {
 
@@ -154,9 +160,13 @@ public class DivideAndConquerWithLoadAndContext extends Activity {
 
             SingleEventCollector a = new SingleEventCollector(new Context((rank % 2) == 0 ? "Even" : "Odd"));
 
-            c.submit(a);
-            c.submit(new DivideAndConquerWithLoadAndContext(new Context("Even", depth), a.identifier(), branch, depth,
-                    load));
+            try {
+                c.submit(a);
+                c.submit(new DivideAndConquerWithLoadAndContext(new Context("Even", depth), a.identifier(), branch, depth, load));
+            } catch (NoSuitableExecutorException e1) {
+                System.err.println("Should not happen: " + e1);
+                e1.printStackTrace(System.err);
+            }
 
             long result = (Long) a.waitForEvent().getData();
 

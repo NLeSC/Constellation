@@ -7,10 +7,11 @@ import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationFactory;
-import ibis.constellation.Event;
 import ibis.constellation.Context;
-import ibis.constellation.util.SingleEventCollector;
+import ibis.constellation.Event;
+import ibis.constellation.NoSuitableExecutorException;
 import ibis.constellation.StealStrategy;
+import ibis.constellation.util.SingleEventCollector;
 
 public class DivideAndConquerWithChecks extends Activity {
 
@@ -58,12 +59,17 @@ public class DivideAndConquerWithChecks extends Activity {
             received = new ActivityIdentifier[branch];
 
             for (int i = 0; i < branch; i++) {
-                children[i] = c.submit(new DivideAndConquerWithChecks(identifier(), branch, depth - 1));
+                try {
+                    children[i] = c.submit(new DivideAndConquerWithChecks(identifier(), branch, depth - 1));
+                } catch (NoSuitableExecutorException e) {
+                    System.err.println("Should not happen: " + e);
+                    e.printStackTrace(System.err);
+                }
             }
             return SUSPEND;
         }
     }
-    
+
     private void checkSource(Event e) {
 
         if (children == null) {
@@ -123,9 +129,9 @@ public class DivideAndConquerWithChecks extends Activity {
 
         ConstellationConfiguration config = new ConstellationConfiguration(new Context("DC"), StealStrategy.SMALLEST,
                 StealStrategy.BIGGEST, StealStrategy.BIGGEST);
-                
+
         Constellation c = ConstellationFactory.createConstellation(config);
- 
+
         c.activate();
 
         if (c.isMaster()) {

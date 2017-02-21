@@ -14,6 +14,7 @@ import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Event;
+import ibis.constellation.NoSuitableExecutorException;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.impl.util.CircularBuffer;
@@ -169,60 +170,62 @@ public class ExecutorWrapper implements Constellation {
         return ActivityIdentifierImpl.createActivityIdentifier(identifier, activityCounter++, events);
     }
 
-    public ActivityIdentifier submit(Activity activity) {
+    @Override
+    public ActivityIdentifier submit(Activity activity) throws NoSuitableExecutorException {
         // Create an activity identifier and initialize the activity with it.
-        //ActivityBase base = a;
-
         ActivityIdentifierImpl id = createActivityID(activity.expectsEvents());
-        //base.initialize(id);
-
         activity.setIdentifier(id);
 
         ActivityRecord ar = new ActivityRecord(activity, id);
-        //ActivityContext c = context;
+
+        boolean match = ContextMatch.match(myContext, activity.getContext());
 
         activitiesSubmitted++;
 
-        if (restricted.size() + fresh.size() >= QUEUED_JOB_LIMIT) {
+        // First deal with submissions that don't match with my context.
+        if (!match) {
+            if (parent == null) {
+                throw new NoSuitableExecutorException("Cannot execute on this constellation");
+            }
+            wrongContextSubmitted++;
+            parent.deliverWrongContext(ar);
+            return id;
+        }
+
+        activitiesSubmitted++;
+
+        if (restricted.size() + fresh.size() >= QUEUED_JOB_LIMIT && !ar.isRestrictedToLocal()) {
             // If we have too much work on our hands we push it to our
             // parent. Added bonus is that others can access it without
             // interrupting me.
             // But we keep restricted jobs anyway, if we can execute them. We might be the only executor that can execute them,
             // and maybe we cannot steal ... --Ceriel
-            if (!ContextMatch.match(myContext, activity.getContext()) || !ar.isRestrictedToLocal()) {
-                return parent.doSubmit(ar, activity.getContext(), id);
-            }
+            return parent.doSubmit(ar, activity.getContext(), id);
         }
 
-        if (ContextMatch.match(myContext, activity.getContext())) {
+        lookup.put(id, ar);
 
-            lookup.put((ActivityIdentifier) id, ar);
-
-            if (ar.isRestrictedToLocal()) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Submit job to restricted of " + identifier + ", length was " + restricted.size());
-                }
-                restricted.enqueue(ar);
-            } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Submit job to fresh of " + identifier + ", length was " + fresh.size());
-                }
-                fresh.enqueue(ar);
+        if (ar.isRestrictedToLocal()) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Submit job to restricted of " + identifier + ", length was " + restricted.size());
             }
-            // Expensive call, but otherwise parent may not see that there
-            // is work to do ... this is really only needed when the submit
-            // is called from the main program, not if it is called from the
-            // activity. But testing for that may be expensive as well.
-            parent.signal();
-
+            restricted.enqueue(ar);
         } else {
-            wrongContextSubmitted++;
-            parent.deliverWrongContext(ar);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Submit job to fresh of " + identifier + ", length was " + fresh.size());
+            }
+            fresh.enqueue(ar);
         }
+        // Expensive call, but otherwise parent may not see that there
+        // is work to do ... this is really only needed when the submit
+        // is called from the main program, not if it is called from the
+        // activity. But testing for that may be expensive as well.
+        parent.signal();
 
         return id;
     }
 
+    @Override
     public void send(Event e) {
 
         ActivityIdentifier target = e.getTarget();
@@ -332,8 +335,6 @@ public class ExecutorWrapper implements Constellation {
     private void process(ActivityRecord tmp) {
         int evt = 0;
 
-        //tmp.getActivity().setExecutor(executor);
-
         TimerImpl timer = tmp.isFinishing() ? cleanupTimer : tmp.isRunnable() ? processTimer : initializeTimer;
 
         if (PROFILE) {
@@ -433,7 +434,7 @@ public class ExecutorWrapper implements Constellation {
         return parent.performActivate();
     }
 
-    public boolean processActitivies() {
+    public boolean processActivities() {
         return parent.processActivities();
     }
 
@@ -457,7 +458,7 @@ public class ExecutorWrapper implements Constellation {
 
         try {
             while (!done) {
-                done = parent.processActivities();
+                done = processActivities();
             }
         } catch (Exception e) {
             logger.error("Executor terminated unexpectedly!", e);

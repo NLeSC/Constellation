@@ -19,6 +19,7 @@ import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Event;
+import ibis.constellation.NoSuitableExecutorException;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.impl.util.CircularBuffer;
@@ -246,7 +247,7 @@ public class SingleThreadedConstellation extends Thread {
         return identifier;
     }
 
-    public ActivityIdentifier performSubmit(Activity activity) {
+    public ActivityIdentifier performSubmit(Activity activity) throws NoSuitableExecutorException {
         /*
          * This method is called by MultiThreadedConstellation, in case the user
          * calls submit() on a constellation instance. The

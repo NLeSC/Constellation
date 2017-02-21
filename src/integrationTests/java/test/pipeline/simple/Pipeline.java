@@ -2,9 +2,10 @@ package test.pipeline.simple;
 
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
-import ibis.constellation.Event;
-import ibis.constellation.util.SimpleActivity;
 import ibis.constellation.Context;
+import ibis.constellation.Event;
+import ibis.constellation.NoSuitableExecutorException;
+import ibis.constellation.util.SimpleActivity;
 
 public class Pipeline extends SimpleActivity {
 
@@ -49,7 +50,12 @@ public class Pipeline extends SimpleActivity {
 
             //System.out.println("Submitting pipeline stage: " + index + " " + (current + 1) + " " + last);
 
-            c.submit(new Pipeline(getParent(), index, current + 1, last, sleep, data));
+            try {
+                c.submit(new Pipeline(getParent(), index, current + 1, last, sleep, data));
+            } catch (NoSuitableExecutorException e) {
+                System.err.println("Should not happen: " + e);
+                e.printStackTrace(System.err);
+            }
         }
     }
 }

@@ -16,6 +16,7 @@ import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Context;
 import ibis.constellation.Event;
+import ibis.constellation.NoSuitableExecutorException;
 import ibis.constellation.OrContext;
 import ibis.constellation.StealPool;
 import ibis.constellation.impl.util.Stats;
@@ -55,7 +56,7 @@ public class MultiThreadedConstellation {
         /* Following methods implement the Constellation interface */
 
         @Override
-        public ActivityIdentifier submit(Activity activity) {
+        public ActivityIdentifier submit(Activity activity) throws NoSuitableExecutorException {
             return performSubmit(activity);
         }
 
@@ -159,7 +160,7 @@ public class MultiThreadedConstellation {
 
     private boolean PROFILE;
 
-    public synchronized ActivityIdentifier performSubmit(Activity activity) {
+    public synchronized ActivityIdentifier performSubmit(Activity activity) throws NoSuitableExecutorException {
 
         for (int i = 0; i < workerCount; i++) {
             // Round robin submit (for testing)
@@ -170,16 +171,24 @@ public class MultiThreadedConstellation {
             if (ContextMatch.match(e.getContext(), activity.getContext())) {
                 return e.performSubmit(activity);
             }
-            if (e.belongsTo().isWorld()) {
-                return e.performSubmit(activity);
-            }
         }
         if (logger.isInfoEnabled()) {
             logger.info("No local executor for this activity (no identifier yet)");
         }
 
         if (parent == null) {
-            throw new Error("submit: no suitable executor found");
+            throw new NoSuitableExecutorException("submit: no suitable executor found");
+        }
+
+        // Try to find a worker with WORLD stealpool
+        for (int i = 0; i < workerCount; i++) {
+            int index = next++;
+            next = next % workerCount;
+            SingleThreadedConstellation e = workers[index];
+
+            if (e.belongsTo().isWorld()) {
+                return e.performSubmit(activity);
+            }
         }
 
         int i = next++;

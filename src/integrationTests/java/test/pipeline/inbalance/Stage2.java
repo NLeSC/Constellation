@@ -2,8 +2,9 @@ package test.pipeline.inbalance;
 
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
-import ibis.constellation.util.SimpleActivity;
 import ibis.constellation.Context;
+import ibis.constellation.NoSuitableExecutorException;
+import ibis.constellation.util.SimpleActivity;
 
 public class Stage2 extends SimpleActivity {
 
@@ -32,10 +33,16 @@ public class Stage2 extends SimpleActivity {
 
         // Submit stage5 first, as it it used to gather the results from
         // stage3&4
-        ActivityIdentifier id = c.submit(new Stage5(getParent(), data.index, 100));
+        try {
+            ActivityIdentifier id = c.submit(new Stage5(getParent(), data.index, 100));
 
-        c.submit(new Stage3(id, 1000, data));
-        c.submit(new Stage4(id, 600, data));
+            c.submit(new Stage3(id, 1000, data));
+
+            c.submit(new Stage4(id, 600, data));
+        } catch (NoSuitableExecutorException e) {
+            System.err.println("Should not happen: " + e);
+            e.printStackTrace(System.err);
+        }
 
     }
 }

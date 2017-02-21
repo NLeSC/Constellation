@@ -15,13 +15,16 @@ public interface Constellation {
      * ActivityIdentifier is returned that can be used to refer to this submitted Activity at a later moment in time.
      *
      * It is up to the user to make sure that this constellation instance has a suitable executor, or, if the contexts don't
-     * match, an executor that can be stolen from.
+     * match, an executor that can be stolen from. In some cases, the system can detect that no suitable executor can be found. In
+     * those cases, it throws an exception.
      *
      * @param job
      *            the Activity to submit
+     * @exception NoSuitableExecutorException
+     *                is thrown when the system has detected that no suitable executor can be found.
      * @return ActivityIdentifier that can be used to refer to the submitted Activity.
      */
-    public ActivityIdentifier submit(Activity activity);
+    public ActivityIdentifier submit(Activity activity) throws NoSuitableExecutorException;
 
     /**
      * Send an event.

@@ -377,8 +377,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
                 for (IbisIdentifier id : ids) {
                     if (!id.equals(ibis.identifier())) {
                         // First do a pingpong to make sure that the other side
-                        // has
-                        // upcalls enabled already.
+                        // has upcalls enabled already.
                         doForward(id, OPCODE_PING, null);
                         synchronized (this) {
                             while (!gotPong) {

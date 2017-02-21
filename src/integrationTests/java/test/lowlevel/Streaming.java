@@ -5,10 +5,11 @@ import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationFactory;
-import ibis.constellation.Event;
 import ibis.constellation.Context;
-import ibis.constellation.util.SingleEventCollector;
+import ibis.constellation.Event;
+import ibis.constellation.NoSuitableExecutorException;
 import ibis.constellation.StealStrategy;
+import ibis.constellation.util.SingleEventCollector;
 
 public class Streaming extends Activity {
 
@@ -43,9 +44,14 @@ public class Streaming extends Activity {
 
         if (index < length) {
             // Submit the next job in the sequence
-            next = c.submit(new Streaming(root, length, index + 1, totaldata));
+            try {
+                next = c.submit(new Streaming(root, length, index + 1, totaldata));
+            } catch (NoSuitableExecutorException e) {
+                System.err.println("Should not happen: " + e);
+                e.printStackTrace(System.err);
+            }
         }
-        
+
         return SUSPEND;
     }
 
@@ -94,7 +100,7 @@ public class Streaming extends Activity {
 
         ConstellationConfiguration config = new ConstellationConfiguration(new Context("S"), StealStrategy.SMALLEST,
                 StealStrategy.BIGGEST, StealStrategy.BIGGEST);
-        
+
         Constellation c = ConstellationFactory.createConstellation(config, executors);
         c.activate();
 

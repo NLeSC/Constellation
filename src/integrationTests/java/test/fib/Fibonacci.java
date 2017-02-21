@@ -5,9 +5,9 @@ import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationFactory;
+import ibis.constellation.Context;
 import ibis.constellation.Event;
 import ibis.constellation.StealStrategy;
-import ibis.constellation.Context;
 import ibis.constellation.util.SingleEventCollector;
 
 public class Fibonacci extends Activity {
@@ -15,7 +15,7 @@ public class Fibonacci extends Activity {
     private static final long serialVersionUID = 3379531054395374984L;
 
     private final ActivityIdentifier parent;
-    
+
     private final boolean top;
     private final int input;
     private int output;
@@ -47,8 +47,13 @@ public class Fibonacci extends Activity {
             output = input;
             return FINISH;
         } else {
-            c.submit(new Fibonacci(identifier(), input - 1));
-            c.submit(new Fibonacci(identifier(), input - 2));
+            try {
+                c.submit(new Fibonacci(identifier(), input - 1));
+                c.submit(new Fibonacci(identifier(), input - 2));
+            } catch (Throwable e) {
+                System.err.println("Should not happen: " + e);
+                e.printStackTrace(System.err);
+            }
             return SUSPEND;
         }
     }
@@ -95,9 +100,9 @@ public class Fibonacci extends Activity {
 
         int executors = Integer.parseInt(args[index++]);
 
-        ConstellationConfiguration e = new ConstellationConfiguration(new Context("fib"), 
-                StealStrategy.SMALLEST, StealStrategy.BIGGEST, StealStrategy.BIGGEST);
-        
+        ConstellationConfiguration e = new ConstellationConfiguration(new Context("fib"), StealStrategy.SMALLEST,
+                StealStrategy.BIGGEST, StealStrategy.BIGGEST);
+
         Constellation c = ConstellationFactory.createConstellation(e, executors);
         c.activate();
 
@@ -124,8 +129,5 @@ public class Fibonacci extends Activity {
             c.done();
         }
     }
-    
-   
-    
-    
+
 }
