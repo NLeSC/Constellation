@@ -106,7 +106,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
 
         private static final long MIN_DELAY = 1000;
         private static final long MAX_DELAY = 10000;
-        private static final long INCR_DELAY = 0;
+        private static final long INCR_DELAY = 1000;
 
         private long deadline = 0;
         private long currentDelay = MIN_DELAY;
