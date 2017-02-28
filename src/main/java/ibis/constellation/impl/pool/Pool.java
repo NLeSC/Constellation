@@ -958,6 +958,15 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             owner.getStats().add((Stats) data);
             synchronized (this) {
                 gotStats++;
+                if (sendports.containsKey(source)) {
+                    // Close sendport if it exists, to speed up termination
+                    SendPort port = sendports.remove(source);
+                    try {
+                        port.close();
+                    } catch (Throwable e) {
+                        // ignore
+                    }
+                }
                 notifyAll();
             }
             break;
