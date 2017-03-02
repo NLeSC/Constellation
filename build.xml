@@ -1,6 +1,6 @@
 <project name="Constellation" default="build" basedir="." xmlns:jacoco="antlib:org.jacoco.ant">
 
-	<property name="version" value="2.0.0" />
+	<property name="version" value="2.0.0-SNAPSHOT" />
 	<property name="jar" value="constellation-${version}.jar" />
 	<property name="zip" value="constellation-${version}.zip" />
 	<property name="src-zip" value="constellation-${version}-src.zip" />
