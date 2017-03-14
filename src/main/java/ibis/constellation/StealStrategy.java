@@ -1,3 +1,19 @@
+/**
+ * Copyright 2013 Netherlands eScience Center
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package ibis.constellation;
 
 import java.io.Serializable;
@@ -5,24 +21,24 @@ import java.io.Serializable;
 /**
  * A <code>StealStrategy</code> describes a strategy, to be used by an executor, for stealing activities.
  *
- * Activities can be sorted by their {@link ibis.constellation.context.UnitActivityContext#rank rank}, and an executor can have,
- * for instance, a preference for "big" jobs or "small" jobs, or jobs with a rank within a particular range. The strategies are
- * described by particular opcodes, some of which have additional attributes.
+ * Activities can be sorted by their Context range, and an executor can have, for instance, a preference for "big" jobs or "small"
+ * jobs, or jobs with a rank within a particular range. The strategies are described by particular opcodes, some of which have
+ * additional attributes.
  */
 public final class StealStrategy implements Serializable {
 
     private static final long serialVersionUID = 8376483895062977483L;
 
-    /** Opcode describing the "steal activity with biggest rank" strategy. */
+    /** Opcode describing the "steal activity with highest range" strategy. */
     public static final byte _BIGGEST = 1;
 
-    /** Opcode describing the "steal activity with smallest rank" strategy. */
+    /** Opcode describing the "steal activity with lowest range" strategy. */
     public static final byte _SMALLEST = 2;
 
-    /** Predefined "steal activity with biggest rank" strategy. */
+    /** Predefined "steal activity with highest range" strategy. */
     public static final StealStrategy BIGGEST = new StealStrategy(_BIGGEST);
 
-    /** Predefined "steal activity with smallest rank" strategy. */
+    /** Predefined "steal activity with lowest range" strategy. */
     public static final StealStrategy SMALLEST = new StealStrategy(_SMALLEST);
 
     /** The strategy. */
@@ -47,6 +63,7 @@ public final class StealStrategy implements Serializable {
             throw new IllegalArgumentException("Unknown opcode!");
         }
     }
+
     @Override
     public String toString() {
 
@@ -61,8 +78,7 @@ public final class StealStrategy implements Serializable {
     }
 
     /**
-     * Returns the strategy opcode of this strategy, one of {@link #_ANY}, {@link #_BIGGEST}, {@link #_RANGE}, {@link #_SMALLEST},
-     * {@link #_VALUE}.
+     * Returns the strategy opcode of this strategy, one of {@link #_BIGGEST}, {@link #_SMALLEST}.
      *
      * @return the strategy opcode.
      */

@@ -1,3 +1,19 @@
+/**
+ * Copyright 2013 Netherlands eScience Center
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package ibis.constellation;
 
 import java.io.Serializable;
@@ -5,11 +21,13 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.Executor;
 
 /**
  * A <code>StealPool</code> is one of the mechanisms to determine the activities that are to be executed by an {@link Executor}.
  * Each executor has two steal pools associated with it: the one it belongs to and the one it can steal from. In addition, an
- * executor can only execute activities whose {@link ActivityContext} matches with the {@link ExecutorContext} of this executor.
+ * executor can only execute activities whose {@link AbstractContext} matches with the {@link AbstractContext} of this executor.
  *
  * A <code>StealPool</code> consists of either a set of other steal pools, or a single string identification.
  */
@@ -96,7 +114,7 @@ public final class StealPool implements Serializable {
             return NONE;
         }
 
-        HashSet<StealPool> tmp = new HashSet<StealPool>();
+        Set<StealPool> tmp = new HashSet<StealPool>();
 
         for (StealPool pool : pools) {
             if (pool == null) {
@@ -130,10 +148,10 @@ public final class StealPool implements Serializable {
                 }
             }
         }
-        return getStealPoolFromHashSet(tmp);
+        return getStealPoolFromSet(tmp);
     }
 
-    private static StealPool getStealPoolFromHashSet(HashSet<StealPool> tmp) {
+    private static StealPool getStealPoolFromSet(Set<StealPool> tmp) {
 
         if (tmp.size() == 0) {
             // May happen if all StealPools are NONE

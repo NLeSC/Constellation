@@ -17,41 +17,46 @@
 package ibis.constellation;
 
 /**
+ * A <code>Context</code> represents a single context, associated with an executor or activity, and determines either a specific
+ * type of activity that can be executed by an executor, or vice versa. A <code>Context</code> is characterized by a name,
+ * typically a user-supplied string. A <code>Context</code> includes a range, which could for instance be used to indicate
+ * priorities or size.
  */
+
 public class Context extends AbstractContext {
 
-    /* Generated */     
+    /* Generated */
     private static final long serialVersionUID = 4622096971913707525L;
-    
+
     public static final Context DEFAULT = new Context("DEFAULT");
-    
+
     private final String name;
     private final long rangeStart;
     private final long rangeEnd;
-    
+
     public Context(String name, long rangeStart, long rangeEnd) {
 
         if (name == null) {
-            throw new IllegalArgumentException("Name of RangeContext may not be null!");               
+            throw new IllegalArgumentException("Name of Context may not be null!");
         }
-        
+
         if (rangeEnd < rangeStart) {
             throw new IllegalArgumentException("Context range start must be smaller than range end!");
         }
-        
+
         this.name = name;
         this.rangeStart = rangeStart;
-        this.rangeEnd = rangeEnd;   
+        this.rangeEnd = rangeEnd;
     }
-    
+
     public Context(String name, long rank) {
         this(name, rank, rank);
     }
-    
+
     public Context(String name) {
         this(name, Long.MIN_VALUE, Long.MAX_VALUE);
     }
-    
+
     /**
      * Returns the context name used to construct this Context.
      *
@@ -60,39 +65,39 @@ public class Context extends AbstractContext {
     public String getName() {
         return name;
     }
-    
+
     public long getRangeStart() {
         return rangeStart;
     }
-    
+
     public long getRangeEnd() {
         return rangeEnd;
     }
-    
+
     @Override
     public boolean equals(Object o) {
-        
-        if (o == this) { 
+
+        if (o == this) {
             return true;
         }
 
-        if (o == null) { 
+        if (o == null) {
             return false;
         }
 
         if (!(o instanceof Context)) {
             return false;
         }
-        
-        Context other = (Context) o;        
+
+        Context other = (Context) o;
         return (rangeStart == other.rangeStart && rangeEnd == other.rangeEnd && name.equals(other.name));
     }
-    
+
     @Override
     public int hashCode() {
         return name.hashCode() ^ (int) ((rangeEnd ^ (rangeEnd >>> 32)) ^ (rangeStart ^ (rangeStart >>> 32)));
     }
-   
+
     @Override
     public String toString() {
         return "Context(" + getName() + ", " + rangeStart + "-" + rangeEnd + ")";

@@ -1,9 +1,25 @@
+/**
+ * Copyright 2013 Netherlands eScience Center
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package ibis.constellation;
 
 /**
- * The CTimer interface provides user-access to the timers used internally in constellation. Applications can create CTimers
- * through {@link Constellation#getTimer()} or {@link Constellation#getTimer(String, String, String)}. Of particular interest is
- * the so-called overall timer, to be accessed by {@link Constellation#getOverallTimer()}, and to be started when the application
+ * The Timer interface provides user-access to the timers used internally in constellation. Applications can create Timers through
+ * {@link Constellation#getTimer()} or {@link Constellation#getTimer(String, String, String)}. Of particular interest is the
+ * so-called "overall timer", to be accessed by {@link Constellation#getOverallTimer()}, and to be started when the application
  * starts and stopped when the application finishes.
  *
  * A CTimer records various times, such as queued, submitted, start, stop (similar to openCL events), but usually only start and
@@ -33,9 +49,9 @@ public interface Timer {
     void stop(int eventNo);
 
     /**
-     * Adds a completed event to the CTimer. This may be useful if for instance the time values are recorded by a GPU, or come
-     * from another source. Note that the times are to be provided in nanoseconds and that, to get meaningful results with respect
-     * to other events, the provided times need to be "in sync" with {@link System#nanoTime()}.
+     * Adds a completed event to the Timer. This may be useful if for instance the time values are recorded by a GPU, or come from
+     * another source. Note that the times are to be provided in nanoseconds and that, to get meaningful results with respect to
+     * other events, the provided times need to be "in sync" with {@link System#nanoTime()}.
      *
      * @param device
      *            the device name
@@ -55,21 +71,21 @@ public interface Timer {
     void add(String device, String thread, String action, long queued, long submitted, long start, long end);
 
     /**
-     * Returns the number of events recorded for this CTimer.
+     * Returns the number of events recorded for this Timer.
      *
      * @return the number of events.
      */
     int nrTimes();
 
     /**
-     * Returns the total time recorded for events in this CTimer, in microseconds.
+     * Returns the total time recorded for events in this Timer, in microseconds.
      *
      * @return the total time.
      */
     double totalTimeVal();
 
     /**
-     * Returns the average time recorded for events in this CTimer, in microseconds.
+     * Returns the average time recorded for events in this Timer, in microseconds.
      *
      * @return the average time.
      */

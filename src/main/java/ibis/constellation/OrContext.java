@@ -19,9 +19,9 @@ package ibis.constellation;
 import java.util.Iterator;
 
 /**
- * @version 1.0
- * @since 1.0
- *
+ * An <code>OrContext</code> represents a context that consists of several (more than 1) contexts. This may for instance represent
+ * the fact that an activity may be executed by more than one type of executor, or that an executor may run more than one type of
+ * activity.
  */
 public class OrContext extends AbstractContext implements Iterable<Context> {
 
@@ -50,11 +50,19 @@ public class OrContext extends AbstractContext implements Iterable<Context> {
         }
     }
 
+    /**
+     * Constructs an OrContext consisting of a list of Contexts.
+     *
+     * @param unit
+     *            the list of contexts.
+     * @exception IllegalArgumentException
+     *                is thrown when the length of the list of contexts is smaller than 2, or any of them is null.
+     */
     public OrContext(Context... contexts) {
         super();
 
         if (contexts == null || contexts.length < 2) {
-            throw new IllegalArgumentException("OrContext requires at least 2 RangeContexts");
+            throw new IllegalArgumentException("OrContext requires at least 2 Contexts");
         }
 
         for (Context context : contexts) {
@@ -63,16 +71,28 @@ public class OrContext extends AbstractContext implements Iterable<Context> {
             }
         }
 
-        //System.err.println("Created ORCONTEXT " + Arrays.toString(contexts));
-
         // FIXME: do more checks!?
         this.contexts = contexts.clone();
     }
 
+    /**
+     * Returns the number of contexts of which this OrContext exists.
+     *
+     * @return the number of contexts.
+     */
     public int size() {
         return contexts.length;
     }
 
+    /**
+     * Returns the Context corresponding to the specified index.
+     *
+     * @param index
+     *            the index
+     * @return the corresponding Context.
+     * @throws illegalArgumentException
+     *             if the specified index is out of range.
+     */
     public Context get(int index) {
 
         if (index < 0 || index >= contexts.length) {
