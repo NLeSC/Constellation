@@ -71,6 +71,21 @@ public interface Timer {
     void add(String device, String thread, String action, long queued, long submitted, long start, long end);
 
     /**
+     * Adds a completed event to the Timer. This may be useful if for instance the time values are recorded by a GPU, or come from
+     * another source. Note that the times are to be provided in nanoseconds and that, to get meaningful results with respect to
+     * other events, the provided times need to be "in sync" with {@link System#nanoTime()}.
+     *
+     * This version has no separate queued or submitted time. These are assumed to be equal to the start time. The device, thread
+     * and action names are taken from the timer itself.
+     *
+     * @param start
+     *            time when event was started, in nanoseconds
+     * @param end
+     *            time when event finished, in nanoseconds
+     */
+    void add(long start, long end);
+
+    /**
      * Returns the number of events recorded for this Timer.
      *
      * @return the number of events.

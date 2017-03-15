@@ -118,8 +118,8 @@ public class TimerImpl implements java.io.Serializable, ibis.constellation.Timer
             return String.format(
                     "%-8s  |  %-14s  |  start: %-6s  |  " + "end: %-6s  |  duration: %-6s  | nrBytes: %4.3f MB  |  "
                             + "rate: %13s\n",
-                    node, action, ibis.util.Timer.format(start / 1000.0), ibis.util.Timer.format(end / 1000.0), ibis.util.Timer.format((end - start) / 1000.0),
-                    nrBytes / 1024.0 / 1024.0, getRateString());
+                    node, action, ibis.util.Timer.format(start / 1000.0), ibis.util.Timer.format(end / 1000.0),
+                    ibis.util.Timer.format((end - start) / 1000.0), nrBytes / 1024.0 / 1024.0, getRateString());
         }
 
         @Override
@@ -128,8 +128,8 @@ public class TimerImpl implements java.io.Serializable, ibis.constellation.Timer
                     "%-8s  |  %-10s  |  %-22s  | " + "%-14s  |  queued: %-6s  |  submitted: %-6s  |  "
                             + "start: %-6s  |  end: %-6s\n",
                     node, device, thread, // queueIndex,
-                    action, ibis.util.Timer.format(queued / 1000.0), ibis.util.Timer.format(submitted / 1000.0), ibis.util.Timer.format(start / 1000.0),
-                    ibis.util.Timer.format(end / 1000.0));
+                    action, ibis.util.Timer.format(queued / 1000.0), ibis.util.Timer.format(submitted / 1000.0),
+                    ibis.util.Timer.format(start / 1000.0), ibis.util.Timer.format(end / 1000.0));
         }
     }
 
@@ -413,6 +413,11 @@ public class TimerImpl implements java.io.Serializable, ibis.constellation.Timer
             }
         }
         return sb.toString();
+    }
+
+    @Override
+    public void add(long start, long end) {
+        add(new TimerEvent(getNode(), device, thread, action, start, start, start, end));
     }
 
     @Override
