@@ -28,4 +28,6 @@ public interface CommunicationLayer {
     public void activate();
 
     public NodeIdentifier[] getNodeIdentifiers();
+
+    public void cleanup(NodeIdentifier node);
 }

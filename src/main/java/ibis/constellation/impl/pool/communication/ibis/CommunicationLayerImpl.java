@@ -226,6 +226,19 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
     }
 
     @Override
+    public void cleanup(NodeIdentifier id) {
+        IbisIdentifier dest = ((NodeIdentifierImpl) id).getIbisIdentifier();
+        SendPort s = sendports.remove(dest);
+        if (s != null) {
+            try {
+                s.close();
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
+    @Override
     public boolean sendMessage(NodeIdentifier destination, Message m) {
         SendPort s;
         IbisIdentifier dest = ((NodeIdentifierImpl) destination).getIbisIdentifier();

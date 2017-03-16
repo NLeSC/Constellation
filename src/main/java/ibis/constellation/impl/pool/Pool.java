@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.StealPool;
-import ibis.constellation.impl.ConstellationIdentifierFactory;
 import ibis.constellation.impl.ConstellationIdentifierImpl;
 import ibis.constellation.impl.DistributedConstellation;
 import ibis.constellation.impl.EventMessage;
@@ -22,7 +21,6 @@ import ibis.constellation.impl.pool.communication.CommunicationLayer;
 import ibis.constellation.impl.pool.communication.Message;
 import ibis.constellation.impl.pool.communication.NodeIdentifier;
 import ibis.constellation.impl.pool.communication.ibis.CommunicationLayerImpl;
-import ibis.constellation.impl.TimerImpl;
 import ibis.constellation.impl.util.Stats;
 import ibis.constellation.impl.util.TimeSyncInfo;
 
@@ -123,7 +121,7 @@ public class Pool {
             return done;
         }
 
-        synchronized void done() {
+        private synchronized void done() {
             done = true;
         }
 
@@ -560,17 +558,9 @@ public class Pool {
         switch (opcode) {
         case OPCODE_STATISTICS:
             owner.getStats().add((Stats) data);
+            comm.cleanup(source); // To speed up termination
             synchronized (this) {
                 gotStats++;
-                if (sendports.containsKey(source)) {
-                    // Close sendport if it exists, to speed up termination
-                    SendPort port = sendports.remove(source);
-                    try {
-                        port.close();
-                    } catch (Throwable e) {
-                        // ignore
-                    }
-                }
                 notifyAll();
             }
             break;
