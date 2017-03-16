@@ -76,7 +76,7 @@ public class Pool {
 
         private static final long MIN_DELAY = 1000;
         private static final long MAX_DELAY = 10000;
-        private static final long INCR_DELAY = 0;
+        private static final long INCR_DELAY = 1000;
 
         private long deadline = 0;
         private long currentDelay = MIN_DELAY;
@@ -562,6 +562,15 @@ public class Pool {
             owner.getStats().add((Stats) data);
             synchronized (this) {
                 gotStats++;
+                if (sendports.containsKey(source)) {
+                    // Close sendport if it exists, to speed up termination
+                    SendPort port = sendports.remove(source);
+                    try {
+                        port.close();
+                    } catch (Throwable e) {
+                        // ignore
+                    }
+                }
                 notifyAll();
             }
             break;

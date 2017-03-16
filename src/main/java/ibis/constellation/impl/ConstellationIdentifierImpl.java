@@ -48,9 +48,7 @@ public final class ConstellationIdentifierImpl implements Serializable, Constell
     @Override
     public int hashCode() {
         final int PRIME = 31;
-        int result = 1;
-        result = PRIME * result + (localId ^ nodeId);
-        return result;
+        return (PRIME * localId) ^ nodeId;
     }
 
     @Override

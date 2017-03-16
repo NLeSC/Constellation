@@ -19,14 +19,16 @@ package ibis.constellation;
 import java.io.Serializable;
 
 /**
+ * An <code>AbstractContext</code> represents some characterization of an activity or executor, and is instrumental in determining
+ * which executors can execute which activities.
  */
 public abstract class AbstractContext implements Serializable {
 
     /* Generated */
     private static final long serialVersionUID = 4015676799769051604L;
-    
-    /** 
-     * Package private constructor to prevent overloading by the user. 
+
+    /**
+     * Package private constructor to prevent overloading by the user.
      */
     AbstractContext() {
     }

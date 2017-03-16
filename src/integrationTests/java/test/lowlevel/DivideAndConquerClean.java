@@ -8,10 +8,11 @@ import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationFactory;
-import ibis.constellation.Event;
 import ibis.constellation.Context;
-import ibis.constellation.util.SingleEventCollector;
+import ibis.constellation.Event;
+import ibis.constellation.NoSuitableExecutorException;
 import ibis.constellation.StealStrategy;
+import ibis.constellation.util.SingleEventCollector;
 
 public class DivideAndConquerClean extends Activity {
 
@@ -42,12 +43,17 @@ public class DivideAndConquerClean extends Activity {
 
     @Override
     public int initialize(Constellation c) {
-        
+
         if (depth == 0) {
             return FINISH;
         } else {
             for (int i = 0; i < branch; i++) {
-                c.submit(new DivideAndConquerClean(identifier(), branch, depth - 1));
+                try {
+                    c.submit(new DivideAndConquerClean(identifier(), branch, depth - 1));
+                } catch (NoSuitableExecutorException e) {
+                    System.err.println("Should not happen: " + e);
+                    e.printStackTrace(System.err);
+                }
             }
             return SUSPEND;
         }
@@ -87,9 +93,9 @@ public class DivideAndConquerClean extends Activity {
 
         long start = System.nanoTime();
 
-        ConstellationConfiguration config = new ConstellationConfiguration(new Context("DC"), 
-                    StealStrategy.SMALLEST, StealStrategy.BIGGEST, StealStrategy.BIGGEST);
-       
+        ConstellationConfiguration config = new ConstellationConfiguration(new Context("DC"), StealStrategy.SMALLEST,
+                StealStrategy.BIGGEST, StealStrategy.BIGGEST);
+
         Constellation c = ConstellationFactory.createConstellation(config, executors);
         c.activate();
 

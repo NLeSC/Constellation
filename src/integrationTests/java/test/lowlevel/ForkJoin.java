@@ -3,8 +3,9 @@ package test.lowlevel;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
-import ibis.constellation.Event;
 import ibis.constellation.Context;
+import ibis.constellation.Event;
+import ibis.constellation.NoSuitableExecutorException;
 
 public class ForkJoin extends Activity {
 
@@ -22,11 +23,10 @@ public class ForkJoin extends Activity {
 
     private final int branch;
     private final int repeat;
-    
+
     private int merged = 0;
     private int test = 0;
     private long total = 0L;
-    private long start;
 
     public ForkJoin(ActivityIdentifier parent) {
         super(new Context("DC"), false);
@@ -35,7 +35,7 @@ public class ForkJoin extends Activity {
         this.branch = 0;
         this.repeat = 0;
     }
-    
+
     public ForkJoin(ActivityIdentifier parent, int branch, int repeat, boolean spawn) {
         super(new Context("DC"), spawn);
         this.parent = parent;
@@ -44,7 +44,7 @@ public class ForkJoin extends Activity {
         this.repeat = repeat;
     }
 
-    private void spawnAll(Constellation c) {
+    private void spawnAll(Constellation c) throws NoSuitableExecutorException {
         for (int i = 0; i < branch; i++) {
             c.submit(new ForkJoin(identifier()));
         }
@@ -54,10 +54,12 @@ public class ForkJoin extends Activity {
     public int initialize(Constellation c) {
 
         if (spawn) {
-
-            start = System.currentTimeMillis();
-
-            spawnAll(c);
+            try {
+                spawnAll(c);
+            } catch (NoSuitableExecutorException e) {
+                System.err.println("Should not happen: " + e);
+                e.printStackTrace(System.err);
+            }
             return SUSPEND;
         } else {
             c.send(new Event(identifier(), parent, 1L));
@@ -68,7 +70,7 @@ public class ForkJoin extends Activity {
     @Override
     public int process(Constellation c, Event e) {
 
-    	total++;
+        total++;
         merged++;
 
         if (merged < branch) {
@@ -80,26 +82,31 @@ public class ForkJoin extends Activity {
         test++;
 
         if (test < repeat) {
-            spawnAll(c);
+            try {
+                spawnAll(c);
+            } catch (NoSuitableExecutorException e1) {
+                System.err.println("Should not happen: " + e1);
+                e1.printStackTrace(System.err);
+            }
             return SUSPEND;
         }
 
-//        // We have finished one iteration
-//        long end = System.currentTimeMillis();
-//
-//        double timeSatin = (end - start) / 1000.0;
-//        double cost = ((end - start) * 1000.0) / (SPAWNS_PER_SYNC * COUNT);
-//
-//        System.out.println("spawn = " + timeSatin + " s, time/spawn = " + cost + " us/spawn");
-//
-//        test = 0;
-//        repeat++;
-//
-//        if (repeat < REPEAT) {
-//            start = System.currentTimeMillis();
-//            spawnAll(c);
-//            return SUSPEND;
-//        }
+        //        // We have finished one iteration
+        //        long end = System.currentTimeMillis();
+        //
+        //        double timeSatin = (end - start) / 1000.0;
+        //        double cost = ((end - start) * 1000.0) / (SPAWNS_PER_SYNC * COUNT);
+        //
+        //        System.out.println("spawn = " + timeSatin + " s, time/spawn = " + cost + " us/spawn");
+        //
+        //        test = 0;
+        //        repeat++;
+        //
+        //        if (repeat < REPEAT) {
+        //            start = System.currentTimeMillis();
+        //            spawnAll(c);
+        //            return SUSPEND;
+        //        }
 
         // We have finished completely. Send message to event collector.
         c.send(new Event(identifier(), parent, total));

@@ -9,10 +9,11 @@ import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationFactory;
-import ibis.constellation.Event;
 import ibis.constellation.Context;
-import ibis.constellation.util.SingleEventCollector;
+import ibis.constellation.Event;
+import ibis.constellation.NoSuitableExecutorException;
 import ibis.constellation.StealStrategy;
+import ibis.constellation.util.SingleEventCollector;
 
 public class DivideAndConquerWithLoad extends Activity {
 
@@ -42,7 +43,7 @@ public class DivideAndConquerWithLoad extends Activity {
         this.depth = depth;
         this.load = load;
     }
-    
+
     @Override
     public int initialize(Constellation c) {
         logger.debug("Initialize " + identifier() + ", depth = " + depth);
@@ -61,7 +62,12 @@ public class DivideAndConquerWithLoad extends Activity {
             return FINISH;
         } else {
             for (int i = 0; i < branch; i++) {
-                c.submit(new DivideAndConquerWithLoad(identifier(), branch, depth - 1, load));
+                try {
+                    c.submit(new DivideAndConquerWithLoad(identifier(), branch, depth - 1, load));
+                } catch (NoSuitableExecutorException e) {
+                    System.err.println("Should not happen: " + e);
+                    e.printStackTrace(System.err);
+                }
             }
             return SUSPEND;
         }
@@ -104,7 +110,7 @@ public class DivideAndConquerWithLoad extends Activity {
 
         ConstellationConfiguration config = new ConstellationConfiguration(new Context("DC"), StealStrategy.SMALLEST,
                 StealStrategy.BIGGEST, StealStrategy.BIGGEST);
-        
+
         Constellation c;
         try {
             c = ConstellationFactory.createConstellation(config, executors);
@@ -128,8 +134,13 @@ public class DivideAndConquerWithLoad extends Activity {
                     + count + ", expected time: " + time + " sec.)");
 
             SingleEventCollector a = new SingleEventCollector(new Context("DC"));
-            ActivityIdentifier id = c.submit(a);
-            c.submit(new DivideAndConquerWithLoad(id, branch, depth, load));
+            try {
+                ActivityIdentifier id = c.submit(a);
+                c.submit(new DivideAndConquerWithLoad(id, branch, depth, load));
+            } catch (NoSuitableExecutorException e) {
+                System.err.println("Should not happen: " + e);
+                e.printStackTrace(System.err);
+            }
 
             long result = (long) a.waitForEvent().getData();
 

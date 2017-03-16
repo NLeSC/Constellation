@@ -16,6 +16,7 @@ import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Context;
 import ibis.constellation.Event;
+import ibis.constellation.NoSuitableExecutorException;
 import ibis.constellation.OrContext;
 import ibis.constellation.StealPool;
 import ibis.constellation.impl.pool.Pool;
@@ -330,7 +331,7 @@ public class DistributedConstellation {
     private class Facade implements Constellation {
 
         @Override
-        public ActivityIdentifier submit(Activity activity) {
+        public ActivityIdentifier submit(Activity activity) throws NoSuitableExecutorException {
             return subConstellation.performSubmit(activity);
         }
 

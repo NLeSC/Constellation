@@ -5,10 +5,10 @@ import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationFactory;
-import ibis.constellation.Event;
 import ibis.constellation.Context;
+import ibis.constellation.Event;
+import ibis.constellation.NoSuitableExecutorException;
 import ibis.constellation.util.SingleEventCollector;
-import ibis.constellation.StealStrategy;
 
 public class Series extends Activity {
 
@@ -38,7 +38,12 @@ public class Series extends Activity {
 
         if (count < length) {
             // Submit the next job in the series
-            c.submit(new Series(root, length, count + 1));
+            try {
+                c.submit(new Series(root, length, count + 1));
+            } catch (NoSuitableExecutorException e) {
+                System.err.println("Should not happen: " + e);
+                e.printStackTrace(System.err);
+            }
         }
 
         return FINISH;
@@ -75,7 +80,7 @@ public class Series extends Activity {
         System.out.println("Running Series with length " + length);
 
         ConstellationConfiguration config = new ConstellationConfiguration(new Context("S"));
-        
+
         Constellation c = ConstellationFactory.createConstellation(config);
         c.activate();
 

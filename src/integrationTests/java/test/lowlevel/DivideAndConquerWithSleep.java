@@ -9,11 +9,11 @@ import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationFactory;
-import ibis.constellation.Event;
 import ibis.constellation.Context;
-import ibis.constellation.util.SingleEventCollector;
+import ibis.constellation.Event;
+import ibis.constellation.NoSuitableExecutorException;
 import ibis.constellation.StealStrategy;
-
+import ibis.constellation.util.SingleEventCollector;
 
 public class DivideAndConquerWithSleep extends Activity {
 
@@ -61,7 +61,12 @@ public class DivideAndConquerWithSleep extends Activity {
         } else {
             logger.debug("Spawning " + branch + " jobs with depth " + (depth - 1));
             for (int i = 0; i < branch; i++) {
-                c.submit(new DivideAndConquerWithSleep(identifier(), branch, depth - 1, load));
+                try {
+                    c.submit(new DivideAndConquerWithSleep(identifier(), branch, depth - 1, load));
+                } catch (NoSuitableExecutorException e) {
+                    System.err.println("Should not happen: " + e);
+                    e.printStackTrace(System.err);
+                }
             }
             return SUSPEND;
         }
@@ -106,7 +111,7 @@ public class DivideAndConquerWithSleep extends Activity {
 
         ConstellationConfiguration config = new ConstellationConfiguration(new Context("DC"), StealStrategy.SMALLEST,
                 StealStrategy.BIGGEST, StealStrategy.BIGGEST);
-        
+
         Constellation c;
         try {
             c = ConstellationFactory.createConstellation(config, executors);
@@ -131,8 +136,14 @@ public class DivideAndConquerWithSleep extends Activity {
 
             SingleEventCollector a = new SingleEventCollector(new Context("DC"));
 
-            c.submit(a);
-            c.submit(new DivideAndConquerWithSleep(a.identifier(), branch, depth, load));
+            try {
+                c.submit(a);
+
+                c.submit(new DivideAndConquerWithSleep(a.identifier(), branch, depth, load));
+            } catch (NoSuitableExecutorException e) {
+                System.err.println("Should not happen: " + e);
+                e.printStackTrace(System.err);
+            }
 
             long result = (Long) a.waitForEvent().getData();
 

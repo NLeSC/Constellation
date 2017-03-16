@@ -3,8 +3,9 @@ package test.spawntest;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
-import ibis.constellation.Event;
 import ibis.constellation.Context;
+import ibis.constellation.Event;
+import ibis.constellation.NoSuitableExecutorException;
 
 public class Single extends Activity {
 
@@ -24,7 +25,12 @@ public class Single extends Activity {
     @Override
     public int initialize(Constellation c) {
         for (int i = 0; i < spawns; i++) {
-            c.submit(new Dummy(identifier()));
+            try {
+                c.submit(new Dummy(identifier()));
+            } catch (NoSuitableExecutorException e) {
+                System.err.println("Should not happen: " + e);
+                e.printStackTrace(System.err);
+            }
         }
 
         return SUSPEND;

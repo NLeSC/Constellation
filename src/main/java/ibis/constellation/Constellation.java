@@ -1,3 +1,19 @@
+/**
+ * Copyright 2013 Netherlands eScience Center
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package ibis.constellation;
 
 /**
@@ -15,13 +31,16 @@ public interface Constellation {
      * ActivityIdentifier is returned that can be used to refer to this submitted Activity at a later moment in time.
      *
      * It is up to the user to make sure that this constellation instance has a suitable executor, or, if the contexts don't
-     * match, an executor that can be stolen from.
+     * match, an executor that can be stolen from. In some cases, the system can detect that no suitable executor can be found. In
+     * those cases, it throws an exception.
      *
      * @param job
      *            the Activity to submit
+     * @exception NoSuitableExecutorException
+     *                is thrown when the system has detected that no suitable executor can be found.
      * @return ActivityIdentifier that can be used to refer to the submitted Activity.
      */
-    public ActivityIdentifier submit(Activity activity);
+    public ActivityIdentifier submit(Activity activity) throws NoSuitableExecutorException;
 
     /**
      * Send an event.

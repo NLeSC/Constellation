@@ -8,65 +8,76 @@ import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationFactory;
-import ibis.constellation.util.MultiEventCollector;
 import ibis.constellation.Context;
+import ibis.constellation.NoSuitableExecutorException;
 import ibis.constellation.StealStrategy;
+import ibis.constellation.util.MultiEventCollector;
 
 public class WorkflowTest {
 
-	private static int JOBS = 10;
-	private static int SIZE = 1024;
-	private static int RANK = 0;
-	
-	@Test
-	public void test() throws ConstellationCreationException {
+    private static int JOBS = 10;
+    private static int SIZE = 1024;
+    private static int RANK = 0;
 
-		// Simple test that creates, starts and stops a set of constellations.
-		// When the lot is running, it deploys a series of jobs.
-		int jobs = JOBS;
-		int size = SIZE;
-		int rank = RANK;
+    @Test
+    public void test() throws ConstellationCreationException {
 
-		Properties p = new Properties();
-		p.put("ibis.constellation.distributed", "false");
-		
-		ConstellationConfiguration [] config = new ConstellationConfiguration[] { 
-				new ConstellationConfiguration(new Context("MASTER"), StealStrategy.SMALLEST), 
-				new ConstellationConfiguration(new Context("A"), StealStrategy.SMALLEST), 
-				new ConstellationConfiguration(new Context("B"), StealStrategy.SMALLEST),
-				new ConstellationConfiguration(new Context("X"), StealStrategy.SMALLEST),
-				new ConstellationConfiguration(new Context("E"), StealStrategy.SMALLEST) };
+        // Simple test that creates, starts and stops a set of constellations.
+        // When the lot is running, it deploys a series of jobs.
+        int jobs = JOBS;
+        int size = SIZE;
+        int rank = RANK;
 
-		Constellation c = ConstellationFactory.createConstellation(p, config);
-		c.activate();
+        Properties p = new Properties();
+        p.put("ibis.constellation.distributed", "false");
 
-		int expected = (1600 * JOBS) + 300;
-		
-		if (rank == 0) {
+        ConstellationConfiguration[] config = new ConstellationConfiguration[] {
+                new ConstellationConfiguration(new Context("MASTER"), StealStrategy.SMALLEST),
+                new ConstellationConfiguration(new Context("A"), StealStrategy.SMALLEST),
+                new ConstellationConfiguration(new Context("B"), StealStrategy.SMALLEST),
+                new ConstellationConfiguration(new Context("X"), StealStrategy.SMALLEST),
+                new ConstellationConfiguration(new Context("E"), StealStrategy.SMALLEST) };
 
-			long start = System.currentTimeMillis();
+        Constellation c = ConstellationFactory.createConstellation(p, config);
+        c.activate();
 
-			MultiEventCollector me = new MultiEventCollector(new Context("MASTER"), jobs);
-			c.submit(me);
+        int expected = (1600 * JOBS) + 300;
 
-			for (int i = 0; i < jobs; i++) {
+        if (rank == 0) {
 
-				//System.out.println("SUBMIT " + i);
+            long start = System.currentTimeMillis();
 
-				Data data = new Data(i, 0, new byte[size]);
-				c.submit(new Stage1(me.identifier(), 100, data));
-			}
+            MultiEventCollector me = new MultiEventCollector(new Context("MASTER"), jobs);
+            try {
+                c.submit(me);
+            } catch (NoSuitableExecutorException e) {
+                System.err.println("Should not happen: " + e);
+                e.printStackTrace(System.err);
+            }
 
-			//System.out.println("SUBMIT DONE");
+            for (int i = 0; i < jobs; i++) {
 
-			me.waitForEvents();
+                //System.out.println("SUBMIT " + i);
 
-			long end = System.currentTimeMillis();
+                Data data = new Data(i, 0, new byte[size]);
+                try {
+                    c.submit(new Stage1(me.identifier(), 100, data));
+                } catch (NoSuitableExecutorException e) {
+                    System.err.println("Should not happen: " + e);
+                    e.printStackTrace(System.err);
+                }
+            }
 
-			System.out.println("Total processing time: " + (end - start) + " ms. (expected = " + expected + " ms.)");
-		}
+            //System.out.println("SUBMIT DONE");
 
-		c.done();
-	}
+            me.waitForEvents();
+
+            long end = System.currentTimeMillis();
+
+            System.out.println("Total processing time: " + (end - start) + " ms. (expected = " + expected + " ms.)");
+        }
+
+        c.done();
+    }
 
 }
