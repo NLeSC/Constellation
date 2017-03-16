@@ -310,7 +310,7 @@ public class MultiThreadedConstellation {
 
             final SingleThreadedConstellation tmp = workers[(rnd + i) % workerCount];
 
-            if (tmp != c && poolMatrix[rank][tmp.getRank()]) {
+            if (!tmp.equals(c) && poolMatrix[rank][tmp.getRank()]) {
 
                 final int size = tmp.attemptSteal(result, context, c.getConstellationStealStrategy(), pool, c.identifier(),
                         localStealSize, true);
@@ -334,7 +334,7 @@ public class MultiThreadedConstellation {
 
             final SingleThreadedConstellation tmp = workers[(rnd + i) % workerCount];
 
-            if (tmp != c && poolMatrix[rank][tmp.getRank()]) {
+            if (!tmp.equals(c) && poolMatrix[rank][tmp.getRank()]) {
                 tmp.deliverStealRequest(sr);
                 return null;
             }
