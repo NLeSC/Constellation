@@ -596,63 +596,85 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         updater.done();
 
         // Try to cleanly disconnect all send and receive ports....
-        if (logger.isInfoEnabled()) {
-            logger.info("disabling receive port");
-        }
-        try {
-            rp.disableConnections();
-            rp.disableMessageUpcalls();
-        } catch (Exception e) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Clean receive port got execption", e);
-            }
-        }
+        disableReceivePorts();
 
-        if (logger.isInfoEnabled()) {
-            logger.info("Closing send ports");
-        }
-        for (SendPort sp : sendports.values()) {
-            try {
-                sp.close();
-            } catch (Exception e) {
-                if (logger.isInfoEnabled()) {
-                    logger.info("Close sendport got execption", e);
-                }
-            }
-        }
+        closeSendPorts();
 
-        if (logger.isInfoEnabled()) {
-            logger.info("Closing receive ports");
-        }
-        try {
-            rp.close(10000);
-        } catch (IOException e) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Close receive port got execption", e);
-            }
-        }
-        if (rports != null) {
-            for (ReceivePort rport : rports) {
-                if (rport != null) {
-                    try {
-                        rport.close(10000);
-                    } catch (IOException e) {
-                        if (logger.isInfoEnabled()) {
-                            logger.info("Close receive port " + rport.name() + " got execption", e);
-                        }
-                    }
-                }
-            }
-        }
+        closeReceivePorts();
 
         if (logger.isInfoEnabled()) {
             logger.info("Ending ibis");
         }
         try {
             ibis.end();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             if (logger.isInfoEnabled()) {
                 logger.info("ibis.end() got execption", e);
+            }
+        }
+    }
+
+    private void closeSendPorts() {
+
+        if (logger.isInfoEnabled()) {
+            logger.info("Closing send ports");
+        }
+        for (final SendPort sp : sendports.values()) {
+            try {
+                sp.close();
+            } catch (final Exception e) {
+                if (logger.isInfoEnabled()) {
+                    logger.info("Close sendport " + sp.name() + " got execption", e);
+                }
+            }
+        }
+    }
+
+    private void disableReceivePort(ReceivePort rp) {
+        try {
+            rp.disableConnections();
+            rp.disableMessageUpcalls();
+        } catch (final Exception e) {
+            if (logger.isInfoEnabled()) {
+                logger.info("Disable receive port " + rp.name() + " got execption", e);
+            }
+        }
+    }
+
+    private void closeReceivePort(ReceivePort rp) {
+        try {
+            rp.close(10000);
+        } catch (final IOException e) {
+            if (logger.isInfoEnabled()) {
+                logger.info("Close receive port " + rp.name() + " got execption", e);
+            }
+        }
+    }
+
+    private void closeReceivePorts() {
+        if (logger.isInfoEnabled()) {
+            logger.info("Closing receive ports");
+        }
+        closeReceivePort(rp);
+        if (rports != null) {
+            for (final ReceivePort rport : rports) {
+                if (rport != null) {
+                    closeReceivePort(rport);
+                }
+            }
+        }
+    }
+
+    private void disableReceivePorts() {
+        if (logger.isInfoEnabled()) {
+            logger.info("Disable receive ports");
+        }
+        disableReceivePort(rp);
+        if (rports != null) {
+            for (final ReceivePort rport : rports) {
+                if (rport != null) {
+                    disableReceivePort(rport);
+                }
             }
         }
     }

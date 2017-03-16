@@ -85,4 +85,21 @@ public final class StealStrategy implements Serializable {
     public byte getStrategy() {
         return strategy;
     }
+
+    @Override
+    public int hashCode() {
+        return strategy;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o instanceof StealStrategy)) {
+            return false;
+        }
+        StealStrategy s = (StealStrategy) o;
+        return strategy == s.strategy;
+    }
 }
