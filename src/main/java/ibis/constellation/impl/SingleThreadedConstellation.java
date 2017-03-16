@@ -616,7 +616,7 @@ public class SingleThreadedConstellation extends Thread {
 
         if (cid.equals(identifier)) {
             // the target is local, which means we have lost a local activity
-            logger.error("ActivityBase " + e.getTarget() + " does no longer exist! (event dropped)");
+            logger.error("Activity " + e.getTarget() + " does no longer exist! (event dropped)");
             return;
         }
 

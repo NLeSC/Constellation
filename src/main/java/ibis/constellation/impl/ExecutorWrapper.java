@@ -260,7 +260,7 @@ public class ExecutorWrapper implements Constellation {
             }
 
         } else {
-            // ActivityBase is not local, so let our parent handle it.
+            // Activity is not local, so let our parent handle it.
             parent.handleEvent(e);
         }
 
