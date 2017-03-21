@@ -3,17 +3,15 @@ package ibis.constellation.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ibis.constellation.AbstractContext;
 import ibis.constellation.Activity;
 import ibis.constellation.Constellation;
-import ibis.constellation.AbstractContext;
 import ibis.constellation.Event;
 
 /**
  * A <code>SingleEventCollector</code> is an {@link Activity} that just waits for a single event, and saves it. It provides a
  * method {@link #waitForEvent()}, to be used by other activities, to collect the event and block until it arrives, after which
  * the <code>SingleEventCollector</code> will finish.
- *
- * TODO: move to an utility package?
  */
 public class SingleEventCollector extends Activity {
 
@@ -83,7 +81,7 @@ public class SingleEventCollector extends Activity {
 
     /**
      * This method returns whether the event collector is finished, without blocking.
-     * 
+     *
      * @return whether the event collector is finished.
      */
     public synchronized boolean isFinished() {

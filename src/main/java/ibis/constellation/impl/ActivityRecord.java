@@ -164,7 +164,7 @@ public class ActivityRecord implements Serializable, ByteBuffers {
                     // TODO: handle pending event here ?? Exception or warning ?
                     state = FINISHING;
                 } else {
-                    throw new IllegalStateException("ActivityBase did not suspend or finish!");
+                    throw new IllegalStateException("Activity did not suspend or finish!");
                 }
                 break;
 
@@ -189,7 +189,7 @@ public class ActivityRecord implements Serializable, ByteBuffers {
                     // TODO: handle pending event here ?? Exception or warning ?
                     state = FINISHING;
                 } else {
-                    throw new IllegalStateException("ActivityBase did not suspend or finish!");
+                    throw new IllegalStateException("Activity did not suspend or finish!");
                 }
 
                 break;
@@ -210,7 +210,7 @@ public class ActivityRecord implements Serializable, ByteBuffers {
             }
 
         } catch (Throwable e) {
-            logger.error("ActivityBase failed: ", e);
+            logger.error("Activity failed: ", e);
             state = ERROR;
         }
 

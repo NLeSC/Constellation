@@ -3,17 +3,15 @@ package ibis.constellation.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ibis.constellation.AbstractContext;
 import ibis.constellation.Activity;
 import ibis.constellation.Constellation;
-import ibis.constellation.AbstractContext;
 import ibis.constellation.Event;
 
 /**
  * A <code>MultiEventCollector</code> is an {@link Activity} that just waits for a specific number of events, and collects them.
  * It provides a method {@link #waitForEvents()}, to be used by other activities, to collect the events and block until the
  * specified number of events is reached, after which the <code>MultiEventCollector</code> will finish.
- *
- * TODO: move to a utility package?
  */
 public class MultiEventCollector extends Activity {
 
@@ -90,7 +88,7 @@ public class MultiEventCollector extends Activity {
 
     /**
      * This method returns whether the event collector is finished, without blocking.
-     * 
+     *
      * @return whether the event collector is finished.
      */
     public synchronized boolean isFinished() {
