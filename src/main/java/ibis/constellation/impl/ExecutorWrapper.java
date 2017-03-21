@@ -460,7 +460,7 @@ public class ExecutorWrapper implements Constellation {
             while (!done) {
                 done = processActivities();
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             logger.error("Executor terminated unexpectedly!", e);
         }
 
