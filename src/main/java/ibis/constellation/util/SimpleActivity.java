@@ -1,17 +1,15 @@
 package ibis.constellation.util;
 
+import ibis.constellation.AbstractContext;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
-import ibis.constellation.AbstractContext;
 import ibis.constellation.Event;
 
 /**
  * A <code>SimpleActivity</code> is an activity that only requires a single invocation of its {@link #simpleActivity()} method. In
  * particular, it has (default) implementations of {@link Activity#initialize()} and {@link Activity#cleanup()}, and it does not
  * expect events. It does provide a concept of a parent activity.
- *
- * TODO: move to a utility package?
  */
 public abstract class SimpleActivity extends Activity {
 
@@ -91,7 +89,7 @@ public abstract class SimpleActivity extends Activity {
      * @param parent
      *            the parent activity identifier.
      */
-//    public void setParent(ActivityIdentifier parent) {
-//        this.parent = parent;
-//    }
+    //    public void setParent(ActivityIdentifier parent) {
+    //        this.parent = parent;
+    //    }
 }

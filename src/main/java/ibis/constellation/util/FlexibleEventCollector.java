@@ -2,16 +2,14 @@ package ibis.constellation.util;
 
 import java.util.ArrayList;
 
+import ibis.constellation.AbstractContext;
 import ibis.constellation.Activity;
 import ibis.constellation.Constellation;
-import ibis.constellation.AbstractContext;
 import ibis.constellation.Event;
 
 /**
  * A <code>FlexibleEventCollector</code> is an {@link Activity} that just waits for events, indefinitely, and collects them. It
  * provides a method {@link #waitForEvents()}, to be used by other activities, to collect the events collected so far.
- *
- * TODO: move to a utility package?
  */
 public class FlexibleEventCollector extends Activity {
 
@@ -19,7 +17,7 @@ public class FlexibleEventCollector extends Activity {
 
     private final ArrayList<Event> events = new ArrayList<Event>();
     private boolean waiting = false;
-    
+
     /**
      * Constructs a <code>FlexibleEventCollector</code> with the specified activity context. Note: this is an activity that will
      * receive events (see {@link Activity#Activity(ActivityContext, boolean)}).
@@ -30,7 +28,6 @@ public class FlexibleEventCollector extends Activity {
     public FlexibleEventCollector(AbstractContext c) {
         super(c, false, true);
     }
-
 
     @Override
     public int initialize(Constellation c) {
