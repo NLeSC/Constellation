@@ -446,8 +446,7 @@ public class SingleThreadedConstellation extends Thread {
         return false;
     }
 
-    private synchronized boolean pushWorkToExecutor(StealStrategy s) {
-
+    private synchronized boolean pushRelocatedToExecutor() {
         // Push all relocated activities to our executor.
         if (relocated.size() > 0) {
             if (logger.isDebugEnabled()) {
@@ -458,7 +457,16 @@ public class SingleThreadedConstellation extends Thread {
                 lookup.remove(ar.identifier());
                 wrapper.addPrivateActivity(ar);
             }
+            return true;
+        }
 
+        return false;
+    }
+
+    private synchronized boolean pushWorkToExecutor(StealStrategy s) {
+
+        // Push all relocated activities to our executor.
+        if (pushRelocatedToExecutor()) {
             return true;
         }
 
@@ -859,9 +867,12 @@ public class SingleThreadedConstellation extends Thread {
     // Either that, or we should sleep for a while.
     // No: processing requests is not good enough: this may cause infinite cycles with Event messages. Wrapper thinks it does not have the activity,
     // and will resend it, but if we only process events here, it will just be delivered again to the wrapper. --Ceriel
+    // Maybe this is fixed now by first doing pushRelocatedToExecutor().
     public boolean processActivities() {
-        boolean haveRequests = false;
 
+        pushRelocatedToExecutor();
+
+        boolean haveRequests = false;
         synchronized (this) {
             if (havePendingRequests) {
                 if (getDone()) {
