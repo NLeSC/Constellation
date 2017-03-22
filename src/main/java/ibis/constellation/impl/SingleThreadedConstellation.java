@@ -554,7 +554,7 @@ public class SingleThreadedConstellation extends Thread {
             return cid;
         }
 
-        // If not, it should be in the queue of my executor
+        // If not, is should be in the queue of my executor
         postEventMessage(m);
         return null;
     }
@@ -857,8 +857,6 @@ public class SingleThreadedConstellation extends Thread {
     // An Activity.processActivities call ultimately ends up here.
     // We should make progress on each call, either by processing requests, or by doing work.
     // Either that, or we should sleep for a while.
-    // No: processing requests is not good enough: this may cause infinite cycles with Event messages. Wrapper thinks it does not have the activity,
-    // and will resend it, but if we only process events here, it will just be delivered again to the wrapper. --Ceriel
     public boolean processActivities() {
         boolean haveRequests = false;
 
@@ -872,7 +870,7 @@ public class SingleThreadedConstellation extends Thread {
         }
         if (haveRequests) {
             processEvents();
-            // No return here!
+            return false;
         }
 
         if (wrapper.process() || pushWorkToExecutor(wrapper.getLocalStealStrategy())) {
