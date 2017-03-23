@@ -7,8 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ibis.constellation.AbstractContext;
-import ibis.constellation.OrContext;
 import ibis.constellation.Context;
+import ibis.constellation.OrContext;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.impl.ActivityRecord;
 
@@ -93,6 +93,14 @@ public class SimpleWorkQueue extends WorkQueue {
         }
 
         if (r != null) { 
+            // Code added to remove r from all lists. --Ceriel
+            AbstractContext ctxt = r.getContext();
+            if (ctxt instanceof OrContext) {
+                // Yes, there may be other lists in which it exists
+                for (Context rc : (OrContext) ctxt) {
+                    removeByReference(rc, r);
+                }
+            }
             size--;
         }
         
@@ -121,14 +129,16 @@ public class SimpleWorkQueue extends WorkQueue {
             tmp = stealRange(itt.next(), s);
         }
 
-        if (tmp == null) { 
+        if (tmp == null) {
             return null;
         }
-        
-        for (Context rc : c) {
-            removeByReference(rc, tmp);
-        }
-        
+
+        // No, not here. it should be removed from all lists, also if the steal attempt only has a single context.
+        // Solving it in stealRange. --Ceriel
+        //        for (Context rc : c) {
+        //            removeByReference(rc, tmp);
+        //        }
+
         return tmp;
     }
     

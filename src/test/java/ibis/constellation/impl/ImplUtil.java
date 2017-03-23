@@ -16,6 +16,7 @@
 
 package ibis.constellation.impl;
 
+import ibis.constellation.AbstractContext;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.FakeActivity;
@@ -29,10 +30,6 @@ public class ImplUtil {
 
     public static ConstellationIdentifierImpl createConstellationIdentifier(int nodeId, int localId) {
         return new ConstellationIdentifierImpl(nodeId, localId);
-    }
-
-    public static ActivityIdentifier createActivityIdentifier(ConstellationIdentifierImpl cid, long aid, boolean expectsEvents) {
-        return ActivityIdentifierImpl.createActivityIdentifier(cid, aid, expectsEvents);
     }
 
     public static ActivityIdentifier createActivityIdentifier(int nodeId, int localId, long aid, boolean expectsEvents) {
@@ -50,6 +47,10 @@ public class ImplUtil {
     }
     
 
+    public static ActivityRecord createActivityRecord(AbstractContext c) {
+        FakeActivity t = new FakeActivity(c);
+        return new ActivityRecord(t, (ActivityIdentifierImpl) createActivityIdentifier(0, 0, 0, true));
+    }
     
 }
 

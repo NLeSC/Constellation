@@ -16,10 +16,6 @@
 
 package ibis.constellation;
 
-import ibis.constellation.Activity;
-import ibis.constellation.Constellation;
-import ibis.constellation.Event;
-
 /**
  * @version 1.0
  * @since 1.0
@@ -37,7 +33,11 @@ public class FakeActivity extends Activity {
      * 
      */
     public FakeActivity() {
-        super(new Context("DEFAULT", 0, 0), true);
+        this(new Context("DEFAULT", 0, 0));
+    }
+
+    public FakeActivity(AbstractContext c) {
+        super(c, true);
     }
     
     @Override
