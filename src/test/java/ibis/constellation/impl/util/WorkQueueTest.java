@@ -1,8 +1,8 @@
 package ibis.constellation.impl.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -62,12 +62,87 @@ public class WorkQueueTest {
         q.enqueue(rb);
         q.enqueue(rab);
         ActivityRecord tmp1 = q.steal(a, StealStrategy.SMALLEST);
-        assertTrue(tmp1 == ra || tmp1 == rab);
+        assertNotEquals(tmp1, rb);
         ActivityRecord tmp2 = q.steal(b, StealStrategy.SMALLEST);
-        assertTrue((tmp2 == rb || tmp2 == rab) && tmp2 != tmp1);
+        assertNotEquals(tmp1, tmp2);
+        assertNotEquals(tmp2, ra);
         ActivityRecord tmp = q.steal(rab.getContext(), StealStrategy.SMALLEST);
-        assertTrue((tmp == rb || tmp == rab || tmp == ra) && tmp != tmp1 && tmp != tmp2);
+        assertNotEquals(tmp, tmp1);
+        assertNotEquals(tmp, tmp2);
         tmp = q.steal(rab.getContext(), StealStrategy.SMALLEST);
         assertNull(tmp);
+    }
+
+    @Test
+    public void testStealSmallest1() {
+        Context a = new Context("A");
+        Context a1 = new Context("A", 1);
+        Context a2 = new Context("A", 2);
+        ActivityRecord ra1 = ImplUtil.createActivityRecord(a1);
+        ActivityRecord ra2 = ImplUtil.createActivityRecord(a2);
+
+        WorkQueue q = new SimpleWorkQueue("queue");
+        q.enqueue(ra1);
+        q.enqueue(ra2);
+        ActivityRecord tmp1 = q.steal(a, StealStrategy.SMALLEST);
+        assertEquals(tmp1, ra1);
+        q.enqueue(tmp1);
+        ActivityRecord tmp2 = q.steal(a, StealStrategy.SMALLEST);
+        assertEquals(tmp2, tmp1);
+    }
+
+    @Test
+    public void testStealBiggest1() {
+        Context a = new Context("A");
+        Context a1 = new Context("A", 1);
+        Context a2 = new Context("A", 2);
+        ActivityRecord ra1 = ImplUtil.createActivityRecord(a1);
+        ActivityRecord ra2 = ImplUtil.createActivityRecord(a2);
+
+        WorkQueue q = new SimpleWorkQueue("queue");
+        q.enqueue(ra1);
+        q.enqueue(ra2);
+        ActivityRecord tmp1 = q.steal(a, StealStrategy.BIGGEST);
+        assertEquals(tmp1, ra2);
+        q.enqueue(tmp1);
+        ActivityRecord tmp2 = q.steal(a, StealStrategy.BIGGEST);
+        assertEquals(tmp2, tmp1);
+    }
+
+    @Test
+    public void testStealSmallest2() {
+        Context a = new Context("A", 1);
+        Context a1 = new Context("A", -4, 4);
+        Context a2 = new Context("A", -3, 3);
+        ActivityRecord ra1 = ImplUtil.createActivityRecord(a1);
+        ActivityRecord ra2 = ImplUtil.createActivityRecord(a2);
+
+        WorkQueue q = new SimpleWorkQueue("queue");
+        q.enqueue(ra1);
+        q.enqueue(ra2);
+        ActivityRecord tmp1 = q.steal(a, StealStrategy.SMALLEST);
+        assertEquals(tmp1, ra1);
+        q.enqueue(tmp1);
+        ActivityRecord tmp2 = q.steal(a, StealStrategy.SMALLEST);
+        assertEquals(tmp2, tmp1);
+    }
+
+    @Test
+    public void testStealBiggest2() {
+        Context a = new Context("A", 1);
+        Context a1 = new Context("A", -4, 4);
+        Context a2 = new Context("A", -3, 3);
+
+        ActivityRecord ra1 = ImplUtil.createActivityRecord(a1);
+        ActivityRecord ra2 = ImplUtil.createActivityRecord(a2);
+
+        WorkQueue q = new SimpleWorkQueue("queue");
+        q.enqueue(ra1);
+        q.enqueue(ra2);
+        ActivityRecord tmp1 = q.steal(a, StealStrategy.BIGGEST);
+        assertEquals(tmp1, ra2);
+        q.enqueue(tmp1);
+        ActivityRecord tmp2 = q.steal(a, StealStrategy.BIGGEST);
+        assertEquals(tmp2, tmp1);
     }
 }
