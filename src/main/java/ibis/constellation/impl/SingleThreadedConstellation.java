@@ -4,6 +4,8 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -328,9 +330,10 @@ public class SingleThreadedConstellation extends Thread {
     }
 
     private ActivityRecord[] trim(ActivityRecord[] a, int count) {
-        ActivityRecord[] result = new ActivityRecord[count];
-        System.arraycopy(a, 0, result, 0, count);
-        return result;
+        if (a.length > count) {
+            return Arrays.copyOf(a, count);
+        }
+        return a;
     }
 
     public ActivityRecord[] attemptSteal(AbstractContext context, StealStrategy s, StealPool pool,
@@ -345,6 +348,23 @@ public class SingleThreadedConstellation extends Thread {
         }
 
         return trim(result, count);
+    }
+
+    private int localSteal(AbstractContext context, StealStrategy s, ActivityRecord[] result, int o, int size) {
+        int offset = o;
+        if (offset < size) {
+            offset += restrictedWrongContext.steal(context, s, result, offset, size - offset);
+        }
+
+        if (offset < size) {
+            offset += restricted.steal(context, s, result, offset, size - offset);
+        }
+
+        if (offset < size) {
+            offset += stolen.steal(context, s, result, offset, size - offset);
+        }
+
+        return offset;
     }
 
     public synchronized int attemptSteal(ActivityRecord[] tmp, AbstractContext context, StealStrategy s, StealPool pool,
@@ -364,37 +384,20 @@ public class SingleThreadedConstellation extends Thread {
         }
 
         // First steal from the activities that I cannot run myself.
-        int offset = wrongContext.steal(context, s, tmp, 0, size);
+        int fromWrong = wrongContext.steal(context, s, tmp, 0, size);
+        int offset = fromWrong;
 
-        if (logger.isDebugEnabled() && !local) {
-            logger.debug("Stole " + offset + " jobs from wrongContext of " + identifier + ", size = " + wrongContext.size());
-        }
-
-        if (local) {
-
+        if (local && offset < size) {
             // Only peers from our own constellation are allowed to steal
             // restricted or stolen jobs.
-            if (offset < size) {
-                offset += restrictedWrongContext.steal(context, s, tmp, offset, size - offset);
-            }
-
-            if (offset < size) {
-                offset += restricted.steal(context, s, tmp, offset, size - offset);
-            }
-
-            if (offset < size) {
-                offset += stolen.steal(context, s, tmp, offset, size - offset);
-            }
+            offset = localSteal(context, s, tmp, offset, size);
         }
 
         // Anyone may steal a fresh job
+        int fromFresh = 0;
         if (offset < size) {
-            int n = fresh.steal(context, s, tmp, offset, size - offset);
-            offset += n;
-            if (logger.isDebugEnabled() && !local) {
-                logger.debug("Stole " + n + " jobs from fresh, size = " + fresh.size());
-            }
-
+            fromFresh = fresh.steal(context, s, tmp, offset, size - offset);
+            offset += fromFresh;
         }
 
         if (offset == 0) {
@@ -402,15 +405,14 @@ public class SingleThreadedConstellation extends Thread {
             return 0;
         }
 
-        // Success. Trim if necessary
-        ActivityRecord[] ars = tmp;
-        if (offset != size) {
-            ars = trim(ars, offset);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Stole " + offset + " jobs from " + identifier + ": " + fromWrong + " from wrongContext, " + fromFresh
+                    + " from fresh");
         }
 
         // Next, remove activities from lookup, and mark and register them as
         // relocated or stolen/exported
-        registerLeavingActivities(ars, offset, src, local);
+        registerLeavingActivities(tmp, offset, src, local);
 
         return offset;
     }
@@ -441,8 +443,19 @@ public class SingleThreadedConstellation extends Thread {
         postStealRequest(sr);
     }
 
-    private synchronized boolean pushWorkToExecutor(StealStrategy s) {
+    private synchronized boolean pushWorkFromQueue(WorkQueue queue, StealStrategy s) {
+        if (queue.size() > 0) {
+            ActivityRecord ar = queue.steal(wrapper.getContext(), s);
+            if (ar != null) {
+                lookup.remove(ar.identifier());
+                wrapper.addPrivateActivity(ar);
+                return true;
+            }
+        }
+        return false;
+    }
 
+    private synchronized boolean pushRelocatedToExecutor() {
         // Push all relocated activities to our executor.
         if (relocated.size() > 0) {
             if (logger.isDebugEnabled()) {
@@ -456,38 +469,27 @@ public class SingleThreadedConstellation extends Thread {
 
             return true;
         }
-
-        // Else: push one restricted activity to our executor
-        if (restricted.size() > 0) {
-            ActivityRecord ar = restricted.steal(wrapper.getContext(), s);
-            if (ar != null) {
-                lookup.remove(ar.identifier());
-                wrapper.addPrivateActivity(ar);
-                return true;
-            }
-        }
-
-        // Else: push one stolen activity to our executor
-        if (stolen.size() > 0) {
-            ActivityRecord ar = stolen.steal(wrapper.getContext(), s);
-            if (ar != null) {
-                lookup.remove(ar.identifier());
-                wrapper.addPrivateActivity(ar);
-                return true;
-            }
-        }
-
-        // Else: push one fresh activity to our executor
-        if (fresh.size() > 0) {
-            ActivityRecord ar = fresh.steal(wrapper.getContext(), s);
-            if (ar != null) {
-                lookup.remove(ar.identifier());
-                wrapper.addPrivateActivity(ar);
-                return true;
-            }
-        }
-
         return false;
+    }
+
+    private synchronized boolean pushWorkToExecutor(StealStrategy s) {
+
+        if (pushRelocatedToExecutor()) {
+            return true;
+        }
+
+        // Else: try to push one restricted activity to our executor
+        if (pushWorkFromQueue(restricted, s)) {
+            return true;
+        }
+
+        // Else: try to push one stolen activity to our executor
+        if (pushWorkFromQueue(stolen, s)) {
+            return true;
+        }
+
+        // Else: try to push one fresh activity to our executor
+        return pushWorkFromQueue(fresh, s);
     }
 
     public void deliverStealReply(StealReply sr) {
@@ -572,7 +574,7 @@ public class SingleThreadedConstellation extends Thread {
             return cid;
         }
 
-        // If not, is should be in the queue of my executor
+        // If not, it should be in the queue of my executor
         postEventMessage(m);
         return null;
     }
@@ -679,31 +681,24 @@ public class SingleThreadedConstellation extends Thread {
         // between doing the swap + setting it to false. Another submit
         // could potentially use this gap to insert a new event. This would
         // lead to a race condition!
-        havePendingRequests = false;
+        // But it is probably better to only reset it if done is not set?
+        havePendingRequests = done;
     }
 
     private void processRemoteMessages() {
-
-        if (processing.deliveredApplicationMessages.size() > 0) {
-
-            for (int i = 0; i < processing.deliveredApplicationMessages.size(); i++) {
-
-                EventMessage m = processing.deliveredApplicationMessages.get(i);
-
-                if (!wrapper.queueEvent(m.event)) {
-                    // Failed to deliver event locally. Check if the activity is
-                    // now in one of the local queues. If not, return to parent.
-                    if (logger.isInfoEnabled()) {
-                        logger.info("Failed to deliver message from " + m.source + " / " + m.event.getSource() + " to " + m.target
-                                + " / " + m.event.getTarget() + " (resending)");
-                    }
-
-                    handleEvent(m.event);
+        for (EventMessage m : processing.deliveredApplicationMessages) {
+            if (!wrapper.queueEvent(m.event)) {
+                // Failed to deliver event locally. Check if the activity is
+                // now in one of the local queues. If not, return to parent.
+                if (logger.isInfoEnabled()) {
+                    logger.info("Failed to deliver message from " + m.source + " / " + m.event.getSource() + " to " + m.target
+                            + " / " + m.event.getTarget() + " (resending)");
                 }
-            }
 
-            processing.deliveredApplicationMessages.clear();
+                handleEvent(m.event);
+            }
         }
+        processing.deliveredApplicationMessages.clear();
     }
 
     /**
@@ -756,8 +751,7 @@ public class SingleThreadedConstellation extends Thread {
 
     private void processStealRequests() {
 
-        StealRequest[] requests = processing.stealRequests.values().toArray(new StealRequest[0]);
-        processing.stealRequests.clear();
+        Collection<StealRequest> requests = processing.stealRequests.values();
 
         for (StealRequest s : requests) {
 
@@ -765,11 +759,8 @@ public class SingleThreadedConstellation extends Thread {
 
             synchronized (this) {
 
-                // We grab the lock here to prevent other threads (from
-                // above) from doing a
-                // lookup in the relocated/exported tables while we are
-                // removing activities
-                // from the executor's queue.
+                // We grab the lock here to prevent other threads (from above) from doing a lookup in the
+                // relocated/exported tables while we are removing activities from the executor's queue.
 
                 StealStrategy tmp = s.isLocal() ? s.constellationStrategy : s.remoteStrategy;
 
@@ -796,12 +787,11 @@ public class SingleThreadedConstellation extends Thread {
                 }
             }
         }
+        processing.stealRequests.clear();
     }
 
     private void processEvents() {
-
         swapEventQueues();
-
         processRemoteMessages();
         processStealRequests();
     }
@@ -810,24 +800,16 @@ public class SingleThreadedConstellation extends Thread {
 
         long pauseTime = deadline - System.currentTimeMillis();
 
-        if (pauseTime > 0) {
-
-            boolean wake = havePendingRequests;
-
-            while (!wake) {
-
-                try {
-                    wait(pauseTime);
-                } catch (Throwable e) {
-                    // ignored
-                }
-
-                wake = havePendingRequests;
-
-                if (!wake) {
-                    pauseTime = deadline - System.currentTimeMillis();
-                    wake = (pauseTime <= 0);
-                }
+        while (pauseTime > 0 && !havePendingRequests) {
+            try {
+                wait(pauseTime);
+            } catch (Throwable e) {
+                // ignored
+            }
+            if (!havePendingRequests) {
+                pauseTime = deadline - System.currentTimeMillis();
+            } else {
+                pauseTime = 0;
             }
         }
 
@@ -876,119 +858,89 @@ public class SingleThreadedConstellation extends Thread {
         }
     }
 
+    private synchronized void waitForRequest() {
+        while (!havePendingRequests) {
+            try {
+                wait();
+            } catch (Throwable e) {
+                // ignore
+            }
+            if (logger.isDebugEnabled()) {
+                logger.debug("Woke up in processActivities");
+            }
+        }
+    }
+
     // An Activity.processActivities call ultimately ends up here.
+    // We should make progress on each call, either by processing requests, or by doing work.
+    // Either that, or we should sleep for a while.
     public boolean processActivities() {
-        boolean haveRequests;
+        boolean haveRequests = false;
         synchronized (this) {
-            haveRequests = havePendingRequests;
-
-            if (haveRequests && done) {
-
-                return getDone();
+            if (havePendingRequests) {
+                if (getDone()) {
+                    return true;
+                }
+                haveRequests = true;
             }
         }
         if (haveRequests) {
             processEvents();
         }
 
-        // NOTE: one problem here is that we cannot tell if we did any work
-        // or not. We would like to know, since this allows us to reset
-        // several variables (e.g., sleepIndex)
-
-        boolean more = wrapper.process();
-
-        synchronized (this) {
-            if (!more && !havePendingRequests) {
-                // Check if there is any matching work in one of the local
-                // queues...
-                more = pushWorkToExecutor(wrapper.getLocalStealStrategy());
-            }
-        }
-        while (more) {
-            synchronized (this) {
-                if (havePendingRequests) {
-                    break;
-                }
-            }
-            more = wrapper.process();
+        if (wrapper.process() || pushWorkToExecutor(wrapper.getLocalStealStrategy())) {
+            // Either we processed an activity, or we pushed one to the wrapper.
+            return false;
         }
 
-        if (stealsFrom() == StealPool.NONE) {
-            synchronized (this) {
-                while (!havePendingRequests) {
-                    try {
-                        wait();
-                    } catch (Throwable e) {
-                        // ignore
-                    }
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Woke up in processActivities");
-                    }
-                }
-            }
+        if (parent == null || stealsFrom() == StealPool.NONE) {
+            // Cannot steal, either because there is no-one to steal from, or because of the NONE stealpool.
+            waitForRequest();
             return getDone();
         }
+
+        long nextDeadline = stealAllowed();
+
+        if (nextDeadline == 0) {
+            stealFromParent();
+        } else {
+            pauseUntil(nextDeadline);
+        }
+
+        return false;
+    }
+
+    private void stealFromParent() {
 
         int evnt = 0;
         if (PROFILE_STEALS) {
             evnt = stealTimer.start();
         }
         try {
-            while (!more) {
-                synchronized (this) {
-                    if (havePendingRequests) {
-                        break;
+            if (logger.isTraceEnabled()) {
+                logger.trace("GENERATING STEAL REQUEST at " + identifier + " with context " + getContext());
+            }
+            ActivityRecord[] result = parent.handleStealRequest(this, stealSize);
+
+            if (result != null) {
+                boolean more = false;
+                for (ActivityRecord element : result) {
+                    if (element != null) {
+                        wrapper.addPrivateActivity(element);
+                        more = true;
                     }
-
-                    // Our executor has run out of work. See if we can find some.
-
-                    // Check if there is any matching work in one of the local queues...
-                    more = pushWorkToExecutor(wrapper.getLocalStealStrategy());
                 }
-
-                // If no work was found we send a steal request to our parent.
-                if (!more) {
-                    if (parent == null) {
-                        break;
-                    }
-
-                    long nextDeadline = stealAllowed();
-
-                    if (nextDeadline == 0) {
-
-                        if (logger.isTraceEnabled()) {
-                            logger.trace("GENERATING STEAL REQUEST at " + identifier + " with context " + getContext());
-                        }
-
-                        ActivityRecord[] result = parent.handleStealRequest(this, stealSize);
-
-                        if (result != null) {
-
-                            for (ActivityRecord element : result) {
-                                if (element != null) {
-                                    wrapper.addPrivateActivity(element);
-                                    more = true;
-                                }
-                            }
-
-                            if (more) {
-                                // ignore steal deadline when we are
-                                // successful!
-                                resetStealDeadline();
-                            }
-                        }
-                    } else {
-                        more = pauseUntil(nextDeadline);
-                    }
+                if (more) {
+                    // ignore steal deadline when we are successful!
+                    resetStealDeadline();
                 }
             }
+
         } finally {
             if (PROFILE_STEALS) {
                 stealTimer.stop(evnt);
             }
         }
-
-        return getDone();
     }
 
     @Override
