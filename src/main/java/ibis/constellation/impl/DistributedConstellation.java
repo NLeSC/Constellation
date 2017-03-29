@@ -21,7 +21,7 @@ import ibis.constellation.OrContext;
 import ibis.constellation.StealPool;
 import ibis.constellation.impl.pool.Pool;
 import ibis.constellation.impl.pool.PoolCreationFailedException;
-import ibis.constellation.impl.util.Stats;
+import ibis.constellation.impl.util.Profiling;
 
 /**
  * A <code>DistributedConstellation</code> sits between the communication pool and the underlying sub-constellation, which is a
@@ -153,9 +153,11 @@ public class DistributedConstellation {
 
     private final HashMap<String, PendingSteal> stealThrottle = new HashMap<String, PendingSteal>();
 
-    private final Stats stats;
+    private final Profiling profiling;
 
-    private boolean PROFILE;
+    private final boolean PROFILE;
+
+    private final String PROFILE_OUTPUT;
 
     /**
      * A <code>DeliveryThread</code> is a thread object dealing with delayed delivery of event messages.
@@ -381,17 +383,17 @@ public class DistributedConstellation {
 
         @Override
         public TimerImpl getTimer(String standardDevice, String standardThread, String standardAction) {
-            return stats.getTimer(standardDevice, standardThread, standardAction);
+            return profiling.getTimer(standardDevice, standardThread, standardAction);
         }
 
         @Override
         public TimerImpl getTimer() {
-            return stats.getTimer();
+            return profiling.getTimer();
         }
 
         @Override
         public TimerImpl getOverallTimer() {
-            return stats.getOverallTimer();
+            return profiling.getOverallTimer();
         }
     }
 
@@ -427,12 +429,14 @@ public class DistributedConstellation {
 
         PROFILE = props.PROFILE;
 
+        PROFILE_OUTPUT = props.PROFILE_OUTPUT;
+
         // Init communication here...
         try {
             pool = new Pool(this, props);
             cidFactory = new ConstellationIdentifierFactory(pool.getRank());
             identifier = cidFactory.generateConstellationIdentifier();
-            stats = new Stats(identifier.toString());
+            profiling = new Profiling(identifier.toString());
 
             delivery = new DeliveryThread();
             delivery.start();
@@ -444,6 +448,7 @@ public class DistributedConstellation {
                 logger.info("               stealStrategy : " + stealName);
                 logger.info("Starting DistributedConstellation " + identifier);
             }
+
         } catch (PoolCreationFailedException e) {
             throw new ConstellationCreationException("could not create DistributedConstellation", e);
         }
@@ -468,14 +473,14 @@ public class DistributedConstellation {
         subConstellation.done();
         logger.debug("Subconstellation done");
 
-        pool.handleStats();
-        logger.debug("HandleStats done");
+        pool.handleProfiling();
+        logger.debug("HandleProfiling done");
 
         if (PROFILE && pool.isMaster()) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Printing statistics");
             }
-            stats.printStats(System.out);
+            profiling.printProfile(PROFILE_OUTPUT);
         }
         pool.cleanup();
     }
@@ -835,8 +840,8 @@ public class DistributedConstellation {
         }
     }
 
-    public Stats getStats() {
-        return stats;
+    public Profiling getProfiling() {
+        return profiling;
     }
 
 }

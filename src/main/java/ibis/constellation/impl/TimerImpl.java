@@ -244,7 +244,7 @@ public class TimerImpl implements java.io.Serializable, ibis.constellation.Timer
         return groupBy(f);
     }
 
-    //    List<CTimer> groupByDevice() {
+    //    List<TimerImpl> groupByDevice() {
     //        Function<TimerEvent, String> f = new Function<TimerEvent, String>() {
     //            @Override
     //            public String apply(TimerEvent event) {
@@ -254,7 +254,7 @@ public class TimerImpl implements java.io.Serializable, ibis.constellation.Timer
     //        return groupBy(f);
     //    }
     //
-    //    List<CTimer> groupByNode() {
+    //    List<TimerImpl> groupByNode() {
     //        Function<TimerEvent, String> f = new Function<TimerEvent, String>() {
     //            @Override
     //            public String apply(TimerEvent event) {
@@ -370,8 +370,8 @@ public class TimerImpl implements java.io.Serializable, ibis.constellation.Timer
         for (TimerEvent event : events) {
             if (event.getStart() >= 0 && event.getEnd() > event.getStart()) {
                 filtered.add(event);
-            } else {
-                System.out.println("Filtered out event: " + event);
+                //            } else {
+                //                System.out.println("Filtered out event: " + event);
             }
 
         }
@@ -396,8 +396,8 @@ public class TimerImpl implements java.io.Serializable, ibis.constellation.Timer
         for (TimerEvent event : events) {
             if (event.getStart() >= 0 && event.getEnd() < endFilter) {
                 filtered.add(event);
-            } else {
-                System.out.println("Filtered out event: " + event);
+                //            } else {
+                //                System.out.println("Filtered out event: " + event);
             }
 
         }

@@ -472,7 +472,7 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
     public void activate() {
 
         if (properties.PROFILE_COMMUNICATION) {
-            communicationTimer = pool.getStats().getTimer("java", "data handling", "read/write data");
+            communicationTimer = pool.getProfiling().getTimer("java", "data handling", "read/write data");
         } else {
             communicationTimer = null;
         }

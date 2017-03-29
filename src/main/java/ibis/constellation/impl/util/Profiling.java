@@ -1,12 +1,15 @@
 package ibis.constellation.impl.util;
 
+import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import ibis.constellation.impl.TimerImpl;
 
-public class Stats implements java.io.Serializable {
+public class Profiling implements java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -19,7 +22,7 @@ public class Stats implements java.io.Serializable {
     private TimerImpl overallTimer;
 
     // This is the public interface to the rest of the framework.
-    public Stats(String hostId) {
+    public Profiling(String hostId) {
         this.hostId = hostId;
         timers = new ArrayList<TimerImpl>();
     }
@@ -28,7 +31,7 @@ public class Stats implements java.io.Serializable {
         this.syncInfo = syncInfo;
     }
 
-    public synchronized void add(Stats s) {
+    public synchronized void add(Profiling s) {
         this.timers.addAll(s.timers);
     }
 
@@ -36,16 +39,37 @@ public class Stats implements java.io.Serializable {
      * Print the statistics. This is the entry point for the master in the conclusion phase process all statistics. The statistics
      * from all other nodes have already been added to this.
      */
-    public void printStats(PrintStream stream) {
-        stream.print("\n-------------------------------");
-        stream.print(" STATISTICS ");
-        stream.println("-------------------------------");
+    public void printProfile(String output) {
+
+        PrintStream stream;
+
+        if (output != null) {
+            try {
+                stream = new PrintStream(new BufferedOutputStream(new FileOutputStream(output + ".data")));
+            } catch (FileNotFoundException e) {
+                stream = System.out;
+            }
+        } else {
+            stream = System.out;
+        }
 
         normalize(syncInfo);
 
-        TimerImpl timer = getTotalMCTimer();
+        TimerImpl timer = getAllTimers();
         timer.filterOverall();
-        printPlotData(stream);
+        write(timer, stream, true);
+        if (!stream.equals(System.out)) {
+            stream.close();
+        }
+        if (output != null) {
+            try {
+                stream = new PrintStream(new BufferedOutputStream(new FileOutputStream(output + ".nothread.data")));
+            } catch (FileNotFoundException e) {
+                return;
+            }
+            write(timer, stream, false);
+            stream.close();
+        }
     }
 
     private synchronized void addTimer(TimerImpl timer) {
@@ -60,7 +84,7 @@ public class Stats implements java.io.Serializable {
 
     private void normalize(TimeSyncInfo timeSyncInfo) {
         clean();
-        TimerImpl timer = getTotalMCTimer();
+        TimerImpl timer = getAllTimers();
 
         normalizeTimer(timer, timeSyncInfo);
     }
@@ -74,7 +98,7 @@ public class Stats implements java.io.Serializable {
         timer.normalize(min);
     }
 
-    private synchronized TimerImpl getTotalMCTimer() {
+    private synchronized TimerImpl getAllTimers() {
         TimerImpl temp = new TimerImpl(hostId);
         for (TimerImpl t : timers) {
             temp.add(t);
@@ -83,17 +107,13 @@ public class Stats implements java.io.Serializable {
     }
 
     private void write(TimerImpl timer, PrintStream ps, boolean perThread) {
-        ps.println("BEGIN PLOT DATA");
+        if (ps.equals(System.out)) {
+            ps.println("BEGIN PLOT DATA");
+        }
         ps.print(timer.gnuPlotData(perThread));
-        ps.println("END PLOT DATA");
-    }
-
-    private void printPlotData(PrintStream stream) {
-        TimerImpl temp = getTotalMCTimer();
-        temp.filterOverall();
-        // write(temp, "gantt.data", false);
-        // write(temp, "gantt-thread.data", true);
-        write(temp, stream, true);
+        if (ps.equals(System.out)) {
+            ps.println("END PLOT DATA");
+        }
     }
 
     public void print(PrintStream stream, String kind, TimerImpl t) {

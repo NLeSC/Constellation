@@ -17,19 +17,19 @@
 package ibis.constellation;
 
 /**
- * The Timer interface provides user-access to the timers used internally in constellation. Applications can create Timers through
- * {@link Constellation#getTimer()} or {@link Constellation#getTimer(String, String, String)}. Of particular interest is the
- * so-called "overall timer", to be accessed by {@link Constellation#getOverallTimer()}, and to be started when the application
- * starts and stopped when the application finishes.
+ * The Timer interface provides user-access to the timing mechanism used internally in constellation. Applications can create
+ * Timers through {@link Constellation#getTimer()} or {@link Constellation#getTimer(String, String, String)}. Of particular
+ * interest is the so-called "overall timer", to be accessed by {@link Constellation#getOverallTimer()}, and to be started when
+ * the application starts and stopped when the application finishes.
  *
- * A CTimer records various times, such as queued, submitted, start, stop (similar to openCL events), but usually only start and
+ * A Timer records various times, such as queued, submitted, start, stop (similar to openCL events), but usually only start and
  * stop are used. Each timer event also has associated with it a device name (for instance "java" or "gtx480"), a thread name
  * (usually the executor identifier), and an action name, for instance "initialize" or "process".
  *
  * Constellation uses some properties to control the behavior of the timers. The {@link ConstellationProperties#PROFILE} property
- * controls the internal timing, and when set will provide timings for, a.o., the invocations of {@link Activity#initialize()} and
+ * controls the timing, and when set will provide timings for, a.o., the invocations of {@link Activity#initialize()} and
  * {@link Activity#process(Event)}. In the end, the timing events will be written to a file specified with the
- * {@link ConstellationProperties#OUTPUT} property, or to <code>System.out</code>.
+ * {@link ConstellationProperties#PROFILE_OUTPUT} property, or to <code>System.out</code>.
  */
 public interface Timer {
 

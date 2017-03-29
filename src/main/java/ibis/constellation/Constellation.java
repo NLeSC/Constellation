@@ -96,14 +96,14 @@ public interface Constellation {
      *            the thread name
      * @param action
      *            the action name
-     * @return the CTimer object
+     * @return the Timer object
      */
     public Timer getTimer(String device, String thread, String action);
 
     /**
      * Creates a {@link Timer} without device, thread, or action name.
      *
-     * @return the CTimer object
+     * @return the Timer object
      */
     public Timer getTimer();
 

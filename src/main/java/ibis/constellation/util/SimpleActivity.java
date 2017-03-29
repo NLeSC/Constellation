@@ -15,7 +15,7 @@ public abstract class SimpleActivity extends Activity {
 
     private static final long serialVersionUID = 1937343247220443457L;
 
-    private ActivityIdentifier parent;
+    private final ActivityIdentifier parent;
 
     /**
      * Constructs a <code>SimpleActivity</code> with the specified parameters. This activity can only be executed by a local
@@ -74,22 +74,11 @@ public abstract class SimpleActivity extends Activity {
     public abstract void simpleActivity(Constellation c);
 
     /**
-     * Returns the activity identifier of the parent (as set by {@link #setParent(ActivityIdentifier)}, so it may be
-     * <code>null</code>).
+     * Returns the activity identifier of the parent (as set in the constructor), so it may be <code>null</code>).
      *
      * @return the parent activity identifier
      */
     public ActivityIdentifier getParent() {
         return parent;
     }
-
-    /**
-     * Sets the parent activity identifier to the specified parent.
-     *
-     * @param parent
-     *            the parent activity identifier.
-     */
-    //    public void setParent(ActivityIdentifier parent) {
-    //        this.parent = parent;
-    //    }
 }

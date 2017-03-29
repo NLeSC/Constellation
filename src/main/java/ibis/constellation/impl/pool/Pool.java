@@ -21,7 +21,7 @@ import ibis.constellation.impl.pool.communication.CommunicationLayer;
 import ibis.constellation.impl.pool.communication.Message;
 import ibis.constellation.impl.pool.communication.NodeIdentifier;
 import ibis.constellation.impl.pool.communication.ibis.CommunicationLayerImpl;
-import ibis.constellation.impl.util.Stats;
+import ibis.constellation.impl.util.Profiling;
 import ibis.constellation.impl.util.TimeSyncInfo;
 
 public class Pool {
@@ -43,7 +43,7 @@ public class Pool {
     private static final byte OPCODE_REQUEST_TIME = 63;
     private static final byte OPCODE_SEND_TIME = 64;
 
-    private static final byte OPCODE_STATISTICS = 73;
+    private static final byte OPCODE_PROFILING = 73;
 
     private static final byte OPCODE_NOTHING = 83;
     private static final byte OPCODE_RELEASE = 84;
@@ -210,7 +210,7 @@ public class Pool {
     private boolean gotPong;
     private final ConstellationProperties properties;
 
-    private int gotStats;
+    private int gotProfiling;
 
     private boolean terminated;
 
@@ -257,8 +257,8 @@ public class Pool {
 
     }
 
-    public Stats getStats() {
-        return owner.getStats();
+    public Profiling getProfiling() {
+        return owner.getProfiling();
     }
 
     public void activate() {
@@ -326,20 +326,20 @@ public class Pool {
         terminated = true;
     }
 
-    public void handleStats() {
+    public void handleProfiling() {
         if (properties.PROFILE) { // Only if profiling.
-            Stats stats = owner.getStats();
+            Profiling profiling = owner.getProfiling();
             if (isMaster) {
-                stats.setSyncInfo(syncInfo);
+                profiling.setSyncInfo(syncInfo);
                 if (logger.isInfoEnabled()) {
-                    logger.info("waiting for stats of other nodes");
+                    logger.info("waiting for profiling of other nodes");
                 }
 
                 if (closedPool) {
                     synchronized (this) {
                         int nClients = comm.getPoolSize() - 1;
                         long time = System.currentTimeMillis();
-                        while (gotStats < nClients) {
+                        while (gotProfiling < nClients) {
                             try {
                                 wait(1000);
                             } catch (Throwable e) {
@@ -361,8 +361,8 @@ public class Pool {
                 if (logger.isInfoEnabled()) {
                     logger.info("Sending statistics to master");
                 }
-                synchronized (stats) {
-                    doForward(master, OPCODE_STATISTICS, stats);
+                synchronized (profiling) {
+                    doForward(master, OPCODE_PROFILING, profiling);
                 }
             }
         }
@@ -556,11 +556,11 @@ public class Pool {
         }
 
         switch (opcode) {
-        case OPCODE_STATISTICS:
-            owner.getStats().add((Stats) data);
+        case OPCODE_PROFILING:
+            owner.getProfiling().add((Profiling) data);
             comm.cleanup(source); // To speed up termination
             synchronized (this) {
-                gotStats++;
+                gotProfiling++;
                 notifyAll();
             }
             break;
@@ -918,7 +918,7 @@ public class Pool {
             return readOrWrite + " rank lookup request";
         case OPCODE_RANK_LOOKUP_REPLY:
             return readOrWrite + " rank lookup reply";
-        case OPCODE_STATISTICS:
+        case OPCODE_PROFILING:
             return readOrWrite + " statistics";
         case OPCODE_REQUEST_TIME:
             return readOrWrite + " request time";
