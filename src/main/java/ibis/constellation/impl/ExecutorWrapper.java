@@ -469,17 +469,17 @@ public class ExecutorWrapper implements Constellation {
 
     @Override
     public TimerImpl getTimer(String standardDevice, String standardThread, String standardAction) {
-        return parent.getStats().getTimer(standardDevice, standardThread, standardAction);
+        return parent.getProfiling().getTimer(standardDevice, standardThread, standardAction);
     }
 
     @Override
     public TimerImpl getTimer() {
-        return parent.getStats().getTimer();
+        return parent.getProfiling().getTimer();
     }
 
     @Override
     public TimerImpl getOverallTimer() {
-        return parent.getStats().getOverallTimer();
+        return parent.getProfiling().getOverallTimer();
     }
 
     public int getJobLimit() {

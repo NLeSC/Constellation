@@ -26,7 +26,7 @@ import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.impl.util.CircularBuffer;
 import ibis.constellation.impl.util.SimpleWorkQueue;
-import ibis.constellation.impl.util.Stats;
+import ibis.constellation.impl.util.Profiling;
 import ibis.constellation.impl.util.WorkQueue;
 
 public class SingleThreadedConstellation extends Thread {
@@ -104,7 +104,7 @@ public class SingleThreadedConstellation extends Thread {
 
     private boolean done = false;
 
-    private final Stats stats;
+    private final Profiling profiling;
     private final TimerImpl stealTimer;
 
     private final boolean ignoreEmptyStealReplies;
@@ -134,7 +134,7 @@ public class SingleThreadedConstellation extends Thread {
         }
 
         PROFILE_STEALS = props.PROFILE_STEAL;
-        PRINT_STATISTICS = props.PRINT_STATISTICS;
+        PRINT_STATISTICS = props.STATISTICS;
         PROFILE = props.PROFILE;
 
         logger.info("PROFILE_STEALS = " + PROFILE_STEALS);
@@ -159,7 +159,7 @@ public class SingleThreadedConstellation extends Thread {
 
         super.setName(identifier().toString());
 
-        String outfile = props.OUTPUT;
+        String outfile = props.STATISTICS_OUTPUT;
 
         if (outfile != null) {
             String filename = outfile + "." + identifier.getNodeId() + "." + identifier.getLocalId();
@@ -199,12 +199,12 @@ public class SingleThreadedConstellation extends Thread {
 
         if (parent != null) {
             parent.register(this);
-            stats = parent.getStats();
+            profiling = parent.getProfiling();
         } else {
-            stats = new Stats(identifier.toString());
+            profiling = new Profiling(identifier.toString());
         }
 
-        stealTimer = stats.getTimer("java", identifier().toString(), "steal");
+        stealTimer = profiling.getTimer("java", identifier().toString(), "steal");
 
         wrapper = new ExecutorWrapper(this, props, identifier, config);
 
@@ -1021,15 +1021,15 @@ public class SingleThreadedConstellation extends Thread {
     }
 
     public TimerImpl getTimer(String standardDevice, String standardThread, String standardAction) {
-        return stats.getTimer(standardDevice, standardThread, standardAction);
+        return profiling.getTimer(standardDevice, standardThread, standardAction);
     }
 
     public Constellation getConstellation() {
         return wrapper;
     }
 
-    public Stats getStats() {
-        return stats;
+    public Profiling getProfiling() {
+        return profiling;
     }
 
 }

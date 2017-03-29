@@ -86,7 +86,7 @@ public class ConstellationProperties extends Properties {
      * The "profile.communication" property is a boolean property indicating whether constellation should provide some timing
      * information on steql or event messages. The default is "false". Note: the overhead for this profiler can be large.
      */
-    public static final String S_PROFILE_COMMUNICATION = S_PREFIX + "profile.communication";
+    public static final String S_PROFILE_COMMUNICATION = S_PROFILE + ".communication";
 
     public final boolean PROFILE_COMMUNICATION;
 
@@ -94,27 +94,35 @@ public class ConstellationProperties extends Properties {
      * The "profile.steal" property is a boolean property indicating whether constellation should provide some timing information
      * on steqls. The default is "false". Note: the overhead for this profiler can be large.
      */
-    public static final String S_PROFILE_STEAL = S_PREFIX + "profile.steal";
+    public static final String S_PROFILE_STEAL = S_PROFILE + ".steal";
 
     public final boolean PROFILE_STEAL;
+
+    /**
+     * The "profile.output" property is a string property indicating an output file to write profile info to. If not specified
+     * (default), <code>System.out</code> is used.
+     */
+    public static final String S_PROFILE_OUTPUT = S_PROFILE + ".output";
+
+    public final String PROFILE_OUTPUT;
 
     /**
      * The "printStatistics" property is a boolean property indicating whether some constellation statistics should be printed or
      * not. Default is "false".
      *
-     * See also {@link #S_OUTPUT}.
+     * See also {@link #S_STATISTICS_OUTPUT}.
      */
-    public static final String S_PRINT_STATISTICS = S_PREFIX + "printStatistics";
+    public static final String S_STATISTICS = S_PREFIX + "statistics";
 
-    public final boolean PRINT_STATISTICS;
+    public final boolean STATISTICS;
 
     /**
-     * The "output" property is a string property indicating an output file to write statistics to. If not specified (default),
-     * <code>System.out</code> is used.
+     * The "statistics.output" property is a string property indicating an output file to write statistics to. If not specified
+     * (default), <code>System.out</code> is used.
      */
-    public static final String S_OUTPUT = S_PREFIX + "output";
+    public static final String S_STATISTICS_OUTPUT = S_STATISTICS + ".output";
 
-    public final String OUTPUT;
+    public final String STATISTICS_OUTPUT;
 
     /**
      * The "steal.delay" property is an integer property, specifying the minimum time interval between failed steal attempts, in
@@ -207,8 +215,9 @@ public class ConstellationProperties extends Properties {
         PROFILE = getBooleanProperty(S_PROFILE, false);
         PROFILE_COMMUNICATION = getBooleanProperty(S_PROFILE_COMMUNICATION, false);
         PROFILE_STEAL = getBooleanProperty(S_PROFILE_STEAL, false);
-        PRINT_STATISTICS = getBooleanProperty(S_PRINT_STATISTICS, false);
-        OUTPUT = getProperty(S_OUTPUT);
+        PROFILE_OUTPUT = getProperty(S_PROFILE_OUTPUT);
+        STATISTICS = getBooleanProperty(S_STATISTICS, false);
+        STATISTICS_OUTPUT = getProperty(S_STATISTICS_OUTPUT);
         REMOTESTEAL_THROTTLE = getBooleanProperty(S_REMOTESTEAL_THROTTLE, false);
         STEAL_DELAY = getIntProperty(S_STEAL_DELAY, 20);
         STEAL_IGNORE_EMPTY_REPLIES = getBooleanProperty(S_STEAL_IGNORE_EMPTY_REPLIES, false);
@@ -227,8 +236,8 @@ public class ConstellationProperties extends Properties {
             logger.info("PROFILE = " + PROFILE);
             logger.info("PROFILE_COMMUNICATION = " + PROFILE_COMMUNICATION);
             logger.info("PROFILE_STEAL = " + PROFILE_STEAL);
-            logger.info("PRINT_STATISTICS = " + PRINT_STATISTICS);
-            logger.info("OUTPUT = " + OUTPUT);
+            logger.info("STATISTICS = " + STATISTICS);
+            logger.info("STATISTICS_OUTPUT = " + STATISTICS_OUTPUT);
             logger.info("REMOTESTEAL_THROTTLE = " + REMOTESTEAL_THROTTLE);
             logger.info("STEAL_DELAY = " + STEAL_DELAY);
             logger.info("STEAL_IGNORE_EMPTY_REPLIES = " + STEAL_IGNORE_EMPTY_REPLIES);

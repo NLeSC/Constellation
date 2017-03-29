@@ -23,7 +23,7 @@ import ibis.constellation.impl.Message;
 import ibis.constellation.impl.StealReply;
 import ibis.constellation.impl.StealRequest;
 import ibis.constellation.impl.TimerImpl;
-import ibis.constellation.impl.util.Stats;
+import ibis.constellation.impl.util.Profiling;
 import ibis.constellation.impl.util.TimeSyncInfo;
 import ibis.ipl.Ibis;
 import ibis.ipl.IbisCapabilities;
@@ -57,7 +57,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     private static final byte OPCODE_REQUEST_TIME = 63;
     private static final byte OPCODE_SEND_TIME = 64;
 
-    private static final byte OPCODE_STATISTICS = 73;
+    private static final byte OPCODE_PROFILING = 73;
 
     private static final byte OPCODE_NOTHING = 83;
     private static final byte OPCODE_RELEASE = 84;
@@ -240,10 +240,10 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
     private boolean gotRelease;
     private boolean gotAnswer;
     private boolean gotPong;
-    private Stats stats;
+    private Profiling profiling;
     private final ConstellationProperties properties;
 
-    private int gotStats;
+    private int gotProfiling;
 
     private boolean terminated;
 
@@ -337,10 +337,10 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
                 rports = null;
             }
 
-            stats = new Stats(getId());
+            profiling = new Profiling(getId());
 
             if (properties.PROFILE_COMMUNICATION) {
-                communicationTimer = stats.getTimer("java", "data receiver", "receive data");
+                communicationTimer = profiling.getTimer("java", "data receiver", "receive data");
             } else {
                 communicationTimer = null;
             }
@@ -357,8 +357,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         logger.info("Pool created");
     }
 
-    public Stats getStats() {
-        return stats;
+    public Profiling getProfiling() {
+        return profiling;
     }
 
     public void activate() {
@@ -547,20 +547,20 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         terminated = true;
     }
 
-    public void handleStats() {
+    public void handleProfiling() {
         if (properties.PROFILE) { // Only if profiling.
-            Stats stats = owner.getStats();
+            Profiling profiling = owner.getProfiling();
             if (isMaster) {
-                stats.setSyncInfo(syncInfo);
+                profiling.setSyncInfo(syncInfo);
                 if (logger.isInfoEnabled()) {
-                    logger.info("waiting for stats of other nodes");
+                    logger.info("waiting for profiling of other nodes");
                 }
 
                 if (closedPool) {
                     synchronized (this) {
                         int nClients = ibis.registry().getPoolSize() - 1;
                         long time = System.currentTimeMillis();
-                        while (gotStats < nClients) {
+                        while (gotProfiling < nClients) {
                             try {
                                 wait(1000);
                             } catch (Throwable e) {
@@ -582,8 +582,8 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
                 if (logger.isInfoEnabled()) {
                     logger.info("Sending statistics to master");
                 }
-                synchronized (stats) {
-                    doForward(master, OPCODE_STATISTICS, stats);
+                synchronized (profiling) {
+                    doForward(master, OPCODE_PROFILING, profiling);
                 }
             }
         }
@@ -976,10 +976,10 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
         }
 
         switch (opcode) {
-        case OPCODE_STATISTICS:
-            owner.getStats().add((Stats) data);
+        case OPCODE_PROFILING:
+            owner.getProfiling().add((Profiling) data);
             synchronized (this) {
-                gotStats++;
+                gotProfiling++;
                 if (sendports.containsKey(source)) {
                     // Close sendport if it exists, to speed up termination
                     SendPort port = sendports.remove(source);
@@ -1356,7 +1356,7 @@ public class Pool implements RegistryEventHandler, MessageUpcall {
             return readOrWrite + " rank lookup request";
         case OPCODE_RANK_LOOKUP_REPLY:
             return readOrWrite + " rank lookup reply";
-        case OPCODE_STATISTICS:
+        case OPCODE_PROFILING:
             return readOrWrite + " statistics";
         case OPCODE_REQUEST_TIME:
             return readOrWrite + " request time";

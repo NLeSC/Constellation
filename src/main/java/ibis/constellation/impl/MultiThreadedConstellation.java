@@ -19,7 +19,7 @@ import ibis.constellation.Event;
 import ibis.constellation.NoSuitableExecutorException;
 import ibis.constellation.OrContext;
 import ibis.constellation.StealPool;
-import ibis.constellation.impl.util.Stats;
+import ibis.constellation.impl.util.Profiling;
 
 public class MultiThreadedConstellation {
 
@@ -47,9 +47,13 @@ public class MultiThreadedConstellation {
 
     private final int localStealSize;
 
-    private final Stats stats;
+    private final Profiling profiling;
 
     private final Facade facade = new Facade();
+
+    private final String PROFILE_OUTPUT;
+
+    private final boolean PROFILE;
 
     private class Facade implements Constellation {
 
@@ -100,17 +104,17 @@ public class MultiThreadedConstellation {
 
         @Override
         public TimerImpl getTimer(String standardDevice, String standardThread, String standardAction) {
-            return stats.getTimer(standardDevice, standardThread, standardAction);
+            return profiling.getTimer(standardDevice, standardThread, standardAction);
         }
 
         @Override
         public TimerImpl getTimer() {
-            return stats.getTimer();
+            return profiling.getTimer();
         }
 
         @Override
         public TimerImpl getOverallTimer() {
-            return stats.getOverallTimer();
+            return profiling.getOverallTimer();
         }
     }
 
@@ -132,8 +136,7 @@ public class MultiThreadedConstellation {
         }
 
         PROFILE = properties.PROFILE;
-
-        PROFILE = properties.PROFILE;
+        PROFILE_OUTPUT = properties.PROFILE_OUTPUT;
 
         incomingWorkers = new ArrayList<SingleThreadedConstellation>();
 
@@ -146,19 +149,17 @@ public class MultiThreadedConstellation {
 
         if (parent != null) {
             parent.register(this);
-            stats = parent.getStats();
+            profiling = parent.getProfiling();
         } else {
-            stats = new Stats(identifier.toString());
+            profiling = new Profiling(identifier.toString());
         }
     }
 
-    public Stats getStats() {
-        return stats;
+    public Profiling getProfiling() {
+        return profiling;
     }
 
     private int next = 0;
-
-    private boolean PROFILE;
 
     public synchronized ActivityIdentifier performSubmit(Activity activity) throws NoSuitableExecutorException {
 
@@ -464,7 +465,7 @@ public class MultiThreadedConstellation {
             if (logger.isInfoEnabled()) {
                 logger.info("Printing statistics");
             }
-            stats.printStats(System.out);
+            profiling.printProfile(PROFILE_OUTPUT);
         }
     }
 
