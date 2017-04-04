@@ -29,20 +29,14 @@ public final class StealStrategy implements Serializable {
 
     private static final long serialVersionUID = 8376483895062977483L;
 
-    /** Opcode describing the "steal activity with highest range" strategy. */
-    private static final byte _BIGGEST = 1;
-
-    /** Opcode describing the "steal activity with lowest range" strategy. */
-    private static final byte _SMALLEST = 2;
-
     /** Predefined "steal activity with highest range" strategy. */
-    public static final StealStrategy BIGGEST = new StealStrategy(_BIGGEST);
+    public static final StealStrategy BIGGEST = new StealStrategy(true);
 
     /** Predefined "steal activity with lowest range" strategy. */
-    public static final StealStrategy SMALLEST = new StealStrategy(_SMALLEST);
+    public static final StealStrategy SMALLEST = new StealStrategy(false);
 
-    /** The strategy. */
-    private final byte strategy;
+    /** The strategy, either biggest (true) or smallest (false) */
+    private final boolean biggest;
 
     /**
      * Constructs a steal strategy object with the specified opcode.
@@ -52,28 +46,16 @@ public final class StealStrategy implements Serializable {
      * @exception IllegalArgumentException
      *                is thrown in case of an unknown opcode or when a opcode is specified that requires a value or range.
      */
-    private StealStrategy(byte opcode) {
-
-        switch (opcode) {
-        case _BIGGEST:
-        case _SMALLEST:
-            strategy = opcode;
-            return;
-        default:
-            throw new IllegalArgumentException("Unknown opcode!");
-        }
+    private StealStrategy(boolean biggest) {
+        this.biggest = biggest;        
     }
 
     @Override
     public String toString() {
-
-        switch (strategy) {
-        case _BIGGEST:
+        if (biggest) { 
             return "BIGGEST";
-        case _SMALLEST:
+        } else { 
             return "SMALLEST";
-        default:
-            throw new IllegalStateException("Unknown steal strategy");
         }
     }
 
@@ -88,7 +70,7 @@ public final class StealStrategy implements Serializable {
 
     @Override
     public int hashCode() {
-        return strategy;
+        return (biggest ? 1 : 2);
     }
 
     @Override
@@ -100,6 +82,6 @@ public final class StealStrategy implements Serializable {
             return false;
         }
         StealStrategy s = (StealStrategy) o;
-        return strategy == s.strategy;
+        return biggest == s.biggest;
     }
 }
