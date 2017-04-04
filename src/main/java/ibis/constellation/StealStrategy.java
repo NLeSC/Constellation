@@ -30,10 +30,10 @@ public final class StealStrategy implements Serializable {
     private static final long serialVersionUID = 8376483895062977483L;
 
     /** Opcode describing the "steal activity with highest range" strategy. */
-    public static final byte _BIGGEST = 1;
+    private static final byte _BIGGEST = 1;
 
     /** Opcode describing the "steal activity with lowest range" strategy. */
-    public static final byte _SMALLEST = 2;
+    private static final byte _SMALLEST = 2;
 
     /** Predefined "steal activity with highest range" strategy. */
     public static final StealStrategy BIGGEST = new StealStrategy(_BIGGEST);
@@ -52,7 +52,7 @@ public final class StealStrategy implements Serializable {
      * @exception IllegalArgumentException
      *                is thrown in case of an unknown opcode or when a opcode is specified that requires a value or range.
      */
-    public StealStrategy(byte opcode) {
+    private StealStrategy(byte opcode) {
 
         switch (opcode) {
         case _BIGGEST:
@@ -67,13 +67,13 @@ public final class StealStrategy implements Serializable {
     @Override
     public String toString() {
 
-        switch (getStrategy()) {
+        switch (strategy) {
         case _BIGGEST:
             return "BIGGEST";
         case _SMALLEST:
             return "SMALLEST";
         default:
-            return "UNKNOWN";
+            throw new IllegalStateException("Unknown steal strategy");
         }
     }
 
@@ -82,9 +82,9 @@ public final class StealStrategy implements Serializable {
      *
      * @return the strategy opcode.
      */
-    public byte getStrategy() {
-        return strategy;
-    }
+    //public byte getStrategy() {
+    //    return strategy;
+   // }
 
     @Override
     public int hashCode() {

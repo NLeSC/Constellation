@@ -17,63 +17,57 @@
 package ibis.constellation;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
 public class StealStrategyTest {
 
-    @Test(expected = IllegalArgumentException.class)
-    public void createStealStrategyFail() {
-        // Should throw a IllegalArgumentException
-        new StealStrategy((byte) 100);
+    @Test
+    public void stealStrategyBiggestToString() {
+        StealStrategy large = StealStrategy.BIGGEST;
+        assertTrue(large.toString().equals("BIGGEST"));
     }
 
     @Test
-    public void stealStrategyBiggest() {
-        StealStrategy large = new StealStrategy(StealStrategy._BIGGEST);
-        assertTrue(large.getStrategy() == StealStrategy._BIGGEST);
+    public void stealStrategySmallestToString() {
+        StealStrategy large = StealStrategy.SMALLEST;
+        assertTrue(large.toString().equals("SMALLEST"));
     }
 
     @Test
-    public void stealStrategySmallest() {
-        StealStrategy small = new StealStrategy(StealStrategy._SMALLEST);
-        assertTrue(small.getStrategy() == StealStrategy._SMALLEST);
+    public void testHashCodeBiggest() {        
+        assertEquals(StealStrategy.BIGGEST.hashCode(), 1);
     }
 
     @Test
-    public void testHashCodeLarge() {
-        StealStrategy large = new StealStrategy(StealStrategy._BIGGEST);
-        assertEquals(large.hashCode(), StealStrategy.BIGGEST.hashCode());
-    }
-
-    @Test
-    public void testHashCodeSmall() {
-        StealStrategy small = new StealStrategy(StealStrategy._SMALLEST);
-        assertEquals(small.hashCode(), StealStrategy.SMALLEST.hashCode());
+    public void testHashCodeSmallest() {        
+        assertEquals(StealStrategy.SMALLEST.hashCode(), 2);
     }
 
     @Test
     public void testEqualsLarge() {
-        StealStrategy large = new StealStrategy(StealStrategy._BIGGEST);
-        assertEquals(large, StealStrategy.BIGGEST);
+        assertTrue(StealStrategy.BIGGEST.equals(StealStrategy.BIGGEST));
     }
 
     @Test
     public void testEqualsSmall() {
-        StealStrategy small = new StealStrategy(StealStrategy._SMALLEST);
-        assertEquals(small, StealStrategy.SMALLEST);
+        assertTrue(StealStrategy.SMALLEST.equals(StealStrategy.SMALLEST));
     }
-
+    
     @Test
     public void testEqualsSmallBig() {
-        assertNotEquals(StealStrategy.BIGGEST, StealStrategy.SMALLEST);
+        assertFalse(StealStrategy.BIGGEST.equals(StealStrategy.SMALLEST));
     }
 
     @Test
     public void testEqualsNull() {
-        assertNotEquals(StealStrategy.BIGGEST, null);
+        assertFalse(StealStrategy.BIGGEST.equals(null));
     }
 
+    @Test
+    public void testEqualsWrongType() {
+        assertFalse(StealStrategy.BIGGEST.equals("hello world"));
+    }
 }
