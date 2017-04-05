@@ -8,12 +8,13 @@ import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationFactory;
+import ibis.constellation.ConstellationProperties;
 import ibis.constellation.Context;
 
 public class CreateTest {
 
     @Test
-    public void createDefault() throws ConstellationCreationException {
+    public void createDefault1() throws ConstellationCreationException {
         
         Properties p = new Properties();
         p.put("ibis.constellation.distributed", "false");
@@ -26,6 +27,37 @@ public class CreateTest {
         c.done();
     }
 
+    @Test
+    public void createDefault2() throws ConstellationCreationException {
+        
+        Properties p = new Properties();
+        p.put("ibis.constellation.distributed", "false");
+        ConstellationProperties cp = new ConstellationProperties(p);
+        
+        Context cxt = new Context("DEFAULT", 0, 0);
+        
+        ConstellationConfiguration config = new ConstellationConfiguration(cxt);
+        Constellation c = ConstellationFactory.createConstellation(cp, config);
+        c.activate();
+        c.done();
+    }
+
+    @Test
+    public void createDefault3() throws ConstellationCreationException {
+        
+        Properties p = System.getProperties();
+        p.put("ibis.constellation.distributed", "false");
+
+        Context cxt = new Context("DEFAULT", 0, 0);
+        
+        ConstellationConfiguration config = new ConstellationConfiguration(cxt);
+        Constellation c = ConstellationFactory.createConstellation(config);
+        c.activate();
+        c.done();
+    }
+
+    
+    
     @Test
     public void createOne() throws ConstellationCreationException {
         int count = 1;

@@ -24,7 +24,7 @@ package ibis.constellation;
  * @since 1.0
  */
 public interface ActivityIdentifier {
-
+    
     @Override
     public String toString();
 }

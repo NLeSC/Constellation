@@ -40,6 +40,19 @@ public class FakeActivity extends Activity {
         super(c, true);
     }
     
+    public FakeActivity(AbstractContext c, boolean expectsEvents) {
+        super(c, expectsEvents);
+    }
+    
+    public FakeActivity(AbstractContext c, boolean mayBeStolen, boolean expectsEvents) {
+        super(c, mayBeStolen, expectsEvents); 
+    }
+    
+    @Override
+    public void setIdentifier(ActivityIdentifier id) {
+        super.setIdentifier(id);
+    }
+    
     @Override
     public int initialize(Constellation constellation) {
         initialized = true;

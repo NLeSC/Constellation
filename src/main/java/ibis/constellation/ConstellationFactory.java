@@ -160,10 +160,6 @@ public class ConstellationFactory {
     public static Constellation createConstellation(Properties p, ConstellationConfiguration... e)
             throws ConstellationCreationException {
 
-        if (e == null || e.length == 0) {
-            throw new IllegalArgumentException("Need at least one executor!");
-        }
-
         ConstellationProperties props;
 
         if (p instanceof ConstellationProperties) {
@@ -195,11 +191,21 @@ public class ConstellationFactory {
      * @throws ConstellationCreationException
      *             thrown when the constellation instance could not be created for some reason.
      */
-    public static Constellation createConstellation(boolean needsDistributed, ConstellationProperties props,
+    private static Constellation createConstellation(boolean needsDistributed, ConstellationProperties props,
             ConstellationConfiguration... c) throws ConstellationCreationException {
 
         DistributedConstellation d = null;
 
+        if (c == null || c.length == 0) {
+            throw new IllegalArgumentException("Need at least one Constellation configuration!");
+        }
+        
+        for (ConstellationConfiguration tmp : c) {
+            if (tmp == null) { 
+                throw new IllegalArgumentException("Constellation configuration may not be null");
+            }
+        }
+        
         if (needsDistributed) {
             d = new DistributedConstellation(props);
         }

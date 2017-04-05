@@ -68,16 +68,19 @@ public class OrContextTest {
         c.get(42);
     }
 
+    @Test
     public void testSize() {
         OrContext c = new OrContext(new Context("A", 0, 0), new Context("B", 0, 0));
         assertEquals(c.size(), 2);
     }
     
+    @Test
     public void testFirst() {
         OrContext c = new OrContext(new Context("A", 0, 0), new Context("B", 0, 0));
         assertEquals(c.get(0), new Context("A", 0, 0));
     }
 
+    @Test
     public void testSecond() {
         OrContext c = new OrContext(new Context("A", 0, 0), new Context("B", 0, 0));
         assertEquals(c.get(1), new Context("B", 0, 0));

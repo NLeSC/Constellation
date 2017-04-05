@@ -17,6 +17,8 @@
 package ibis.constellation;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -99,4 +101,72 @@ public class ContextTest {
         Context c = new Context("tag", 42, 45);
         assertEquals("Context(tag, 42-45)", c.toString());
     }
+    
+    @Test
+    public void testEquals1() {
+        Context c = new Context("tag");
+        assertFalse(c.equals(null));
+    }
+   
+    @Test
+    public void testEquals2() {
+        Context c = new Context("tag");
+        assertFalse(c.equals("Hello world"));
+    }
+   
+    @Test
+    public void testEquals3() {
+        Context c1 = new Context("tag1");
+        Context c2 = new Context("tag2");
+        
+        assertFalse(c1.equals(c2));
+    }
+   
+    @Test
+    public void testEquals4() {
+        Context c1 = new Context("tag1");
+        Context c2 = new Context("tag1");
+        
+        assertTrue(c1.equals(c2));
+    }
+    
+    @Test
+    public void testEquals5() {
+        Context c1 = new Context("tag1", 0, 10);
+        Context c2 = new Context("tag1", 0, 10);
+        
+        assertTrue(c1.equals(c2));
+    }
+    
+    @Test
+    public void testEquals6() {
+        Context c1 = new Context("tag1", 0, 10);
+        Context c2 = new Context("tag1", 1, 10);
+        
+        assertFalse(c1.equals(c2));
+    }
+    
+    @Test
+    public void testEquals7() {
+        Context c1 = new Context("tag1", 0, 10);
+        Context c2 = new Context("tag1", 0, 11);
+        
+        assertFalse(c1.equals(c2));
+    }
+    
+    @Test
+    public void testHashcode() {
+        
+        String tag = "tag";
+        long start = 1;
+        long end = 10;
+        
+        Context c = new Context(tag, start, end);
+        
+        int hashcode = tag.hashCode() ^ (int) ((end ^ (end >>> 32)) ^ (start ^ (start >>> 32)));
+        
+        assertEquals(c.hashCode(), hashcode);
+    }
+ 
+    
 }

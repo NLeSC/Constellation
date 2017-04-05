@@ -33,6 +33,10 @@ import ibis.constellation.impl.ImplUtil;
  */
 public class EventTest {
 
+    private static class TestData { 
+        int bla = 10;
+    }
+    
     @Test(expected = IllegalArgumentException.class)
     public void createEventFail() {
         new Event(null, null, null);
@@ -63,7 +67,16 @@ public class EventTest {
         assertEquals(e.getData(), data);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void createEventWithNoSerializableData() {
+
+        ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 0, 1, false);
+        ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 0, 2, false);
+
+        new Event(id1, id2, new TestData()); // should throw exception
+    }
     @Test
+    
     public void pushDataNull() {
 
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 0, 1, false);
@@ -85,6 +98,26 @@ public class EventTest {
         assertEquals(listOut.size(), 0);
     }
 
+    public void pushDataWrongType() {
+
+        ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 0, 1, false);
+        ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 0, 2, false);
+
+        Event e = new Event(id1, id2, "Hello World");
+
+        List<ByteBuffer> listIn = new LinkedList<>();
+        ByteBuffer tmp = ByteBuffer.allocate(1);
+        listIn.add(tmp);
+
+        // This should succeed, even if event data wrong type
+        e.pushByteBuffers(listIn);
+
+        List<ByteBuffer> listOut = new LinkedList<>();
+        e.popByteBuffers(listOut);
+
+        assertEquals(listOut.size(), 0);
+    }
+    
     @Test
     public void popDataWrongType() {
 

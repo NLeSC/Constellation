@@ -18,6 +18,8 @@ package ibis.constellation;
 
 import java.io.Serializable;
 
+import ibis.constellation.impl.ActivityIdentifierImpl;
+
 /**
  * In Constellation, a program consists of a collection of loosely coupled activities, which may communicate using {@link Event
  * Events}. Each <code>Activity</code> represents an action that is to be performed by the application, i.e. run a task or process
@@ -109,10 +111,22 @@ public abstract class Activity implements Serializable {
      */
     public void setIdentifier(ActivityIdentifier identifier) {
 
-        if (this.identifier != null) {
-            throw new IllegalStateException("Activity identifier already set!");
+        if (identifier == null) { 
+            throw new IllegalArgumentException("ActivityIdentifier may not be null");
         }
-
+        
+        if (this.identifier != null) {
+            throw new IllegalStateException("ActivityIdentifier already set");
+        }
+        
+        if (!(identifier instanceof ActivityIdentifierImpl)) { 
+            throw new IllegalArgumentException("Unknown ActivityIdentifier implementation");
+        }
+        
+        if (((ActivityIdentifierImpl) identifier).expectsEvents() != expectsEvents) { 
+            throw new IllegalStateException("ActivityIdentifier expects events does not match Activity");
+        }
+        
         this.identifier = identifier;
     }
 

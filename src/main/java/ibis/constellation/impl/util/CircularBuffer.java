@@ -35,6 +35,10 @@ public class CircularBuffer<T> implements Serializable, ByteBuffers {
         return size;
     }
 
+    public int capacity() {
+        return array.length;
+    }
+
     public void insertFirst(T item) {
 
         if (item == null) {
@@ -141,7 +145,7 @@ public class CircularBuffer<T> implements Serializable, ByteBuffers {
 
         if (index == 0) {
             removeFirst();
-        } else if (index == size) {
+        } else if (index == size-1) {
             removeLast();
         } else {
             // optimize: i.e., figure out how to move the least data
