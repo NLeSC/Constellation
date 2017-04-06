@@ -25,8 +25,8 @@ import ibis.constellation.NoSuitableExecutorException;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.impl.util.CircularBuffer;
-import ibis.constellation.impl.util.SimpleWorkQueue;
 import ibis.constellation.impl.util.Profiling;
+import ibis.constellation.impl.util.SimpleWorkQueue;
 import ibis.constellation.impl.util.WorkQueue;
 
 public class SingleThreadedConstellation extends Thread {
@@ -198,7 +198,6 @@ public class SingleThreadedConstellation extends Thread {
         }
 
         if (parent != null) {
-            parent.register(this);
             profiling = parent.getProfiling();
         } else {
             profiling = new Profiling(identifier.toString());

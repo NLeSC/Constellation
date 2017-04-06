@@ -11,6 +11,7 @@ import ibis.constellation.AbstractContext;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
+import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
@@ -408,7 +409,8 @@ public class DistributedConstellation {
      *             is thrown when a property value is not recognized
      *
      */
-    public DistributedConstellation(ConstellationProperties props) throws ConstellationCreationException {
+    public DistributedConstellation(ConstellationProperties props, ConstellationConfiguration[] c)
+            throws ConstellationCreationException {
 
         String stealName = props.STEALSTRATEGY;
 
@@ -454,6 +456,7 @@ public class DistributedConstellation {
             throw new ConstellationCreationException("could not create DistributedConstellation", e);
         }
 
+        subConstellation = new MultiThreadedConstellation(this, props, c);
     }
 
     /**
@@ -765,21 +768,6 @@ public class DistributedConstellation {
      */
     public ConstellationIdentifierFactory getConstellationIdentifierFactory() {
         return cidFactory;
-    }
-
-    /**
-     * Registers the underlying multithreaded constellation.
-     *
-     * @param c
-     *            the underlying multithreaded constellation.
-     */
-    public synchronized void register(MultiThreadedConstellation c) throws ConstellationCreationException {
-
-        if (active || subConstellation != null) {
-            throw new ConstellationCreationException("Cannot register underlying MultiThreadedConstellation");
-        }
-
-        subConstellation = c;
     }
 
     /**

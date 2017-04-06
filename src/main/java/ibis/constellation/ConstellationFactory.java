@@ -199,35 +199,26 @@ public class ConstellationFactory {
         if (c == null || c.length == 0) {
             throw new IllegalArgumentException("Need at least one Constellation configuration!");
         }
-        
+
         for (ConstellationConfiguration tmp : c) {
-            if (tmp == null) { 
+            if (tmp == null) {
                 throw new IllegalArgumentException("Constellation configuration may not be null");
             }
         }
-        
+
         if (needsDistributed) {
-            d = new DistributedConstellation(props);
+            d = new DistributedConstellation(props, c);
+            return d.getConstellation();
         }
 
         MultiThreadedConstellation m = null;
 
-        if (needsDistributed || c.length > 1) {
-            m = new MultiThreadedConstellation(d, props);
-        }
-
-        SingleThreadedConstellation s = null;
-
-        for (ConstellationConfiguration element : c) {
-            s = new SingleThreadedConstellation(m, element, props);
-        }
-
-        if (d != null) {
-            return d.getConstellation();
-        }
-        if (m != null) {
+        if (c.length > 1) {
+            m = new MultiThreadedConstellation(null, props, c);
             return m.getConstellation();
         }
+
+        SingleThreadedConstellation s = new SingleThreadedConstellation(null, c[0], props);
         return s.getConstellation();
     }
 

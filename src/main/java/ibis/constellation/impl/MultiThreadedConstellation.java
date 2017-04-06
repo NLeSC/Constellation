@@ -1,6 +1,5 @@
 package ibis.constellation.impl;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
 
@@ -11,6 +10,7 @@ import ibis.constellation.AbstractContext;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
+import ibis.constellation.ConstellationConfiguration;
 import ibis.constellation.ConstellationCreationException;
 import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
@@ -27,13 +27,11 @@ public class MultiThreadedConstellation {
 
     private final DistributedConstellation parent;
 
-    private ArrayList<SingleThreadedConstellation> incomingWorkers;
+    private final SingleThreadedConstellation[] workers;
 
-    private SingleThreadedConstellation[] workers;
+    private final boolean[][] poolMatrix;
 
-    private boolean[][] poolMatrix;
-
-    private int workerCount;
+    private final int workerCount;
 
     private final ConstellationIdentifierImpl identifier;
 
@@ -41,7 +39,7 @@ public class MultiThreadedConstellation {
 
     private boolean active = false;
 
-    private AbstractContext myContext;
+    private final AbstractContext myContext;
 
     private final ConstellationIdentifierFactory cidFactory;
 
@@ -118,12 +116,8 @@ public class MultiThreadedConstellation {
         }
     }
 
-    public MultiThreadedConstellation(ConstellationProperties p) throws ConstellationCreationException {
-        this(null, p);
-    }
-
-    public MultiThreadedConstellation(DistributedConstellation parent, ConstellationProperties properties)
-            throws ConstellationCreationException {
+    public MultiThreadedConstellation(DistributedConstellation parent, ConstellationProperties properties,
+            ConstellationConfiguration[] c) throws ConstellationCreationException {
 
         this.parent = parent;
 
@@ -138,8 +132,6 @@ public class MultiThreadedConstellation {
         PROFILE = properties.PROFILE;
         PROFILE_OUTPUT = properties.PROFILE_OUTPUT;
 
-        incomingWorkers = new ArrayList<SingleThreadedConstellation>();
-
         localStealSize = properties.STEAL_SIZE;
 
         if (logger.isInfoEnabled()) {
@@ -148,11 +140,41 @@ public class MultiThreadedConstellation {
         }
 
         if (parent != null) {
-            parent.register(this);
             profiling = parent.getProfiling();
         } else {
             profiling = new Profiling(identifier.toString());
         }
+
+        workers = new SingleThreadedConstellation[c.length];
+        for (int i = 0; i < c.length; i++) {
+            workers[i] = new SingleThreadedConstellation(this, c[i], properties);
+            workers[i].setRank(i);
+        }
+        workerCount = workers.length;
+
+        StealPool[] stealsFrom = new StealPool[workerCount];
+        StealPool[] belongsTo = new StealPool[workerCount];
+
+        poolMatrix = new boolean[workerCount][workerCount];
+
+        for (int i = 0; i < workerCount; i++) {
+            belongsTo[i] = workers[i].belongsTo();
+            stealsFrom[i] = workers[i].stealsFrom();
+        }
+
+        for (int i = 0; i < workerCount; i++) {
+            for (int j = 0; j < workerCount; j++) {
+                poolMatrix[i][j] = stealsFrom[i].overlap(belongsTo[j]);
+            }
+        }
+
+        myContext = mergeContext();
+
+        if (parent != null) {
+            parent.belongsTo(belongsTo);
+            parent.stealsFrom(stealsFrom);
+        }
+
     }
 
     public Profiling getProfiling() {
@@ -348,16 +370,6 @@ public class MultiThreadedConstellation {
         return cidFactory;
     }
 
-    public synchronized void register(SingleThreadedConstellation constellation) throws ConstellationCreationException {
-
-        if (active) {
-            throw new ConstellationCreationException(
-                    "Cannot register new BottomConstellation while " + "TopConstellation is active!");
-        }
-
-        incomingWorkers.add(constellation);
-    }
-
     public synchronized AbstractContext getContext() {
         return myContext;
     }
@@ -397,44 +409,12 @@ public class MultiThreadedConstellation {
 
     public boolean activate() {
 
-        StealPool[] stealsFrom;
-        StealPool[] belongsTo;
-
         synchronized (this) {
             if (active) {
                 return false;
             }
 
             active = true;
-
-            workerCount = incomingWorkers.size();
-            workers = incomingWorkers.toArray(new SingleThreadedConstellation[workerCount]);
-            // No workers may be added after this point
-            incomingWorkers = null;
-
-            stealsFrom = new StealPool[workerCount];
-            belongsTo = new StealPool[workerCount];
-
-            poolMatrix = new boolean[workerCount][workerCount];
-
-            for (int i = 0; i < workerCount; i++) {
-                workers[i].setRank(i);
-                belongsTo[i] = workers[i].belongsTo();
-                stealsFrom[i] = workers[i].stealsFrom();
-            }
-
-            for (int i = 0; i < workerCount; i++) {
-                for (int j = 0; j < workerCount; j++) {
-                    poolMatrix[i][j] = stealsFrom[i].overlap(belongsTo[j]);
-                }
-            }
-
-            myContext = mergeContext();
-        }
-
-        if (parent != null) {
-            parent.belongsTo(belongsTo);
-            parent.stealsFrom(stealsFrom);
         }
 
         for (int i = 0; i < workerCount; i++) {
@@ -451,14 +431,8 @@ public class MultiThreadedConstellation {
 
         logger.info("done");
 
-        if (active) {
-            for (SingleThreadedConstellation u : workers) {
-                u.performDone();
-            }
-        } else {
-            for (SingleThreadedConstellation u : incomingWorkers) {
-                u.performDone();
-            }
+        for (SingleThreadedConstellation u : workers) {
+            u.performDone();
         }
 
         if (PROFILE && parent == null) {
