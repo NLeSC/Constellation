@@ -39,7 +39,7 @@ public class StealPoolTest {
         String s = null;
         new StealPool(s);
     }
-
+    
     @Test(expected = IllegalArgumentException.class)
     public void mergeStealPoolEmptyArray() {
         StealPool.merge(new StealPool[1]);
@@ -89,6 +89,18 @@ public class StealPoolTest {
         assertEquals(StealPool.WORLD, res);
     }
 
+    @Test
+    public void mergeStealPoolWorldTag() {
+        StealPool res = StealPool.merge(StealPool.WORLD, new StealPool("A"));
+        assertEquals(StealPool.WORLD, res);
+    }
+
+    @Test
+    public void mergeStealPoolWorldTag2() {
+        StealPool res = StealPool.merge(new StealPool("A"), new StealPool("B"), StealPool.WORLD);
+        assertEquals(StealPool.WORLD, res);
+    }
+    
     @Test
     public void mergeStealPoolDoubleTag() {
         StealPool a1 = new StealPool("A");
@@ -420,7 +432,7 @@ public class StealPoolTest {
 
         assertTrue(a2.overlap(s1));
     }
-
+    
     @Test
     public void testOverlap10() {
 
@@ -487,6 +499,23 @@ public class StealPoolTest {
         StealPool s2 = StealPool.merge(c, d, e);
 
         assertFalse(s1.overlap(s2));
+    }
+
+    @Test
+    public void testOverlap14b() {
+
+        StealPool a = new StealPool("A");
+        StealPool b = new StealPool("B");
+
+        StealPool s1 = StealPool.merge(a, b);
+
+        StealPool c = new StealPool("C");
+        StealPool d = new StealPool("D");
+        StealPool e = new StealPool("E");
+
+        StealPool s2 = StealPool.merge(c, d, e);
+
+        assertFalse(s2.overlap(s1));
     }
 
     @Test

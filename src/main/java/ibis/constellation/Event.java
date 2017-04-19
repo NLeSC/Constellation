@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import ibis.constellation.impl.IdChecker;
+import ibis.constellation.util.ByteBuffers;
 
 /**
  * An <code>Event</code> can be used for communication between {@link Activity activities}. A common usage is to notify an
@@ -28,7 +29,7 @@ import ibis.constellation.impl.IdChecker;
  * the {@link ByteBuffers} interface, to send/receive any {@link java.nio.ByteBuffer}s it contains. Constellation will then call
  * the methods of this interface when needed.
  */
-public final class Event implements Serializable, ByteBuffers {
+public final class Event implements Serializable {
 
     private static final long serialVersionUID = 8672434537078611592L;
 
@@ -80,9 +81,9 @@ public final class Event implements Serializable, ByteBuffers {
         return s;
     }
 
+    /*
     @Override
     public void pushByteBuffers(List<ByteBuffer> list) {
-        // FIXME: This will silently fail if getData returns null or the wrong type!!
         if (getData() != null && getData() instanceof ByteBuffers) {
             ((ByteBuffers) getData()).pushByteBuffers(list);
         }
@@ -90,11 +91,11 @@ public final class Event implements Serializable, ByteBuffers {
 
     @Override
     public void popByteBuffers(List<ByteBuffer> list) {
-        // FIXME: This will silently fail if getData returns null or the wrong type!!
         if (getData() != null && getData() instanceof ByteBuffers) {
             ((ByteBuffers) getData()).popByteBuffers(list);
         }
     }
+    */
 
     /**
      * Returns the identifier of the source activity of this event.

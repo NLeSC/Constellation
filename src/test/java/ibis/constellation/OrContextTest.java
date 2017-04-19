@@ -17,6 +17,10 @@
 package ibis.constellation;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Iterator;
 
 import org.junit.Test;
 
@@ -84,6 +88,74 @@ public class OrContextTest {
     public void testSecond() {
         OrContext c = new OrContext(new Context("A", 0, 0), new Context("B", 0, 0));
         assertEquals(c.get(1), new Context("B", 0, 0));
+    }
+   
+    @Test
+    public void testIterator1() {
+       
+        Context [] tmp = new Context [] { new Context("A", 0, 0), new Context("B", 0, 0) };
+        
+        OrContext c = new OrContext(tmp);
+     
+        int i=0;
+        
+        for (Context ctx : c) { 
+            assertEquals(tmp[i++], ctx);
+        }
+    }
+
+    @Test
+    public void testIterator2() {
+       
+        Context [] tmp = new Context [] { new Context("A", 0, 0), new Context("B", 0, 0) };
+        
+        OrContext c = new OrContext(tmp);
+
+        Iterator<Context> itt = c.iterator();
+        
+        assertEquals(tmp[0], itt.next());
+        assertEquals(tmp[1], itt.next());
+    }
+
+    
+    @Test
+    public void testIterator3() {
+       
+        Context [] tmp = new Context [] { new Context("A", 0, 0), new Context("B", 0, 0) };
+        
+        OrContext c = new OrContext(tmp);
+
+        Iterator<Context> itt = c.iterator();
+        
+        assertTrue(itt.hasNext());
+    }
+
+    
+    @Test
+    public void testIterator4() {
+       
+        Context [] tmp = new Context [] { new Context("A", 0, 0), new Context("B", 0, 0) };
+        
+        OrContext c = new OrContext(tmp);
+
+        Iterator<Context> itt = c.iterator();
+        
+        itt.next();
+        itt.next();
+        
+        assertFalse(itt.hasNext());
+    }
+    
+    
+    @Test(expected = UnsupportedOperationException.class)
+    public void testRemove() {
+       
+        Context [] tmp = new Context [] { new Context("A", 0, 0), new Context("B", 0, 0) };
+        
+        OrContext c = new OrContext(tmp);
+    
+        Iterator<Context> itt = c.iterator();
+        itt.remove();
     }
     
     @Test

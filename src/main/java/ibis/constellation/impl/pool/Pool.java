@@ -10,8 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ibis.constellation.ByteBufferCache;
-import ibis.constellation.ByteBuffers;
 import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.StealPool;
@@ -25,6 +23,8 @@ import ibis.constellation.impl.StealRequest;
 import ibis.constellation.impl.TimerImpl;
 import ibis.constellation.impl.util.Profiling;
 import ibis.constellation.impl.util.TimeSyncInfo;
+import ibis.constellation.util.ByteBufferCache;
+import ibis.constellation.util.ByteBuffers;
 import ibis.ipl.Ibis;
 import ibis.ipl.IbisCapabilities;
 import ibis.ipl.IbisFactory;

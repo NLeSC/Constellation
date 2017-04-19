@@ -4,8 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 
-import ibis.constellation.ByteBuffers;
 import ibis.constellation.StealPool;
+import ibis.constellation.util.ByteBuffers;
 import ibis.constellation.AbstractContext;
 
 public class StealReply extends Message implements ByteBuffers {

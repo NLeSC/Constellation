@@ -3,8 +3,8 @@ package ibis.constellation.impl;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import ibis.constellation.ByteBuffers;
 import ibis.constellation.Event;
+import ibis.constellation.util.ByteBuffers;
 
 public class EventMessage extends Message implements ByteBuffers {
 
@@ -14,6 +14,11 @@ public class EventMessage extends Message implements ByteBuffers {
 
     public EventMessage(final ConstellationIdentifierImpl source, final ConstellationIdentifierImpl target, final Event e) {
         super(source, target);
+        
+        if (e == null) { 
+            throw new IllegalArgumentException("EventMessage may not get null as event");
+        }
+        
         this.event = e;
     }
 
@@ -24,15 +29,19 @@ public class EventMessage extends Message implements ByteBuffers {
 
     @Override
     public void pushByteBuffers(List<ByteBuffer> list) {
-        if (event != null) {
-            event.pushByteBuffers(list);
+        Object tmp = event.getData();
+            
+        if (tmp != null && tmp instanceof ByteBuffers) {
+            ((ByteBuffers) tmp).pushByteBuffers(list);
         }
     }
 
     @Override
     public void popByteBuffers(List<ByteBuffer> list) {
-        if (event != null) {
-            event.popByteBuffers(list);
+        Object tmp = event.getData();
+            
+        if (tmp != null && tmp instanceof ByteBuffers) {
+            ((ByteBuffers) tmp).popByteBuffers(list);
         }
     }
 }

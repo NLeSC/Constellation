@@ -75,8 +75,9 @@ public class EventTest {
 
         new Event(id1, id2, new TestData()); // should throw exception
     }
-    @Test
     
+/*  
+    @Test  
     public void pushDataNull() {
 
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 0, 1, false);
@@ -155,7 +156,8 @@ public class EventTest {
 
         assertEquals(listIn, listOut);
     }
-
+*/
+    
     @Test
     public void checkToString() {
 

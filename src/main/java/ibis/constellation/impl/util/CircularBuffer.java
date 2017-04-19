@@ -7,7 +7,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ibis.constellation.ByteBuffers;
+import ibis.constellation.util.ByteBuffers;
 
 public class CircularBuffer<T> implements Serializable, ByteBuffers {
 

@@ -32,6 +32,12 @@ import ibis.constellation.Context;
 public class ContextMatchTest {
     
     @Test
+    public void constructor() {
+        // For coverage
+        new ContextMatch();
+    }
+    
+    @Test
     public void noNullNull() {
         assertFalse(ContextMatch.match(null, null));
     }

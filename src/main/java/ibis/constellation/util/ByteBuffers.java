@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package ibis.constellation;
+package ibis.constellation.util;
 
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.List;
+
+import ibis.constellation.Activity;
+import ibis.constellation.Event;
 
 /**
  * When an object implements this interface, it is assumed to contain {@link ByteBuffer}s, which are not {@link Serializable}, but

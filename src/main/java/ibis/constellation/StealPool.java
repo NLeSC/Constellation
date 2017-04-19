@@ -64,9 +64,11 @@ public final class StealPool implements Serializable {
      *             thrown when the argument list has null references or less than 2 elements.
      */
     private StealPool(StealPool... set) {
-        if (set == null || set.length < 2) {
-            throw new IllegalArgumentException("StealPool set should have at least 2 elements!");
-        }
+        // Unreachable
+        //
+        //if (set == null || set.length < 2) {
+        //    throw new IllegalArgumentException("StealPool set should have at least 2 elements!");
+        //}
 
         this.set = set.clone();
 
@@ -75,10 +77,8 @@ public final class StealPool implements Serializable {
 
             @Override
             public int compare(StealPool o1, StealPool o2) {
-                assert (o1.tag != null && o2.tag != null);
                 return o1.tag.compareTo(o2.tag);
             }
-
         });
         tag = null;
     }
@@ -124,6 +124,8 @@ public final class StealPool implements Serializable {
         for (StealPool pool : pools) {
             StealPool s = pool;
             if (s.set != null) {
+                /*
+                // Mode of this code is dead, since it test for cases that cannot occur due to the way a set is constructed.  
                 StealPool s2 = merge(s.set);
                 // Now it is flattened.
                 if (s2.equals(WORLD)) {
@@ -139,6 +141,11 @@ public final class StealPool implements Serializable {
                 } else if (!s2.equals(NONE)) {
                     tmp.add(s2);
                 }
+                */
+                
+                for (StealPool s2 : s.set) {
+                    tmp.add(s2);
+                }                
             } else {
                 if (s.equals(WORLD)) {
                     return WORLD;

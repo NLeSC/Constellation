@@ -21,34 +21,21 @@ package ibis.constellation;
  * @since 1.0
  *
  */
-public class FakeActivity extends Activity {
+public class CrashActivity extends Activity {
 
     private static final long serialVersionUID = -4021583343422065387L;
-   
-    public boolean initialized = false;
-    public boolean gotEvent = false;
-    public boolean clean = false;
-    public Event event;
     
-    /**
-     * 
-     */
-    public FakeActivity() {
-        this(new Context("DEFAULT", 0, 0));
-    }
-
-    public FakeActivity(AbstractContext c) {
+    boolean crashInitialize;
+    boolean crashProcess;
+    boolean crashCleanup;
+    
+    public CrashActivity(AbstractContext c, boolean crashInitialize, boolean crashProcess, boolean crashCleanup) {
         super(c, true);
+        this.crashInitialize = crashInitialize;
+        this.crashProcess = crashProcess;
+        this.crashCleanup = crashCleanup;
     }
-    
-    public FakeActivity(AbstractContext c, boolean expectsEvents) {
-        super(c, expectsEvents);
-    }
-    
-    public FakeActivity(AbstractContext c, boolean mayBeStolen, boolean expectsEvents) {
-        super(c, mayBeStolen, expectsEvents); 
-    }
-    
+        
     @Override
     public void setIdentifier(ActivityIdentifier id) {
         super.setIdentifier(id);
@@ -56,19 +43,24 @@ public class FakeActivity extends Activity {
     
     @Override
     public int initialize(Constellation constellation) {
-        initialized = true;
+        if (crashInitialize) { 
+            throw new RuntimeException("Boom!");
+        }
         return SUSPEND;
     }
 
     @Override
     public int process(Constellation constellation, Event event) {
-        gotEvent = true;
-        this.event = event;
+        if (crashProcess) { 
+            throw new RuntimeException("Boom!");
+        }
         return FINISH;
     }
 
     @Override
     public void cleanup(Constellation constellation) {
-        clean = true;
+        if (crashCleanup) { 
+            throw new RuntimeException("Boom!");
+        }
     }
 }

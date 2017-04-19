@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ibis.constellation;
+package ibis.constellation.util;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
