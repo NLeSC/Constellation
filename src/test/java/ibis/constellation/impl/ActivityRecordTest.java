@@ -186,6 +186,76 @@ public class ActivityRecordTest {
     }
     
     @Test
+    public void testIsRemote1() { 
+        
+        FakeActivity a = new FakeActivity(new Context("A"), true, true);
+       
+        ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
+        ActivityRecord r = new ActivityRecord(a, id);
+
+        assertFalse(r.isRemote()); 
+    }
+    
+    @Test
+    public void testIsRemote2() { 
+        
+        FakeActivity a = new FakeActivity(new Context("A"), true, true);
+       
+        ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
+        ActivityRecord r = new ActivityRecord(a, id);
+
+        r.setRemote(true);
+        assertTrue(r.isRemote()); 
+    }
+    
+    @Test
+    public void testIsRelocated1() { 
+        
+        FakeActivity a = new FakeActivity(new Context("A"), true, true);
+       
+        ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
+        ActivityRecord r = new ActivityRecord(a, id);
+
+        assertFalse(r.isRelocated()); 
+    }
+    
+    @Test
+    public void testIsRelocated2() { 
+        
+        FakeActivity a = new FakeActivity(new Context("A"), true, true);
+       
+        ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
+        ActivityRecord r = new ActivityRecord(a, id);
+
+        r.setRelocated(true);
+        assertTrue(r.isRelocated()); 
+    }
+
+    @Test
+    public void testIsStolen1() { 
+        
+        FakeActivity a = new FakeActivity(new Context("A"), true, true);
+       
+        ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
+        ActivityRecord r = new ActivityRecord(a, id);
+
+        assertFalse(r.isStolen()); 
+    }
+    
+    @Test
+    public void testIsStolen2() { 
+        
+        FakeActivity a = new FakeActivity(new Context("A"), true, true);
+       
+        ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
+        ActivityRecord r = new ActivityRecord(a, id);
+
+        r.setStolen(true);
+        assertTrue(r.isStolen()); 
+    }
+
+    
+    @Test
     public void testStateIsFresh1() { 
         
         FakeActivity a = new FakeActivity(new Context("A"));
@@ -466,7 +536,8 @@ public class ActivityRecordTest {
         assertTrue(r.setRunnable());
     
         r.run(fc);
-        
+
+        assertTrue(r.isDone());
         assertTrue(r.isError());
     }
 
@@ -492,7 +563,8 @@ public class ActivityRecordTest {
         assertTrue(r.needsToRun());
         
         r.run(fc);
-        
+
+        assertTrue(r.isDone());
         assertTrue(r.isError());
     }
 
