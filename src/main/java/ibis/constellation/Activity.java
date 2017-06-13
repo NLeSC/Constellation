@@ -34,7 +34,7 @@ import ibis.constellation.impl.ActivityIdentifierImpl;
  *
  * The Activity will be scheduled to run on a Constellation that matches the {@link ActivityContext}. When it starts running,
  * {@link initialize} will be invoked once. This method may perform any processing that is needed, but should not block
- * indefinitely as this may result in deadlocks. When finished, the method should either return {@link FINISH} of {@LINK SUSPEND}.
+ * indefinitely as this may result in deadlocks. When finished, the method should either return {@link FINISH} of {@link SUSPEND}.
  *
  * By returning {@link FINISH} the Activity indicates it no further processing is needed. By returning {@link SUSPEND} the
  * Activity indicates it expects an {@link Event}. The Activity is then suspend by Constellation, until the {@Event} arrives.
