@@ -2,7 +2,7 @@ package ibis.constellation.impl;
 
 import java.io.Serializable;
 
-public abstract class MessageBase implements Serializable {
+public abstract class AbstractMessage implements Serializable {
 
     /**
      *
@@ -13,12 +13,12 @@ public abstract class MessageBase implements Serializable {
 
     private transient boolean stale = false;
 
-    protected MessageBase(final ConstellationIdentifierImpl source, final ConstellationIdentifierImpl target) {
+    protected AbstractMessage(final ConstellationIdentifierImpl source, final ConstellationIdentifierImpl target) {
         this.source = source;
         this.target = target;
     }
 
-    protected MessageBase(final ConstellationIdentifierImpl source) {
+    protected AbstractMessage(final ConstellationIdentifierImpl source) {
         this.source = source;
     }
 
@@ -46,13 +46,13 @@ public abstract class MessageBase implements Serializable {
         if (source != null) {
             s += source.toString();
         } else {
-            s += " none";
+            s += "none";
         }
         s += "; target: ";
         if (target != null) {
             s += target.toString();
         } else {
-            s += " none";
+            s += "none";
         }
         return s;
     }

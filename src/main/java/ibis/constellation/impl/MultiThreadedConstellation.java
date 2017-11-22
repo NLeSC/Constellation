@@ -534,7 +534,7 @@ public class MultiThreadedConstellation {
         ConstellationIdentifierImpl cid = st.deliverEventMessage(am);
 
         if (cid == null) {
-            // MessageBase was delivered -- we're done!
+            // AbstractMessage was delivered -- we're done!
             return;
         }
 

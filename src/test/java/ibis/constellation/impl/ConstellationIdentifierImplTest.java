@@ -44,9 +44,9 @@ public class ConstellationIdentifierImplTest {
     @Test
     public void testHash() {
         ConstellationIdentifierImpl c = new ConstellationIdentifierImpl(42, 43);
-        assertEquals((31 * 42) ^ 43, c.hashCode());
+        assertEquals((31 * 43) ^ 42, c.hashCode());
     }
-    
+
     @Test
     public void testEquals1() {
         ConstellationIdentifierImpl c = new ConstellationIdentifierImpl(42, 43);
@@ -64,14 +64,14 @@ public class ConstellationIdentifierImplTest {
         ConstellationIdentifierImpl c = new ConstellationIdentifierImpl(42, 43);
         assertFalse(c.equals("Hello"));
     }
-    
+
     @Test
     public void testEquals4() {
         ConstellationIdentifierImpl c = new ConstellationIdentifierImpl(42, 43);
         ConstellationIdentifierImpl c2 = new ConstellationIdentifierImpl(42, 44);
         assertFalse(c.equals(c2));
     }
-    
+
     @Test
     public void testEquals5() {
         ConstellationIdentifierImpl c = new ConstellationIdentifierImpl(42, 43);
@@ -85,7 +85,7 @@ public class ConstellationIdentifierImplTest {
         ConstellationIdentifierImpl c2 = new ConstellationIdentifierImpl(42, 43);
         assertTrue(c.equals(c2));
     }
-    
+
     @Test
     public void testToString() {
         ConstellationIdentifierImpl c = new ConstellationIdentifierImpl(42, 43);

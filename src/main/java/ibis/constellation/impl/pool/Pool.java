@@ -15,7 +15,7 @@ import ibis.constellation.StealPool;
 import ibis.constellation.impl.ConstellationIdentifierImpl;
 import ibis.constellation.impl.DistributedConstellation;
 import ibis.constellation.impl.EventMessage;
-import ibis.constellation.impl.MessageBase;
+import ibis.constellation.impl.AbstractMessage;
 import ibis.constellation.impl.StealReply;
 import ibis.constellation.impl.StealRequest;
 import ibis.constellation.impl.pool.communication.CommunicationLayer;
@@ -412,7 +412,7 @@ public class Pool {
         return forward(em, OPCODE_EVENT_MESSAGE);
     }
 
-    private boolean forward(MessageBase m, byte opcode) {
+    private boolean forward(AbstractMessage m, byte opcode) {
 
         ConstellationIdentifierImpl target = m.target;
 
