@@ -13,6 +13,9 @@ public class TimeSyncInfo extends HashMap<String, Long> implements java.io.Seria
 
     public long getOffsetToMaster(String node) {
         Long tsm = get(node);
+        if (tsm == null) {
+            return 0;
+        }
         return tsm.longValue();
     }
 }

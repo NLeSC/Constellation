@@ -9,13 +9,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.StealPool;
+import ibis.constellation.impl.AbstractMessage;
 import ibis.constellation.impl.ConstellationIdentifierImpl;
 import ibis.constellation.impl.DistributedConstellation;
 import ibis.constellation.impl.EventMessage;
-import ibis.constellation.impl.AbstractMessage;
 import ibis.constellation.impl.StealReply;
 import ibis.constellation.impl.StealRequest;
 import ibis.constellation.impl.pool.communication.CommunicationLayer;
@@ -256,6 +255,10 @@ public class Pool {
 
         logger.info("Pool created");
 
+    }
+
+    public String getId() {
+        return local.name();
     }
 
     public Profiling getProfiling() {
