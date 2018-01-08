@@ -25,7 +25,7 @@ public class ExecutorWrapper implements Constellation {
 
     private static final Logger logger = LoggerFactory.getLogger(ExecutorWrapper.class);
 
-    private final boolean PROFILE;
+    private final boolean PROFILE_ACTIVITY;
     private final boolean PROFILE_COMM;
 
     private final int QUEUED_JOB_LIMIT;
@@ -83,7 +83,7 @@ public class ExecutorWrapper implements Constellation {
 
         QUEUED_JOB_LIMIT = p.QUEUED_JOB_LIMIT;
 
-        PROFILE = p.PROFILE;
+        PROFILE_ACTIVITY = p.PROFILE_ACTIVITY;
         PROFILE_COMM = p.PROFILE_COMMUNICATION;
 
         if (logger.isInfoEnabled()) {
@@ -337,13 +337,13 @@ public class ExecutorWrapper implements Constellation {
 
         TimerImpl timer = tmp.isFinishing() ? cleanupTimer : tmp.isRunnable() ? processTimer : initializeTimer;
 
-        if (PROFILE) {
+        if (PROFILE_ACTIVITY) {
             evt = timer.start();
         }
 
         tmp.run(this);
 
-        if (PROFILE) {
+        if (PROFILE_ACTIVITY) {
             timer.stop(evt);
         }
 
