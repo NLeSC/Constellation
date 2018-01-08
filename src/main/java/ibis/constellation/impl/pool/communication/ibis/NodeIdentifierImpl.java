@@ -39,7 +39,7 @@ public class NodeIdentifierImpl implements NodeIdentifier {
         return id.equals(other.id);
     }
 
-    IbisIdentifier getIbisIdentifier() {
+    protected IbisIdentifier getIbisIdentifier() {
         return id;
     }
 

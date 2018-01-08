@@ -510,63 +510,96 @@ public class Pool {
         doForward(id, OPCODE_REQUEST_TIME, null);
     }
 
+    private void sendTime(long l, NodeIdentifier source) {
+        Long myTime = times.get(source);
+        if (myTime == null) {
+            logger.warn("Ignored rogue time answer");
+            return;
+        }
+        long interval = (System.nanoTime() - myTime.longValue());
+        long half = interval / 2;
+        long offset = myTime.longValue() + half - l;
+        if (logger.isDebugEnabled()) {
+            logger.debug("source = " + source.name() + ", offset = " + offset + ", interval = " + interval);
+        }
+        syncInfo.put(source.name(), new Long(offset));
+        if (closedPool) {
+            synchronized (this) {
+                gotAnswer = true;
+                notifyAll();
+            }
+        }
+    }
+
+    private void gotStealRequest(StealRequest m, NodeIdentifier source) {
+        registerRank(m.source, source);
+
+        if (logger.isTraceEnabled()) {
+            logger.trace("POOL RECEIVE StealRequest from " + m.source);
+        }
+
+        m.setRemote();
+        owner.deliverRemoteStealRequest(m);
+    }
+
+    private synchronized void gotRelease() {
+        gotRelease = true;
+        notifyAll();
+    }
+
+    private void gotProfiling(Profiling data, NodeIdentifier source) {
+        owner.getProfiling().add(data);
+        comm.cleanup(source); // To speed up termination
+        synchronized (this) {
+            gotProfiling++;
+            notifyAll();
+        }
+    }
+
+    private void gotStealReply(StealReply m, NodeIdentifier source) {
+        registerRank(m.source, source);
+
+        if (logger.isTraceEnabled()) {
+            logger.trace("POOL RECEIVE StealReply from " + m.source);
+        }
+        if (logger.isDebugEnabled() && m != null) {
+            logger.debug("Jobs stolen from " + source.name() + ": " + m.toString());
+        }
+
+        owner.deliverRemoteStealReply(m);
+    }
+
+    private void gotEvent(EventMessage m) {
+        // registerRank(m.source, source); NO! event messages can be
+        // forwarded when an activation was stolen. --Ceriel
+
+        if (logger.isInfoEnabled()) {
+            logger.info("RECEIVE EventMessage; " + m);
+        }
+
+        owner.deliverRemoteEvent(m);
+    }
+
     public void upcall(NodeIdentifier source, Message rm) {
 
         byte opcode = rm.opcode;
+        Object data = rm.contents;
 
         if (logger.isDebugEnabled()) {
             logger.debug(getString(opcode, "Got") + " from " + source.name());
         }
 
-        if (opcode == OPCODE_NOTHING) {
-            return;
-        }
-        if (opcode == OPCODE_RELEASE) {
-            synchronized (this) {
-                gotRelease = true;
-                notifyAll();
-            }
-            return;
-        }
-
-        Object data = rm.contents;
-
-        if (opcode == OPCODE_SEND_TIME) {
-            long l = ((Long) data).longValue();
-            Long myTime = times.get(source);
-            if (myTime == null) {
-                logger.warn("Ignored rogue time answer");
-                return;
-            }
-            long interval = (System.nanoTime() - myTime.longValue());
-            long half = interval / 2;
-            long offset = myTime.longValue() + half - l;
-            if (logger.isDebugEnabled()) {
-                logger.debug("source = " + source.name() + ", offset = " + offset + ", interval = " + interval);
-            }
-            syncInfo.put(source.name(), new Long(offset));
-            if (closedPool) {
-                synchronized (this) {
-                    gotAnswer = true;
-                    notifyAll();
-                }
-            }
-            return;
-        }
-
-        if (logger.isDebugEnabled() && opcode == OPCODE_STEAL_REPLY && data != null) {
-            logger.debug("Jobs stolen from " + source.name() + ": " + ((StealReply) data).toString());
-
-        }
-
         switch (opcode) {
+        case OPCODE_NOTHING:
+            break;
+        case OPCODE_RELEASE:
+            gotRelease();
+            break;
+        case OPCODE_SEND_TIME:
+            sendTime(((Long) data).longValue(), source);
+            return;
         case OPCODE_PROFILING:
-            owner.getProfiling().add((Profiling) data);
-            comm.cleanup(source); // To speed up termination
-            synchronized (this) {
-                gotProfiling++;
-                notifyAll();
-            }
+            gotProfiling((Profiling) data, source);
             break;
         case OPCODE_REQUEST_TIME:
             doForward(source, OPCODE_SEND_TIME, new Long(System.nanoTime()));
@@ -580,57 +613,28 @@ public class Pool {
                 notifyAll();
             }
             break;
-        case OPCODE_STEAL_REQUEST: {
-            StealRequest m = (StealRequest) data;
-            registerRank(m.source, source);
-
-            if (logger.isTraceEnabled()) {
-                logger.trace("POOL RECEIVE StealRequest from " + m.source);
-            }
-
-            m.setRemote();
-            owner.deliverRemoteStealRequest(m);
-        }
+        case OPCODE_STEAL_REQUEST:
+            gotStealRequest((StealRequest) data, source);
             break;
 
-        case OPCODE_STEAL_REPLY: {
-            StealReply m = (StealReply) data;
-            registerRank(m.source, source);
-
-            if (logger.isTraceEnabled()) {
-                logger.trace("POOL RECEIVE StealReply from " + m.source);
-            }
-
-            owner.deliverRemoteStealReply(m);
-        }
+        case OPCODE_STEAL_REPLY:
+            gotStealReply((StealReply) data, source);
             break;
 
-        case OPCODE_EVENT_MESSAGE: {
-            EventMessage m = (EventMessage) data;
-            // registerRank(m.source, source); NO! event messages can be
-            // forwarded when an activation was stolen. --Ceriel
-
-            if (logger.isInfoEnabled()) {
-                logger.info("RECEIVE EventMessage; " + m);
-            }
-
-            owner.deliverRemoteEvent(m);
-        }
+        case OPCODE_EVENT_MESSAGE:
+            gotEvent((EventMessage) data);
             break;
 
-        case OPCODE_POOL_REGISTER_REQUEST: {
+        case OPCODE_POOL_REGISTER_REQUEST:
             performRegisterWithPool((PoolRegisterRequest) data);
-        }
             break;
 
-        case OPCODE_POOL_UPDATE_REQUEST: {
+        case OPCODE_POOL_UPDATE_REQUEST:
             performUpdateRequest((PoolUpdateRequest) data);
-        }
             break;
 
-        case OPCODE_POOL_UPDATE_REPLY: {
+        case OPCODE_POOL_UPDATE_REPLY:
             updater.enqueueUpdate((PoolInfo) data);
-        }
             break;
 
         case OPCODE_RANK_REGISTER_REQUEST:
@@ -640,14 +644,12 @@ public class Pool {
             }
             break;
 
-        case OPCODE_RANK_LOOKUP_REPLY: {
+        case OPCODE_RANK_LOOKUP_REPLY:
             registerRank((RankInfo) data);
-        }
             break;
 
-        case OPCODE_RANK_LOOKUP_REQUEST: {
+        case OPCODE_RANK_LOOKUP_REQUEST:
             lookupRankRequest((RankInfo) data);
-        }
             break;
 
         default:

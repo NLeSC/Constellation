@@ -8,8 +8,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ibis.constellation.util.ByteBufferCache;
-import ibis.constellation.util.ByteBuffers;
 import ibis.constellation.ConstellationProperties;
 import ibis.constellation.impl.TimerImpl;
 import ibis.constellation.impl.pool.Pool;
@@ -17,6 +15,8 @@ import ibis.constellation.impl.pool.PoolCreationFailedException;
 import ibis.constellation.impl.pool.communication.CommunicationLayer;
 import ibis.constellation.impl.pool.communication.Message;
 import ibis.constellation.impl.pool.communication.NodeIdentifier;
+import ibis.constellation.util.ByteBufferCache;
+import ibis.constellation.util.ByteBuffers;
 import ibis.ipl.Ibis;
 import ibis.ipl.IbisCapabilities;
 import ibis.ipl.IbisFactory;
@@ -164,40 +164,31 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
     @Override
     public void cleanup() {
         // Try to cleanly disconnect all send and receive ports....
-        if (logger.isInfoEnabled()) {
-            logger.info("disabling receive port");
-        }
+        logger.info("disabling receive port");
+
         try {
             rp.disableConnections();
             rp.disableMessageUpcalls();
         } catch (Exception e) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Clean receive port got execption", e);
-            }
+            logger.info("Clean receive port got exception", e);
         }
 
-        if (logger.isInfoEnabled()) {
-            logger.info("Closing send ports");
-        }
+        logger.info("Closing send ports");
+
         for (SendPort sp : sendports.values()) {
             try {
                 sp.close();
             } catch (Exception e) {
-                if (logger.isInfoEnabled()) {
-                    logger.info("Close sendport got execption", e);
-                }
+                logger.info("Close sendport got exception", e);
             }
         }
 
-        if (logger.isInfoEnabled()) {
-            logger.info("Closing receive ports");
-        }
+        logger.info("Closing receive ports");
+
         try {
             rp.close(10000);
         } catch (IOException e) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Close receive port got execption", e);
-            }
+            logger.info("Close receive port got exception", e);
         }
         if (rports != null) {
             for (ReceivePort rport : rports) {
@@ -205,17 +196,14 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
                     try {
                         rport.close(10000);
                     } catch (IOException e) {
-                        if (logger.isInfoEnabled()) {
-                            logger.info("Close receive port " + rport.name() + " got execption", e);
-                        }
+                        logger.info("Close receive port " + rport.name() + " got exception", e);
                     }
                 }
             }
         }
 
-        if (logger.isInfoEnabled()) {
-            logger.info("Ending ibis");
-        }
+        logger.info("Ending ibis");
+
         try {
             ibis.end();
         } catch (IOException e) {
