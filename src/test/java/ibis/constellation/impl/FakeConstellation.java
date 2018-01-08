@@ -18,10 +18,10 @@ package ibis.constellation.impl;
 
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
-import ibis.constellation.Timer;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.Event;
+import ibis.constellation.Timer;
 
 /**
  * @version 1.0
@@ -37,6 +37,7 @@ public class FakeConstellation implements Constellation {
 
     @Override
     public void send(Event e) {
+        // nothing
     }
 
     @Override
@@ -46,6 +47,7 @@ public class FakeConstellation implements Constellation {
 
     @Override
     public void done() {
+        // nothing
     }
 
     @Override

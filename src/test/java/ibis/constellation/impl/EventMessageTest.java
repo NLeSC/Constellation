@@ -16,10 +16,7 @@
 
 package ibis.constellation.impl;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -35,79 +32,79 @@ public class EventMessageTest {
 
     @Test
     public void testConstructor1() {
-    
+
         ConstellationIdentifierImpl source = ImplUtil.createConstellationIdentifier(42, 43);
         ConstellationIdentifierImpl target = ImplUtil.createConstellationIdentifier(13, 14);
-        
+
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 0, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 0, 2, false);
 
         Event e = new Event(id1, id2, null);
-       
+
         EventMessage m = new EventMessage(source, target, e);
-        
+
         assertEquals(e, m.event);
     }
 
     @Test
     public void testConstructor2() {
-    
+
         ConstellationIdentifierImpl source = ImplUtil.createConstellationIdentifier(42, 43);
         ConstellationIdentifierImpl target = ImplUtil.createConstellationIdentifier(13, 14);
-        
+
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 0, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 0, 2, false);
 
         Event e = new Event(id1, id2, null);
-       
+
         EventMessage m = new EventMessage(source, target, e);
-        
+
         assertEquals(source, m.source);
     }
 
     @Test
     public void testConstructor3() {
-    
+
         ConstellationIdentifierImpl source = ImplUtil.createConstellationIdentifier(42, 43);
         ConstellationIdentifierImpl target = ImplUtil.createConstellationIdentifier(13, 14);
-        
+
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 0, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 0, 2, false);
 
         Event e = new Event(id1, id2, null);
-       
+
         EventMessage m = new EventMessage(source, target, e);
-        
+
         assertEquals(target, m.target);
     }
 
     @Test
     public void testToString1() {
-    
+
         ConstellationIdentifierImpl source = ImplUtil.createConstellationIdentifier(42, 43);
         ConstellationIdentifierImpl target = ImplUtil.createConstellationIdentifier(13, 14);
-        
+
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 0, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 0, 2, false);
 
         Event e = new Event(id1, id2, null);
-       
+
         EventMessage m = new EventMessage(source, target, e);
-        
+
         assertEquals("EventMessage: source: " + source.toString() + "; target: " + target.toString(), m.toString());
     }
-    
+
     @Test
     public void testToString2() {
-    
+
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 0, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(2, 0, 2, false);
 
         Event e = new Event(id1, id2, null);
-       
+
         EventMessage m = new EventMessage(null, null, e);
-        
+
         assertEquals("EventMessage: source: none; target: none", m.toString());
     }
-    
+
 }
