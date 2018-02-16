@@ -389,8 +389,7 @@ public class Pool {
     }
 
     private NodeIdentifier translate(ConstellationIdentifierImpl cid) {
-        int rank = cid.getNodeId();
-        return lookupRank(rank);
+        return lookupRank(cid.getNodeId());
     }
 
     private boolean doForward(NodeIdentifier dest, byte opcode, Object data) {
@@ -461,8 +460,7 @@ public class Pool {
     }
 
     private void registerRank(ConstellationIdentifierImpl cid, NodeIdentifier id) {
-        int rank = cid.getNodeId();
-        registerRank(rank, id);
+        registerRank(cid.getNodeId(), id);
     }
 
     private NodeIdentifier lookupRank(int rank) {

@@ -29,8 +29,6 @@ import org.slf4j.LoggerFactory;
 /**
  * A cache of direct {@link ByteBuffer}s of specific sizes. This class is not specifically part of constellation, but it may be
  * useful for applications. This class is thread-safe.
- *
- * TODO: move to a utility package?
  */
 public class ByteBufferCache {
 
@@ -38,6 +36,9 @@ public class ByteBufferCache {
 
     private static Map<Integer, List<ByteBuffer>> freeList = new HashMap<Integer, List<ByteBuffer>>();
     private static Map<Integer, FreelistFiller> fillers = new HashMap<Integer, FreelistFiller>();
+
+    private static long inUse = 0;
+    private static long available = 0;
 
     // Background thread creating new bytebuffers as needed.
     private static class FreelistFiller extends Thread {
@@ -70,21 +71,24 @@ public class ByteBufferCache {
                 }
                 for (int i = 0; i < cnt; i++) {
                     ByteBuffer v = ByteBuffer.allocateDirect(sz).order(ByteOrder.nativeOrder());
-                    releaseByteBuffer(v);
+                    if (logger.isDebugEnabled()) {
+                        inUse += sz;
+                    }
+                    makeAvailableByteBuffer(v);
                 }
             }
         }
     }
 
     /**
-     * Release the specified byte buffer, that is, append it to the list of available byte buffers.
+     * Make the specified byte buffer available for use, that is, append it to the list of available byte buffers.
      *
      * @param b
-     *            the byte buffer to be released.
+     *            the byte buffer to be made available.
      */
-    public static void releaseByteBuffer(ByteBuffer b) {
+    public static void makeAvailableByteBuffer(ByteBuffer b) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Releasing bytebuffer " + System.identityHashCode(b));
+            logger.debug("Making ByteBuffer " + System.identityHashCode(b) + " available");
         }
         int sz = b.capacity();
         synchronized (freeList) {
@@ -94,6 +98,12 @@ public class ByteBufferCache {
                 freeList.put(sz, l);
             }
             l.add(b);
+            if (logger.isDebugEnabled()) {
+                available += sz;
+                inUse -= sz;
+                logger.debug(l.size() + " ByteBuffers of size " + MemorySizes.toStringBytes(sz) + " available");
+                logUse();
+            }
         }
     }
 
@@ -115,17 +125,29 @@ public class ByteBufferCache {
             List<ByteBuffer> l = freeList.get(sz);
             if (l == null || l.size() == 0) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Allocating new bytebuffer");
+                    logger.debug("Allocating new bytebuffer of size " + MemorySizes.toStringBytes(sz));
                 }
-                return ByteBuffer.allocateDirect(sz).order(ByteOrder.nativeOrder());
+                b = ByteBuffer.allocateDirect(sz).order(ByteOrder.nativeOrder());
+                if (logger.isDebugEnabled()) {
+                    inUse += sz;
+                    logger.debug("obtaining ByteBuffer " + System.identityHashCode(b) + "(not from cache)");
+                    logUse();
+                }
+                return b;
             }
             b = l.remove(0);
             FreelistFiller f = fillers.get(sz);
-            if (l.size() < f.threshold) {
-                freeList.notify();
+            if (f != null) {
+                if (l.size() < f.threshold) {
+                    freeList.notify();
+                }
             }
             if (logger.isDebugEnabled()) {
-                logger.debug("bytebuffer " + System.identityHashCode(b) + " from cache");
+                inUse += sz;
+                available -= sz;
+                logger.debug("obtaining ByteBuffer " + System.identityHashCode(b) + " of size " + MemorySizes.toStringBytes(sz)
+                        + " from cache");
+                logUse();
             }
         }
         if (needsClearing) {
@@ -149,15 +171,22 @@ public class ByteBufferCache {
      */
     public static void initializeByteBuffers(int sz, int count) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Allocating " + count + " buffers of size " + sz);
+            logger.debug("Allocating " + count + " buffers of size " + " " + MemorySizes.toStringBytes(sz));
         }
         for (int i = 0; i < count; i++) {
             ByteBuffer v = ByteBuffer.allocateDirect(sz).order(ByteOrder.nativeOrder());
-            releaseByteBuffer(v);
+            if (logger.isDebugEnabled()) {
+                inUse += sz;
+            }
+            makeAvailableByteBuffer(v);
         }
         FreelistFiller filler = new FreelistFiller(sz, count);
         fillers.put(sz, filler);
         filler.start();
+    }
+
+    private static void logUse() {
+        logger.debug("in use: " + MemorySizes.toStringBytes(inUse) + ", available: " + MemorySizes.toStringBytes(available));
     }
 
 }
