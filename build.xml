@@ -113,7 +113,7 @@
 	<target name="javadoc" description="Create javadocs">
 		<!-- Create the javadoc -->
 		<mkdir dir="${javadoc}" />
-		<javadoc destdir="${javadoc}" access="public" sourcepath="src" windowtitle="Constellation Documentation" packagenames="ibis.constellation, ibis.constellation.context" doctitle="Constellation Documentation" bottom="The Ibis project" classpathref="default.classpath">
+		<javadoc destdir="${javadoc}" access="public" sourcepath="src" windowtitle="Constellation Documentation" packagenames="ibis.constellation" doctitle="Constellation Documentation" bottom="The Ibis project" classpathref="default.classpath">
 		    <link href="http://docs.oracle.com/javase/6/docs/api/"/>
 		</javadoc>
 
