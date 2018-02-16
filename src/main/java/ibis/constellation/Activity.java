@@ -73,7 +73,7 @@ public abstract class Activity implements Serializable {
      * @param context
      *            the context in which this activity should be run.
      * @param mayBeStolen
-     *            if this activity ban be stolen by other Constellations
+     *            if this activity may be stolen by other Constellations
      * @param expectsEvents
      *            if this Activity expects events
      */

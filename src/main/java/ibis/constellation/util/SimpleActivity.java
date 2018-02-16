@@ -37,8 +37,8 @@ public abstract class SimpleActivity extends Activity {
      *            the activity identifier of the parent activity (may be <code>null</code>).
      * @param context
      *            the context that specifies which executors can actually execute this activity.
-     * @param restrictToLocal
-     *            when set, specifies that this activity can only be executed by a local executor.
+     * @param mayBeStolen
+     *            when set, this activity may be stolen by other Constellations.
      */
     protected SimpleActivity(ActivityIdentifier parent, AbstractContext context, boolean mayBeStolen) {
         super(context, mayBeStolen, false);

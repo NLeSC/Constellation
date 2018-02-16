@@ -72,7 +72,6 @@ public class FakeConstellation implements Constellation {
 
     @Override
     public Timer getOverallTimer() {
-        // TODO Auto-generated method stub
         return null;
     }
 }
