@@ -137,10 +137,8 @@ public class ByteBufferCache {
             }
             b = l.remove(0);
             FreelistFiller f = fillers.get(sz);
-            if (f != null) {
-                if (l.size() < f.threshold) {
-                    freeList.notify();
-                }
+            if (f != null && l.size() < f.threshold) {
+                freeList.notify();
             }
             if (logger.isDebugEnabled()) {
                 inUse += sz;
