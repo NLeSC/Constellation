@@ -53,7 +53,7 @@ public class OrContext extends AbstractContext implements Iterable<Context> {
     /**
      * Constructs an OrContext consisting of a list of Contexts.
      *
-     * @param unit
+     * @param contexts
      *            the list of contexts.
      * @exception IllegalArgumentException
      *                is thrown when the length of the list of contexts is smaller than 2, or any of them is null.
@@ -90,7 +90,7 @@ public class OrContext extends AbstractContext implements Iterable<Context> {
      * @param index
      *            the index
      * @return the corresponding Context.
-     * @throws illegalArgumentException
+     * @throws IllegalArgumentException
      *             if the specified index is out of range.
      */
     public Context get(int index) {

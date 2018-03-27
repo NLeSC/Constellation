@@ -60,7 +60,7 @@ public final class StealStrategy implements Serializable {
     }
 
     /**
-     * Returns the strategy opcode of this strategy, one of {@link #_BIGGEST}, {@link #_SMALLEST}.
+     * Returns the strategy opcode of this strategy, one of {@link #BIGGEST}, {@link #SMALLEST}.
      *
      * @return the strategy opcode.
      */

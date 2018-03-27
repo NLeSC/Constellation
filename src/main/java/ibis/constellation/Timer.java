@@ -28,7 +28,7 @@ package ibis.constellation;
  *
  * Constellation uses some properties to control the behavior of the timers. The {@link ConstellationProperties#PROFILE} property
  * controls the timing. When the {@link ConstellationProperties#PROFILE_ACTIVITY} is set timings will be provided for, a.o., the
- * invocations of {@link Activity#initialize()} and {@link Activity#process(Event)}. In the end, the timing events will be written
+ * invocations of {@link Activity#initialize} and {@link Activity#process}. In the end, the timing events will be written
  * to a file specified with the {@link ConstellationProperties#PROFILE_OUTPUT} property, or to <code>System.out</code>.
  */
 public interface Timer {
