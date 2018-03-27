@@ -34,7 +34,7 @@ public interface Constellation {
      * match, an executor that can be stolen from. In some cases, the system can detect that no suitable executor can be found. In
      * those cases, it throws an exception.
      *
-     * @param job
+     * @param activity
      *            the Activity to submit
      * @exception NoSuitableExecutorException
      *                is thrown when the system has detected that no suitable executor can be found.

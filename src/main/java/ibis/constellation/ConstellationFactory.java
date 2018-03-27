@@ -60,11 +60,12 @@ public class ConstellationFactory {
      *
      * @param e
      *            the executor
+     * @param count an <code>int</code> value
      * @return the constellation instance
-     * @throws IllegalArgumentException
-     *             thrown when no executors are supplied, or in case of incorrect property values.
-     * @throws ConstellationCreationException
+     * @exception ConstellationCreationException
      *             thrown when the constellation instance could not be created for some reason.
+     * @exception IllegalArgumentException
+     *             thrown when no executors are supplied, or in case of incorrect property values.
      */
     public static Constellation createConstellation(ConstellationConfiguration e, int count)
             throws ConstellationCreationException {
@@ -102,11 +103,12 @@ public class ConstellationFactory {
      *            the properties to use
      * @param e
      *            the executor
+     * @param count the number of executors, if larger than 1, then a multithreaded Constellation will be created.
      * @return the constellation instance
-     * @throws IllegalArgumentException
-     *             thrown when no executors are supplied, or in case of incorrect property values.
-     * @throws ConstellationCreationException
+     * @exception ConstellationCreationException
      *             thrown when the constellation instance could not be created for some reason.
+     * @exception IllegalArgumentException
+     *             thrown when no executors are supplied, or in case of incorrect property values.
      */
     public static Constellation createConstellation(Properties p, ConstellationConfiguration e, int count)
             throws ConstellationCreationException {

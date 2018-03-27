@@ -20,7 +20,7 @@ public class FlexibleEventCollector extends Activity {
 
     /**
      * Constructs a <code>FlexibleEventCollector</code> with the specified activity context. Note: this is an activity that will
-     * receive events (see {@link Activity#Activity(ActivityContext, boolean)}).
+     * receive events (see {@link Activity#Activity(AbstractContext, boolean)}).
      *
      * @param c
      *            the activity context

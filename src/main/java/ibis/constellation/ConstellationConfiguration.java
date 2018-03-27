@@ -49,7 +49,7 @@ public class ConstellationConfiguration {
      * Constructs a <code>ConstellationConfiguration</code> with the specified parameters. Executors with this configuration will
      * behave as described by the parameter section below.
      *
-     * @param myPool
+     * @param belongsTo
      *            steal pool that these executors will belong to.
      * @param stealsFrom
      *            steal pool that these executors will steal from.
@@ -146,13 +146,13 @@ public class ConstellationConfiguration {
      * behave as described by the parameter section below. This version of the constructor uses {@link StealPool#WORLD} for both
      * steal pools.
      *
-     * @param myPool
-     *            steal pool that these executors will belong to.
+     * @param context
+     *            context of these executors, to be used in finding matching activities
      * @param localStealStrategy
      *            steal strategy for local steals
      * @param remoteStealStrategy
      *            steal strategy for stealing from other constellation instances or other executors.
-     * @throws IllegalArgumentException
+     * @exception IllegalArgumentException
      *             when any of the specified parameters is null.
      */
     public ConstellationConfiguration(AbstractContext context, StealStrategy localStealStrategy,
