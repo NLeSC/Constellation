@@ -4,13 +4,26 @@ plugins {
 
 dependencies {
     implementation 'nl.junglecomputing.ipl:ipl:2.3.1'
+    implementation 'nl.junglecomputing.ipl:ibis-util:2.3.1'
+    implementation 'nl.junglecomputing.ipl:ibis-util:2.3.1'
+    implementation 'nl.junglecomputing.ipl:ipl-impl-lrmc:2.3.1'
+    implementation 'nl.junglecomputing.ipl:ipl-impl-smartsockets:2.3.1'
+    implementation 'nl.junglecomputing.ipl:ipl-impl-tcp:2.3.1'
+    implementation 'nl.junglecomputing.ipl:ipl-impl-multi:2.3.1'
+    
     implementation 'org.slf4j:slf4j-api:1.7.21'
     implementation 'com.google.guava:guava:17.0'
 
-    // Use JUnit test framework
-    // testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.11'
 }
 
 repositories {
     jcenter()
+    maven() {
+        // for sbbi-upnplib
+	url 'http://maven.nuiton.org/release'
+    }
+    maven() {
+	url 'http://localhost:8081/artifactory/libs-release'
+    }
 }
