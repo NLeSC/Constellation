@@ -53,6 +53,9 @@ public class Profiling implements java.io.Serializable {
     /**
      * Print the statistics. This is the entry point for the master in the conclusion phase process all statistics. The statistics
      * from all other nodes have already been added to this.
+     * 
+     * @param output
+     *            filename of file to print to. If it cannot be opened, standard output is used instead.
      */
     public void printProfile(String output) {
 

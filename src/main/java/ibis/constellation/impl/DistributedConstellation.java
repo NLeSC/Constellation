@@ -418,6 +418,8 @@ public class DistributedConstellation {
      *
      * @param props
      *            the properties to use
+     * @param c
+     *            the constellation configurations to use.
      * @throws ConstellationCreationException
      *             is thrown when the communication pool could not be created for some reason
      * @throws IllegalArgumentException
@@ -575,7 +577,7 @@ public class DistributedConstellation {
      *
      * The steal request is dealt with by passing it on to the sub-constellation below.
      *
-     * @param re
+     * @param sr
      *            the steal request message.
      */
     public void deliverRemoteStealRequest(StealRequest sr) {
