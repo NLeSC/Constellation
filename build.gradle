@@ -1,9 +1,10 @@
 plugins {
-    id 'java-library'
+    id 'java'
     id 'maven-publish'
     id 'com.jfrog.bintray' version '1.8.0'
     id 'jacoco'
     id 'com.github.hierynomus.license' version '0.14.0'
+    id 'org.unbroken-dome.test-sets' version '1.4.2'
 }
 
 repositories {
@@ -109,5 +110,24 @@ bintray {
 	userOrg = 'nlesc'
 	vcsUrl = 'https://github.com/NLeSC/constellation.git'
 	licenses = ['Apache-2.0']
+    }
+}
+
+testSets {
+    integrationTest
+}
+
+integrationTest.description = 'Run the integration tests'
+
+check.dependsOn integrationTest
+integrationTest.mustRunAfter test
+
+task jacocoIntegrationTestReport(type: JacocoReport) {
+    description 'Generate coverage report of integration tests'
+    group 'Code coverage reporting'
+    executionData integrationTest
+    sourceSets sourceSets.main
+    reports {
+        xml.enabled = true // codecov depends on xml format report
     }
 }

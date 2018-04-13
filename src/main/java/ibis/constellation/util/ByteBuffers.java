@@ -1,5 +1,5 @@
-/**
- * Copyright 2013 Netherlands eScience Center
+/*
+ * Copyright 2018 Netherlands eScience Center
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ibis.constellation.util;
 
 import java.io.Serializable;
