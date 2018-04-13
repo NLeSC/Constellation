@@ -27,7 +27,7 @@ import org.junit.Test;
 import ibis.constellation.impl.pool.communication.NodeIdentifier;
 import ibis.constellation.impl.pool.communication.ibis.NodeIdentifierImpl;
 import ibis.ipl.IbisIdentifier;
-import ibis.ipl.impl.multi.Location;
+import ibis.ipl.impl.Location;
 
 /**
  * @version 1.0
