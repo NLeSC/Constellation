@@ -1,20 +1,9 @@
 plugins {
     id 'java-library'
-}
-
-dependencies {
-    implementation 'nl.junglecomputing.ipl:ipl:2.3.1'
-    implementation 'nl.junglecomputing.ipl:ibis-util:2.3.1'
-    implementation 'nl.junglecomputing.ipl:ibis-util:2.3.1'
-    implementation 'nl.junglecomputing.ipl:ipl-impl-lrmc:2.3.1'
-    implementation 'nl.junglecomputing.ipl:ipl-impl-smartsockets:2.3.1'
-    implementation 'nl.junglecomputing.ipl:ipl-impl-tcp:2.3.1'
-    implementation 'nl.junglecomputing.ipl:ipl-impl-multi:2.3.1'
-    
-    implementation 'org.slf4j:slf4j-api:1.7.21'
-    implementation 'com.google.guava:guava:17.0'
-
-    testImplementation 'junit:junit:4.11'
+    id 'maven-publish'
+    id 'com.jfrog.bintray' version '1.8.0'
+    id 'jacoco'
+    id 'com.github.hierynomus.license' version '0.14.0'
 }
 
 repositories {
@@ -23,7 +12,102 @@ repositories {
         // for sbbi-upnplib
 	url 'http://maven.nuiton.org/release'
     }
-    maven() {
-	url 'http://localhost:8081/artifactory/libs-release'
+}
+
+dependencies {
+    compile 'nl.junglecomputing.ipl:ipl:2.3.1'
+    compile 'nl.junglecomputing.ipl:ibis-util:2.3.1'
+    compile 'org.slf4j:slf4j-api:1.7.21'
+    compile 'com.google.guava:guava:17.0'
+
+    implementation 'nl.junglecomputing.ipl:ipl-impl-smartsockets:2.3.1'
+    implementation 'nl.junglecomputing.ipl:ipl-impl-tcp:2.3.1'
+
+    testCompile 'nl.junglecomputing.ipl:ipl-support:2.3.1'
+    testCompile 'junit:junit:4.11'
+}
+
+version = '2.0.0'
+
+def pomConfig = {
+    scm {
+        url "https://github.com/nlesc/constellation.git"
+    }
+}
+
+license {
+    ext.copyright_year = 2018
+    ext.copyright_owner = 'Netherlands eScience Center'
+    header rootProject.file('gradle/HEADER')
+    strictCheck true
+    excludes(["**/log4j.properties"])
+    mapping {
+        // IntelliJ IDEA gives "Dangling Javadoc comment." warning when default JAVADOC_STYLE is used,
+        // so switch to comment style
+        java = 'SLASHSTAR_STYLE'
+    }
+}
+
+licenseFormat.description = "Applies the license found in the header file in files missing the header"
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+javadoc.failOnError = false
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+publishing {
+    publications {
+	mavenJava(MavenPublication) {
+	    from components.java
+	    artifact sourcesJar {
+		classifier "sources"
+	    }
+	    artifact javadocJar {
+		classifier "javadoc"
+	    }
+	    groupId 'nl.esciencecenter'
+	    artifactId 'constellation'
+	    version version
+
+	    pom.withXml {
+		def root = asNode()
+                root.appendNode('url', 'https://github.com/nlesc/constellation.git')
+                root.children().last() + pomConfig
+	    }
+	}
+    }
+}
+
+tasks.withType(Jar) {
+    destinationDir = file("$rootDir/lib")
+}
+
+task copyRuntimeLibs(type: Copy) {
+    into "lib"
+    from configurations.runtime
+}
+
+bintray {
+    user = System.getenv('BINTRAY_NAME')
+    key = System.getenv('BINTRAY_APIKEY')
+    publications = ['mavenJava']
+    pkg {
+	// TODO! Which repo? We can also put it in junglecomputing ...
+	repo = 'constellation'
+	name = 'constellation'
+	userOrg = 'nlesc'
+	vcsUrl = 'https://github.com/NLeSC/constellation.git'
+	licenses = ['Apache-2.0']
     }
 }
