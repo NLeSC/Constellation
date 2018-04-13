@@ -23,13 +23,13 @@ public class StealRequest extends AbstractMessage {
             final StealPool pool, final int size) {
 
         super(source);
-        
+
         checkNull(context, "Context may not be null");
         checkNull(localStrategy, "Local steal strategy may not be null");
         checkNull(constellationStrategy, "Constellation steal strategy may not be null");
         checkNull(remoteStrategy, "Remote steal strategy may not be null");
         checkNull(pool, "Steal pool may not be null");
-        
+
         this.context = context;
         this.localStrategy = localStrategy;
         this.constellationStrategy = constellationStrategy;
@@ -40,12 +40,6 @@ public class StealRequest extends AbstractMessage {
         isLocal = true;
     }
 
-    private void checkNull(Object o, String message) { 
-        if (o == null) { 
-            throw new IllegalArgumentException(message);
-        }
-    }
-    
     public void setRemote() {
         isLocal = false;
     }

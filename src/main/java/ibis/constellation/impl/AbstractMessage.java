@@ -19,10 +19,18 @@ public abstract class AbstractMessage implements Serializable {
     }
 
     protected AbstractMessage(final ConstellationIdentifierImpl source) {
+        checkNull(source, "source may not be null");
         this.source = source;
     }
 
+    protected void checkNull(Object o, String message) {
+        if (o == null) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+
     public synchronized void setTarget(ConstellationIdentifierImpl cid) {
+        checkNull(cid, "source may not be null");
         this.target = cid;
     }
 
