@@ -117,9 +117,20 @@ testSets {
     integrationTest
 }
 
+jacocoTestReport {
+    description 'Generate coverage report of unit tests'
+    group 'Code coverage reporting'
+    executionData test
+    sourceSets sourceSets.main
+    reports {
+        xml.enabled = true // codecov depends on xml format report
+    }
+}
+
 integrationTest.description = 'Run the integration tests'
 
 check.dependsOn integrationTest
+
 integrationTest.mustRunAfter test
 
 task jacocoIntegrationTestReport(type: JacocoReport) {
