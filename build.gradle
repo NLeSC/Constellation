@@ -77,7 +77,7 @@ publishing {
 	    artifact javadocJar {
 		classifier "javadoc"
 	    }
-	    groupId 'nl.esciencecenter'
+	    groupId 'nl.junglecomputing'
 	    artifactId 'constellation'
 	    version version
 
@@ -105,9 +105,9 @@ bintray {
     publications = ['mavenJava']
     pkg {
 	// TODO! Which repo? We can also put it in junglecomputing ...
-	repo = 'constellation'
+	repo = 'JungleComputing'
 	name = 'constellation'
-	userOrg = 'nlesc'
+	userOrg = "$user"
 	vcsUrl = 'https://github.com/NLeSC/constellation.git'
 	licenses = ['Apache-2.0']
     }
