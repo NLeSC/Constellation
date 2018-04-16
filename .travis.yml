@@ -10,6 +10,5 @@ script:
     - ./gradlew check
 after_script:
     - ./gradlew jacocoTestReport jacocoIntegrationTestReport
-    - ls -lR build/reports/jacoco
     - bash <(curl -s https://codecov.io/bash) -F unit -f build/reports/jacoco/test/jacocoTestReport.xml
     - bash <(curl -s https://codecov.io/bash) -F integration -f build/reports/jacoco/jacocoIntegrationTestReport/jacocoIntegrationTestReport.xml
