@@ -62,6 +62,10 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
+javadoc {
+    include 'ibis/constellation/*', 'ibis/constellation/util/*'
+}
+
 artifacts {
     archives sourcesJar
     archives javadocJar
