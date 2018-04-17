@@ -406,6 +406,45 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
 
     }
 
+    private SendPort createAndConnect(IbisIdentifier id) throws IOException {
+        if (logger.isInfoEnabled()) {
+            logger.info("Connecting to " + id + " from " + ibis.identifier());
+        }
+        SendPort sp = null;
+        try {
+            sp = ibis.createSendPort(portType);
+            if (closedPool) {
+                sp.connect(id, "constellation_" + ibis.identifier().name(), 10000, true);
+            } else {
+                sp.connect(id, "constellation");
+            }
+        } catch (IOException e) {
+            try {
+                sp.close();
+            } catch (Throwable e2) {
+                // ignored ?
+            }
+            if (closedPool) {
+                try {
+                    sp = ibis.createSendPort(portType);
+                    sp.connect(id, "constellation");
+                } catch (IOException e1) {
+                    try {
+                        sp.close();
+                    } catch (Throwable e2) {
+                        // ignored ?
+                    }
+                    logger.error("Could not connect to " + id.name(), e1);
+                    throw e1;
+                }
+            } else {
+                logger.error("Could not connect to " + id.name(), e);
+                throw e;
+            }
+        }
+        return sp;
+    }
+
     private SendPort getSendPort(IbisIdentifier id) throws IOException {
 
         if (id.equals(ibis.identifier())) {
@@ -415,40 +454,7 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
         SendPort sp = sendports.get(id);
 
         if (sp == null) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Connecting to " + id + " from " + ibis.identifier());
-            }
-            try {
-                sp = ibis.createSendPort(portType);
-                if (closedPool) {
-                    sp.connect(id, "constellation_" + ibis.identifier().name(), 10000, true);
-                } else {
-                    sp.connect(id, "constellation");
-                }
-            } catch (IOException e) {
-                try {
-                    sp.close();
-                } catch (Throwable e2) {
-                    // ignored ?
-                }
-                if (closedPool) {
-                    try {
-                        sp = ibis.createSendPort(portType);
-                        sp.connect(id, "constellation");
-                    } catch (IOException e1) {
-                        try {
-                            sp.close();
-                        } catch (Throwable e2) {
-                            // ignored ?
-                        }
-                        logger.error("Could not connect to " + id.name(), e1);
-                        throw e1;
-                    }
-                } else {
-                    logger.error("Could not connect to " + id.name(), e);
-                    throw e;
-                }
-            }
+            sp = createAndConnect(id);
 
             if (logger.isInfoEnabled()) {
                 logger.info("Succesfully connected to " + id + " from " + ibis.identifier());
