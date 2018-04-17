@@ -25,18 +25,19 @@ import ibis.ipl.Location;
  */
 public class FakeIbisIdentifier implements IbisIdentifier {
 
+    private static final long serialVersionUID = 1L;
     private final Location location;
     private final String name;
     private final String poolName;
     private final String tag;
-    
-    public FakeIbisIdentifier(Location location, String name, String poolName, String tag) { 
+
+    public FakeIbisIdentifier(Location location, String name, String poolName, String tag) {
         this.location = location;
         this.name = name;
         this.poolName = poolName;
         this.tag = tag;
     }
-    
+
     /* (non-Javadoc)
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */

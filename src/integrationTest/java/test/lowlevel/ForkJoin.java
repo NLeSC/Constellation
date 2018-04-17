@@ -31,9 +31,6 @@ public class ForkJoin extends Activity {
 
     private final ActivityIdentifier parent;
 
-    private static final int COUNT = 1000000;
-    private static final int REPEAT = 10;
-
     private final boolean spawn;
 
     private final int branch;

@@ -55,7 +55,8 @@ public class ConstellationIdentifierImplTest {
     @Test
     public void testEquals2() {
         ConstellationIdentifierImpl c = new ConstellationIdentifierImpl(42, 43);
-        assertFalse(c.equals(null));
+        ConstellationIdentifierImpl b = null;
+        assertFalse(c.equals(b));
     }
 
     @Test

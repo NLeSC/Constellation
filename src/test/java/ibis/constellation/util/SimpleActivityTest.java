@@ -46,7 +46,7 @@ public class SimpleActivityTest {
 
         private static final long serialVersionUID = -6877538462329090090L;
 
-        boolean hasRun = false;
+        private boolean hasRun = false;
 
         public FakeActivity(ActivityIdentifier parent, AbstractContext context) {
             super(parent, context);

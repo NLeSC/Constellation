@@ -17,14 +17,15 @@ package ibis.constellation.util;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
-import ibis.constellation.Event;
 import ibis.constellation.Context;
+import ibis.constellation.Event;
 import ibis.constellation.impl.ImplUtil;
 
 /**
@@ -79,13 +80,13 @@ public class FlexibleEventCollectorTest {
     public void testInitialize() {
 
         Context a = new Context("TEST", 0, 0);
-        
+
         Constellation c = ImplUtil.createFakeConstellation();
-        
+
         FlexibleEventCollector e = new FlexibleEventCollector(a);
-        
+
         int result = e.initialize(c);
-        
+
         assertEquals(Activity.SUSPEND, result);
     }
 
@@ -93,21 +94,22 @@ public class FlexibleEventCollectorTest {
     public void testCleanup() {
 
         Context a = new Context("TEST", 0, 0);
-        
+
         Constellation c = ImplUtil.createFakeConstellation();
-        
+
         FlexibleEventCollector e = new FlexibleEventCollector(a);
-        
+
         e.cleanup(c);
-        
-        // TODO: nothing to test for ? 
+        assertTrue(c.isMaster());
+
+        // TODO: nothing sensible to test for ?
     }
-    
+
     @Test
     public void testToString() {
 
         Context a = new Context("TEST", 0, 0);
-        
+
         FlexibleEventCollector c = new FlexibleEventCollector(a);
 
         String s = c.toString();
@@ -119,14 +121,14 @@ public class FlexibleEventCollectorTest {
     public void addEvent() {
 
         Context a = new Context("TEST", 0, 0);
-        
+
         FlexibleEventCollector c = new FlexibleEventCollector(a);
 
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(0, 1, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);
 
         Constellation con = ImplUtil.createFakeConstellation();
-        
+
         Event e = new Event(id1, id2, null);
 
         c.process(con, e);
@@ -139,14 +141,14 @@ public class FlexibleEventCollectorTest {
     public void addEventMultiThreaded() {
 
         Context a = new Context("TEST", 0, 0);
-        
+
         FlexibleEventCollector c = new FlexibleEventCollector(a);
 
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(0, 1, 1, false);
         ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);
 
         Constellation con = ImplUtil.createFakeConstellation();
-        
+
         Waiter w = new Waiter(c);
         w.start();
 

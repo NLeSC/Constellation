@@ -38,7 +38,7 @@ public class StealPoolTest {
         String s = null;
         new StealPool(s);
     }
-    
+
     @Test(expected = IllegalArgumentException.class)
     public void mergeStealPoolEmptyArray() {
         StealPool.merge(new StealPool[1]);
@@ -99,7 +99,7 @@ public class StealPoolTest {
         StealPool res = StealPool.merge(new StealPool("A"), new StealPool("B"), StealPool.WORLD);
         assertEquals(StealPool.WORLD, res);
     }
-    
+
     @Test
     public void mergeStealPoolDoubleTag() {
         StealPool a1 = new StealPool("A");
@@ -252,8 +252,9 @@ public class StealPoolTest {
     public void testEquals3() {
 
         StealPool a = new StealPool("A");
+        StealPool b = null;
 
-        assertFalse(a.equals(null));
+        assertFalse(a.equals(b));
     }
 
     @Test
@@ -431,7 +432,7 @@ public class StealPoolTest {
 
         assertTrue(a2.overlap(s1));
     }
-    
+
     @Test
     public void testOverlap10() {
 

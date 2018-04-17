@@ -15,6 +15,8 @@
  */
 package ibis.constellation;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.Properties;
 
 import org.junit.Test;
@@ -75,6 +77,7 @@ public class ConstellationFactoryTest {
         ConstellationConfiguration config = new ConstellationConfiguration(cxt);
         Constellation c = ConstellationFactory.createConstellation(p, config);
         c.activate();
+        assertTrue(c.isMaster());
         c.done();
     }
 
@@ -90,6 +93,7 @@ public class ConstellationFactoryTest {
         ConstellationConfiguration config = new ConstellationConfiguration(cxt);
         Constellation c = ConstellationFactory.createConstellation(cp, config);
         c.activate();
+        assertTrue(c.isMaster());
         c.done();
     }
 
@@ -104,6 +108,7 @@ public class ConstellationFactoryTest {
         ConstellationConfiguration config = new ConstellationConfiguration(cxt);
         Constellation c = ConstellationFactory.createConstellation(config);
         c.activate();
+        assertTrue(c.isMaster());
         c.done();
     }
 
@@ -118,6 +123,7 @@ public class ConstellationFactoryTest {
         ConstellationConfiguration config = new ConstellationConfiguration(cxt);
         Constellation c = ConstellationFactory.createConstellation(config, config);
         c.activate();
+        assertTrue(c.isMaster());
         c.done();
     }
 
@@ -133,6 +139,7 @@ public class ConstellationFactoryTest {
         Constellation c = ConstellationFactory.createConstellation(p, config, count);
 
         c.activate();
+        assertTrue(c.isMaster());
         c.done();
     }
 
@@ -147,6 +154,7 @@ public class ConstellationFactoryTest {
         ConstellationConfiguration config = new ConstellationConfiguration(cxt);
         Constellation c = ConstellationFactory.createConstellation(p, config, count);
         c.activate();
+        assertTrue(c.isMaster());
         c.done();
     }
 
@@ -161,6 +169,7 @@ public class ConstellationFactoryTest {
         ConstellationConfiguration config = new ConstellationConfiguration(cxt);
         Constellation c = ConstellationFactory.createConstellation(config, count);
         c.activate();
+        assertTrue(c.isMaster());
         c.done();
     }
 
@@ -179,6 +188,7 @@ public class ConstellationFactoryTest {
 
         Constellation c = ConstellationFactory.createConstellation(p, config);
         c.activate();
+        assertTrue(c.isMaster());
         c.done();
     }
 

@@ -15,6 +15,8 @@
  */
 package test.pipeline.inbalance;
 
+import static org.junit.Assert.fail;
+
 import java.util.Properties;
 
 import org.junit.Test;
@@ -32,7 +34,6 @@ public class WorkflowTest {
 
     private static int JOBS = 10;
     private static int SIZE = 1024;
-    private static int RANK = 0;
 
     @Test
     public void test() throws ConstellationCreationException {
@@ -41,7 +42,6 @@ public class WorkflowTest {
         // When the lot is running, it deploys a series of jobs.
         int jobs = JOBS;
         int size = SIZE;
-        int rank = RANK;
 
         Properties p = new Properties();
         p.put("ibis.constellation.distributed", "false");
@@ -58,7 +58,7 @@ public class WorkflowTest {
 
         int expected = (1600 * JOBS) + 300;
 
-        if (rank == 0) {
+        if (c.isMaster()) {
 
             long start = System.currentTimeMillis();
 
@@ -90,6 +90,8 @@ public class WorkflowTest {
             long end = System.currentTimeMillis();
 
             System.out.println("Total processing time: " + (end - start) + " ms. (expected = " + expected + " ms.)");
+        } else {
+            fail();
         }
 
         c.done();

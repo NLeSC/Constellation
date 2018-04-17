@@ -150,54 +150,57 @@ public class DivideAndConquerWithLoadAndContext extends Activity {
         }
 
         Constellation c;
+
         try {
             c = ConstellationFactory.createConstellation(e);
         } catch (ConstellationCreationException e1) {
             logger.error("Could not create constellation", e1);
             return;
         }
+
         c.activate();
 
-        logger.info("My rank is " + rank);
-
         if (c.isMaster()) {
-
-            long count = 0;
-
-            for (int i = 0; i <= depth; i++) {
-                count += Math.pow(branch, i);
-            }
-
-            double time = (load * Math.pow(branch, depth)) / (1000 * (nodes * executors));
-
-            logger.info("Running D&C with even/odd context and branch factor " + branch + " and depth " + depth + " load " + load
-                    + " (expected jobs: " + count + ", expected time: " + time + " sec.)");
-
-            SingleEventCollector a = new SingleEventCollector(new Context((rank % 2) == 0 ? "Even" : "Odd"));
-
-            try {
-                c.submit(a);
-                c.submit(new DivideAndConquerWithLoadAndContext(new Context("Even", depth), a.identifier(), branch, depth, load));
-            } catch (NoSuitableExecutorException e1) {
-                System.err.println("Should not happen: " + e1);
-                e1.printStackTrace(System.err);
-            }
-
-            long result = (Long) a.waitForEvent().getData();
-
-            long end = System.nanoTime();
-
-            double msPerJob = Math.round(((end - start) / 10000.0) * nodes * executors / Math.pow(branch, depth)) / 100.0;
-
-            String correct = (result == count) ? " (CORRECT)" : " (WRONG!)";
-
-            logger.info("D&C(" + branch + ", " + depth + ") = " + result + correct + " total time = "
-                    + Math.round((end - start) / 1000000.0) / 1000.0 + " sec; leaf job time = " + msPerJob
-                    + " msec/job; overhead = " + Math.round(100 * 100 * (msPerJob - load) / (load)) / 100.0 + "%");
-
+            runMaster(start, branch, depth, load, nodes, executors, rank, c);
         }
 
         c.done();
 
+    }
+
+    private static void runMaster(long start, int branch, int depth, int load, int nodes, int executors, int rank,
+            Constellation c) {
+        long count = 0;
+
+        for (int i = 0; i <= depth; i++) {
+            count += Math.pow(branch, i);
+        }
+
+        double time = (load * Math.pow(branch, depth)) / (1000 * (nodes * executors));
+
+        logger.info("Running D&C with even/odd context and branch factor " + branch + " and depth " + depth + " load " + load
+                + " (expected jobs: " + count + ", expected time: " + time + " sec.)");
+
+        SingleEventCollector a = new SingleEventCollector(new Context((rank % 2) == 0 ? "Even" : "Odd"));
+
+        try {
+            c.submit(a);
+            c.submit(new DivideAndConquerWithLoadAndContext(new Context("Even", depth), a.identifier(), branch, depth, load));
+        } catch (NoSuitableExecutorException e1) {
+            System.err.println("Should not happen: " + e1);
+            e1.printStackTrace(System.err);
+        }
+
+        long result = (Long) a.waitForEvent().getData();
+
+        long end = System.nanoTime();
+
+        double msPerJob = Math.round(((end - start) / 10000.0) * nodes * executors / Math.pow(branch, depth)) / 100.0;
+
+        String correct = (result == count) ? " (CORRECT)" : " (WRONG!)";
+
+        logger.info("D&C(" + branch + ", " + depth + ") = " + result + correct + " total time = "
+                + Math.round((end - start) / 1000000.0) / 1000.0 + " sec; leaf job time = " + msPerJob + " msec/job; overhead = "
+                + Math.round(100 * 100 * (msPerJob - load) / (load)) / 100.0 + "%");
     }
 }
