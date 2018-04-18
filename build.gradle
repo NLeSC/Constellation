@@ -26,6 +26,7 @@ dependencies {
 
     testCompile 'nl.junglecomputing.ipl:ipl-support:2.3.1'
     testCompile 'junit:junit:4.11'
+    testCompile 'org.slf4j:slf4j-log4j12:1.7.2'
 }
 
 version = '2.0.0'

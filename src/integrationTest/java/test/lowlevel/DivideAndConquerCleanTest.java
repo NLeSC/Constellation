@@ -75,31 +75,31 @@ public class DivideAndConquerCleanTest {
     @Test
     public void fibOnOne() throws Exception {
         long count = 0;
-        for (int i = 0; i <= 21; i++) {
+        for (int i = 0; i <= 13; i++) {
             count += Math.pow(2, i);
         }
 
-        long result = runTest(2, 21, 1, 1);
+        long result = runTest(2, 13, 1, 1);
         assertEquals(result, count);
     }
 
     @Test
     public void fibOnTwo() throws Exception {
         long count = 0;
-        for (int i = 0; i <= 21; i++) {
+        for (int i = 0; i <= 13; i++) {
             count += Math.pow(2, i);
         }
-        long result = runTest(2, 21, 1, 2);
+        long result = runTest(2, 13, 1, 2);
         assertEquals(result, count);
     }
 
     @Test
     public void fibOnFour() throws Exception {
         long count = 0;
-        for (int i = 0; i <= 21; i++) {
+        for (int i = 0; i <= 13; i++) {
             count += Math.pow(2, i);
         }
-        long result = runTest(2, 21, 1, 4);
+        long result = runTest(2, 13, 1, 4);
         assertEquals(result, count);
     }
 

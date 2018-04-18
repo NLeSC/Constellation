@@ -68,29 +68,29 @@ public class ForkJoinTest {
 
     @Test
     public void test1() throws Exception {
-        long count = 10 * 100000;
-        long result = runTest(10, 100000, 1, 1);
+        long count = 10 * 1000;
+        long result = runTest(10, 1000, 1, 1);
         assertEquals(result, count);
     }
 
     @Test
     public void test2() throws Exception {
-        long count = 10 * 100000;
-        long result = runTest(10, 100000, 1, 2);
+        long count = 10 * 1000;
+        long result = runTest(10, 1000, 1, 2);
         assertEquals(result, count);
     }
 
     @Test
     public void test3() throws Exception {
-        long count = 10 * 100000;
-        long result = runTest(10, 100000, 1, 4);
+        long count = 10 * 1000;
+        long result = runTest(10, 1000, 1, 4);
         assertEquals(result, count);
     }
 
     @Test
     public void test4() throws Exception {
-        long count = 10 * 100000;
-        long result = runTest(100000, 10, 1, 4);
+        long count = 10 * 1000;
+        long result = runTest(1000, 10, 1, 4);
         assertEquals(result, count);
     }
 

@@ -50,6 +50,9 @@ public class FibonacciTest {
         p.put(ConstellationProperties.S_CLOSED, "true");
         p.put("ibis.pool.name", "test");
         p.put(ConstellationProperties.S_POOLSIZE, "" + executors);
+        p.put(ConstellationProperties.S_PROFILE, "true");
+        p.put(ConstellationProperties.S_PROFILE_ACTIVITY, "true");
+        p.put(ConstellationProperties.S_STATISTICS, "true");
         Server server;
         try {
             Properties serverProps = new Properties();
@@ -158,7 +161,7 @@ public class FibonacciTest {
 
     @Test
     public void fibOnOne() throws Exception {
-        assertTrue(runFib(1, 34) == 5702887);
+        assertTrue(runFib(1, 20) == 6765);
         if (exception != null) {
             fail();
         }
@@ -167,7 +170,7 @@ public class FibonacciTest {
 
     @Test
     public void fibOnFour() throws Exception {
-        assertTrue(runFib(4, 34) == 5702887);
+        assertTrue(runFib(4, 20) == 6765);
         if (exception != null) {
             fail();
         }
@@ -176,7 +179,7 @@ public class FibonacciTest {
 
     @Test
     public void fibOnEight() throws Exception {
-        assertTrue(runFib(8, 34) == 5702887);
+        assertTrue(runFib(8, 20) == 6765);
         if (exception != null) {
             fail();
         }
