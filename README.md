@@ -49,7 +49,6 @@ To include Constellation as a dependency for Gradle, use:
         allprojects {
                 repositories {
                         jcenter()
-			maven() { url 'http://maven.nuiton.org/release' }
                 }
         }
 ```
@@ -70,10 +69,6 @@ For Maven, use:
                 <repository>
                     <id>jcenter</id>
                     <url>https://jcenter.bintray.com</url>
-                </repository>
-                <repository>
-                    <id>nuiton</id>
-                    <url>https://maven.nuiton.org/release</url>
                 </repository>
         </repositories>
 ```

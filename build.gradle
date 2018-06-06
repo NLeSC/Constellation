@@ -9,10 +9,6 @@ plugins {
 
 repositories {
     jcenter()
-    maven() {
-        // for sbbi-upnplib
-	url 'http://maven.nuiton.org/release'
-    }
 }
 
 dependencies {
