@@ -327,6 +327,7 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
                     m.contents = rm.readObject();
                 } catch (ClassNotFoundException | IOException e) {
                     logger.error("Got exception in readObject", e);
+                    // Re-throwing the exception will cause Ibis to terminate the connection somewhat gracefully.
                     throw e;
                 }
                 if (m.contents != null && m.contents instanceof ByteBuffers) {
