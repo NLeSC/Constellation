@@ -323,7 +323,12 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
         if (hasObject) {
             long sz = -1;
             try {
-                m.contents = rm.readObject();
+                try {
+                    m.contents = rm.readObject();
+                } catch (ClassNotFoundException | IOException e) {
+                    logger.error("Got exception in readObject", e);
+                    throw e;
+                }
                 if (m.contents != null && m.contents instanceof ByteBuffers) {
                     int nByteBuffers = rm.readInt();
                     ArrayList<ByteBuffer> l = new ArrayList<ByteBuffer>();
@@ -385,13 +390,12 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
 
     @Override
     public void joined(IbisIdentifier arg0) {
-        // TODO Auto-generated method stub
-
+        // ignored
     }
 
     @Override
     public void left(IbisIdentifier arg0) {
-        // TODO Auto-generated method stub
+        // ignored
     }
 
     @Override
@@ -521,5 +525,4 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
         }
         return result;
     }
-
 }
