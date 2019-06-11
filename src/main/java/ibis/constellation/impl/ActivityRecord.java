@@ -55,18 +55,20 @@ public class ActivityRecord implements Serializable, ByteBuffers {
     private boolean relocated = false;
     private boolean remote = false;
 
-    private static class EventWrapper implements ByteBuffers {
+    private static class EventWrapper implements ByteBuffers, Serializable {
+
+        private static final long serialVersionUID = 1051677223714686496L;
 
         public final Event event;
-        
-        public EventWrapper(Event event) { 
+
+        public EventWrapper(Event event) {
             this.event = event;
         }
-        
+
         @Override
         public void pushByteBuffers(List<ByteBuffer> list) {
             Object tmp = event.getData();
-                
+
             if (tmp != null && tmp instanceof ByteBuffers) {
                 ((ByteBuffers) tmp).pushByteBuffers(list);
             }
@@ -75,14 +77,13 @@ public class ActivityRecord implements Serializable, ByteBuffers {
         @Override
         public void popByteBuffers(List<ByteBuffer> list) {
             Object tmp = event.getData();
-                
+
             if (tmp != null && tmp instanceof ByteBuffers) {
                 ((ByteBuffers) tmp).popByteBuffers(list);
             }
         }
     }
-    
-    
+
     ActivityRecord(Activity activity, ActivityIdentifierImpl id) {
         this.activity = activity;
         this.identifier = id;
@@ -98,14 +99,14 @@ public class ActivityRecord implements Serializable, ByteBuffers {
 
     public void enqueue(Event e) {
 
-        if (queue == null) { 
+        if (queue == null) {
             throw new IllegalStateException("Activity does not expect events");
         }
-        
-        if (e == null) { 
+
+        if (e == null) {
             throw new IllegalArgumentException("Event may not be null");
         }
-        
+
         if (state >= FINISHING) {
             throw new IllegalStateException(
                     "Cannot deliver an event to a finished activity! " + activity + " (event from " + e.getSource() + ")");
@@ -115,11 +116,11 @@ public class ActivityRecord implements Serializable, ByteBuffers {
     }
 
     public Event dequeue() {
-        
-        if (queue == null) { 
+
+        if (queue == null) {
             throw new IllegalStateException("Activity does not expect events");
         }
-        
+
         if (queue.size() == 0) {
             return null;
         }
@@ -128,11 +129,11 @@ public class ActivityRecord implements Serializable, ByteBuffers {
     }
 
     public int pendingEvents() {
-        
-        if (queue == null) { 
+
+        if (queue == null) {
             throw new IllegalStateException("Activity does not expect events");
         }
-        
+
         return queue.size();
     }
 
@@ -183,7 +184,7 @@ public class ActivityRecord implements Serializable, ByteBuffers {
     public boolean isError() {
         return (state == ERROR);
     }
-    
+
     public boolean isFresh() {
         return (state == INITIALIZING);
     }
