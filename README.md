@@ -6,7 +6,8 @@ Constellation
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3d91218e97234c71a96eff191483908e)](https://www.codacy.com/app/NLeSC/Constellation?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=NLeSC/Constellation&amp;utm_campaign=Badge_Grade)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1218876.svg)](https://doi.org/10.5281/zenodo.1218876)
 
-Copyright 2018 The Netherlands eScience Center
+Copyright 2019 Vrije Universiteit Amsterdam
+               The Netherlands eScience Center
 
 ## What problem does Constellation solve?
 
