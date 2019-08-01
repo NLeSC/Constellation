@@ -34,8 +34,9 @@ def pomConfig = {
 }
 
 license {
-    ext.copyright_year = 2018
-    ext.copyright_owner = 'Netherlands eScience Center'
+    ext.copyright_year = 2019
+    ext.copyright_owner1 = 'Vrije Universiteit Amsterdam'
+	ext.copyright_owner2 = 'Netherlands eScience Center'
     header rootProject.file('gradle/HEADER')
     strictCheck true
     excludes(["**/log4j.properties"])

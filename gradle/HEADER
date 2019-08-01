@@ -1,4 +1,5 @@
-Copyright ${copyright_year} ${copyright_owner}
+Copyright ${copyright_year} ${copyright_owner1}
+               ${copyright_owner2}
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
