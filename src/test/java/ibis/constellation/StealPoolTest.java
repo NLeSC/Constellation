@@ -1,5 +1,6 @@
-/**
- * Copyright 2013 Netherlands eScience Center
+/*
+ * Copyright 2019 Vrije Universiteit Amsterdam
+ *                Netherlands eScience Center
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ibis.constellation;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -39,7 +39,7 @@ public class StealPoolTest {
         String s = null;
         new StealPool(s);
     }
-    
+
     @Test(expected = IllegalArgumentException.class)
     public void mergeStealPoolEmptyArray() {
         StealPool.merge(new StealPool[1]);
@@ -100,7 +100,7 @@ public class StealPoolTest {
         StealPool res = StealPool.merge(new StealPool("A"), new StealPool("B"), StealPool.WORLD);
         assertEquals(StealPool.WORLD, res);
     }
-    
+
     @Test
     public void mergeStealPoolDoubleTag() {
         StealPool a1 = new StealPool("A");
@@ -253,8 +253,9 @@ public class StealPoolTest {
     public void testEquals3() {
 
         StealPool a = new StealPool("A");
+        StealPool b = null;
 
-        assertFalse(a.equals(null));
+        assertFalse(a.equals(b));
     }
 
     @Test
@@ -432,7 +433,7 @@ public class StealPoolTest {
 
         assertTrue(a2.overlap(s1));
     }
-    
+
     @Test
     public void testOverlap10() {
 

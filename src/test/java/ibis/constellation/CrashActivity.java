@@ -1,5 +1,6 @@
-/**
- * Copyright 2013 Netherlands eScience Center
+/*
+ * Copyright 2019 Vrije Universiteit Amsterdam
+ *                Netherlands eScience Center
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ibis.constellation;
 
 /**
@@ -24,43 +24,52 @@ package ibis.constellation;
 public class CrashActivity extends Activity {
 
     private static final long serialVersionUID = -4021583343422065387L;
-    
-    boolean crashInitialize;
-    boolean crashProcess;
-    boolean crashCleanup;
-    
+
+    private boolean crashInitialize;
+    private boolean crashProcess;
+    private boolean crashCleanup;
+
+    private static class RTE extends RuntimeException {
+
+        private static final long serialVersionUID = 1L;
+
+        public RTE(String string) {
+            super(string);
+        }
+    }
+
     public CrashActivity(AbstractContext c, boolean crashInitialize, boolean crashProcess, boolean crashCleanup) {
         super(c, true);
         this.crashInitialize = crashInitialize;
         this.crashProcess = crashProcess;
         this.crashCleanup = crashCleanup;
     }
-        
+
     @Override
     public void setIdentifier(ActivityIdentifier id) {
         super.setIdentifier(id);
     }
-    
+
     @Override
     public int initialize(Constellation constellation) {
-        if (crashInitialize) { 
-            throw new RuntimeException("Boom!");
+        if (crashInitialize) {
+            throw new RTE("Boom!");
         }
         return SUSPEND;
     }
 
     @Override
     public int process(Constellation constellation, Event event) {
-        if (crashProcess) { 
-            throw new RuntimeException("Boom!");
+        if (crashProcess) {
+            throw new RTE("Boom!");
         }
         return FINISH;
     }
 
     @Override
     public void cleanup(Constellation constellation) {
-        if (crashCleanup) { 
-            throw new RuntimeException("Boom!");
+        if (crashCleanup) {
+            throw new RTE("Boom!");
         }
     }
 }

@@ -1,0 +1,33 @@
+{
+    "creators": [
+        {
+            "affiliation": "Netherlands eScience Center",
+            "name": "Maassen, Jason",
+            "orcid": "0000-0002-8172-4865"
+        },
+        {
+            "affiliation": "VU University Amsterdam",
+            "name": "Jacobs, Ceriel",
+            "orcid": "0000-0002-4692-7245"
+        },
+        {
+            "affiliation": "Netherlands eScience Center",
+            "name": "Verhoeven, Stefan",
+            "orcid": "0000-0002-5821-2060"
+        }
+    ],
+    "description": "Constellation is a software platform specifically aimed at distributed, heterogeneous and hierarchical computing environments. In Constellation, applications consist of several distinct (but somehow related) activities. These activities can be implemented independently using existing, well understood tools (e.g. MPI, CUDA, etc.). Constellation is then used to construct the overall application by coupling the distinct activities. Using application defined labels in combination with context-aware work stealing, Constellation provides a simple and efficient mechanism for automatically mapping the activities to the appropriate resources, taking data locality and heterogeneity into accoun",
+    "doi": "10.5281/zenodo.1218876",
+    "keywords": [
+        "heterogeneous computing",
+        "distributed computing",
+        "work scheduling",
+        "Java"
+    ],
+    "license": {
+        "id": "Apache-2.0"
+    },
+    "publication_date": "2019-06-11",
+    "title": "Constellation",
+    "version": "2.0.1"
+}

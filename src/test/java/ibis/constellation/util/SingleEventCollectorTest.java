@@ -1,5 +1,6 @@
-/**
- * Copyright 2013 Netherlands eScience Center
+/*
+ * Copyright 2019 Vrije Universiteit Amsterdam
+ *                Netherlands eScience Center
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ibis.constellation.util;
 
 import static org.junit.Assert.assertEquals;
@@ -25,8 +25,8 @@ import org.junit.Test;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
-import ibis.constellation.Event;
 import ibis.constellation.Context;
+import ibis.constellation.Event;
 import ibis.constellation.impl.ImplUtil;
 
 /**
@@ -81,9 +81,9 @@ public class SingleEventCollectorTest {
     public void testInitialize() {
 
         Constellation c = ImplUtil.createFakeConstellation();
-     
+
         Context a = new Context("TEST", 0, 0);
-        
+
         SingleEventCollector e = new SingleEventCollector(a);
 
         int result = e.initialize(c);
@@ -95,14 +95,16 @@ public class SingleEventCollectorTest {
     public void testCleanup() {
 
         Constellation c = ImplUtil.createFakeConstellation();
-        
+
         Context a = new Context("TEST", 0, 0);
-        
+
         SingleEventCollector e = new SingleEventCollector(a);
-        
+
         e.cleanup(c);
 
-        // TODO: nothing to test for ? 
+        assertTrue(c.isMaster());
+
+        // TODO: nothing sensible to test for ?
     }
 
     @Test
@@ -121,7 +123,7 @@ public class SingleEventCollectorTest {
     public void addEvent() {
 
         Context a = new Context("TEST", 0, 0);
-        
+
         SingleEventCollector c = new SingleEventCollector(a);
 
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(0, 1, 1, false);
@@ -146,7 +148,7 @@ public class SingleEventCollectorTest {
     public void addEventMultiThreaded() {
 
         Context a = new Context("TEST", 0, 0);
-        
+
         SingleEventCollector c = new SingleEventCollector(a);
 
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(0, 1, 1, false);

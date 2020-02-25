@@ -1,0 +1,146 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'com.jfrog.bintray' version '1.8.0'
+    id 'jacoco'
+    id 'com.github.hierynomus.license' version '0.14.0'
+    id 'org.unbroken-dome.test-sets' version '2.1.1'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'nl.junglecomputing.ipl:ipl:2.3.1'
+    compile 'nl.junglecomputing.ipl:ibis-util:2.3.1'
+    compile 'org.slf4j:slf4j-api:1.7.21'
+    compile 'com.google.guava:guava:17.0'
+
+    implementation 'nl.junglecomputing.ipl:ipl-impl-smartsockets:2.3.1'
+    implementation 'nl.junglecomputing.ipl:ipl-impl-tcp:2.3.1'
+
+    testCompile 'nl.junglecomputing.ipl:ipl-support:2.3.1'
+    testCompile 'junit:junit:4.11'
+    testCompile 'org.slf4j:slf4j-log4j12:1.7.2'
+}
+
+version = '2.0.1'
+
+def pomConfig = {
+    scm {
+        url "https://github.com/nlesc/constellation.git"
+    }
+}
+
+license {
+    ext.copyright_year = 2019
+    ext.copyright_owner1 = 'Vrije Universiteit Amsterdam'
+	ext.copyright_owner2 = 'Netherlands eScience Center'
+    header rootProject.file('gradle/HEADER')
+    strictCheck true
+    excludes(["**/log4j.properties"])
+    mapping {
+        // IntelliJ IDEA gives "Dangling Javadoc comment." warning when default JAVADOC_STYLE is used,
+        // so switch to comment style
+        java = 'SLASHSTAR_STYLE'
+    }
+}
+
+licenseFormat.description = "Applies the license found in the header file in files missing the header"
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+javadoc.failOnError = false
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+javadoc {
+    include 'ibis/constellation/*', 'ibis/constellation/util/*'
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+publishing {
+    publications {
+	mavenJava(MavenPublication) {
+	    from components.java
+	    artifact sourcesJar {
+		classifier "sources"
+	    }
+	    artifact javadocJar {
+		classifier "javadoc"
+	    }
+	    groupId 'nl.junglecomputing'
+	    artifactId 'constellation'
+	    version version
+
+	    pom.withXml {
+		def root = asNode()
+                root.appendNode('url', 'https://github.com/nlesc/constellation.git')
+                root.children().last() + pomConfig
+	    }
+	}
+    }
+}
+
+tasks.withType(Jar) {
+    destinationDir = file("$rootDir/lib")
+}
+
+task copyRuntimeLibs(type: Copy) {
+    into "lib"
+    from configurations.runtime
+}
+
+bintray {
+    user = System.getenv('BINTRAY_NAME')
+    key = System.getenv('BINTRAY_APIKEY')
+    publications = ['mavenJava']
+    pkg {
+	// TODO! Which repo? We can also put it in junglecomputing ...
+	repo = 'JungleComputing'
+	name = 'constellation'
+	userOrg = "$user"
+	vcsUrl = 'https://github.com/NLeSC/constellation.git'
+	licenses = ['Apache-2.0']
+    }
+}
+
+testSets {
+    integrationTest
+}
+
+jacocoTestReport {
+    description 'Generate coverage report of unit tests'
+    group 'Code coverage reporting'
+    executionData test
+    sourceSets sourceSets.main
+    reports {
+        xml.enabled = true // codecov depends on xml format report
+    }
+}
+
+integrationTest.description = 'Run the integration tests'
+
+check.dependsOn integrationTest
+
+integrationTest.mustRunAfter test
+
+task jacocoIntegrationTestReport(type: JacocoReport) {
+    description 'Generate coverage report of integration tests'
+    group 'Code coverage reporting'
+    executionData integrationTest
+    sourceSets sourceSets.main
+    reports {
+        xml.enabled = true // codecov depends on xml format report
+    }
+}

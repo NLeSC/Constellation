@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 Vrije Universiteit Amsterdam
+ *                Netherlands eScience Center
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ibis.constellation.impl;
 
 import ibis.constellation.AbstractContext;
@@ -23,13 +39,13 @@ public class StealRequest extends AbstractMessage {
             final StealPool pool, final int size) {
 
         super(source);
-        
+
         checkNull(context, "Context may not be null");
         checkNull(localStrategy, "Local steal strategy may not be null");
         checkNull(constellationStrategy, "Constellation steal strategy may not be null");
         checkNull(remoteStrategy, "Remote steal strategy may not be null");
         checkNull(pool, "Steal pool may not be null");
-        
+
         this.context = context;
         this.localStrategy = localStrategy;
         this.constellationStrategy = constellationStrategy;
@@ -40,12 +56,6 @@ public class StealRequest extends AbstractMessage {
         isLocal = true;
     }
 
-    private void checkNull(Object o, String message) { 
-        if (o == null) { 
-            throw new IllegalArgumentException(message);
-        }
-    }
-    
     public void setRemote() {
         isLocal = false;
     }

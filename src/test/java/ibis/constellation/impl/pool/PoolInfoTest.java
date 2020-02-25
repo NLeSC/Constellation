@@ -1,5 +1,6 @@
-/**
- * Copyright 2013 Netherlands eScience Center
+/*
+ * Copyright 2019 Vrije Universiteit Amsterdam
+ *                Netherlands eScience Center
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ibis.constellation.impl.pool;
 
 import static org.junit.Assert.assertEquals;
@@ -27,7 +27,7 @@ import org.junit.Test;
 import ibis.constellation.impl.pool.communication.NodeIdentifier;
 import ibis.constellation.impl.pool.communication.ibis.NodeIdentifierImpl;
 import ibis.ipl.IbisIdentifier;
-import ibis.ipl.impl.multi.Location;
+import ibis.ipl.impl.Location;
 
 /**
  * @version 1.0

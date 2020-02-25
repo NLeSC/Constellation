@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 Vrije Universiteit Amsterdam
+ *                Netherlands eScience Center
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ibis.constellation.impl.pool.communication.ibis;
 
 import java.io.IOException;
@@ -308,7 +324,13 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
         if (hasObject) {
             long sz = -1;
             try {
-                m.contents = rm.readObject();
+                try {
+                    m.contents = rm.readObject();
+                } catch (ClassNotFoundException | IOException e) {
+                    logger.error("Got exception in readObject", e);
+                    // Re-throwing the exception will cause Ibis to terminate the connection somewhat gracefully.
+                    throw e;
+                }
                 if (m.contents != null && m.contents instanceof ByteBuffers) {
                     int nByteBuffers = rm.readInt();
                     ArrayList<ByteBuffer> l = new ArrayList<ByteBuffer>();
@@ -370,13 +392,12 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
 
     @Override
     public void joined(IbisIdentifier arg0) {
-        // TODO Auto-generated method stub
-
+        // ignored
     }
 
     @Override
     public void left(IbisIdentifier arg0) {
-        // TODO Auto-generated method stub
+        // ignored
     }
 
     @Override
@@ -391,6 +412,45 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
 
     }
 
+    private SendPort createAndConnect(IbisIdentifier id) throws IOException {
+        if (logger.isInfoEnabled()) {
+            logger.info("Connecting to " + id + " from " + ibis.identifier());
+        }
+        SendPort sp = null;
+        try {
+            sp = ibis.createSendPort(portType);
+            if (closedPool) {
+                sp.connect(id, "constellation_" + ibis.identifier().name(), 10000, true);
+            } else {
+                sp.connect(id, "constellation");
+            }
+        } catch (IOException e) {
+            try {
+                sp.close();
+            } catch (Throwable e2) {
+                // ignored ?
+            }
+            if (closedPool) {
+                try {
+                    sp = ibis.createSendPort(portType);
+                    sp.connect(id, "constellation");
+                } catch (IOException e1) {
+                    try {
+                        sp.close();
+                    } catch (Throwable e2) {
+                        // ignored ?
+                    }
+                    logger.error("Could not connect to " + id.name(), e1);
+                    throw e1;
+                }
+            } else {
+                logger.error("Could not connect to " + id.name(), e);
+                throw e;
+            }
+        }
+        return sp;
+    }
+
     private SendPort getSendPort(IbisIdentifier id) throws IOException {
 
         if (id.equals(ibis.identifier())) {
@@ -400,40 +460,7 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
         SendPort sp = sendports.get(id);
 
         if (sp == null) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Connecting to " + id + " from " + ibis.identifier());
-            }
-            try {
-                sp = ibis.createSendPort(portType);
-                if (closedPool) {
-                    sp.connect(id, "constellation_" + ibis.identifier().name(), 10000, true);
-                } else {
-                    sp.connect(id, "constellation");
-                }
-            } catch (IOException e) {
-                try {
-                    sp.close();
-                } catch (Throwable e2) {
-                    // ignored ?
-                }
-                if (closedPool) {
-                    try {
-                        sp = ibis.createSendPort(portType);
-                        sp.connect(id, "constellation");
-                    } catch (IOException e1) {
-                        try {
-                            sp.close();
-                        } catch (Throwable e2) {
-                            // ignored ?
-                        }
-                        logger.error("Could not connect to " + id.name(), e1);
-                        throw e1;
-                    }
-                } else {
-                    logger.error("Could not connect to " + id.name(), e);
-                    throw e;
-                }
-            }
+            sp = createAndConnect(id);
 
             if (logger.isInfoEnabled()) {
                 logger.info("Succesfully connected to " + id + " from " + ibis.identifier());
@@ -500,5 +527,4 @@ public class CommunicationLayerImpl implements CommunicationLayer, RegistryEvent
         }
         return result;
     }
-
 }
