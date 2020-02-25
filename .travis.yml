@@ -2,7 +2,8 @@ language: java
 sudo: false # faster builds
 
 jdk:
-  - openjdkjdk8
+  - openjdk11
+#  - openjdkjdk8
 #  - oraclejdk7
 #  - openjdk7
 
