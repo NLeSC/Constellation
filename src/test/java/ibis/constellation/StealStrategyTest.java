@@ -1,5 +1,6 @@
-/**
- * Copyright 2013 Netherlands eScience Center
+/*
+ * Copyright 2019 Vrije Universiteit Amsterdam
+ *                Netherlands eScience Center
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ibis.constellation;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -37,12 +37,12 @@ public class StealStrategyTest {
     }
 
     @Test
-    public void testHashCodeBiggest() {        
+    public void testHashCodeBiggest() {
         assertEquals(StealStrategy.BIGGEST.hashCode(), 1);
     }
 
     @Test
-    public void testHashCodeSmallest() {        
+    public void testHashCodeSmallest() {
         assertEquals(StealStrategy.SMALLEST.hashCode(), 2);
     }
 
@@ -55,7 +55,7 @@ public class StealStrategyTest {
     public void testEqualsSmall() {
         assertTrue(StealStrategy.SMALLEST.equals(StealStrategy.SMALLEST));
     }
-    
+
     @Test
     public void testEqualsSmallBig() {
         assertFalse(StealStrategy.BIGGEST.equals(StealStrategy.SMALLEST));
@@ -63,7 +63,8 @@ public class StealStrategyTest {
 
     @Test
     public void testEqualsNull() {
-        assertFalse(StealStrategy.BIGGEST.equals(null));
+        StealStrategy s = null;
+        assertFalse(StealStrategy.BIGGEST.equals(s));
     }
 
     @Test

@@ -2,9 +2,13 @@ language: java
 sudo: false # faster builds
 
 jdk:
-  - oraclejdk8
-  - oraclejdk7
-  - openjdk7
+  - openjdkjdk8
+#  - oraclejdk7
+#  - openjdk7
 
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
+script:
+    - ./gradlew check
+after_script:
+    - ./gradlew jacocoTestReport jacocoIntegrationTestReport
+    - bash <(curl -s https://codecov.io/bash) -F unit -f build/reports/jacoco/test/jacocoTestReport.xml
+    - bash <(curl -s https://codecov.io/bash) -F integration -f build/reports/jacoco/jacocoIntegrationTestReport/jacocoIntegrationTestReport.xml
