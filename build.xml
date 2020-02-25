@@ -14,6 +14,7 @@
 
   	<property name="unittest.build.dir" value="${builddir}/test"/>
   	<property name="unittest.src.dir" value="./src/test/java"/>
+  	<property name="unittest.resources.dir" value="./src/test/resources"/>
 
   	<property name="integrationtest.build.dir" value="${builddir}/integrationTest"/>
   	<property name="integrationtest.src.dir" value="./src/integrationTests/java"/>
@@ -74,7 +75,7 @@
 		<mkdir dir="${result.report.dir}" />
 
 	        <copy todir="${unittest.build.dir}">
-		        <file file="log4j.properties"/>
+		        <file file="${unittest.resources.dir}/log4j.properties"/>
 		</copy>
 
 		<javac destdir="${unittest.build.dir}" srcdir="${unittest.src.dir}" source="1.7" target="1.7" debug="true" includeantruntime="false" includes="**/*.java">

@@ -68,6 +68,13 @@ public class ConstellationFactoryTest {
         ConstellationConfiguration config = new ConstellationConfiguration(cxt);
         ConstellationFactory.createConstellation(config, null, config);
     }
+
+    @Test
+    public void testConstructor() {
+        // Does nothing, just for coverage....
+        new ConstellationFactory();
+    }
+ 
     
     @Test
     public void createDefault1() throws ConstellationCreationException {

@@ -20,9 +20,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.lang.reflect.Field;
 import java.util.Properties;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version 1.0
@@ -118,5 +121,46 @@ public class ConstellationPropertiesTest {
         ConstellationProperties cp = new ConstellationProperties(p);
     }
 
-   
+    @Test
+    public void testClosedTrue1() {
+        
+        Properties p = new Properties();
+        p.put("ibis.constellation.closed", "true");
+        
+        ConstellationProperties cp = new ConstellationProperties(p);
+      
+        assertTrue(cp.CLOSED);
+    }
+    
+    @Test
+    public void testClosedFalseWithLogging() {
+        
+        TestUtil.setLogLevel("INFO");
+              
+        Properties p = new Properties();
+        p.put("ibis.constellation.closed", "false");
+        
+        ConstellationProperties cp = new ConstellationProperties(p);
+        
+        TestUtil.setLogLevel("WARN");
+        
+        assertFalse(cp.CLOSED);
+    }
+
+    @Test
+    public void testClosedTrueWithLogging() {
+        
+        TestUtil.setLogLevel("INFO");
+        
+        Properties p = new Properties();
+        p.put("ibis.constellation.closed", "true");
+        
+        ConstellationProperties cp = new ConstellationProperties(p);
+      
+        TestUtil.setLogLevel("WARN");
+        
+        assertTrue(cp.CLOSED);
+    }
+
+    
 }

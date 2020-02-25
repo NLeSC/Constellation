@@ -26,14 +26,7 @@ import ibis.constellation.impl.SingleThreadedConstellation;
  * The <code>ConstellationFactory</code> provides several static methods to create a {@link Constellation} instance.
  */
 public class ConstellationFactory {
-
-    /**
-     * Prevent instantiation of this object type.
-     */
-    private ConstellationFactory() {
-        // nothing
-    }
-
+   
     /**
      * Creates a constellation instance, using the specified executor and the system properties.
      *

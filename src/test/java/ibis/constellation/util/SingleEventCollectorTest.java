@@ -26,6 +26,7 @@ import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.Event;
+import ibis.constellation.TestUtil;
 import ibis.constellation.Context;
 import ibis.constellation.impl.ImplUtil;
 
@@ -92,6 +93,25 @@ public class SingleEventCollectorTest {
     }
 
     @Test
+    public void testInitializeWithLogging() {
+
+        TestUtil.setLogLevel("DEBUG");
+        
+        Constellation c = ImplUtil.createFakeConstellation();
+     
+        Context a = new Context("TEST", 0, 0);
+        
+        SingleEventCollector e = new SingleEventCollector(a);
+
+        int result = e.initialize(c);
+
+        TestUtil.setLogLevel("WARN");
+
+        assertEquals(Activity.SUSPEND, result);
+    }
+
+    
+    @Test
     public void testCleanup() {
 
         Constellation c = ImplUtil.createFakeConstellation();
@@ -142,6 +162,36 @@ public class SingleEventCollectorTest {
         assertEquals(res, e);
     }
 
+    @Test
+    public void addEventWithLogging() {
+
+        TestUtil.setLogLevel("DEBUG");
+        
+        Context a = new Context("TEST", 0, 0);
+        
+        SingleEventCollector c = new SingleEventCollector(a);
+
+        ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(0, 1, 1, false);
+        ActivityIdentifier id2 = ImplUtil.createActivityIdentifier(0, 2, 2, false);
+
+        Constellation con = ImplUtil.createFakeConstellation();
+
+        Event e = new Event(id1, id2, null);
+
+        assertFalse(c.isFinished());
+
+        c.process(con, e);
+
+        assertTrue(c.isFinished());
+
+        Event res = c.waitForEvent();
+
+        TestUtil.setLogLevel("WARN");
+        
+        assertEquals(res, e);
+    }
+
+    
     @Test
     public void addEventMultiThreaded() {
 

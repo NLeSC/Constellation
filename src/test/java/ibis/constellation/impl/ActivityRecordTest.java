@@ -18,15 +18,21 @@ package ibis.constellation.impl;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
+
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import ibis.constellation.Activity;
+import ibis.constellation.ByzantineActivity;
 import ibis.constellation.Constellation;
 import ibis.constellation.Context;
 import ibis.constellation.CrashActivity;
 import ibis.constellation.Event;
 import ibis.constellation.FakeActivity;
+import ibis.constellation.MultiEventActivity;
 
 /**
  * @version 1.0
@@ -401,7 +407,7 @@ public class ActivityRecordTest {
     }
 
     @Test
-    public void testStateTransition4() { 
+    public void testIsError1() { 
         
         Constellation fc = ImplUtil.createFakeConstellation();
         
@@ -422,6 +428,17 @@ public class ActivityRecordTest {
         assertTrue(r.isError());
     }
 
+    @Test
+    public void testIsError2() { 
+        
+        FakeActivity a = new FakeActivity(new Context("A"));
+       
+        ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
+        ActivityRecord r = new ActivityRecord(a, id);
+        
+        assertFalse(r.isError());
+    }
+    
     @Test
     public void testStateTransition5() { 
         
@@ -591,11 +608,339 @@ public class ActivityRecordTest {
         ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
         ActivityRecord r = new ActivityRecord(a, id);
        
-        assertFalse(r.setRunnable());
-        
         r.run(fc);
 
         assertTrue(r.setRunnable());
     }
 
+    @Test
+    public void testSetRunnable3() { 
+        
+        Constellation fc = ImplUtil.createFakeConstellation();
+
+        FakeActivity a = new FakeActivity(new Context("A"));
+       
+        ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
+        ActivityRecord r = new ActivityRecord(a, id);
+       
+        r.run(fc);
+
+        Event e = new Event(id, id, "Hello");
+        r.enqueue(e);
+        r.setRunnable();
+        
+        assertFalse(r.setRunnable());
+    }
+    
+    
+    @Test(expected = IllegalStateException.class)
+    public void testSetRunnable4() { 
+        
+        Constellation fc = ImplUtil.createFakeConstellation();
+
+        FakeActivity a = new FakeActivity(new Context("A"));
+       
+        ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
+        ActivityRecord r = new ActivityRecord(a, id);
+       
+        r.run(fc);
+
+        Event e = new Event(id, id, "Hello");
+        r.enqueue(e);
+        r.setRunnable();
+        
+        r.run(fc);
+        r.setRunnable();
+    }
+    
+    @Test
+    public void testIsRunnable1() { 
+        
+        Constellation fc = ImplUtil.createFakeConstellation();
+
+        FakeActivity a = new FakeActivity(new Context("A"));
+       
+        ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
+        ActivityRecord r = new ActivityRecord(a, id);
+       
+        assertFalse(r.isRunnable());
+    }
+
+    @Test
+    public void testIsRunnable2() { 
+        
+        Constellation fc = ImplUtil.createFakeConstellation();
+
+        FakeActivity a = new FakeActivity(new Context("A"));
+       
+        ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
+        ActivityRecord r = new ActivityRecord(a, id);
+       
+        r.run(fc);
+
+        Event e = new Event(id, id, "Hello");
+        r.enqueue(e);
+        r.setRunnable();
+        
+        assertTrue(r.isRunnable());
+    }
+    
+    @Test
+    public void testWrongResponse1() { 
+        
+        Constellation fc = ImplUtil.createFakeConstellation();
+        
+        ByzantineActivity a = new ByzantineActivity(new Context("A"), 42, 42);
+       
+        ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
+        ActivityRecord r = new ActivityRecord(a, id);
+
+        // Should go to error state due to incorrect response of activity
+        r.run(fc);
+        
+        assertTrue(r.isError());
+    }
+    
+    @Test
+    public void testWrongResponse2() { 
+        
+        Constellation fc = ImplUtil.createFakeConstellation();
+        
+        ByzantineActivity a = new ByzantineActivity(new Context("A"), Activity.SUSPEND, 42);
+       
+        ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
+        ActivityRecord r = new ActivityRecord(a, id);
+        
+        r.run(fc);
+        
+        assertFalse(r.isError());
+        
+        Event e = new Event(id, id, "Hello");
+        r.enqueue(e);
+        r.setRunnable();
+        r.run(fc);
+        
+        assertTrue(r.isError());
+    }
+
+    @Test
+    public void testMultipleEvents() { 
+        
+        Constellation fc = ImplUtil.createFakeConstellation();
+        
+        MultiEventActivity a = new MultiEventActivity(new Context("A"), 3);
+       
+        ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
+        ActivityRecord r = new ActivityRecord(a, id);
+        
+        // Init
+        r.run(fc);
+        
+        Event e1 = new Event(id, id, "a");
+        Event e2 = new Event(id, id, "b");
+        Event e3 = new Event(id, id, "c");
+        
+        r.enqueue(e1);
+        r.setRunnable();
+        
+        // Process e1
+        r.run(fc);
+        
+        r.enqueue(e2);
+        r.enqueue(e3);
+        r.setRunnable();
+        
+        // Process e2
+        r.run(fc);
+        
+        // Process e3
+        r.run(fc);
+        
+        // cleanup
+        r.run(fc);
+        
+        assertTrue(r.isDone());
+        assertTrue(a.clean);
+        assertTrue(a.initialized);
+        assertEquals(a.count, 3);
+        
+        Event [] es = new Event[] { e1,  e2, e3 };
+        Event [] es2 = a.events.toArray(new Event[a.events.size()]);
+        
+        assertTrue(Arrays.equals(es, es2));
+     
+    }
+    
+    @Test
+    public void testRunAfterDone() { 
+        
+        Constellation fc = ImplUtil.createFakeConstellation();
+        
+        ByzantineActivity a = new ByzantineActivity(new Context("A"), Activity.FINISH, Activity.FINISH);
+       
+        ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
+        ActivityRecord r = new ActivityRecord(a, id);
+        
+        r.run(fc);
+        r.run(fc);
+        
+        assertTrue(r.isDone());
+       
+        r.run(fc);
+        
+        assertTrue(r.isError());
+    }
+
+    @Test
+    public void testRunAfterError() { 
+        
+        Constellation fc = ImplUtil.createFakeConstellation();
+        
+        ByzantineActivity a = new ByzantineActivity(new Context("A"), Activity.FINISH, Activity.FINISH);
+       
+        ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
+        ActivityRecord r = new ActivityRecord(a, id);
+        
+        r.run(fc);
+        r.run(fc);
+        
+        assertTrue(r.isDone());
+       
+        r.run(fc);
+        
+        assertTrue(r.isError());
+        
+        r.run(fc);
+        
+        assertTrue(r.isError());
+    }
+   
+    @Test
+    public void testToStringInitializing() { 
+        
+        Constellation fc = ImplUtil.createFakeConstellation();
+        
+        MultiEventActivity a = new MultiEventActivity(new Context("A"), 3);
+       
+        ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
+        ActivityRecord r = new ActivityRecord(a, id);
+        
+        assertEquals(a.toString() + " STATE: initializing event queue size = 0", r.toString());
+    } 
+    
+    @Test
+    public void testToStringSuspended() { 
+        
+        Constellation fc = ImplUtil.createFakeConstellation();
+        
+        MultiEventActivity a = new MultiEventActivity(new Context("A"), 3);
+       
+        ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
+        ActivityRecord r = new ActivityRecord(a, id);
+        
+        r.run(fc);
+        
+        assertEquals(a.toString() + " STATE: suspended event queue size = 0", r.toString());
+    }
+    
+    @Test
+    public void testToStringRunnable() { 
+        
+        Constellation fc = ImplUtil.createFakeConstellation();
+        
+        MultiEventActivity a = new MultiEventActivity(new Context("A"), 3);
+       
+        ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
+        ActivityRecord r = new ActivityRecord(a, id);
+        
+        r.run(fc);
+        
+        Event e1 = new Event(id, id, "a");
+        r.enqueue(e1);
+        
+        r.setRunnable();
+        
+        assertEquals(a.toString() + " STATE: runnable event queue size = 1", r.toString());
+    }
+    
+    @Test
+    public void testToStringFinishing() { 
+        
+        Constellation fc = ImplUtil.createFakeConstellation();
+        
+        FakeActivity a = new FakeActivity(new Context("A"));
+       
+        ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
+        ActivityRecord r = new ActivityRecord(a, id);
+        
+        r.run(fc);
+        
+        Event e1 = new Event(id, id, "a");
+        r.enqueue(e1);
+        
+        r.setRunnable();
+        r.run(fc);
+        
+        assertEquals(a.toString() + " STATE: finishing event queue size = 0", r.toString());
+    }
+    
+    @Test
+    public void testToStringDone() { 
+        
+        Constellation fc = ImplUtil.createFakeConstellation();
+        
+        FakeActivity a = new FakeActivity(new Context("A"));
+       
+        ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
+        ActivityRecord r = new ActivityRecord(a, id);
+        
+        r.run(fc);
+        
+        Event e1 = new Event(id, id, "a");
+        r.enqueue(e1);
+        
+        r.setRunnable();
+        r.run(fc);
+        r.run(fc);
+        
+        assertEquals(a.toString() + " STATE: done event queue size = 0", r.toString());
+    }
+    
+    @Test
+    public void testToStringError() { 
+        
+        Constellation fc = ImplUtil.createFakeConstellation();
+        
+        FakeActivity a = new FakeActivity(new Context("A"));
+       
+        ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
+        ActivityRecord r = new ActivityRecord(a, id);
+        
+        r.run(fc);
+        
+        Event e1 = new Event(id, id, "a");
+        r.enqueue(e1);
+        
+        r.setRunnable();
+        r.run(fc);
+        r.run(fc);
+        r.run(fc);
+        
+        assertEquals(a.toString() + " STATE: error event queue size = 0", r.toString());
+    }
+    
+    @Test
+    public void testToStringInitializingNoQueue() { 
+        
+        Constellation fc = ImplUtil.createFakeConstellation();
+        
+        FakeActivity a = new FakeActivity(new Context("A"), false, false);
+       
+        ActivityIdentifierImpl id = (ActivityIdentifierImpl) ImplUtil.createActivityIdentifier(1, 42, 1001, true);       
+        ActivityRecord r = new ActivityRecord(a, id);
+        
+        assertEquals(a.toString() + " STATE: initializing event queue size = 0", r.toString());
+    }
+    
+    
 }
