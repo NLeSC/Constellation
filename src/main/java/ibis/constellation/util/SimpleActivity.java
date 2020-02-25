@@ -7,8 +7,8 @@ import ibis.constellation.Constellation;
 import ibis.constellation.Event;
 
 /**
- * A <code>SimpleActivity</code> is an activity that only requires a single invocation of its {@link #simpleActivity()} method. In
- * particular, it has (default) implementations of {@link Activity#initialize()} and {@link Activity#cleanup()}, and it does not
+ * A <code>SimpleActivity</code> is an activity that only requires a single invocation of its {@link #simpleActivity} method. In
+ * particular, it has (default) implementations of {@link Activity#initialize} and {@link Activity#cleanup}, and it does not
  * expect events. It does provide a concept of a parent activity.
  */
 public abstract class SimpleActivity extends Activity {
@@ -37,8 +37,8 @@ public abstract class SimpleActivity extends Activity {
      *            the activity identifier of the parent activity (may be <code>null</code>).
      * @param context
      *            the context that specifies which executors can actually execute this activity.
-     * @param restrictToLocal
-     *            when set, specifies that this activity can only be executed by a local executor.
+     * @param mayBeStolen
+     *            when set, this activity may be stolen by other Constellations.
      */
     protected SimpleActivity(ActivityIdentifier parent, AbstractContext context, boolean mayBeStolen) {
         super(context, mayBeStolen, false);
@@ -48,7 +48,7 @@ public abstract class SimpleActivity extends Activity {
     /**
      * {@inheritDoc}
      *
-     * This version of {@link Activity#initialize()} calls {@link #simpleActivity()} and then {@link Activity#finish()}.
+     * This version of {@link Activity#initialize} calls {@link #simpleActivity} and returns {@link #FINISH}.
      */
     @Override
     public int initialize(Constellation c) {
@@ -68,8 +68,10 @@ public abstract class SimpleActivity extends Activity {
     }
 
     /**
-     * This method, to be implemented by the activity, is called once, after which the activity will {@link #finish()}.
+     * This method, to be implemented by the activity, is called once, after which the activity will finish.
      *
+     * @param c
+     *            the {@link Constellation} on which the Activity is running
      */
     public abstract void simpleActivity(Constellation c);
 

@@ -28,19 +28,19 @@ import ibis.constellation.impl.ActivityIdentifierImpl;
  * This class is the base class for all application activities. Applications should extend this class and implement the
  * {@link initialize}, {@link process} and {@link cleanup} methods.
  *
- * After creating an Activity, it can be submitted to Constellation using {@link Constellation.submit}. During this submit, a
+ * After creating an Activity, it can be submitted to Constellation using {@link Constellation#submit}. During this submit, a
  * globally unique {@link ActivityIdentifier} will be assigned to the Activity. Using {@link setIdentifier} this identifier will
  * be stored in the Activity. Use the {@link identifier} method to retrieve it.
  *
- * The Activity will be scheduled to run on a Constellation that matches the {@link ActivityContext}. When it starts running,
+ * The Activity will be scheduled to run on a Constellation that matches the {@link Context}. When it starts running,
  * {@link initialize} will be invoked once. This method may perform any processing that is needed, but should not block
- * indefinitely as this may result in deadlocks. When finished, the method should either return {@link FINISH} of {@LINK SUSPEND}.
+ * indefinitely as this may result in deadlocks. When finished, the method should either return {@link FINISH} of {@link SUSPEND}.
  *
  * By returning {@link FINISH} the Activity indicates it no further processing is needed. By returning {@link SUSPEND} the
- * Activity indicates it expects an {@link Event}. The Activity is then suspend by Constellation, until the {@Event} arrives.
+ * Activity indicates it expects an {@link Event}. The Activity is then suspend by Constellation, until the {@link Event} arrives.
  *
  * Upon arrival of the {@link Event}, the {@link process} method will be invoked. After processing the event, {@link process} can
- * indicate if more events are expected (by returning {@link SUSPEND} or if the Activity is done (by returning {@FINISH}.
+ * indicate if more events are expected (by returning {@link SUSPEND} or if the Activity is done (by returning {@link FINISH}.
  *
  * After {@link FINISH} is returned by either {@link initialize} of {@link process}, the {@link cleanup} method is invoked. After
  * this method returns, the Activity is finished and will nore receive any more processingtime.
@@ -51,12 +51,12 @@ public abstract class Activity implements Serializable {
     private static final long serialVersionUID = -83331265534440970L;
 
     /**
-     * Value to be returned by {@link #initialize()} or {@link #process()} when no further processing is needed.
+     * Value to be returned by {@link #initialize} or {@link #process} when no further processing is needed.
      */
     public static final int FINISH = 0;
 
     /**
-     * Value to be returned by {@link #initialize()} or {@link #process()} when (further) events are expected.
+     * Value to be returned by {@link #initialize} or {@link #process} when (further) events are expected.
      */
     public static final int SUSPEND = 1;
 
@@ -73,7 +73,7 @@ public abstract class Activity implements Serializable {
      * @param context
      *            the context in which this activity should be run.
      * @param mayBeStolen
-     *            if this activity ban be stolen by other Constellations
+     *            if this activity may be stolen by other Constellations
      * @param expectsEvents
      *            if this Activity expects events
      */
@@ -141,9 +141,9 @@ public abstract class Activity implements Serializable {
     }
 
     /**
-     * Returns the {@link ActivityContext} of this Activity.
+     * Returns the {@link AbstractContext} of this Activity.
      *
-     * @return the {@link ActivityContext} of this Activity.
+     * @return the {@link AbstractContext} of this Activity.
      */
     public AbstractContext getContext() {
         return context;
@@ -172,7 +172,7 @@ public abstract class Activity implements Serializable {
      * perform as much processing as needed, but should not block for a prolonged period, as this may result in deadlocks.
      *
      * When finished, it should return either {@link #SUSPEND} or {@link #FINISH}, depending on what the activity is to do next:
-     * {@link #sSUSPEND} when it wants to wait for events, and {@link #FINISH} when it is done.
+     * {@link #SUSPEND} when it wants to wait for events, and {@link #FINISH} when it is done.
      *
      * Note that this method does not throw checked exceptions. It can, however, throw runtime exceptions or errors, and the
      * {@link Constellation} running this Activity will deal with that.

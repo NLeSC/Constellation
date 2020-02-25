@@ -84,15 +84,24 @@ public class ConstellationProperties extends Properties {
 
     /**
      * The "profile.communication" property is a boolean property indicating whether constellation should provide some timing
-     * information on steql or event messages. The default is "false". Note: the overhead for this profiler can be large.
+     * information on steal or event messages. The default is "false". Note: the overhead for this profiler can be large.
      */
     public static final String S_PROFILE_COMMUNICATION = S_PROFILE + ".communication";
 
     public final boolean PROFILE_COMMUNICATION;
 
     /**
+     * The "profile.activity" property is a boolean property indicating whether constellation should provide some timing
+     * information on the activity methods {@link Activity#cleanup(Constellation)},
+     * {@link Activity#process(Constellation, Event)}, and {@link Activity#initialize(Constellation)}. The default is "false".
+     */
+    public static final String S_PROFILE_ACTIVITY = S_PROFILE + ".activity";
+
+    public final boolean PROFILE_ACTIVITY;
+
+    /**
      * The "profile.steal" property is a boolean property indicating whether constellation should provide some timing information
-     * on steqls. The default is "false". Note: the overhead for this profiler can be large.
+     * on steals. The default is "false". Note: the overhead for this profiler can be large.
      */
     public static final String S_PROFILE_STEAL = S_PROFILE + ".steal";
 
@@ -214,6 +223,7 @@ public class ConstellationProperties extends Properties {
         DISTRIBUTED = getBooleanProperty(S_DISTRIBUTED, true);
         PROFILE = getBooleanProperty(S_PROFILE, false);
         PROFILE_COMMUNICATION = getBooleanProperty(S_PROFILE_COMMUNICATION, false);
+        PROFILE_ACTIVITY = getBooleanProperty(S_PROFILE_ACTIVITY, false);
         PROFILE_STEAL = getBooleanProperty(S_PROFILE_STEAL, false);
         PROFILE_OUTPUT = getProperty(S_PROFILE_OUTPUT);
         STATISTICS = getBooleanProperty(S_STATISTICS, false);

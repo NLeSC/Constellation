@@ -18,10 +18,6 @@ package ibis.constellation;
 
 import static org.junit.Assert.assertEquals;
 
-import java.nio.ByteBuffer;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.junit.Test;
 
 import ibis.constellation.impl.ImplUtil;
@@ -33,10 +29,10 @@ import ibis.constellation.impl.ImplUtil;
  */
 public class EventTest {
 
-    private static class TestData { 
-        int bla = 10;
+    private static class TestData {
+        public int bla = 10;
     }
-    
+
     @Test(expected = IllegalArgumentException.class)
     public void createEventFail() {
         new Event(null, null, null);
@@ -75,9 +71,9 @@ public class EventTest {
 
         new Event(id1, id2, new TestData()); // should throw exception
     }
-    
-/*  
-    @Test  
+
+    /*
+    @Test
     public void pushDataNull() {
 
         ActivityIdentifier id1 = ImplUtil.createActivityIdentifier(1, 0, 1, false);
@@ -156,8 +152,8 @@ public class EventTest {
 
         assertEquals(listIn, listOut);
     }
-*/
-    
+    */
+
     @Test
     public void checkToString() {
 

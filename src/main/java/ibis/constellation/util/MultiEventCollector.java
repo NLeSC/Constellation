@@ -24,7 +24,7 @@ public class MultiEventCollector extends Activity {
 
     /**
      * Constructs a <code>MultiEventCollector</code> with the specified activity context and event count. Note: this is an
-     * activity that will receive events (see {@link Activity#Activity(ActivityContext, boolean)}).
+     * activity that will receive events (see {@link Activity#Activity(AbstractContext, boolean)}).
      *
      * @param c
      *            the activity context of this event collector

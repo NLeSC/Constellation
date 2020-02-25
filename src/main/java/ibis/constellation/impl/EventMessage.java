@@ -6,7 +6,7 @@ import java.util.List;
 import ibis.constellation.Event;
 import ibis.constellation.util.ByteBuffers;
 
-public class EventMessage extends Message implements ByteBuffers {
+public class EventMessage extends AbstractMessage implements ByteBuffers {
 
     private static final long serialVersionUID = -5430024744123215066L;
 

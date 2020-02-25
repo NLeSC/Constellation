@@ -436,9 +436,9 @@ public class DistributedConstellation {
         // Init communication here...
         try {
             pool = new Pool(this, props);
-
-            cidFactory = pool.getCIDFactory();
+            cidFactory = new ConstellationIdentifierFactory(pool.getRank());
             identifier = cidFactory.generateConstellationIdentifier();
+            profiling = new Profiling(pool.getId());
 
             delivery = new DeliveryThread();
             delivery.start();
@@ -451,7 +451,6 @@ public class DistributedConstellation {
                 logger.info("Starting DistributedConstellation " + identifier);
             }
 
-            profiling = pool.getProfiling();
         } catch (PoolCreationFailedException e) {
             throw new ConstellationCreationException("could not create DistributedConstellation", e);
         }
@@ -655,7 +654,7 @@ public class DistributedConstellation {
             boolean pending = setPendingSteal(sp, sr.context, true);
 
             if (pending) {
-                // We have already send out a steal in this slot, so
+                // We have already sent out a steal in this slot, so
                 // we're not allowed to send another one.
                 return;
             }

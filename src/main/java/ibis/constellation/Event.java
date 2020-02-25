@@ -17,8 +17,6 @@
 package ibis.constellation;
 
 import java.io.Serializable;
-import java.nio.ByteBuffer;
-import java.util.List;
 
 import ibis.constellation.impl.IdChecker;
 import ibis.constellation.util.ByteBuffers;
@@ -80,22 +78,6 @@ public final class Event implements Serializable {
         }
         return s;
     }
-
-    /*
-    @Override
-    public void pushByteBuffers(List<ByteBuffer> list) {
-        if (getData() != null && getData() instanceof ByteBuffers) {
-            ((ByteBuffers) getData()).pushByteBuffers(list);
-        }
-    }
-
-    @Override
-    public void popByteBuffers(List<ByteBuffer> list) {
-        if (getData() != null && getData() instanceof ByteBuffers) {
-            ((ByteBuffers) getData()).popByteBuffers(list);
-        }
-    }
-    */
 
     /**
      * Returns the identifier of the source activity of this event.

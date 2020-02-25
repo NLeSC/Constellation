@@ -2,6 +2,7 @@ package ibis.constellation.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.common.base.Function;
@@ -12,7 +13,7 @@ import ibis.constellation.impl.util.TimeSyncInfo;
 
 public class TimerImpl implements java.io.Serializable, ibis.constellation.Timer {
 
-    private static class TimerEvent implements java.io.Serializable {
+    private static class TimerEvent implements java.io.Serializable, Comparable<TimerEvent> {
 
         private static final long serialVersionUID = 1L;
 
@@ -130,6 +131,28 @@ public class TimerImpl implements java.io.Serializable, ibis.constellation.Timer
                     node, device, thread, // queueIndex,
                     action, ibis.util.Timer.format(queued / 1000.0), ibis.util.Timer.format(submitted / 1000.0),
                     ibis.util.Timer.format(start / 1000.0), ibis.util.Timer.format(end / 1000.0));
+        }
+
+        @Override
+        public int compareTo(TimerEvent that) {
+            int result = this.node.compareTo(that.node);
+            if (result == 0) {
+                result = this.thread.compareTo(that.thread);
+            }
+            if (result == 0) {
+                result = this.device.compareTo(that.device);
+            }
+            if (result == 0) {
+                if (this.time() < that.time()) {
+                    result = 1;
+                } else if (this.time() == that.time()) {
+                    result = 0;
+                } else {
+                    result = -1;
+                }
+            }
+
+            return result;
         }
     }
 
@@ -358,17 +381,11 @@ public class TimerImpl implements java.io.Serializable, ibis.constellation.Timer
         return null;
     }
 
-    /**
-     * Filters all events that are not within the 'overall' frame.
-     *
-     * We filter 10% before the overallStartTime and 10% after to make up for imprecision in synchronizing between nodes.
-     */
-    public void filterOverall() {
-
+    private ArrayList<TimerEvent> getFiltered(ArrayList<TimerEvent> events, long endFilter) {
         ArrayList<TimerEvent> filtered = new ArrayList<TimerEvent>();
 
         for (TimerEvent event : events) {
-            if (event.getStart() >= 0 && event.getEnd() > event.getStart()) {
+            if (event.getStart() >= 0 && event.getEnd() > event.getStart() && event.getEnd() < endFilter) {
                 filtered.add(event);
                 //            } else {
                 //                System.out.println("Filtered out event: " + event);
@@ -376,7 +393,15 @@ public class TimerImpl implements java.io.Serializable, ibis.constellation.Timer
 
         }
 
-        this.events = filtered;
+        return filtered;
+    }
+
+    /**
+     * Filters all events that are not within the 'overall' frame.
+     *
+     * We filter 10% before the overallStartTime and 10% after to make up for imprecision in synchronizing between nodes.
+     */
+    public void filterOverall() {
 
         TimerEvent overallEvent = getOverallEvent();
         if (overallEvent == null) {
@@ -391,21 +416,15 @@ public class TimerImpl implements java.io.Serializable, ibis.constellation.Timer
 
         normalize(startFilter);
 
-        filtered = new ArrayList<TimerEvent>();
-
-        for (TimerEvent event : events) {
-            if (event.getStart() >= 0 && event.getEnd() < endFilter) {
-                filtered.add(event);
-                //            } else {
-                //                System.out.println("Filtered out event: " + event);
-            }
-
-        }
+        ArrayList<TimerEvent> filtered = getFiltered(events, endFilter);
         this.events = filtered;
     }
 
     public String gnuPlotData(boolean perThread) {
         StringBuffer sb = new StringBuffer();
+        if (perThread) {
+            Collections.sort(events);
+        }
         for (TimerEvent event : events) {
             if (event.getEnd() > 0) {
                 append(sb, event.getNode(), event.getDevice(), event.getThread(), event.getStart(), event.getEnd(),
