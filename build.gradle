@@ -3,6 +3,7 @@ plugins {
     id 'maven-publish'
     id 'com.jfrog.bintray' version '1.8.0'
     id 'jacoco'
+    id 'eclipse'
     id 'com.github.hierynomus.license' version '0.14.0'
     id 'org.unbroken-dome.test-sets' version '2.1.1'
 }
@@ -144,3 +145,11 @@ task jacocoIntegrationTestReport(type: JacocoReport) {
         xml.enabled = true // codecov depends on xml format report
     }
 }
+
+task jacocoMergedTestReport(type: JacocoReport) {
+    description 'Generate combined coverage report of unit and integration tests'
+    group 'Code coverage reporting'
+    executionData( files { file('build/jacoco').listFiles() } )
+    sourceSets sourceSets.main
+}
+
