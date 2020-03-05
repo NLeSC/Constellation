@@ -17,6 +17,7 @@
 package ibis.constellation.impl.pool;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -33,16 +34,23 @@ import ibis.constellation.impl.DistributedConstellation;
 import ibis.constellation.impl.EventMessage;
 import ibis.constellation.impl.StealReply;
 import ibis.constellation.impl.StealRequest;
-import ibis.constellation.impl.pool.communication.CommunicationLayer;
-import ibis.constellation.impl.pool.communication.Message;
-import ibis.constellation.impl.pool.communication.NodeIdentifier;
-import ibis.constellation.impl.pool.communication.ibis.CommunicationLayerImpl;
 import ibis.constellation.impl.util.Profiling;
 import ibis.constellation.impl.util.TimeSyncInfo;
+import ibis.constellation.util.ByteBufferCache;
+import ibis.constellation.util.ByteBuffers;
+import nl.junglecomputing.pidgin.Channel;
+import nl.junglecomputing.pidgin.NodeIdentifier;
+import nl.junglecomputing.pidgin.Pidgin;
+import nl.junglecomputing.pidgin.PidginFactory;
+import nl.junglecomputing.pidgin.Upcall;
 
-public class Pool {
+public class Pool implements Upcall {
 
     private static final Logger logger = LoggerFactory.getLogger(Pool.class);
+
+    public final String CHANNEL_ADMIN = "constellation_ADMIN";
+    public final String CHANNEL_STEAL = "constellation_STEAL";
+    public final String CHANNEL_EVENT = "constellation_EVENT";
 
     private static final byte OPCODE_EVENT_MESSAGE = 10;
     private static final byte OPCODE_STEAL_REQUEST = 11;
@@ -232,12 +240,15 @@ public class Pool {
 
     private NodeIdentifier[] ids = null;
 
-    private final CommunicationLayer comm;
+    private final Pidgin comm;
 
     private boolean cleanup;
 
-    public Pool(final DistributedConstellation owner, final ConstellationProperties properties)
-            throws PoolCreationFailedException {
+    private Channel adminChannel;
+    private Channel stealChannel;
+    private Channel eventChannel;
+
+    public Pool(final DistributedConstellation owner, final ConstellationProperties properties) throws PoolCreationFailedException {
 
         this.owner = owner;
         closedPool = properties.CLOSED;
@@ -247,16 +258,25 @@ public class Pool {
             properties.setProperty("ibis.pool.size", "" + properties.POOLSIZE);
         }
 
-        comm = new CommunicationLayerImpl(properties, this);
-        local = comm.getMyIdentifier();
-        master = comm.getMaster();
-        rank = comm.getRank();
-        isMaster = local.equals(master);
-        locationCache.put(rank, local);
+        try {
+            comm = PidginFactory.create(properties);
+            local = comm.getMyIdentifier();
+            master = comm.getMaster();
+            rank = comm.getRank();
+            isMaster = local.equals(master);
+            locationCache.put(rank, local);
+
+            adminChannel = comm.createChannel("constellation_ADMIN", this);
+            stealChannel = comm.createChannel("constellation_STEAL", this);
+            eventChannel = comm.createChannel("constellation_EVENT", this);
+
+        } catch (Exception e) {
+            throw new PoolCreationFailedException("Failed to create pool", e);
+        }
 
         // Register my rank at the master
         if (!isMaster) {
-            doForward(master, OPCODE_RANK_REGISTER_REQUEST, new RankInfo(rank, local));
+            doForward(adminChannel, master, OPCODE_RANK_REGISTER_REQUEST, new RankInfo(rank, local));
             syncInfo = null;
         } else {
             syncInfo = new TimeSyncInfo(master.name());
@@ -282,7 +302,15 @@ public class Pool {
     }
 
     public void activate() {
-        comm.activate();
+
+        try {
+            adminChannel.activate();
+            stealChannel.activate();
+            eventChannel.activate();
+        } catch (Exception e) {
+            logger.error("Failed to activate", e);
+        }
+
         if (logger.isInfoEnabled()) {
             logger.info("Activating POOL on " + local);
         }
@@ -293,7 +321,7 @@ public class Pool {
                     if (!id.equals(local)) {
                         // First do a pingpong to make sure that the other side
                         // has upcalls enabled already.
-                        doForward(id, OPCODE_PING, null);
+                        doForward(adminChannel, id, OPCODE_PING, null);
                         synchronized (this) {
                             while (!gotPong) {
                                 try {
@@ -319,7 +347,7 @@ public class Pool {
                 }
                 for (NodeIdentifier id : ids) {
                     if (!id.equals(local)) {
-                        doForward(id, OPCODE_RELEASE, null);
+                        doForward(adminChannel, id, OPCODE_RELEASE, null);
                     }
                 }
             } else {
@@ -382,7 +410,7 @@ public class Pool {
                     logger.info("Sending statistics to master");
                 }
                 synchronized (profiling) {
-                    doForward(master, OPCODE_PROFILING, profiling);
+                    doForward(adminChannel, master, OPCODE_PROFILING, profiling);
                 }
             }
         }
@@ -393,7 +421,20 @@ public class Pool {
             cleanup = true;
         }
         updater.done();
-        comm.cleanup();
+
+        try {
+            adminChannel.deactivate();
+            stealChannel.deactivate();
+            eventChannel.deactivate();
+
+            comm.removeChannel(CHANNEL_ADMIN);
+            comm.removeChannel(CHANNEL_STEAL);
+            comm.removeChannel(CHANNEL_EVENT);
+
+            comm.terminate();
+        } catch (Exception e) {
+            logger.warn("Failed to deactivate!", e);
+        }
     }
 
     public int getRank() {
@@ -408,14 +449,48 @@ public class Pool {
         return lookupRank(cid.getNodeId());
     }
 
-    private boolean doForward(NodeIdentifier dest, byte opcode, Object data) {
-        Message m = new Message(opcode, data);
+    // private boolean doForward(NodeIdentifier dest, byte opcode, Object data) {
+    // Message m = new Message(opcode, data);
+    // synchronized (this) {
+    // if (cleanup) {
+    // return true;
+    // }
+    // }
+    // return comm.sendMessage(dest, m);
+    // }
+
+    private boolean doForward(Channel channel, NodeIdentifier dest, byte opcode, Object data) {
+
         synchronized (this) {
             if (cleanup) {
                 return true;
             }
         }
-        return comm.sendMessage(dest, m);
+
+        if (data instanceof ByteBuffers) {
+
+            ArrayList<ByteBuffer> list = new ArrayList<ByteBuffer>();
+            ((ByteBuffers) data).pushByteBuffers(list);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Writing " + list.size() + " bytebuffers");
+            }
+
+            // Bit of a hac, as we expect an array
+            ByteBuffer[] buffers = new ByteBuffer[list.size()];
+
+            int index = 0;
+
+            for (ByteBuffer b : list) {
+                b.position(0);
+                b.limit(b.capacity());
+                buffers[index++] = b;
+            }
+
+            return channel.sendMessage(dest, opcode, data, buffers);
+        } else {
+            return channel.sendMessage(dest, opcode, data);
+        }
     }
 
     public boolean forward(StealReply sr) {
@@ -423,14 +498,14 @@ public class Pool {
         // logger.info("POOL:FORWARD StealReply from " + sr.source +
         // " to " + sr.target);
 
-        return forward(sr, OPCODE_STEAL_REPLY);
+        return forward(stealChannel, sr, OPCODE_STEAL_REPLY);
     }
 
     public boolean forward(EventMessage em) {
-        return forward(em, OPCODE_EVENT_MESSAGE);
+        return forward(eventChannel, em, OPCODE_EVENT_MESSAGE);
     }
 
-    private boolean forward(AbstractMessage m, byte opcode) {
+    private boolean forward(Channel channel, AbstractMessage m, byte opcode) {
 
         ConstellationIdentifierImpl target = m.target;
 
@@ -451,11 +526,11 @@ public class Pool {
             logger.debug("Sending " + m + " to " + id);
         }
 
-        return doForward(id, opcode, m);
+        return doForward(channel, id, opcode, m);
     }
 
     public boolean forwardToMaster(StealRequest m) {
-        return doForward(master, OPCODE_STEAL_REQUEST, m);
+        return doForward(stealChannel, master, OPCODE_STEAL_REQUEST, m);
     }
 
     private void registerRank(RankInfo info) {
@@ -490,7 +565,7 @@ public class Pool {
         }
 
         // Forward a request to the master for the id of rank
-        doForward(master, OPCODE_RANK_LOOKUP_REQUEST, new RankInfo(rank, local));
+        doForward(adminChannel, master, OPCODE_RANK_LOOKUP_REQUEST, new RankInfo(rank, local));
 
         return null;
     }
@@ -508,12 +583,12 @@ public class Pool {
             return;
         }
 
-        doForward(info.id, OPCODE_RANK_LOOKUP_REPLY, new RankInfo(info.rank, tmp));
+        doForward(adminChannel, info.id, OPCODE_RANK_LOOKUP_REPLY, new RankInfo(info.rank, tmp));
     }
 
     private void getTimeOfOther(NodeIdentifier id) {
         // Send something just to set up the connection.
-        doForward(id, OPCODE_NOTHING, null);
+        doForward(adminChannel, id, OPCODE_NOTHING, null);
         if (logger.isDebugEnabled()) {
             logger.debug("Obtaining time from " + id.name());
         }
@@ -521,7 +596,7 @@ public class Pool {
         synchronized (times) {
             times.put(id, new Long(myTime));
         }
-        doForward(id, OPCODE_REQUEST_TIME, null);
+        doForward(adminChannel, id, OPCODE_REQUEST_TIME, null);
     }
 
     private void sendTime(long l, NodeIdentifier source) {
@@ -563,7 +638,9 @@ public class Pool {
 
     private void gotProfiling(Profiling data, NodeIdentifier source) {
         owner.getProfiling().add(data);
-        comm.cleanup(source); // To speed up termination
+
+        // comm.cleanup(source); // To speed up termination
+
         synchronized (this) {
             gotProfiling++;
             notifyAll();
@@ -592,84 +669,6 @@ public class Pool {
         }
 
         owner.deliverRemoteEvent(m);
-    }
-
-    public void upcall(NodeIdentifier source, Message rm) {
-
-        byte opcode = rm.opcode;
-        Object data = rm.contents;
-
-        if (logger.isDebugEnabled()) {
-            logger.debug(getString(opcode, "Got") + " from " + source.name());
-        }
-
-        switch (opcode) {
-        case OPCODE_NOTHING:
-            break;
-        case OPCODE_RELEASE:
-            gotRelease();
-            break;
-        case OPCODE_SEND_TIME:
-            sendTime(((Long) data).longValue(), source);
-            return;
-        case OPCODE_PROFILING:
-            gotProfiling((Profiling) data, source);
-            break;
-        case OPCODE_REQUEST_TIME:
-            doForward(source, OPCODE_SEND_TIME, new Long(System.nanoTime()));
-            break;
-        case OPCODE_PING:
-            doForward(source, OPCODE_PONG, null);
-            break;
-        case OPCODE_PONG:
-            synchronized (this) {
-                gotPong = true;
-                notifyAll();
-            }
-            break;
-        case OPCODE_STEAL_REQUEST:
-            gotStealRequest((StealRequest) data, source);
-            break;
-
-        case OPCODE_STEAL_REPLY:
-            gotStealReply((StealReply) data, source);
-            break;
-
-        case OPCODE_EVENT_MESSAGE:
-            gotEvent((EventMessage) data);
-            break;
-
-        case OPCODE_POOL_REGISTER_REQUEST:
-            performRegisterWithPool((PoolRegisterRequest) data);
-            break;
-
-        case OPCODE_POOL_UPDATE_REQUEST:
-            performUpdateRequest((PoolUpdateRequest) data);
-            break;
-
-        case OPCODE_POOL_UPDATE_REPLY:
-            updater.enqueueUpdate((PoolInfo) data);
-            break;
-
-        case OPCODE_RANK_REGISTER_REQUEST:
-            registerRank((RankInfo) data);
-            if (!closedPool) {
-                getTimeOfOther(source);
-            }
-            break;
-
-        case OPCODE_RANK_LOOKUP_REPLY:
-            registerRank((RankInfo) data);
-            break;
-
-        case OPCODE_RANK_LOOKUP_REQUEST:
-            lookupRankRequest((RankInfo) data);
-            break;
-
-        default:
-            logger.error("Received unknown message opcode: " + opcode);
-            break;
-        }
     }
 
     public boolean randomForwardToPool(StealPool pool, StealRequest sr) {
@@ -706,7 +705,7 @@ public class Pool {
         if (logger.isDebugEnabled()) {
             logger.debug("Sending steal request to " + id.name());
         }
-        return doForward(id, OPCODE_STEAL_REQUEST, sr);
+        return doForward(stealChannel, id, OPCODE_STEAL_REQUEST, sr);
     }
 
     private void performRegisterWithPool(PoolRegisterRequest request) {
@@ -747,7 +746,7 @@ public class Pool {
                 // Copy to avoid ConcurrentModificationException.
                 tmp = new PoolInfo(tmp);
             }
-            doForward(request.source, OPCODE_POOL_UPDATE_REPLY, tmp);
+            doForward(adminChannel, request.source, OPCODE_POOL_UPDATE_REPLY, tmp);
         } else {
             if (logger.isDebugEnabled()) {
                 logger.debug("No updates found for pool " + request.tag + " / " + request.timestamp);
@@ -760,7 +759,7 @@ public class Pool {
             logger.info("Sending register request for pool " + tag + " to " + master);
         }
 
-        doForward(master, OPCODE_POOL_REGISTER_REQUEST, new PoolRegisterRequest(local, tag));
+        doForward(adminChannel, master, OPCODE_POOL_REGISTER_REQUEST, new PoolRegisterRequest(local, tag));
     }
 
     private void requestUpdate(NodeIdentifier master, String tag, long timestamp) {
@@ -768,7 +767,7 @@ public class Pool {
             logger.debug("Sending update request for pool " + tag + " to " + master + " for timestamp " + timestamp);
         }
 
-        doForward(master, OPCODE_POOL_UPDATE_REQUEST, new PoolUpdateRequest(local, tag, timestamp));
+        doForward(adminChannel, master, OPCODE_POOL_UPDATE_REQUEST, new PoolUpdateRequest(local, tag, timestamp));
     }
 
     public void registerWithPool(String tag) {
@@ -962,4 +961,95 @@ public class Pool {
         return terminated;
     }
 
+    @Override
+    public ByteBuffer[] allocateByteBuffers(String channel, NodeIdentifier sender, byte opcode, Object data, int[] sizes) {
+
+        // We should allocate the appropriate amount and sizes of ByteBuffers here.
+        ByteBuffer[] buffers = new ByteBuffer[sizes.length];
+
+        for (int i = 0; i < sizes.length; i++) {
+            ByteBuffer b = ByteBufferCache.getByteBuffer(sizes[i], false);
+            b.position(0);
+            b.limit(b.capacity());
+            buffers[i] = b;
+        }
+
+        return buffers;
+    }
+
+    @Override
+    public void receiveMessage(String channel, NodeIdentifier source, byte opcode, Object data, ByteBuffer[] buffers) {
+
+        if (logger.isDebugEnabled()) {
+            logger.debug(getString(opcode, "Got") + " from " + source.name());
+        }
+
+        switch (opcode) {
+        case OPCODE_NOTHING:
+            break;
+        case OPCODE_RELEASE:
+            gotRelease();
+            break;
+        case OPCODE_SEND_TIME:
+            sendTime(((Long) data).longValue(), source);
+            return;
+        case OPCODE_PROFILING:
+            gotProfiling((Profiling) data, source);
+            break;
+        case OPCODE_REQUEST_TIME:
+            doForward(adminChannel, source, OPCODE_SEND_TIME, new Long(System.nanoTime()));
+            break;
+        case OPCODE_PING:
+            doForward(adminChannel, source, OPCODE_PONG, null);
+            break;
+        case OPCODE_PONG:
+            synchronized (this) {
+                gotPong = true;
+                notifyAll();
+            }
+            break;
+        case OPCODE_STEAL_REQUEST:
+            gotStealRequest((StealRequest) data, source);
+            break;
+
+        case OPCODE_STEAL_REPLY:
+            gotStealReply((StealReply) data, source);
+            break;
+
+        case OPCODE_EVENT_MESSAGE:
+            gotEvent((EventMessage) data);
+            break;
+
+        case OPCODE_POOL_REGISTER_REQUEST:
+            performRegisterWithPool((PoolRegisterRequest) data);
+            break;
+
+        case OPCODE_POOL_UPDATE_REQUEST:
+            performUpdateRequest((PoolUpdateRequest) data);
+            break;
+
+        case OPCODE_POOL_UPDATE_REPLY:
+            updater.enqueueUpdate((PoolInfo) data);
+            break;
+
+        case OPCODE_RANK_REGISTER_REQUEST:
+            registerRank((RankInfo) data);
+            if (!closedPool) {
+                getTimeOfOther(source);
+            }
+            break;
+
+        case OPCODE_RANK_LOOKUP_REPLY:
+            registerRank((RankInfo) data);
+            break;
+
+        case OPCODE_RANK_LOOKUP_REQUEST:
+            lookupRankRequest((RankInfo) data);
+            break;
+
+        default:
+            logger.error("Received unknown message opcode: " + opcode);
+            break;
+        }
+    }
 }

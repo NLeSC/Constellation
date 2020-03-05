@@ -68,8 +68,7 @@ public class FibonacciTest {
             p.put("ibis.server.address", server.getAddress());
             System.out.println("Server address: " + server.getAddress());
 
-            final ConstellationConfiguration e = new ConstellationConfiguration(new Context("fib"), StealStrategy.SMALLEST,
-                    StealStrategy.BIGGEST);
+            final ConstellationConfiguration e = new ConstellationConfiguration(new Context("fib"), StealStrategy.SMALLEST, StealStrategy.BIGGEST);
 
             Thread[] threads = new Thread[executors];
             for (int i = 0; i < executors; i++) {
@@ -93,6 +92,7 @@ public class FibonacciTest {
                             c.done();
                         } catch (Throwable e) {
                             e.printStackTrace(System.out);
+                            e.printStackTrace(System.err);
                             setException(e);
                         }
                     }
@@ -115,6 +115,9 @@ public class FibonacciTest {
 
         synchronized (this) {
             if (exception != null) {
+                System.err.println("Got exception");
+                exception.printStackTrace(System.err);
+
                 fail();
             }
             System.out.println("Returning result " + result);
@@ -128,8 +131,7 @@ public class FibonacciTest {
 
         long start = System.currentTimeMillis();
 
-        ConstellationConfiguration e = new ConstellationConfiguration(new Context("fib"), StealStrategy.SMALLEST,
-                StealStrategy.BIGGEST);
+        ConstellationConfiguration e = new ConstellationConfiguration(new Context("fib"), StealStrategy.SMALLEST, StealStrategy.BIGGEST);
 
         Constellation c = ConstellationFactory.createConstellation(p, e, executors);
         c.activate();
@@ -154,8 +156,8 @@ public class FibonacciTest {
         } else {
             // Should not happen.
             fail();
-            //            System.out.println("Starting as slave!");
-            //            c.done();
+            // System.out.println("Starting as slave!");
+            // c.done();
             return 0;
         }
     }

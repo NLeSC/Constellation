@@ -18,7 +18,7 @@ package ibis.constellation.impl.pool;
 
 import java.io.Serializable;
 
-import ibis.constellation.impl.pool.communication.NodeIdentifier;
+import nl.junglecomputing.pidgin.NodeIdentifier;
 
 public class RankInfo implements Serializable {
 

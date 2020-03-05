@@ -23,7 +23,7 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ibis.constellation.impl.pool.communication.NodeIdentifier;
+import nl.junglecomputing.pidgin.NodeIdentifier;
 
 class PoolInfo implements Serializable {
 

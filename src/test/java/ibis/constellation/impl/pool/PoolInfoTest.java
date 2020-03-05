@@ -24,10 +24,10 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
-import ibis.constellation.impl.pool.communication.NodeIdentifier;
-import ibis.constellation.impl.pool.communication.ibis.NodeIdentifierImpl;
 import ibis.ipl.IbisIdentifier;
 import ibis.ipl.impl.Location;
+import nl.junglecomputing.pidgin.NodeIdentifier;
+import nl.junglecomputing.pidgin.impl.ibis.NodeIdentifierImpl;
 
 /**
  * @version 1.0

@@ -9,17 +9,21 @@ plugins {
 }
 
 repositories {
+    mavenLocal()
+    mavenCentral()
     jcenter()
 }
 
 dependencies {
-    compile 'nl.junglecomputing.ipl:ipl:2.3.3'
-    compile 'nl.junglecomputing.ipl:ibis-util:2.3.3'
     compile 'org.slf4j:slf4j-api:1.7.21'
     compile 'com.google.guava:guava:17.0'
 
+    compile 'nl.junglecomputing:pidgin:0.0.4'
+
     implementation 'nl.junglecomputing.ipl:ipl-impl-smartsockets:2.3.3'
     implementation 'nl.junglecomputing.ipl:ipl-impl-tcp:2.3.3'
+    implementation 'nl.junglecomputing.ipl:ipl:2.3.3'
+    implementation 'nl.junglecomputing.ipl:ibis-util:2.3.3'
 
     testCompile 'nl.junglecomputing.ipl:ipl-support:2.3.3'
     testCompile 'junit:junit:4.11'
