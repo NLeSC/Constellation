@@ -369,7 +369,7 @@ public class Pool implements Upcall {
     }
 
     public void terminate() throws IOException {
-        comm.terminate();
+        PidginFactory.terminate();
         updater.done();
         terminated = true;
     }
@@ -431,7 +431,6 @@ public class Pool implements Upcall {
             comm.removeChannel(CHANNEL_STEAL);
             comm.removeChannel(CHANNEL_EVENT);
 
-            comm.terminate();
         } catch (Exception e) {
             logger.warn("Failed to deactivate!", e);
         }
