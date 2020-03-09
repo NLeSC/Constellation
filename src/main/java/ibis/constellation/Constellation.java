@@ -16,6 +16,8 @@
  */
 package ibis.constellation;
 
+import nl.junglecomputing.timer.Timer;
+
 /**
  * Main interface to Constellation.
  *
@@ -27,12 +29,11 @@ public interface Constellation {
     /**
      * Submit an activity.
      *
-     * The submitted Activity will be inserted into Constellation and executed if and when a suitable Executor is found. An
-     * ActivityIdentifier is returned that can be used to refer to this submitted Activity at a later moment in time.
+     * The submitted Activity will be inserted into Constellation and executed if and when a suitable Executor is found. An ActivityIdentifier is returned that
+     * can be used to refer to this submitted Activity at a later moment in time.
      *
-     * It is up to the user to make sure that this constellation instance has a suitable executor, or, if the contexts don't
-     * match, an executor that can be stolen from. In some cases, the system can detect that no suitable executor can be found. In
-     * those cases, it throws an exception.
+     * It is up to the user to make sure that this constellation instance has a suitable executor, or, if the contexts don't match, an executor that can be
+     * stolen from. In some cases, the system can detect that no suitable executor can be found. In those cases, it throws an exception.
      *
      * @param activity
      *            the Activity to submit
@@ -53,11 +54,10 @@ public interface Constellation {
     /**
      * Activate this Constellation implementation.
      *
-     * Constellation instances start out in in inactive state when they are created. This allows the application to configure
-     * Constellation (for example, by setting up the desired combination of distributed and local constellation instances).
+     * Constellation instances start out in in inactive state when they are created. This allows the application to configure Constellation (for example, by
+     * setting up the desired combination of distributed and local constellation instances).
      *
-     * Upon activation, the Constellation instance will activate all sub-constellations, and activate its own executors, steal
-     * pools, event queues, etc.
+     * Upon activation, the Constellation instance will activate all sub-constellations, and activate its own executors, steal pools, event queues, etc.
      *
      * @return if the Constellation was activated.
      */
@@ -66,8 +66,8 @@ public interface Constellation {
     /**
      * Terminate Constellation.
      *
-     * When terminating all sub-constellations will be terminated. Termination may also block until all other running
-     * constellation instances in a Pool have also decided to terminate.
+     * When terminating all sub-constellations will be terminated. Termination may also block until all other running constellation instances in a Pool have
+     * also decided to terminate.
      */
     public void done();
 

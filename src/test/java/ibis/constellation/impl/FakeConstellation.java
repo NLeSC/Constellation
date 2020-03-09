@@ -21,7 +21,8 @@ import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationIdentifier;
 import ibis.constellation.Event;
-import ibis.constellation.Timer;
+
+import nl.junglecomputing.timer.Timer;
 
 /**
  * @version 1.0

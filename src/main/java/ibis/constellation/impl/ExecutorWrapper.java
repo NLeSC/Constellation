@@ -36,6 +36,7 @@ import ibis.constellation.StealStrategy;
 import ibis.constellation.impl.util.CircularBuffer;
 import ibis.constellation.impl.util.SimpleWorkQueue;
 import ibis.constellation.impl.util.WorkQueue;
+import nl.junglecomputing.timer.TimerImpl;
 
 public class ExecutorWrapper implements Constellation {
 
@@ -84,8 +85,8 @@ public class ExecutorWrapper implements Constellation {
     private long messagesExternal;
     private final TimerImpl messagesTimer;
 
-    ExecutorWrapper(SingleThreadedConstellation parent, ConstellationProperties p, ConstellationIdentifierImpl identifier,
-            ConstellationConfiguration config) throws ConstellationCreationException {
+    ExecutorWrapper(SingleThreadedConstellation parent, ConstellationProperties p, ConstellationIdentifierImpl identifier, ConstellationConfiguration config)
+            throws ConstellationCreationException {
 
         this.parent = parent;
         this.identifier = identifier;
@@ -307,16 +308,15 @@ public class ExecutorWrapper implements Constellation {
         return false;
     }
 
-    protected ActivityRecord[] steal(AbstractContext context, StealStrategy s, boolean allowRestricted, int count,
-            ConstellationIdentifier source) {
+    protected ActivityRecord[] steal(AbstractContext context, StealStrategy s, boolean allowRestricted, int count, ConstellationIdentifier source) {
 
         steals++;
 
         ActivityRecord[] result = new ActivityRecord[count];
 
         if (logger.isTraceEnabled()) {
-            logger.trace("STEAL BASE(" + identifier + "): activities F: " + fresh.size() + " W: "
-                    + /* wrongContext.size() + */" R: " + runnable.size() + " L: " + lookup.size());
+            logger.trace("STEAL BASE(" + identifier + "): activities F: " + fresh.size() + " W: " + /* wrongContext.size() + */" R: " + runnable.size() + " L: "
+                    + lookup.size());
         }
 
         int r = 0;

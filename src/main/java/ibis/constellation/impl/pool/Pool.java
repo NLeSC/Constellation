@@ -34,8 +34,6 @@ import ibis.constellation.impl.DistributedConstellation;
 import ibis.constellation.impl.EventMessage;
 import ibis.constellation.impl.StealReply;
 import ibis.constellation.impl.StealRequest;
-import ibis.constellation.impl.util.Profiling;
-import ibis.constellation.impl.util.TimeSyncInfo;
 import ibis.constellation.util.ByteBufferCache;
 import ibis.constellation.util.ByteBuffers;
 import nl.junglecomputing.pidgin.Channel;
@@ -43,6 +41,8 @@ import nl.junglecomputing.pidgin.NodeIdentifier;
 import nl.junglecomputing.pidgin.Pidgin;
 import nl.junglecomputing.pidgin.PidginFactory;
 import nl.junglecomputing.pidgin.Upcall;
+import nl.junglecomputing.timer.Profiling;
+import nl.junglecomputing.timer.TimeSyncInfo;
 
 public class Pool implements Upcall {
 

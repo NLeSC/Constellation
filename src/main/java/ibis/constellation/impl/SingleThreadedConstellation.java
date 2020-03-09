@@ -41,9 +41,10 @@ import ibis.constellation.NoSuitableExecutorException;
 import ibis.constellation.StealPool;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.impl.util.CircularBuffer;
-import ibis.constellation.impl.util.Profiling;
 import ibis.constellation.impl.util.SimpleWorkQueue;
 import ibis.constellation.impl.util.WorkQueue;
+import nl.junglecomputing.timer.Profiling;
+import nl.junglecomputing.timer.TimerImpl;
 
 public class SingleThreadedConstellation extends Thread {
 
@@ -141,13 +142,12 @@ public class SingleThreadedConstellation extends Thread {
 
     private long remoteStolen;
 
-    SingleThreadedConstellation(final ConstellationConfiguration executor, final ConstellationProperties p)
-            throws ConstellationCreationException {
+    SingleThreadedConstellation(final ConstellationConfiguration executor, final ConstellationProperties p) throws ConstellationCreationException {
         this(null, executor, p);
     }
 
-    public SingleThreadedConstellation(final MultiThreadedConstellation parent, final ConstellationConfiguration config,
-            final ConstellationProperties props) throws ConstellationCreationException {
+    public SingleThreadedConstellation(final MultiThreadedConstellation parent, final ConstellationConfiguration config, final ConstellationProperties props)
+            throws ConstellationCreationException {
 
         if (config == null) {
             throw new IllegalArgumentException("SingleThreadedConstellation expects ConstellationConfiguration");
@@ -274,11 +274,8 @@ public class SingleThreadedConstellation extends Thread {
 
     public ActivityIdentifier performSubmit(final Activity activity) throws NoSuitableExecutorException {
         /*
-         * This method is called by MultiThreadedConstellation, in case the user
-         * calls submit() on a constellation instance. The
-         * MultiThreadedConstellation then picks a specific
-         * SingleThreadedConstellation, and the activity should be submitted to
-         * its wrapper, because this executor may not be able to steal.
+         * This method is called by MultiThreadedConstellation, in case the user calls submit() on a constellation instance. The MultiThreadedConstellation then
+         * picks a specific SingleThreadedConstellation, and the activity should be submitted to its wrapper, because this executor may not be able to steal.
          */
         return wrapper.submit(activity);
     }
@@ -359,8 +356,8 @@ public class SingleThreadedConstellation extends Thread {
         return a;
     }
 
-    public ActivityRecord[] attemptSteal(final AbstractContext context, final StealStrategy s, final StealPool pool,
-            final ConstellationIdentifierImpl source, final int size, final boolean local) {
+    public ActivityRecord[] attemptSteal(final AbstractContext context, final StealStrategy s, final StealPool pool, final ConstellationIdentifierImpl source,
+            final int size, final boolean local) {
 
         final ActivityRecord[] result = new ActivityRecord[size];
 
@@ -430,8 +427,7 @@ public class SingleThreadedConstellation extends Thread {
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Stole " + offset + " jobs from " + identifier + ": " + fromWrong + " from wrongContext, " + fromFresh
-                    + " from fresh");
+            logger.debug("Stole " + offset + " jobs from " + identifier + ": " + fromWrong + " from wrongContext, " + fromFresh + " from fresh");
         }
 
         // Next, remove activities from lookup, and mark and register them as
@@ -546,8 +542,7 @@ public class SingleThreadedConstellation extends Thread {
                     lookup.put(a.identifier(), a);
                     if (a.isRelocated()) {
                         if (logger.isDebugEnabled()) {
-                            logger.debug("Putting " + a.identifier().toString() + " on relocated list of "
-                                    + this.identifier().toString());
+                            logger.debug("Putting " + a.identifier().toString() + " on relocated list of " + this.identifier().toString());
                         }
                         relocated.insertLast(a);
                     } else {
@@ -720,8 +715,8 @@ public class SingleThreadedConstellation extends Thread {
                 // Failed to deliver event locally. Check if the activity is
                 // now in one of the local queues. If not, return to parent.
                 if (logger.isInfoEnabled()) {
-                    logger.info("Failed to deliver message from " + m.source + " / " + m.event.getSource() + " to " + m.target
-                            + " / " + m.event.getTarget() + " (resending)");
+                    logger.info("Failed to deliver message from " + m.source + " / " + m.event.getSource() + " to " + m.target + " / " + m.event.getTarget()
+                            + " (resending)");
                 }
 
                 handleEvent(m.event);

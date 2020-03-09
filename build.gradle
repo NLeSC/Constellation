@@ -18,6 +18,7 @@ dependencies {
     compile 'org.slf4j:slf4j-api:1.7.21'
     compile 'com.google.guava:guava:17.0'
 
+    compile 'nl.junglecomputing:timing:0.0.1'
     compile 'nl.junglecomputing:pidgin:0.0.6'
 
     implementation 'nl.junglecomputing.ipl:ipl-impl-smartsockets:2.3.3'

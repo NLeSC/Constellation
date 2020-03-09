@@ -38,22 +38,22 @@ import ibis.constellation.OrContext;
 import ibis.constellation.StealPool;
 import ibis.constellation.impl.pool.Pool;
 import ibis.constellation.impl.pool.PoolCreationFailedException;
-import ibis.constellation.impl.util.Profiling;
+import nl.junglecomputing.timer.Profiling;
+import nl.junglecomputing.timer.TimerImpl;
 
 /**
  * A <code>DistributedConstellation</code> sits between the communication pool and the underlying sub-constellation, which is a
  * {@link MultiThreadedConstellation}.
  *
- * Its main tasks are to pass messages from the sub-constellation to the communication pool, and vice versa, and to serve as a
- * facade implementing the {@link Constellation} interface for the application.
+ * Its main tasks are to pass messages from the sub-constellation to the communication pool, and vice versa, and to serve as a facade implementing the
+ * {@link Constellation} interface for the application.
  */
 public class DistributedConstellation {
 
     private static final Logger logger = LoggerFactory.getLogger(DistributedConstellation.class);
 
     /**
-     * Steal strategy, as determined by properties. Value is one of {@link #STEAL_POOL}, {@link #STEAL_MASTER},
-     * {@link #STEAL_NONE}.
+     * Steal strategy, as determined by properties. Value is one of {@link #STEAL_POOL}, {@link #STEAL_MASTER}, {@link #STEAL_NONE}.
      */
     private final int stealStrategy;
 
@@ -179,9 +179,9 @@ public class DistributedConstellation {
     /**
      * A <code>DeliveryThread</code> is a thread object dealing with delayed delivery of event messages.
      *
-     * Internally, the delivery thread uses two linked lists which are used to add messages that are to be sent. Only one of these
-     * is used to append messages to, the other is used to actually send messages out. When the delivery thread wakes up, it
-     * switches the lists, so that new messages get appended to the other list, while the first list gets processed.
+     * Internally, the delivery thread uses two linked lists which are used to add messages that are to be sent. Only one of these is used to append messages
+     * to, the other is used to actually send messages out. When the delivery thread wakes up, it switches the lists, so that new messages get appended to the
+     * other list, while the first list gets processed.
      */
     private class DeliveryThread extends Thread {
 
@@ -241,8 +241,8 @@ public class DistributedConstellation {
         /**
          * Swaps the incoming and outgoing lists.
          *
-         * The outgoing list is supposed to be empty so can serve as new incoming list. Note that the delivery thread is the only
-         * one touching the outgoing list.
+         * The outgoing list is supposed to be empty so can serve as new incoming list. Note that the delivery thread is the only one touching the outgoing
+         * list.
          *
          * @return the new outgoing list.
          */
@@ -274,8 +274,7 @@ public class DistributedConstellation {
         }
 
         /**
-         * Determines the new deadline. Needs to be synchronized because {@link #enqueue(EventMessage)} also uses
-         * {@link #currentDelay} and {@link #deadline}.
+         * Determines the new deadline. Needs to be synchronized because {@link #enqueue(EventMessage)} also uses {@link #currentDelay} and {@link #deadline}.
          */
         private synchronized void determineDeadline() {
 
@@ -427,8 +426,7 @@ public class DistributedConstellation {
      *             is thrown when a property value is not recognized
      *
      */
-    public DistributedConstellation(ConstellationProperties props, ConstellationConfiguration[] c)
-            throws ConstellationCreationException {
+    public DistributedConstellation(ConstellationProperties props, ConstellationConfiguration[] c) throws ConstellationCreationException {
 
         String stealName = props.STEALSTRATEGY;
 
@@ -509,8 +507,8 @@ public class DistributedConstellation {
     /**
      * Checks and sets flags for pending steals for particular steal pools and contexts.
      *
-     * Per (singular) steal pool we check for each of the contexts if a steal request is pending. If one of the context is not
-     * pending yet, we record the steal for all context and allow the request.
+     * Per (singular) steal pool we check for each of the contexts if a steal request is pending. If one of the context is not pending yet, we record the steal
+     * for all context and allow the request.
      *
      * @param pool
      *            the steal pool
@@ -705,8 +703,8 @@ public class DistributedConstellation {
     /**
      * Handles an event message, either remote or from below.
      *
-     * This method gets called, either as a result of someone in our constellation sending a message (bottom up) or as a result of
-     * a incoming remote message being forwarded to some other constellation (when an activity is exported).
+     * This method gets called, either as a result of someone in our constellation sending a message (bottom up) or as a result of a incoming remote message
+     * being forwarded to some other constellation (when an activity is exported).
      *
      * @param m
      *            the event message
@@ -747,9 +745,9 @@ public class DistributedConstellation {
     /**
      * Receives a steal reply from below, and forwards it to the pool.
      *
-     * If the pool fails to deal with the reply, any work is reclaimed, indicated by returning <code>false</code>. Otherwise, if
-     * the pool succeeds in forwarding the reply, <code>true</code> is returned. If the pool fails, but there is no work involved,
-     * <code>true</code> is returned as well, because no further action is warranted.
+     * If the pool fails to deal with the reply, any work is reclaimed, indicated by returning <code>false</code>. Otherwise, if the pool succeeds in forwarding
+     * the reply, <code>true</code> is returned. If the pool fails, but there is no work involved, <code>true</code> is returned as well, because no further
+     * action is warranted.
      *
      * @param m
      *            the steal reply
@@ -778,8 +776,7 @@ public class DistributedConstellation {
     }
 
     /**
-     * Provides a constellation identifier factory to produce identifiers for sub-constellation instances (both multithreaded and
-     * singlethreaded).
+     * Provides a constellation identifier factory to produce identifiers for sub-constellation instances (both multithreaded and singlethreaded).
      *
      * @return the constellation identifier factory.
      */
@@ -790,8 +787,8 @@ public class DistributedConstellation {
     /**
      * Informs this constellation to which pool it belongs.
      *
-     * This method is called from the MultiThreadedConstellation below. The tags from the pool get passed on to the communication
-     * layer, allowing this layer to build a picture of which pool is running where.
+     * This method is called from the MultiThreadedConstellation below. The tags from the pool get passed on to the communication layer, allowing this layer to
+     * build a picture of which pool is running where.
      *
      * @param belongsTo
      *            the pools to which this constellation belongs.
@@ -823,8 +820,8 @@ public class DistributedConstellation {
     /**
      * Informs this constellation from which pool it is stealStrategy.
      *
-     * This method is called from the MultiThreadedConstellation below. The tags from the pool get passed on to the communication
-     * layer, allowing this layer to build a picture of which nodes we are interested in when stealStrategy.
+     * This method is called from the MultiThreadedConstellation below. The tags from the pool get passed on to the communication layer, allowing this layer to
+     * build a picture of which nodes we are interested in when stealStrategy.
      *
      * @param stealsFrom
      *            the pools from which this constellation is stealStrategy.

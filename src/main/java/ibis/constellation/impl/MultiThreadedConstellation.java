@@ -35,7 +35,8 @@ import ibis.constellation.Event;
 import ibis.constellation.NoSuitableExecutorException;
 import ibis.constellation.OrContext;
 import ibis.constellation.StealPool;
-import ibis.constellation.impl.util.Profiling;
+import nl.junglecomputing.timer.Profiling;
+import nl.junglecomputing.timer.TimerImpl;
 
 public class MultiThreadedConstellation {
 
@@ -132,8 +133,8 @@ public class MultiThreadedConstellation {
         }
     }
 
-    public MultiThreadedConstellation(DistributedConstellation parent, ConstellationProperties properties,
-            ConstellationConfiguration[] c) throws ConstellationCreationException {
+    public MultiThreadedConstellation(DistributedConstellation parent, ConstellationProperties properties, ConstellationConfiguration[] c)
+            throws ConstellationCreationException {
 
         this.parent = parent;
 
@@ -351,8 +352,7 @@ public class MultiThreadedConstellation {
 
             if (!tmp.equals(c) && poolMatrix[rank][tmp.getRank()]) {
 
-                final int size = tmp.attemptSteal(result, context, c.getConstellationStealStrategy(), pool, c.identifier(),
-                        localStealSize, true);
+                final int size = tmp.attemptSteal(result, context, c.getConstellationStealStrategy(), pool, c.identifier(), localStealSize, true);
 
                 if (size > 0) {
                     return result;
@@ -362,8 +362,8 @@ public class MultiThreadedConstellation {
 
         // If this fails, we do a remote steal followed by an enqueued steal at
         // a random suitable peer.
-        final StealRequest sr = new StealRequest(c.identifier(), context, c.getLocalStealStrategy(),
-                c.getConstellationStealStrategy(), c.getRemoteStealStrategy(), pool, stealSize);
+        final StealRequest sr = new StealRequest(c.identifier(), context, c.getLocalStealStrategy(), c.getConstellationStealStrategy(),
+                c.getRemoteStealStrategy(), pool, stealSize);
 
         if (parent != null) {
             parent.handleStealRequest(sr);
