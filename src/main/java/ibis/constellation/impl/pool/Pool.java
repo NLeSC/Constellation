@@ -92,6 +92,8 @@ public class Pool implements Upcall {
 
     private final HashMap<NodeIdentifier, Long> times = new HashMap<NodeIdentifier, Long>();
 
+    private final Profiling profiling;
+
     private final TimeSyncInfo syncInfo;
 
     class PoolUpdater extends Thread {
@@ -266,9 +268,11 @@ public class Pool implements Upcall {
             isMaster = local.equals(master);
             locationCache.put(rank, local);
 
-            adminChannel = comm.createChannel("constellation_ADMIN", this);
-            stealChannel = comm.createChannel("constellation_STEAL", this);
-            eventChannel = comm.createChannel("constellation_EVENT", this);
+            profiling = new Profiling(local.name());
+
+            adminChannel = comm.createChannel("constellation_ADMIN", this, profiling.getTimer("pidgin", "channel_admin", ""));
+            stealChannel = comm.createChannel("constellation_STEAL", this, profiling.getTimer("pidgin", "channel_steal", ""));
+            eventChannel = comm.createChannel("constellation_EVENT", this, profiling.getTimer("pidgin", "channel_event", ""));
 
         } catch (Exception e) {
             throw new PoolCreationFailedException("Failed to create pool", e);
@@ -298,7 +302,7 @@ public class Pool implements Upcall {
     }
 
     public Profiling getProfiling() {
-        return owner.getProfiling();
+        return profiling;
     }
 
     public void activate() {
