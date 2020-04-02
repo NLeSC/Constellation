@@ -23,7 +23,7 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import nl.junglecomputing.pidgin.NodeIdentifier;
+import ibis.ipl.IbisIdentifier;
 
 class PoolInfo implements Serializable {
 
@@ -33,15 +33,15 @@ class PoolInfo implements Serializable {
 
     private final String tag;
 
-    private final NodeIdentifier master;
+    private final IbisIdentifier master;
     private final boolean isMaster;
     private final boolean isDummy;
 
-    public ArrayList<NodeIdentifier> getMembers() {
+    public ArrayList<IbisIdentifier> getMembers() {
         return members;
     }
 
-    public void setMembers(ArrayList<NodeIdentifier> members) {
+    public void setMembers(ArrayList<IbisIdentifier> members) {
         this.members = members;
     }
 
@@ -49,7 +49,7 @@ class PoolInfo implements Serializable {
         return tag;
     }
 
-    public NodeIdentifier getMaster() {
+    public IbisIdentifier getMaster() {
         return master;
     }
 
@@ -62,9 +62,9 @@ class PoolInfo implements Serializable {
     }
 
     private long timestamp;
-    private ArrayList<NodeIdentifier> members;
+    private ArrayList<IbisIdentifier> members;
 
-    PoolInfo(String tag, NodeIdentifier master, boolean isMaster) {
+    PoolInfo(String tag, IbisIdentifier master, boolean isMaster) {
         if (logger.isInfoEnabled()) {
             logger.info("Creating pool with tag " + tag + " and member " + master);
         }
@@ -72,7 +72,7 @@ class PoolInfo implements Serializable {
         this.master = master;
         this.isMaster = isMaster;
         this.isDummy = false;
-        members = new ArrayList<NodeIdentifier>();
+        members = new ArrayList<IbisIdentifier>();
         members.add(master);
         timestamp = 1;
     }
@@ -83,7 +83,7 @@ class PoolInfo implements Serializable {
         this.isMaster = orig.isMaster;
         this.isDummy = orig.isDummy;
         this.timestamp = orig.timestamp;
-        this.members = new ArrayList<NodeIdentifier>(orig.members);
+        this.members = new ArrayList<IbisIdentifier>(orig.members);
     }
 
     PoolInfo(String tag) {
@@ -94,11 +94,11 @@ class PoolInfo implements Serializable {
         this.master = null;
         this.isMaster = false;
         this.isDummy = true;
-        members = new ArrayList<NodeIdentifier>();
+        members = new ArrayList<IbisIdentifier>();
         timestamp = 1;
     }
 
-    PoolInfo(PoolInfo other, NodeIdentifier master) {
+    PoolInfo(PoolInfo other, IbisIdentifier master) {
         this.tag = other.tag;
         this.master = master;
         this.isMaster = true;
@@ -112,7 +112,7 @@ class PoolInfo implements Serializable {
         return members.size() != 0;
     }
 
-    public synchronized void addMember(NodeIdentifier id) {
+    public synchronized void addMember(IbisIdentifier id) {
         if (logger.isInfoEnabled()) {
             logger.info("Adding " + id + " to pool with tag " + tag);
         }
@@ -120,7 +120,7 @@ class PoolInfo implements Serializable {
         timestamp++;
     }
 
-    public synchronized void removeMember(NodeIdentifier id) {
+    public synchronized void removeMember(IbisIdentifier id) {
         if (logger.isInfoEnabled()) {
             logger.info("Removing " + id + " from pool with tag " + tag);
         }
@@ -136,8 +136,8 @@ class PoolInfo implements Serializable {
         return timestamp;
     }
 
-    public synchronized NodeIdentifier selectRandom(Random random) {
-        NodeIdentifier id = members.get(random.nextInt(members.size()));
+    public synchronized IbisIdentifier selectRandom(Random random) {
+        IbisIdentifier id = members.get(random.nextInt(members.size()));
         if (logger.isDebugEnabled()) {
             logger.debug("Selecting " + id + " from list of " + members.size() + " members");
         }

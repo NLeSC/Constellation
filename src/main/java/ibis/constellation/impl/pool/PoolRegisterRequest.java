@@ -18,16 +18,16 @@ package ibis.constellation.impl.pool;
 
 import java.io.Serializable;
 
-import nl.junglecomputing.pidgin.NodeIdentifier;
+import ibis.ipl.IbisIdentifier;
 
 class PoolRegisterRequest implements Serializable {
 
     private static final long serialVersionUID = -4258898100133094472L;
 
-    public NodeIdentifier source;
+    public IbisIdentifier source;
     public String tag;
 
-    PoolRegisterRequest(NodeIdentifier source, String tag) {
+    PoolRegisterRequest(IbisIdentifier source, String tag) {
         this.source = source;
         this.tag = tag;
     }

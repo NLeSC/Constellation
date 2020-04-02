@@ -36,11 +36,11 @@ import ibis.constellation.impl.StealReply;
 import ibis.constellation.impl.StealRequest;
 import ibis.constellation.util.ByteBufferCache;
 import ibis.constellation.util.ByteBuffers;
-import nl.junglecomputing.pidgin.Channel;
-import nl.junglecomputing.pidgin.NodeIdentifier;
+import ibis.ipl.IbisIdentifier;
 import nl.junglecomputing.pidgin.Pidgin;
 import nl.junglecomputing.pidgin.PidginFactory;
 import nl.junglecomputing.pidgin.Upcall;
+import nl.junglecomputing.pidgin.UpcallChannel;
 import nl.junglecomputing.timer.Profiling;
 import nl.junglecomputing.timer.TimeSyncInfo;
 
@@ -77,10 +77,10 @@ public class Pool implements Upcall {
 
     private DistributedConstellation owner;
 
-    private final ConcurrentHashMap<Integer, NodeIdentifier> locationCache = new ConcurrentHashMap<Integer, NodeIdentifier>();
+    private final ConcurrentHashMap<Integer, IbisIdentifier> locationCache = new ConcurrentHashMap<Integer, IbisIdentifier>();
 
-    private final NodeIdentifier local;
-    private final NodeIdentifier master;
+    private final IbisIdentifier local;
+    private final IbisIdentifier master;
 
     private int rank = -1;
 
@@ -90,7 +90,7 @@ public class Pool implements Upcall {
 
     private final boolean closedPool;
 
-    private final HashMap<NodeIdentifier, Long> times = new HashMap<NodeIdentifier, Long>();
+    private final HashMap<IbisIdentifier, Long> times = new HashMap<IbisIdentifier, Long>();
 
     private final Profiling profiling;
 
@@ -240,15 +240,15 @@ public class Pool implements Upcall {
 
     private boolean terminated;
 
-    private NodeIdentifier[] ids = null;
+    private IbisIdentifier[] ids = null;
 
     private final Pidgin comm;
 
     private boolean cleanup;
 
-    private Channel adminChannel;
-    private Channel stealChannel;
-    private Channel eventChannel;
+    private UpcallChannel adminChannel;
+    private UpcallChannel stealChannel;
+    private UpcallChannel eventChannel;
 
     public Pool(final DistributedConstellation owner, final ConstellationProperties properties) throws PoolCreationFailedException {
 
@@ -270,9 +270,9 @@ public class Pool implements Upcall {
 
             profiling = new Profiling(local.name());
 
-            adminChannel = comm.createChannel("constellation_ADMIN", this, profiling.getTimer("pidgin", "channel_admin", ""));
-            stealChannel = comm.createChannel("constellation_STEAL", this, profiling.getTimer("pidgin", "channel_steal", ""));
-            eventChannel = comm.createChannel("constellation_EVENT", this, profiling.getTimer("pidgin", "channel_event", ""));
+            adminChannel = comm.createUpcallChannel("constellation_ADMIN", this); // , profiling.getTimer("pidgin", "channel_admin", ""));
+            stealChannel = comm.createUpcallChannel("constellation_STEAL", this); // , profiling.getTimer("pidgin", "channel_steal", ""));
+            eventChannel = comm.createUpcallChannel("constellation_EVENT", this); // , profiling.getTimer("pidgin", "channel_event", ""));
 
         } catch (Exception e) {
             throw new PoolCreationFailedException("Failed to create pool", e);
@@ -290,7 +290,7 @@ public class Pool implements Upcall {
         updater.start();
 
         if (closedPool) {
-            ids = comm.getNodeIdentifiers();
+            ids = comm.getAllIdentifiers();
         }
 
         logger.info("Pool created");
@@ -321,7 +321,7 @@ public class Pool implements Upcall {
 
         if (closedPool) {
             if (isMaster()) {
-                for (NodeIdentifier id : ids) {
+                for (IbisIdentifier id : ids) {
                     if (!id.equals(local)) {
                         // First do a pingpong to make sure that the other side
                         // has upcalls enabled already.
@@ -349,7 +349,7 @@ public class Pool implements Upcall {
                         }
                     }
                 }
-                for (NodeIdentifier id : ids) {
+                for (IbisIdentifier id : ids) {
                     if (!id.equals(local)) {
                         doForward(adminChannel, id, OPCODE_RELEASE, null);
                     }
@@ -431,9 +431,9 @@ public class Pool implements Upcall {
             stealChannel.deactivate();
             eventChannel.deactivate();
 
-            comm.removeChannel(CHANNEL_ADMIN);
-            comm.removeChannel(CHANNEL_STEAL);
-            comm.removeChannel(CHANNEL_EVENT);
+            // comm.removeChannel(CHANNEL_ADMIN);
+            // comm.removeChannel(CHANNEL_STEAL);
+            // comm.removeChannel(CHANNEL_EVENT);
 
         } catch (Exception e) {
             logger.warn("Failed to deactivate!", e);
@@ -448,11 +448,11 @@ public class Pool implements Upcall {
         return isMaster;
     }
 
-    private NodeIdentifier translate(ConstellationIdentifierImpl cid) {
+    private IbisIdentifier translate(ConstellationIdentifierImpl cid) {
         return lookupRank(cid.getNodeId());
     }
 
-    // private boolean doForward(NodeIdentifier dest, byte opcode, Object data) {
+    // private boolean doForward(IbisIdentifier dest, byte opcode, Object data) {
     // Message m = new Message(opcode, data);
     // synchronized (this) {
     // if (cleanup) {
@@ -462,13 +462,15 @@ public class Pool implements Upcall {
     // return comm.sendMessage(dest, m);
     // }
 
-    private boolean doForward(Channel channel, NodeIdentifier dest, byte opcode, Object data) {
+    private boolean doForward(UpcallChannel channel, IbisIdentifier dest, byte opcode, Object data) {
 
         synchronized (this) {
             if (cleanup) {
                 return true;
             }
         }
+
+        ByteBuffer[] buffers = null;
 
         if (data instanceof ByteBuffers) {
 
@@ -480,7 +482,7 @@ public class Pool implements Upcall {
             }
 
             // Bit of a hac, as we expect an array
-            ByteBuffer[] buffers = new ByteBuffer[list.size()];
+            buffers = new ByteBuffer[list.size()];
 
             int index = 0;
 
@@ -489,11 +491,16 @@ public class Pool implements Upcall {
                 b.limit(b.capacity());
                 buffers[index++] = b;
             }
-
-            return channel.sendMessage(dest, opcode, data, buffers);
-        } else {
-            return channel.sendMessage(dest, opcode, data);
         }
+
+        try {
+            channel.sendMessage(dest, opcode, data, buffers);
+        } catch (Exception e) {
+            logger.warn("POOL failed to forward message", e);
+            return false;
+        }
+
+        return true;
     }
 
     public boolean forward(StealReply sr) {
@@ -508,7 +515,7 @@ public class Pool implements Upcall {
         return forward(eventChannel, em, OPCODE_EVENT_MESSAGE);
     }
 
-    private boolean forward(Channel channel, AbstractMessage m, byte opcode) {
+    private boolean forward(UpcallChannel channel, AbstractMessage m, byte opcode) {
 
         ConstellationIdentifierImpl target = m.target;
 
@@ -516,11 +523,11 @@ public class Pool implements Upcall {
             logger.trace("POOL FORWARD Message from " + m.source + " to " + m.target + " " + m);
         }
 
-        NodeIdentifier id = translate(target);
+        IbisIdentifier id = translate(target);
 
         if (id == null) {
             if (logger.isInfoEnabled()) {
-                logger.info("POOL failed to translate " + target + " to a NodeIdentifier");
+                logger.info("POOL failed to translate " + target + " to a IbisIdentifier");
             }
             return false;
         }
@@ -540,8 +547,8 @@ public class Pool implements Upcall {
         registerRank(info.rank, info.id);
     }
 
-    private void registerRank(int rank, NodeIdentifier id) {
-        NodeIdentifier old = locationCache.put(rank, id);
+    private void registerRank(int rank, IbisIdentifier id) {
+        IbisIdentifier old = locationCache.put(rank, id);
 
         if (logger.isInfoEnabled() && old == null) {
             logger.info("Register rank " + rank + ", id = " + id);
@@ -553,14 +560,14 @@ public class Pool implements Upcall {
         }
     }
 
-    private void registerRank(ConstellationIdentifierImpl cid, NodeIdentifier id) {
+    private void registerRank(ConstellationIdentifierImpl cid, IbisIdentifier id) {
         registerRank(cid.getNodeId(), id);
     }
 
-    private NodeIdentifier lookupRank(int rank) {
+    private IbisIdentifier lookupRank(int rank) {
 
         // Do a local lookup
-        NodeIdentifier tmp = locationCache.get(rank);
+        IbisIdentifier tmp = locationCache.get(rank);
 
         // Return if we have a result, or if there is no one that we can ask
         if (tmp != null || isMaster) {
@@ -575,7 +582,7 @@ public class Pool implements Upcall {
 
     private void lookupRankRequest(RankInfo info) {
 
-        NodeIdentifier tmp = locationCache.get(info.rank);
+        IbisIdentifier tmp = locationCache.get(info.rank);
 
         if (tmp == null) {
             if (logger.isDebugEnabled()) {
@@ -589,7 +596,7 @@ public class Pool implements Upcall {
         doForward(adminChannel, info.id, OPCODE_RANK_LOOKUP_REPLY, new RankInfo(info.rank, tmp));
     }
 
-    private void getTimeOfOther(NodeIdentifier id) {
+    private void getTimeOfOther(IbisIdentifier id) {
         // Send something just to set up the connection.
         doForward(adminChannel, id, OPCODE_NOTHING, null);
         if (logger.isDebugEnabled()) {
@@ -602,7 +609,7 @@ public class Pool implements Upcall {
         doForward(adminChannel, id, OPCODE_REQUEST_TIME, null);
     }
 
-    private void sendTime(long l, NodeIdentifier source) {
+    private void sendTime(long l, IbisIdentifier source) {
         Long myTime = times.get(source);
         if (myTime == null) {
             logger.warn("Ignored rogue time answer");
@@ -623,7 +630,7 @@ public class Pool implements Upcall {
         }
     }
 
-    private void gotStealRequest(StealRequest m, NodeIdentifier source) {
+    private void gotStealRequest(StealRequest m, IbisIdentifier source) {
         registerRank(m.source, source);
 
         if (logger.isTraceEnabled()) {
@@ -639,7 +646,7 @@ public class Pool implements Upcall {
         notifyAll();
     }
 
-    private void gotProfiling(Profiling data, NodeIdentifier source) {
+    private void gotProfiling(Profiling data, IbisIdentifier source) {
         owner.getProfiling().add(data);
 
         // comm.cleanup(source); // To speed up termination
@@ -650,7 +657,7 @@ public class Pool implements Upcall {
         }
     }
 
-    private void gotStealReply(StealReply m, NodeIdentifier source) {
+    private void gotStealReply(StealReply m, IbisIdentifier source) {
         registerRank(m.source, source);
 
         if (logger.isTraceEnabled()) {
@@ -688,7 +695,7 @@ public class Pool implements Upcall {
             return false;
         }
 
-        NodeIdentifier id = info.selectRandom(random);
+        IbisIdentifier id = info.selectRandom(random);
 
         if (id == null) {
             logger.warn("Failed to randomly select node in pool " + pool.getTag());
@@ -757,7 +764,7 @@ public class Pool implements Upcall {
         }
     }
 
-    private void requestRegisterWithPool(NodeIdentifier master, String tag) {
+    private void requestRegisterWithPool(IbisIdentifier master, String tag) {
         if (logger.isInfoEnabled()) {
             logger.info("Sending register request for pool " + tag + " to " + master);
         }
@@ -765,7 +772,7 @@ public class Pool implements Upcall {
         doForward(adminChannel, master, OPCODE_POOL_REGISTER_REQUEST, new PoolRegisterRequest(local, tag));
     }
 
-    private void requestUpdate(NodeIdentifier master, String tag, long timestamp) {
+    private void requestUpdate(IbisIdentifier master, String tag, long timestamp) {
         if (logger.isDebugEnabled()) {
             logger.debug("Sending update request for pool " + tag + " to " + master + " for timestamp " + timestamp);
         }
@@ -795,7 +802,7 @@ public class Pool implements Upcall {
 
             logger.info("Electing master for POOL " + electTag);
 
-            NodeIdentifier id = comm.elect(electTag);
+            IbisIdentifier id = comm.elect(electTag);
 
             boolean master = id.equals(local);
 
@@ -852,7 +859,7 @@ public class Pool implements Upcall {
 
             String electTag = "STEALPOOL$" + tag;
 
-            NodeIdentifier id = comm.getElectionResult(electTag, 1000);
+            IbisIdentifier id = comm.getElectionResult(electTag, 1000);
 
             // TODO: will repeat for ever if pool master does not exist...
             while (id == null) {
@@ -965,7 +972,7 @@ public class Pool implements Upcall {
     }
 
     @Override
-    public ByteBuffer[] allocateByteBuffers(String channel, NodeIdentifier sender, byte opcode, Object data, int[] sizes) {
+    public ByteBuffer[] allocateByteBuffers(String channel, IbisIdentifier sender, byte opcode, Object data, int[] sizes) {
 
         // We should allocate the appropriate amount and sizes of ByteBuffers here.
         ByteBuffer[] buffers = new ByteBuffer[sizes.length];
@@ -981,7 +988,7 @@ public class Pool implements Upcall {
     }
 
     @Override
-    public void receiveMessage(String channel, NodeIdentifier source, byte opcode, Object data, ByteBuffer[] buffers) {
+    public void receiveMessage(String channel, IbisIdentifier source, byte opcode, Object data, ByteBuffer[] buffers) {
 
         if (logger.isDebugEnabled()) {
             logger.debug(getString(opcode, "Got") + " from " + source.name());
