@@ -270,7 +270,13 @@ public class Pool implements Upcall {
 
         try {
             pidginName = "Constellation_" + getUniqueCount();
+
+            System.out.println("Creating pidgin " + pidginName);
+
             comm = PidginFactory.create(pidginName, properties);
+
+            System.out.println("Creating pidgin " + pidginName + " created");
+
             local = comm.getMyIdentifier();
             master = comm.getMaster();
             rank = comm.getRank();
@@ -280,8 +286,12 @@ public class Pool implements Upcall {
             profiling = new Profiling(local.name());
 
             adminChannel = comm.createUpcallChannel("constellation_ADMIN", this); // , profiling.getTimer("pidgin", "channel_admin", ""));
-            stealChannel = comm.createUpcallChannel("constellation_STEAL", this); // , profiling.getTimer("pidgin", "channel_steal", ""));
+            adminChannel.activate();
+
             eventChannel = comm.createUpcallChannel("constellation_EVENT", this); // , profiling.getTimer("pidgin", "channel_event", ""));
+            eventChannel.activate();
+
+            stealChannel = comm.createUpcallChannel("constellation_STEAL", this); // , profiling.getTimer("pidgin", "channel_steal", ""));
 
         } catch (Exception e) {
             throw new PoolCreationFailedException("Failed to create pool", e);
@@ -317,9 +327,7 @@ public class Pool implements Upcall {
     public void activate() {
 
         try {
-            adminChannel.activate();
             stealChannel.activate();
-            eventChannel.activate();
         } catch (Exception e) {
             logger.error("Failed to activate", e);
         }

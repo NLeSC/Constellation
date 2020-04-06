@@ -19,9 +19,9 @@ dependencies {
     compile 'com.google.guava:guava:17.0'
 
     compile 'nl.junglecomputing:timing:0.0.1'
-    compile 'nl.junglecomputing:pidgin:0.2.0'
+    compile 'nl.junglecomputing:pidgin:0.2.1'
 
-    implementation 'nl.junglecomputing.ipl:ipl-impl-smartsockets:2.3.3'
+    implementation 'nl.junglecomputing.ipl:ipl-spark-impl-smartsockets:2.3.3.debug'
     implementation 'nl.junglecomputing.ipl:ipl-impl-tcp:2.3.3'
     implementation 'nl.junglecomputing.ipl:ipl:2.3.3'
     implementation 'nl.junglecomputing.ipl:ibis-util:2.3.3'

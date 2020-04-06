@@ -16,6 +16,7 @@
  */
 package test.fib;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -49,7 +50,7 @@ public class FibonacciTest {
         final Properties p = new Properties();
         p.put(ConstellationProperties.S_DISTRIBUTED, "true");
         p.put(ConstellationProperties.S_CLOSED, "true");
-        p.put("ibis.pool.name", "test");
+        p.put("ibis.pool.name", "test-fib-" + executors);
         p.put(ConstellationProperties.S_POOLSIZE, "" + executors);
         p.put(ConstellationProperties.S_PROFILE, "true");
         p.put(ConstellationProperties.S_PROFILE_ACTIVITY, "true");
@@ -68,6 +69,9 @@ public class FibonacciTest {
             p.put("ibis.server.address", server.getAddress());
             System.out.println("Server address: " + server.getAddress());
 
+            System.out.println("Pool name: " + p.getProperty("ibis.pool.name"));
+            System.out.println("Pool size: " + p.getProperty(ConstellationProperties.S_POOLSIZE));
+
             final ConstellationConfiguration e = new ConstellationConfiguration(new Context("fib"), StealStrategy.SMALLEST, StealStrategy.BIGGEST);
 
             Thread[] threads = new Thread[executors];
@@ -77,19 +81,36 @@ public class FibonacciTest {
                     @Override
                     public void run() {
                         try {
+                            System.out.println("Creating constellation");
+
                             Constellation c = ConstellationFactory.createConstellation(p, e, 1);
+
+                            System.out.println("Constellation created... activating");
                             c.activate();
+                            System.out.println("Constellation activated");
+
                             if (c.isMaster()) {
 
-                                System.out.println("Starting master!");
+                                System.out.println("Started master!");
 
                                 SingleEventCollector a = new SingleEventCollector(new Context("fib"));
 
                                 c.submit(a);
                                 c.submit(new Fibonacci(a.identifier(), input, true));
                                 setResult((Integer) a.waitForEvent().getData());
+
+                                System.out.println("Fib done!");
+
+                                c.done();
+
+                                System.out.println("Master done!");
+
+                            } else {
+                                System.out.println("Started worker!");
+                                c.done();
+                                System.out.println("Worker done!");
                             }
-                            c.done();
+
                         } catch (Throwable e) {
                             e.printStackTrace(System.out);
                             e.printStackTrace(System.err);
@@ -99,15 +120,24 @@ public class FibonacciTest {
                 };
             }
             for (int i = 0; i < executors; i++) {
+                System.out.println("Starting thread " + i);
+                threads[i].setName("constellation_" + i);
                 threads[i].start();
             }
             for (int i = 0; i < executors; i++) {
                 try {
-                    threads[i].join();
+                    System.out.println("Joining thread " + i);
+                    threads[i].join(5000);
+                    System.out.println("Joining thread " + i + " success " + !threads[i].isAlive());
                 } catch (InterruptedException e1) {
                     // ignored.
                 }
             }
+
+            for (int i = 0; i < executors; i++) {
+                assertFalse(threads[i].isAlive());
+            }
+
         } finally {
             System.out.println("Ending server");
             server.end(1000L);
@@ -172,20 +202,33 @@ public class FibonacciTest {
     }
 
     @Test
-    public void fibOnFour() throws Exception {
-        assertTrue(runFib(4, 20) == 6765);
+    public void fibOnTwo() throws Exception {
+        assertTrue(runFib(2, 20) == 6765);
+
         if (exception != null) {
             fail();
         }
-        assertTrue(runFibDistributed(4, 20) == 6765);
     }
 
     @Test
-    public void fibOnEight() throws Exception {
-        assertTrue(runFib(8, 20) == 6765);
+    public void distFibOnTwo() throws Exception {
+
+        System.out.println("XXXX runFibDistributed(2, 20)");
+        assertTrue(runFibDistributed(2, 20) == 6765);
+        System.out.println("XXXX fibOnTwoDone");
+
         if (exception != null) {
             fail();
         }
-        assertTrue(runFibDistributed(8, 20) == 6765);
     }
+
+    /*
+     * @Test public void fibOnFour() throws Exception { assertTrue(runFib(4, 20) == 6765); if (exception != null) { fail(); } assertTrue(runFibDistributed(4,
+     * 20) == 6765); }
+     * 
+     * /*
+     * 
+     * @Test public void fibOnEight() throws Exception { assertTrue(runFib(8, 20) == 6765); if (exception != null) { fail(); } assertTrue(runFibDistributed(8,
+     * 20) == 6765); }
+     */
 }
