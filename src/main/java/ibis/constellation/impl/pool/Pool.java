@@ -390,7 +390,13 @@ public class Pool implements Upcall {
     }
 
     public void terminate() throws IOException {
+
+        System.out.println(pidginName + " terminate pidgin");
+
         PidginFactory.terminate(pidginName);
+
+        System.out.println(pidginName + " terminate pidgin done");
+
         updater.done();
         terminated = true;
     }
