@@ -75,6 +75,12 @@ public class Pool implements Upcall {
     private static final byte OPCODE_PING = 93;
     private static final byte OPCODE_PONG = 94;
 
+    private static long uniqueCount = 0;
+
+    private static synchronized long getUniqueCount() {
+        return uniqueCount++;
+    }
+
     private DistributedConstellation owner;
 
     private final ConcurrentHashMap<Integer, IbisIdentifier> locationCache = new ConcurrentHashMap<Integer, IbisIdentifier>();
@@ -250,6 +256,8 @@ public class Pool implements Upcall {
     private UpcallChannel stealChannel;
     private UpcallChannel eventChannel;
 
+    private final String pidginName;
+
     public Pool(final DistributedConstellation owner, final ConstellationProperties properties) throws PoolCreationFailedException {
 
         this.owner = owner;
@@ -261,7 +269,8 @@ public class Pool implements Upcall {
         }
 
         try {
-            comm = PidginFactory.create(properties);
+            pidginName = "Constellation_" + getUniqueCount();
+            comm = PidginFactory.create(pidginName, properties);
             local = comm.getMyIdentifier();
             master = comm.getMaster();
             rank = comm.getRank();
@@ -373,7 +382,7 @@ public class Pool implements Upcall {
     }
 
     public void terminate() throws IOException {
-        PidginFactory.terminate();
+        PidginFactory.terminate(pidginName);
         updater.done();
         terminated = true;
     }
