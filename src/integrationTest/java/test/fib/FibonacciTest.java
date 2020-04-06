@@ -35,6 +35,9 @@ import ibis.ipl.server.Server;
 
 public class FibonacciTest {
 
+    private long JOIN_TIMEOUT = 10000;
+    private long SERVER_TIMEOUT = 1000;
+
     private int result = 0;
     private Throwable exception = null;
 
@@ -124,11 +127,12 @@ public class FibonacciTest {
                 threads[i].setName("constellation_" + i);
                 threads[i].start();
             }
+
             for (int i = 0; i < executors; i++) {
                 try {
                     System.out.println("Joining thread " + i);
-                    threads[i].join(5000);
-                    System.out.println("Joining thread " + i + " success " + !threads[i].isAlive());
+                    threads[i].join(JOIN_TIMEOUT);
+                    System.out.println("Joining thread " + i + " alive=" + threads[i].isAlive());
                 } catch (InterruptedException e1) {
                     // ignored.
                 }
@@ -140,7 +144,7 @@ public class FibonacciTest {
 
         } finally {
             System.out.println("Ending server");
-            server.end(1000L);
+            server.end(SERVER_TIMEOUT);
         }
 
         synchronized (this) {
@@ -198,7 +202,6 @@ public class FibonacciTest {
         if (exception != null) {
             fail();
         }
-        assertTrue(runFibDistributed(1, 20) == 6765);
     }
 
     @Test
@@ -211,24 +214,54 @@ public class FibonacciTest {
     }
 
     @Test
-    public void distFibOnTwo() throws Exception {
+    public void fibOnFour() throws Exception {
+        assertTrue(runFib(4, 20) == 6765);
+        if (exception != null) {
+            fail();
+        }
+    }
 
-        System.out.println("XXXX runFibDistributed(2, 20)");
-        assertTrue(runFibDistributed(2, 20) == 6765);
-        System.out.println("XXXX fibOnTwoDone");
+    @Test
+    public void fibOnEight() throws Exception {
+        assertTrue(runFib(8, 20) == 6765);
 
         if (exception != null) {
             fail();
         }
     }
 
-    /*
-     * @Test public void fibOnFour() throws Exception { assertTrue(runFib(4, 20) == 6765); if (exception != null) { fail(); } assertTrue(runFibDistributed(4,
-     * 20) == 6765); }
-     * 
-     * /*
-     * 
-     * @Test public void fibOnEight() throws Exception { assertTrue(runFib(8, 20) == 6765); if (exception != null) { fail(); } assertTrue(runFibDistributed(8,
-     * 20) == 6765); }
-     */
+    @Test
+    public void distFibOnOne() throws Exception {
+        assertTrue(runFibDistributed(1, 20) == 6765);
+
+        if (exception != null) {
+            fail();
+        }
+    }
+
+    @Test
+    public void distFibOnTwo() throws Exception {
+        assertTrue(runFibDistributed(2, 20) == 6765);
+
+        if (exception != null) {
+            fail();
+        }
+    }
+
+    @Test
+    public void distFibOnFour() throws Exception {
+        assertTrue(runFibDistributed(4, 20) == 6765);
+        if (exception != null) {
+            fail();
+        }
+    }
+
+    @Test
+    public void distFibOnEight() throws Exception {
+        assertTrue(runFibDistributed(8, 20) == 6765);
+
+        if (exception != null) {
+            fail();
+        }
+    }
 }
