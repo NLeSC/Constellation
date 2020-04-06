@@ -19,7 +19,7 @@ dependencies {
     compile 'com.google.guava:guava:17.0'
 
     compile 'nl.junglecomputing:timing:0.0.1'
-    compile 'nl.junglecomputing:pidgin:0.2.1'
+    compile 'nl.junglecomputing:pidgin:0.2.2'
 
     implementation 'nl.junglecomputing.ipl:ipl-impl-smartsockets:2.3.3'
     implementation 'nl.junglecomputing.ipl:ipl-impl-tcp:2.3.3'

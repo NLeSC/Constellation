@@ -280,7 +280,7 @@ public class Pool implements Upcall {
             local = comm.getMyIdentifier();
             master = comm.getMaster();
             rank = comm.getRank();
-            isMaster = local.equals(master);
+            isMaster = comm.isMaster();
             locationCache.put(rank, local);
 
             profiling = new Profiling(local.name());
