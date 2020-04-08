@@ -271,11 +271,15 @@ public class Pool implements Upcall {
         try {
             pidginName = "Constellation_" + getUniqueCount();
 
-            System.out.println("Creating pidgin " + pidginName);
+            if (logger.isInfoEnabled()) {
+                logger.info("Creating pidgin " + pidginName);
+            }
 
             comm = PidginFactory.create(pidginName, properties);
 
-            System.out.println("Creating pidgin " + pidginName + " created");
+            if (logger.isInfoEnabled()) {
+                logger.info("Creating pidgin " + pidginName + " created");
+            }
 
             local = comm.getMyIdentifier();
             master = comm.getMaster();
