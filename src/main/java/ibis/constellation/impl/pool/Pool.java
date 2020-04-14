@@ -36,15 +36,20 @@ import ibis.constellation.impl.StealReply;
 import ibis.constellation.impl.StealRequest;
 import ibis.constellation.util.ByteBufferCache;
 import ibis.constellation.util.ByteBuffers;
+import ibis.ipl.Ibis;
 import ibis.ipl.IbisIdentifier;
+import ibis.ipl.MessageUpcall;
+import ibis.ipl.ReadMessage;
+import ibis.ipl.WriteMessage;
+import nl.junglecomputing.pidgin.AllToAllCommunicatorMessageUpcall;
+import nl.junglecomputing.pidgin.BufferAllocator;
+import nl.junglecomputing.pidgin.Message;
+import nl.junglecomputing.pidgin.MessagePacker;
 import nl.junglecomputing.pidgin.Pidgin;
-import nl.junglecomputing.pidgin.PidginFactory;
-import nl.junglecomputing.pidgin.Upcall;
-import nl.junglecomputing.pidgin.UpcallChannel;
 import nl.junglecomputing.timer.Profiling;
 import nl.junglecomputing.timer.TimeSyncInfo;
 
-public class Pool implements Upcall {
+public class Pool implements MessageUpcall, BufferAllocator {
 
     private static final Logger logger = LoggerFactory.getLogger(Pool.class);
 
@@ -84,6 +89,8 @@ public class Pool implements Upcall {
     private DistributedConstellation owner;
 
     private final ConcurrentHashMap<Integer, IbisIdentifier> locationCache = new ConcurrentHashMap<Integer, IbisIdentifier>();
+
+    private final ConcurrentHashMap<IbisIdentifier, Integer> rankCache = new ConcurrentHashMap<IbisIdentifier, Integer>();
 
     private final IbisIdentifier local;
     private final IbisIdentifier master;
@@ -248,15 +255,15 @@ public class Pool implements Upcall {
 
     private IbisIdentifier[] ids = null;
 
-    private final Pidgin comm;
+    private final Ibis ibis;
 
     private boolean cleanup;
 
-    private UpcallChannel adminChannel;
-    private UpcallChannel stealChannel;
-    private UpcallChannel eventChannel;
+    private AllToAllCommunicatorMessageUpcall adminChannel;
+    private AllToAllCommunicatorMessageUpcall stealChannel;
+    private AllToAllCommunicatorMessageUpcall eventChannel;
 
-    private final String pidginName;
+    // private final String pidginName;
 
     public Pool(final DistributedConstellation owner, final ConstellationProperties properties) throws PoolCreationFailedException {
 
@@ -269,34 +276,46 @@ public class Pool implements Upcall {
         }
 
         try {
-            pidginName = "Constellation_" + getUniqueCount();
-
             if (logger.isInfoEnabled()) {
-                logger.info("Creating pidgin " + pidginName);
+                logger.info("Creating Ibis");
             }
 
-            comm = PidginFactory.create(pidginName, properties);
+            ibis = Pidgin.createClosedWorldIbis(properties);
 
             if (logger.isInfoEnabled()) {
-                logger.info("Creating pidgin " + pidginName + " created");
+                logger.info("Created ibis");
             }
 
-            local = comm.getMyIdentifier();
-            master = comm.getMaster();
-            rank = comm.getRank();
-            isMaster = comm.isMaster();
-            locationCache.put(rank, local);
+            ibis.registry().waitUntilPoolClosed();
+
+            local = ibis.identifier();
+
+            ids = ibis.registry().joinedIbises();
+
+            adminChannel = new AllToAllCommunicatorMessageUpcall("admin", ibis, ids, this);
+            rank = adminChannel.rank();
+
+            if (rank == 0) {
+                master = local;
+                isMaster = true;
+            } else {
+                master = ids[0];
+                isMaster = false;
+            }
+
+            for (int i = 0; i < ids.length; i++) {
+                locationCache.put(i, ids[i]);
+                rankCache.put(ids[i], i);
+            }
+
+            // locationCache.put(rank, local);
 
             profiling = new Profiling(local.name());
 
-            adminChannel = comm.createUpcallChannel("constellation_ADMIN", this); // , profiling.getTimer("pidgin", "channel_admin", ""));
+            eventChannel = new AllToAllCommunicatorMessageUpcall("event", ibis, ids, this);
+            stealChannel = new AllToAllCommunicatorMessageUpcall("steal", ibis, ids, this);
+
             adminChannel.activate();
-
-            eventChannel = comm.createUpcallChannel("constellation_EVENT", this); // , profiling.getTimer("pidgin", "channel_event", ""));
-            eventChannel.activate();
-
-            stealChannel = comm.createUpcallChannel("constellation_STEAL", this); // , profiling.getTimer("pidgin", "channel_steal", ""));
-
         } catch (Exception e) {
             throw new PoolCreationFailedException("Failed to create pool", e);
         }
@@ -312,9 +331,9 @@ public class Pool implements Upcall {
         // Start the updater thread...
         updater.start();
 
-        if (closedPool) {
-            ids = comm.getAllIdentifiers();
-        }
+        // if (closedPool) {
+        // ids = comm.getAllIdentifiers();
+        // }
 
         logger.info("Pool created");
 
@@ -331,6 +350,7 @@ public class Pool implements Upcall {
     public void activate() {
 
         try {
+            eventChannel.activate();
             stealChannel.activate();
         } catch (Exception e) {
             logger.error("Failed to activate", e);
@@ -395,11 +415,11 @@ public class Pool implements Upcall {
 
     public void terminate() throws IOException {
 
-        System.out.println(pidginName + " terminate pidgin");
+        logger.info("Terminate Ibis");
 
-        PidginFactory.terminate(pidginName);
+        ibis.registry().terminate();
 
-        System.out.println(pidginName + " terminate pidgin done");
+        logger.info("Terminate Ibis done");
 
         updater.done();
         terminated = true;
@@ -416,7 +436,7 @@ public class Pool implements Upcall {
 
                 if (closedPool) {
                     synchronized (this) {
-                        int nClients = comm.getPoolSize() - 1;
+                        int nClients = adminChannel.size() - 1;
                         long time = System.currentTimeMillis();
                         while (gotProfiling < nClients) {
                             try {
@@ -458,10 +478,6 @@ public class Pool implements Upcall {
             stealChannel.deactivate();
             eventChannel.deactivate();
 
-            // comm.removeChannel(CHANNEL_ADMIN);
-            // comm.removeChannel(CHANNEL_STEAL);
-            // comm.removeChannel(CHANNEL_EVENT);
-
         } catch (Exception e) {
             logger.warn("Failed to deactivate!", e);
         }
@@ -479,17 +495,21 @@ public class Pool implements Upcall {
         return lookupRank(cid.getNodeId());
     }
 
-    // private boolean doForward(IbisIdentifier dest, byte opcode, Object data) {
-    // Message m = new Message(opcode, data);
-    // synchronized (this) {
-    // if (cleanup) {
-    // return true;
-    // }
-    // }
-    // return comm.sendMessage(dest, m);
-    // }
+    private int getRank(IbisIdentifier id) {
+        Integer rank = rankCache.get(id);
 
-    private boolean doForward(UpcallChannel channel, IbisIdentifier dest, byte opcode, Object data) {
+        if (rank == null) {
+            logger.error("Rank cache returning null for: " + id, new Throwable());
+        }
+
+        return rank;
+    }
+
+    private boolean doForward(AllToAllCommunicatorMessageUpcall channel, IbisIdentifier dest, byte opcode, Object data) {
+        return doForward(channel, getRank(dest), opcode, data);
+    }
+
+    private boolean doForward(AllToAllCommunicatorMessageUpcall channel, int dest, byte opcode, Object data) {
 
         synchronized (this) {
             if (cleanup) {
@@ -521,7 +541,9 @@ public class Pool implements Upcall {
         }
 
         try {
-            channel.sendMessage(dest, opcode, data, buffers);
+            WriteMessage wm = channel.send(dest);
+            MessagePacker.pack(wm, opcode, data, buffers);
+            wm.finish();
         } catch (Exception e) {
             logger.warn("POOL failed to forward message", e);
             return false;
@@ -542,32 +564,29 @@ public class Pool implements Upcall {
         return forward(eventChannel, em, OPCODE_EVENT_MESSAGE);
     }
 
-    private boolean forward(UpcallChannel channel, AbstractMessage m, byte opcode) {
+    private boolean forward(AllToAllCommunicatorMessageUpcall channel, AbstractMessage m, byte opcode) {
 
         ConstellationIdentifierImpl target = m.target;
 
         if (logger.isTraceEnabled()) {
             logger.trace("POOL FORWARD Message from " + m.source + " to " + m.target + " " + m);
+
         }
 
-        IbisIdentifier id = translate(target);
+        /*
+         * IbisIdentifier id = translate(target);
+         * 
+         * if (id == null) { if (logger.isInfoEnabled()) { logger.info("POOL failed to translate " + target + " to a IbisIdentifier"); } return false; }
+         * 
+         * if (logger.isDebugEnabled() && opcode == OPCODE_EVENT_MESSAGE) { logger.debug("Sending " + m + " to " + id); }
+         */
 
-        if (id == null) {
-            if (logger.isInfoEnabled()) {
-                logger.info("POOL failed to translate " + target + " to a IbisIdentifier");
-            }
-            return false;
-        }
-
-        if (logger.isDebugEnabled() && opcode == OPCODE_EVENT_MESSAGE) {
-            logger.debug("Sending " + m + " to " + id);
-        }
-
-        return doForward(channel, id, opcode, m);
+        return doForward(channel, target.getNodeId(), opcode, m);
     }
 
     public boolean forwardToMaster(StealRequest m) {
-        return doForward(stealChannel, master, OPCODE_STEAL_REQUEST, m);
+        // return doForward(stealChannel, master, OPCODE_STEAL_REQUEST, m);
+        return doForward(stealChannel, 0, OPCODE_STEAL_REQUEST, m);
     }
 
     private void registerRank(RankInfo info) {
@@ -602,7 +621,7 @@ public class Pool implements Upcall {
         }
 
         // Forward a request to the master for the id of rank
-        doForward(adminChannel, master, OPCODE_RANK_LOOKUP_REQUEST, new RankInfo(rank, local));
+        doForward(adminChannel, 0, OPCODE_RANK_LOOKUP_REQUEST, new RankInfo(rank, local));
 
         return null;
     }
@@ -829,7 +848,7 @@ public class Pool implements Upcall {
 
             logger.info("Electing master for POOL " + electTag);
 
-            IbisIdentifier id = comm.elect(electTag);
+            IbisIdentifier id = ibis.registry().elect(electTag);
 
             boolean master = id.equals(local);
 
@@ -886,14 +905,14 @@ public class Pool implements Upcall {
 
             String electTag = "STEALPOOL$" + tag;
 
-            IbisIdentifier id = comm.getElectionResult(electTag, 1000);
+            IbisIdentifier id = ibis.registry().getElectionResult(electTag, 1000);
 
             // TODO: will repeat for ever if pool master does not exist...
             while (id == null) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Searching master for POOL " + electTag);
                 }
-                id = comm.getElectionResult(electTag, 1000);
+                id = ibis.registry().getElectionResult(electTag, 1000);
             }
 
             boolean master = id.equals(local);
@@ -998,24 +1017,7 @@ public class Pool implements Upcall {
         return terminated;
     }
 
-    @Override
-    public ByteBuffer[] allocateByteBuffers(String channel, IbisIdentifier sender, byte opcode, Object data, int[] sizes) {
-
-        // We should allocate the appropriate amount and sizes of ByteBuffers here.
-        ByteBuffer[] buffers = new ByteBuffer[sizes.length];
-
-        for (int i = 0; i < sizes.length; i++) {
-            ByteBuffer b = ByteBufferCache.getByteBuffer(sizes[i], false);
-            b.position(0);
-            b.limit(b.capacity());
-            buffers[i] = b;
-        }
-
-        return buffers;
-    }
-
-    @Override
-    public void receiveMessage(String channel, IbisIdentifier source, byte opcode, Object data, ByteBuffer[] buffers) {
+    public void receiveMessage(IbisIdentifier source, byte opcode, Object data, ByteBuffer[] buffers) {
 
         if (logger.isDebugEnabled()) {
             logger.debug(getString(opcode, "Got") + " from " + source.name());
@@ -1088,5 +1090,32 @@ public class Pool implements Upcall {
             logger.error("Received unknown message opcode: " + opcode);
             break;
         }
+    }
+
+    @Override
+    public void upcall(ReadMessage readMessage) throws IOException, ClassNotFoundException {
+        // TODO Auto-generated method stub
+
+        IbisIdentifier source = readMessage.origin().ibisIdentifier();
+        Message m = MessagePacker.unpack(readMessage, this);
+        readMessage.finish();
+
+        receiveMessage(source, m.getOpcode(), m.getData(), m.getBuffers());
+    }
+
+    @Override
+    public ByteBuffer[] allocateByteBuffers(IbisIdentifier sender, byte opcode, Object data, int[] sizes) {
+
+        // We should allocate the appropriate amount and sizes of ByteBuffers here.
+        ByteBuffer[] buffers = new ByteBuffer[sizes.length];
+
+        for (int i = 0; i < sizes.length; i++) {
+            ByteBuffer b = ByteBufferCache.getByteBuffer(sizes[i], false);
+            b.position(0);
+            b.limit(b.capacity());
+            buffers[i] = b;
+        }
+
+        return buffers;
     }
 }
