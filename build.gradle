@@ -1,15 +1,14 @@
 plugins {
     id 'java'
-    id 'maven-publish'
-    id 'com.jfrog.bintray' version '1.8.0'
+    id 'maven'
+    id 'signing'
     id 'jacoco'
     id 'com.github.hierynomus.license' version '0.14.0'
     id 'org.unbroken-dome.test-sets' version '2.1.1'
 }
 
 repositories {
-    mavenLocal();
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
@@ -27,12 +26,6 @@ dependencies {
 }
 
 version = '2.0.1'
-
-def pomConfig = {
-    scm {
-        url "https://github.com/nlesc/constellation.git"
-    }
-}
 
 license {
     ext.copyright_year = 2019
@@ -70,29 +63,6 @@ artifacts {
     archives javadocJar
 }
 
-publishing {
-    publications {
-	mavenJava(MavenPublication) {
-	    from components.java
-	    artifact sourcesJar {
-		classifier "sources"
-	    }
-	    artifact javadocJar {
-		classifier "javadoc"
-	    }
-	    groupId 'nl.junglecomputing'
-	    artifactId 'constellation'
-	    version version
-
-	    pom.withXml {
-		def root = asNode()
-                root.appendNode('url', 'https://github.com/nlesc/constellation.git')
-                root.children().last() + pomConfig
-	    }
-	}
-    }
-}
-
 tasks.withType(Jar) {
     destinationDir = file("$rootDir/lib")
 }
@@ -100,20 +70,6 @@ tasks.withType(Jar) {
 task copyRuntimeLibs(type: Copy) {
     into "lib"
     from configurations.runtime
-}
-
-bintray {
-    user = System.getenv('BINTRAY_NAME')
-    key = System.getenv('BINTRAY_APIKEY')
-    publications = ['mavenJava']
-    pkg {
-	// TODO! Which repo? We can also put it in junglecomputing ...
-	repo = 'JungleComputing'
-	name = 'constellation'
-	userOrg = "$user"
-	vcsUrl = 'https://github.com/NLeSC/constellation.git'
-	licenses = ['Apache-2.0']
-    }
 }
 
 testSets {
@@ -144,4 +100,62 @@ task jacocoIntegrationTestReport(type: JacocoReport) {
     reports {
         xml.enabled = true // codecov depends on xml format report
     }
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+      repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      // repository(url: "file://${System.properties['user.home']}/.m2/repository") {
+      // }
+
+      snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      pom.project {
+        name 'Constellation'
+        groupId 'nl.junglecomputing'
+        packaging 'jar'
+        description 'Constellation is a software platform/library specifically aimed at distributed, heterogeneous and hierarchical computing environments.'
+
+        url "https://JungleComputing.github.io/Constellation"
+
+        scm {
+          connection 'scm:git:git://github.com/nlesc/constellation.git'
+          developerConnection 'scm:git:ssh://github.com:nlesc/constellation.git'
+          url 'https://github.com/nlesc/constellation/tree/master'
+        }
+
+        licenses {
+          license {
+            name 'The Apache License, Version 2.0'
+            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+          }
+        }
+
+        developers {
+          developer {
+            name 'Jason Maassen'
+            organization 'Netherlands escience Center'
+            url 'https://www.esciencecenter.nl/team/dr-jason-maassen/'
+          }
+          developer {
+            name 'Ceriel Jacobs'
+            organization 'Vrije Universiteit Amsterdam'
+            url 'https://github.com/CerielJacobs'
+          }
+        }
+      }
+    }
+  }
 }
